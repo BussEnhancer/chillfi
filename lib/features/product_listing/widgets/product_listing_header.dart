@@ -1,0 +1,111 @@
+import 'package:chillfi/core/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ProductListingHeader extends StatelessWidget {
+  final String title;
+  final String productCount;
+
+  const ProductListingHeader({
+    super.key,
+    required this.title,
+    required this.productCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      color: Colors.white,
+      child: Row(
+        children: [
+          // Circular Back Button with Shadow
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: EdgeInsets.all(10.r),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(Icons.arrow_back_rounded, size: 22.sp, color: AppColors.darkText),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          // Category Image (Mock)
+          Container(
+            width: 40.r,
+            height: 40.r,
+            decoration: BoxDecoration(
+              color: AppColors.lightBackground,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+            ),
+            child: Icon(Icons.smartphone_rounded, color: AppColors.primaryOrange, size: 24.sp),
+          ),
+          SizedBox(width: 12.w),
+          // Title and Count
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                  ),
+                ),
+                Text(
+                  productCount,
+                  style: GoogleFonts.poppins(
+                    fontSize: 11.sp,
+                    color: AppColors.greyText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Search and Cart Icons
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.search_rounded, color: AppColors.darkText, size: 24.sp),
+          ),
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.shopping_cart_outlined, color: AppColors.darkText, size: 24.sp),
+              ),
+              Positioned(
+                right: 8.w,
+                top: 8.h,
+                child: Container(
+                  padding: EdgeInsets.all(4.r),
+                  decoration: const BoxDecoration(
+                    color: AppColors.secondaryPurple,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '2',
+                    style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

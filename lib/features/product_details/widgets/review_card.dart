@@ -1,0 +1,195 @@
+import 'package:chillfi/core/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ReviewCard extends StatelessWidget {
+  final String userName;
+  final String userInitial;
+  final String date;
+  final String title;
+  final String description;
+  final int rating;
+  final int helpfulCount;
+
+  const ReviewCard({
+    super.key,
+    required this.userName,
+    required this.userInitial,
+    required this.date,
+    required this.title,
+    required this.description,
+    required this.rating,
+    required this.helpfulCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.lightGrey.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // User Info Header
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20.r,
+                backgroundColor: AppColors.secondaryPurple.withOpacity(0.1),
+                child: Text(
+                  userInitial,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.secondaryPurple,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          userName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkText,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildBadge("Verified Buyer", Colors.purple),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        _buildBadge("Purchased on CHILLFI", Colors.green),
+                        const Spacer(),
+                        Text(
+                          date,
+                          style: GoogleFonts.poppins(
+                            fontSize: 11.sp,
+                            color: AppColors.greyText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 16.h),
+          
+          // Rating and Title
+          Row(
+            children: List.generate(
+              5,
+              (index) => Icon(
+                index < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                color: Colors.orange,
+                size: 16.sp,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkText,
+            ),
+          ),
+          
+          SizedBox(height: 8.h),
+          
+          // Description
+          Text(
+            description,
+            style: GoogleFonts.poppins(
+              fontSize: 13.sp,
+              color: AppColors.greyText,
+              height: 1.5,
+            ),
+          ),
+          
+          SizedBox(height: 16.h),
+          
+          // Interaction Row
+          Row(
+            children: [
+              Text(
+                "Helpful?",
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  color: AppColors.greyText,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              _buildInteractionItem(Icons.thumb_up_alt_outlined, helpfulCount.toString()),
+              SizedBox(width: 16.w),
+              _buildInteractionItem(Icons.thumb_down_alt_outlined, ""),
+              const Spacer(),
+              Icon(Icons.more_vert_rounded, color: AppColors.greyText, size: 20.sp),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBadge(String label, Color color) {
+    return Container(
+      margin: EdgeInsets.only(top: 2.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(4.r),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 8.sp,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInteractionItem(IconData icon, String count) {
+    return Row(
+      children: [
+        Icon(icon, size: 16.sp, color: AppColors.greyText),
+        if (count.isNotEmpty) ...[
+          SizedBox(width: 4.w),
+          Text(
+            count,
+            style: GoogleFonts.poppins(
+              fontSize: 11.sp,
+              color: AppColors.greyText,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}

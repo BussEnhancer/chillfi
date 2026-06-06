@@ -1,0 +1,45 @@
+import React from 'react';
+import { ShoppingBag } from 'lucide-react';
+
+const PLP_HeroBanner: React.FC = () => {
+  return (
+    <div className="bg-[#F8F7FC] rounded-[32px] p-8 md:p-12 mb-10 flex flex-col md:flex-row items-center justify-between border border-[#ECECEC] overflow-hidden group">
+      <div className="relative z-10 md:max-w-[50%] text-center md:text-left">
+         <h2 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
+            Step Into <span className="text-[#6C2BFF]">Style</span>
+         </h2>
+         <p className="text-gray-500 font-bold mb-6">Premium Sneakers Collection <br className="hidden md:block" /> Up to 60% Off</p>
+         <button className="bg-[#6C2BFF] text-white px-8 py-3.5 rounded-xl font-black text-sm shadow-xl shadow-[#6C2BFF]/20 hover:scale-105 active:scale-95 transition-all">
+            Shop Now
+         </button>
+      </div>
+
+      <div className="relative w-full md:w-[45%] h-[200px] flex items-center justify-center mt-8 md:mt-0">
+         {/* 3D Package and Product */}
+         <div className="relative w-full h-full flex items-center justify-center">
+            {/* Box */}
+            <div className="absolute right-0 w-48 h-32 bg-[#6C2BFF] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl rotate-6 group-hover:rotate-0 transition-transform duration-700">
+               <ShoppingBag size={32} className="mb-2 opacity-40" />
+               <span className="text-sm font-black tracking-tighter uppercase">chillFi</span>
+               <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#FF6B2C] rounded-lg rotate-12 flex items-center justify-center text-[10px] font-black shadow-lg">
+                  60%
+               </div>
+            </div>
+            {/* Shoes Illustration */}
+            <div className="absolute left-0 top-0 w-56 h-48 flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform duration-700">
+               <img
+                 src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400"
+                 alt="Sneakers"
+                 className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.1)]"
+               />
+            </div>
+         </div>
+      </div>
+
+      {/* Background Decor */}
+      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#6C2BFF]/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+    </div>
+  );
+};
+
+export default PLP_HeroBanner;
