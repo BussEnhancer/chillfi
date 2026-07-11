@@ -29,7 +29,7 @@ const CheckoutTrustStrip: React.FC = () => {
     <div className="mt-20 py-10 border-t border-[#F8F7FC] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {features.map((f, i) => (
         <div key={i} className="flex items-center gap-5 p-6 bg-[#F8F7FC] rounded-[24px] border border-[#ECECEC] hover:shadow-lg transition-all cursor-default">
-           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#6C2BFF] shadow-sm">
+           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#FF6B2C] shadow-sm">
               {f.icon}
            </div>
            <div>

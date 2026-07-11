@@ -4,7 +4,7 @@ import { Heart, ShoppingBag, CircleDollarSign } from 'lucide-react';
 const WishlistSummary: React.FC = () => {
   return (
     <div className="bg-white rounded-[24px] border border-[#ECECEC] p-6 shadow-sm">
-      <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-6 pb-4 border-b border-[#F8F5FF]">Wishlist Summary</h3>
+      <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-6 pb-4 border-b border-[#FFF8F5]">Wishlist Summary</h3>
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -18,7 +18,7 @@ const WishlistSummary: React.FC = () => {
             <CircleDollarSign size={16} className="text-gray-400" />
             <span className="text-sm font-bold text-gray-500">Total Value</span>
           </div>
-          <span className="text-sm font-black text-[#111827]">₹13,292</span>
+          <span className="text-sm font-black text-[#111827]">₹87,388</span>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

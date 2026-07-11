@@ -210,15 +210,29 @@ class _ExpandablePolicyCardState extends State<ExpandablePolicyCard> {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 6.h),
-            child: Container(width: 5.r, height: 5.r, decoration: const BoxDecoration(color: AppColors.secondaryPurple, shape: BoxShape.circle)),
+            child: Container(
+              width: 5.r,
+              height: 5.r,
+              decoration: const BoxDecoration(
+                color: AppColors.secondaryPurple,
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText, height: 1.5),
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  color: AppColors.greyText,
+                  height: 1.5,
+                ),
                 children: [
-                  TextSpan(text: title, style: const FontWeight.w700()),
+                  TextSpan(
+                    text: title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   TextSpan(text: " $desc"),
                 ],
               ),

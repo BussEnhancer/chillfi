@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import CouponCard from '../../components/common/CouponCard';
 import { ShieldCheck, RotateCcw, Package, ChevronRight } from 'lucide-react';
 
@@ -39,23 +40,26 @@ const PriceSummaryCard: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <button className="w-full bg-[#6C2BFF] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#6C2BFF]/20 hover:scale-[1.02] transition-all">
+          <Link to="/checkout" className="w-full bg-[#FF6B2C] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] transition-all">
             Proceed to Checkout
             <ChevronRight size={18} />
-          </button>
-          <button className="w-full border-2 border-[#ECECEC] text-[#111827] py-4 rounded-xl font-black hover:border-gray-400 transition-all">
+          </Link>
+          <Link to="/products" className="w-full border-2 border-[#ECECEC] text-[#111827] py-4 rounded-xl font-black hover:border-gray-400 transition-all flex items-center justify-center">
              ← Continue Shopping
-          </button>
+          </Link>
         </div>
 
         <div className="mt-8 pt-8 border-t border-[#F8F7FC]">
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">We Accept</span>
-          <div className="flex items-center gap-4 flex-wrap">
-             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-3 opacity-60 grayscale" />
-             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 opacity-60 grayscale" />
-             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" alt="UPI" className="h-4 opacity-60 grayscale" />
-             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-3 opacity-60 grayscale" />
-             <span className="text-[10px] font-black text-gray-400">+5</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[10px] font-black text-gray-400 italic tracking-wider border border-gray-200 px-2 py-1 rounded">VISA</span>
+            <span className="flex items-center gap-0.5 border border-gray-200 px-2 py-1 rounded">
+              <span className="w-3 h-3 rounded-full bg-red-400 -mr-1.5"></span>
+              <span className="w-3 h-3 rounded-full bg-yellow-300"></span>
+            </span>
+            <span className="text-[10px] font-black text-gray-400 tracking-wider border border-gray-200 px-2 py-1 rounded">RuPay</span>
+            <span className="text-[10px] font-black tracking-wider border border-gray-200 px-2 py-1 rounded"><span className="text-[#FF6B2C]">U</span>PI</span>
+            <span className="text-[10px] font-black text-gray-400 border border-gray-200 px-2 py-1 rounded">Paytm</span>
           </div>
         </div>
       </div>
@@ -67,7 +71,7 @@ const PriceSummaryCard: React.FC = () => {
            { icon: <Package size={18} />, title: 'Original Products' },
          ].map((item, i) => (
            <div key={i} className="flex items-center gap-4 text-xs font-black text-[#111827]">
-              <span className="text-[#6C2BFF]">{item.icon}</span>
+              <span className="text-[#FF6B2C]">{item.icon}</span>
               {item.title}
            </div>
          ))}

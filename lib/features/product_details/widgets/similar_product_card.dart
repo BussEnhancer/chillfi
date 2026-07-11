@@ -1,10 +1,13 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/product_details/widgets/components/product_card_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SimilarProductCard extends StatelessWidget {
+  final String? productId;
   final String title;
   final String variant;
   final String price;
@@ -14,9 +17,12 @@ class SimilarProductCard extends StatelessWidget {
   final double rating;
   final String reviews;
   final bool isWishlisted;
+  final String? imageUrl;
+  final VoidCallback? onTap;
 
   const SimilarProductCard({
     super.key,
+    this.productId,
     required this.title,
     required this.variant,
     required this.price,
@@ -26,11 +32,15 @@ class SimilarProductCard extends StatelessWidget {
     required this.rating,
     required this.reviews,
     this.isWishlisted = false,
+    this.imageUrl,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 170.w,
       margin: EdgeInsets.only(right: 16.w, bottom: 10.h),
       decoration: BoxDecoration(
@@ -61,15 +71,31 @@ class SimilarProductCard extends StatelessWidget {
                     topRight: Radius.circular(20.r),
                   ),
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(12.r),
-                    child: Icon(
-                      Icons.smartphone_rounded,
-                      size: 60.sp,
-                      color: AppColors.primaryOrange.withOpacity(0.2),
-                    ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.r),
+                    topRight: Radius.circular(20.r),
                   ),
+                  child: imageUrl != null && imageUrl!.isNotEmpty
+                      ? Image.network(
+                          imageUrl!,
+                          height: 130.h,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => Center(
+                            child: Icon(Icons.smartphone_rounded, size: 60.sp, color: AppColors.primaryOrange.withOpacity(0.2)),
+                          ),
+                        )
+                      : Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(12.r),
+                            child: Icon(
+                              Icons.smartphone_rounded,
+                              size: 60.sp,
+                              color: AppColors.primaryOrange.withOpacity(0.2),
+                            ),
+                          ),
+                        ),
                 ),
               ),
               // Discount Badge
@@ -151,13 +177,25 @@ class SimilarProductCard extends StatelessWidget {
                         color: const Color(0xFF22C55E), // Success Green
                       ),
                     ),
-                    const AddToCartButton(),
+                    AddToCartButton(
+                      onTap: productId == null
+                          ? null
+                          : () async {
+                              await context.read<CartProvider>().addToCart(productId!);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Added to cart'), duration: Duration(seconds: 1)),
+                                );
+                              }
+                            },
+                    ),
                   ],
                 ),
               ],
             ),
           ),
         ],
+      ),
       ),
     );
   }

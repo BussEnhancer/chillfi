@@ -13,17 +13,17 @@ const DeliveryOptionCard: React.FC<DeliveryOptionCardProps> = ({ type, duration,
   return (
     <div
       className={`flex-1 flex items-center gap-6 p-6 rounded-[24px] border-2 transition-all cursor-pointer ${
-        isSelected ? 'border-[#6C2BFF] bg-[#6C2BFF]/5' : 'border-[#ECECEC] bg-white hover:border-gray-300'
+        isSelected ? 'border-[#FF6B2C] bg-[#FF6B2C]/5' : 'border-[#ECECEC] bg-white hover:border-gray-300'
       }`}
     >
       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-        isSelected ? 'border-[#6C2BFF]' : 'border-gray-200'
+        isSelected ? 'border-[#FF6B2C]' : 'border-gray-200'
       }`}>
-        {isSelected && <div className="w-3 h-3 rounded-full bg-[#6C2BFF]"></div>}
+        {isSelected && <div className="w-3 h-3 rounded-full bg-[#FF6B2C]"></div>}
       </div>
 
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-        isSelected ? 'bg-[#6C2BFF] text-white' : 'bg-gray-50 text-gray-400'
+        isSelected ? 'bg-[#FF6B2C] text-white' : 'bg-gray-50 text-gray-400'
       }`}>
         {type === 'Standard' ? <Truck size={28} /> : <Zap size={28} />}
       </div>

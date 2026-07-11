@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/search/search_screen.dart';
+import 'package:chillfi/features/search/voice_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,11 +52,14 @@ class HomeSearchBar extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                height: 24.h,
-                width: 1,
-                color: AppColors.fieldBorder,
+              Container(height: 24.h, width: 1, color: AppColors.fieldBorder),
+              SizedBox(width: 12.w),
+              GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VoiceSearchScreen())),
+                child: Icon(Icons.mic_rounded, color: AppColors.secondaryPurple, size: 22.sp),
               ),
+              SizedBox(width: 12.w),
+              Container(height: 24.h, width: 1, color: AppColors.fieldBorder),
               SizedBox(width: 12.w),
               Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryOrange, size: 22.sp),
               SizedBox(width: 16.w),

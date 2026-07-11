@@ -1,4 +1,8 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/deals/widgets/deal_category_chip.dart';
 import 'package:chillfi/features/deals/widgets/deal_feature_highlight.dart';
 import 'package:chillfi/features/deals/widgets/deal_product_card.dart';
@@ -6,9 +10,11 @@ import 'package:chillfi/features/deals/widgets/flash_banner.dart';
 import 'package:chillfi/features/deals/widgets/flash_header.dart';
 import 'package:chillfi/features/deals/widgets/notify_card.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
+import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class FlashDealsScreen extends StatefulWidget {
   const FlashDealsScreen({super.key});
@@ -19,6 +25,25 @@ class FlashDealsScreen extends StatefulWidget {
 
 class _FlashDealsScreenState extends State<FlashDealsScreen> {
   int _selectedChipIndex = 0;
+  final _service = ProductService();
+  List<ProductModel> _deals = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final result = await _service.getFlashSale(limit: 20);
+    if (!mounted) return;
+    setState(() { _deals = result; _loading = false; });
+  }
+
+  void _openProduct(String id) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
+  }
 
   final List<Map<String, dynamic>> _filterChips = [
     {'label': 'All Deals', 'icon': Icons.bolt_rounded},
@@ -38,31 +63,33 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
           children: [
             const FlashHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10.h),
-                    const FlashBanner(),
-                    SizedBox(height: 20.h),
-                    _buildFilterChips(),
-                    SizedBox(height: 24.h),
-                    const DealFeatureHighlight(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("Top Deals"),
-                    SizedBox(height: 16.h),
-                    _buildTopDeals(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("Deals Under ₹999"),
-                    SizedBox(height: 16.h),
-                    _buildDealsUnder999(),
-                    SizedBox(height: 30.h),
-                    const NotifyCard(),
-                    SizedBox(height: 40.h),
-                  ],
-                ),
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10.h),
+                          const FlashBanner(),
+                          SizedBox(height: 20.h),
+                          _buildFilterChips(),
+                          SizedBox(height: 24.h),
+                          const DealFeatureHighlight(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("Top Deals"),
+                          SizedBox(height: 16.h),
+                          _buildTopDeals(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("Deals Under ₹999"),
+                          SizedBox(height: 16.h),
+                          _buildDealsUnder999(),
+                          SizedBox(height: 30.h),
+                          const NotifyCard(),
+                          SizedBox(height: 40.h),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -117,77 +144,52 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
   }
 
   Widget _buildTopDeals() {
+    if (_deals.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          DealProductCard(
-            title: "Apple iPhone 15",
-            variant: "Pink | 128GB",
-            price: "69,999",
-            oldPrice: "79,900",
-            discount: "32%",
-            rating: 4.5,
-            reviews: "2.4k",
-          ),
-          DealProductCard(
-            title: "Sony WH-CH720N",
-            variant: "Wireless Headphones",
-            price: "5,999",
-            oldPrice: "8,299",
-            discount: "28%",
-            rating: 4.4,
-            reviews: "1.2k",
-          ),
-          DealProductCard(
-            title: "boAt Wave Elevate",
-            variant: "Smart Watch",
-            price: "1,799",
-            oldPrice: "2,999",
-            discount: "40%",
-            rating: 4.3,
-            reviews: "980",
-          ),
-        ],
+        children: _deals.map((p) => DealProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }
 
   Widget _buildDealsUnder999() {
+    final under999 = _deals.where((p) => p.price < 999).toList();
+    if (under999.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          DealProductCard(
-            title: "Ambrane Type C",
-            variant: "1M Cable",
-            price: "249",
-            oldPrice: "499",
-            discount: "50%",
-            rating: 4.5,
-            reviews: "8k",
-          ),
-          DealProductCard(
-            title: "Zebronics Wired",
-            variant: "Earphones",
-            price: "219",
-            oldPrice: "399",
-            discount: "45%",
-            rating: 4.2,
-            reviews: "3k",
-          ),
-          DealProductCard(
-            title: "Portronics Smart",
-            variant: "Plug 16A",
-            price: "599",
-            oldPrice: "999",
-            discount: "40%",
-            rating: 4.4,
-            reviews: "5k",
-          ),
-        ],
+        children: under999.map((p) => DealProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }

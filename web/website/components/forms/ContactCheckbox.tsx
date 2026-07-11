@@ -10,7 +10,7 @@ const ContactCheckbox: React.FC<ContactCheckboxProps> = ({ label, ...props }) =>
       <input
         {...props}
         type="checkbox"
-        className="w-5 h-5 rounded border-[#ECECEC] text-[#6C2BFF] focus:ring-[#6C2BFF] transition-all"
+        className="w-5 h-5 rounded border-[#ECECEC] text-[#FF6B2C] focus:ring-[#FF6B2C] transition-all"
       />
       <span className="text-xs font-bold text-gray-500 group-hover:text-[#111827] transition-all leading-tight">
         {label}

@@ -1,4 +1,8 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_filter_chips.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_feature_highlights.dart';
@@ -7,9 +11,11 @@ import 'package:chillfi/features/offers/widgets/offer_benefit_card.dart';
 import 'package:chillfi/features/offers/widgets/offer_product_card.dart';
 import 'package:chillfi/features/offers/widgets/offers_header.dart';
 import 'package:chillfi/features/offers/widgets/offers_hero_banner.dart';
+import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class OffersProductsScreen extends StatefulWidget {
   const OffersProductsScreen({super.key});
@@ -20,6 +26,25 @@ class OffersProductsScreen extends StatefulWidget {
 
 class _OffersProductsScreenState extends State<OffersProductsScreen> {
   int _selectedChipIndex = 0;
+  final _service = ProductService();
+  List<ProductModel> _offers = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final result = await _service.getFeatured(limit: 20);
+    if (!mounted) return;
+    setState(() { _offers = result.where((p) => p.discountPct > 0).toList(); _loading = false; });
+  }
+
+  void _openProduct(String id) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
+  }
 
   final List<Map<String, dynamic>> _filterChips = [
     {'label': 'All Offers', 'icon': Icons.local_offer_rounded},
@@ -40,33 +65,35 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
           children: [
             const OffersHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10.h),
-                    const OffersHeroBanner(),
-                    SizedBox(height: 20.h),
-                    _buildFilterChips(),
-                    SizedBox(height: 24.h),
-                    _buildBenefitsRow(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("Top Offers"),
-                    SizedBox(height: 16.h),
-                    _buildTopOffersList(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("More Offers"),
-                    SizedBox(height: 16.h),
-                    _buildMoreOffersList(),
-                    SizedBox(height: 30.h),
-                    const BankOfferBanner(),
-                    SizedBox(height: 30.h),
-                    const NewArrivalsFeatureHighlights(), // Reusing trust highlights
-                    SizedBox(height: 40.h),
-                  ],
-                ),
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10.h),
+                          const OffersHeroBanner(),
+                          SizedBox(height: 20.h),
+                          _buildFilterChips(),
+                          SizedBox(height: 24.h),
+                          _buildBenefitsRow(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("Top Offers"),
+                          SizedBox(height: 16.h),
+                          _buildTopOffersList(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("More Offers"),
+                          SizedBox(height: 16.h),
+                          _buildMoreOffersList(),
+                          SizedBox(height: 30.h),
+                          const BankOfferBanner(),
+                          SizedBox(height: 30.h),
+                          const NewArrivalsFeatureHighlights(), // Reusing trust highlights
+                          SizedBox(height: 40.h),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -156,84 +183,55 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
   }
 
   Widget _buildTopOffersList() {
+    final top = _offers.take(3).toList();
+    if (top.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          OfferProductCard(
-            title: "Apple iPhone 15",
-            variant: "Pink | 128GB",
-            price: "69,999",
-            oldPrice: "1,02,900",
-            discount: "32%",
-            savings: "32,901",
-            rating: 4.5,
-            reviews: "2.4k",
-          ),
-          OfferProductCard(
-            title: "Sony WH-CH720N",
-            variant: "Wireless Headphones",
-            price: "5,999",
-            oldPrice: "8,299",
-            discount: "28%",
-            savings: "2,300",
-            rating: 4.4,
-            reviews: "1.2k",
-          ),
-          OfferProductCard(
-            title: "boAt Wave Elevate",
-            variant: "Smart Watch",
-            price: "1,799",
-            oldPrice: "2,999",
-            discount: "40%",
-            savings: "1,200",
-            rating: 4.3,
-            reviews: "980",
-          ),
-        ],
+        children: top.map((p) => OfferProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          savings: ((p.oldPrice ?? p.price) - p.price).toStringAsFixed(0),
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }
 
   Widget _buildMoreOffersList() {
+    final more = _offers.skip(3).toList();
+    if (more.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          OfferProductCard(
-            title: "Apple AirPods Pro",
-            variant: "2nd Gen",
-            price: "18,999",
-            oldPrice: "26,999",
-            discount: "30%",
-            savings: "8,000",
-            rating: 4.6,
-            reviews: "1.8k",
-          ),
-          OfferProductCard(
-            title: "Samsung Galaxy S23",
-            variant: "256GB",
-            price: "49,999",
-            oldPrice: "63,999",
-            discount: "22%",
-            savings: "14,000",
-            rating: 4.4,
-            reviews: "2.5k",
-          ),
-          OfferProductCard(
-            title: "Davidoff Cool Water",
-            variant: "Perfume (125ml)",
-            price: "2,399",
-            oldPrice: "2,999",
-            discount: "20%",
-            savings: "600",
-            rating: 4.2,
-            reviews: "980",
-            hasOfferRibbon: true,
-          ),
-        ],
+        children: more.map((p) => OfferProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          savings: ((p.oldPrice ?? p.price) - p.price).toStringAsFixed(0),
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }

@@ -10,7 +10,7 @@ const SellerCard: React.FC = () => {
              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sold by</span>
              <div className="flex items-center gap-2">
                 <span className="text-sm font-black text-[#111827]">chillFi Retail</span>
-                <BadgeCheck size={16} className="text-[#6C2BFF]" />
+                <BadgeCheck size={16} className="text-[#FF6B2C]" />
              </div>
           </div>
         </div>

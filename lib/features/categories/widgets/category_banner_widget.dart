@@ -51,43 +51,47 @@ class CategoryBannerWidget extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Explore',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkText,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Explore',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkText,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Top Categories',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.secondaryPurple,
+                        Text(
+                          'Top Categories',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.secondaryPurple,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Find everything you need in one place.',
-                        style: GoogleFonts.poppins(
-                          fontSize: 11.sp,
-                          color: AppColors.greyText,
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Find everything you need in one place.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11.sp,
+                            color: AppColors.greyText,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Row(
-                        children: [
-                          _buildIndicator(true),
-                          _buildIndicator(false),
-                          _buildIndicator(false),
-                        ],
-                      ),
-                    ],
+                        SizedBox(height: 12.h),
+                        Row(
+                          children: [
+                            _buildIndicator(true),
+                            _buildIndicator(false),
+                            _buildIndicator(false),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(

@@ -1,7 +1,9 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CheckoutProgressStepper extends StatelessWidget {
   final int currentStep;
@@ -88,89 +90,111 @@ class CheckoutAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(10.r),
+    return Consumer<CartProvider>(
+      builder: (context, cart, _) {
+        final addr = cart.selectedAddress;
+        if (addr == null) {
+          return Container(
+            padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
             ),
-            child: Icon(Icons.location_on_rounded, color: AppColors.secondaryPurple, size: 20.sp),
+            child: Text(
+              "No delivery address selected",
+              style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
+            ),
+          );
+        }
+        final parts = [
+          if (addr.line1.isNotEmpty) addr.line1,
+          if (addr.line2 != null && addr.line2!.isNotEmpty) addr.line2!,
+          addr.city,
+          addr.state,
+          addr.pincode,
+        ];
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
           ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.all(10.r),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryPurple.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.location_on_rounded, color: AppColors.secondaryPurple, size: 20.sp),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            addr.name,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkText,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        _buildSmallBadge(addr.label, AppColors.secondaryPurple),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
                     Text(
-                      "John Sharma",
+                      parts.join(', '),
                       style: GoogleFonts.poppins(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 11.sp,
+                        color: AppColors.greyText,
+                        height: 1.4,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      addr.phone,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
                         color: AppColors.darkText,
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    _buildSmallBadge("Home", AppColors.secondaryPurple),
+                    SizedBox(height: 12.h),
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: [
+                        if (addr.isDefault) _buildTag(Icons.verified_rounded, "Default Address"),
+                        _buildTag(Icons.bolt_rounded, "Fast Delivery"),
+                      ],
+                    ),
                   ],
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  "226010, 14/285, Vivek Khand, Gomti Nagar, Lucknow, Uttar Pradesh, India",
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
-                    color: AppColors.greyText,
-                    height: 1.4,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  "+91 98765 43210",
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkText,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Row(
-                  children: [
-                    _buildTag(Icons.verified_rounded, "Default Address"),
-                    SizedBox(width: 8.w),
-                    _buildTag(Icons.bolt_rounded, "Fast Delivery"),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Text(
-            "Change >",
-            style: GoogleFonts.poppins(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.secondaryPurple,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -1,7 +1,10 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -63,57 +66,71 @@ class HomeHeader extends StatelessWidget {
           ),
 
           // 3. ACTIONS
-          Row(
-            children: [
-              _buildBadgeIcon(Icons.notifications_none_rounded, 3),
-              SizedBox(width: 12.w),
-              _buildBadgeIcon(Icons.shopping_cart_outlined, 2),
-            ],
+          Consumer<CartProvider>(
+            builder: (context, cart, _) {
+              final cartCount = cart.summary.itemCount;
+              return Row(
+                children: [
+                  _buildBadgeIcon(Icons.notifications_none_rounded, 3, onTap: null),
+                  SizedBox(width: 12.w),
+                  _buildBadgeIcon(Icons.shopping_cart_outlined, cartCount, onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CartScreen()),
+                    );
+                  }),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBadgeIcon(IconData icon, int count) {
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        Container(
-          padding: EdgeInsets.all(8.r),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Icon(icon, color: AppColors.darkText, size: 22.sp),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: Container(
-            padding: EdgeInsets.all(4.r),
-            decoration: const BoxDecoration(
-              color: AppColors.secondaryPurple,
+  Widget _buildBadgeIcon(IconData icon, int count, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Text(
-              count.toString(),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 8.sp,
-                fontWeight: FontWeight.bold,
+            child: Icon(icon, color: AppColors.darkText, size: 22.sp),
+          ),
+          if (count > 0)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.all(4.r),
+                decoration: const BoxDecoration(
+                  color: AppColors.secondaryPurple,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

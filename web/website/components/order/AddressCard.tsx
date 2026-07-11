@@ -13,20 +13,20 @@ const AddressCard: React.FC<AddressCardProps> = ({ type, name, address, phone, i
   return (
     <div
       className={`relative p-6 rounded-[24px] border-2 transition-all cursor-pointer group ${
-        isSelected ? 'border-[#6C2BFF] bg-[#6C2BFF]/5 shadow-xl' : 'border-[#ECECEC] bg-white hover:border-gray-300'
+        isSelected ? 'border-[#FF6B2C] bg-[#FF6B2C]/5 shadow-xl' : 'border-[#ECECEC] bg-white hover:border-gray-300'
       }`}
     >
       <div className="flex items-start justify-between mb-4">
         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-          isSelected ? 'border-[#6C2BFF]' : 'border-gray-200'
+          isSelected ? 'border-[#FF6B2C]' : 'border-gray-200'
         }`}>
-          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#6C2BFF]"></div>}
+          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#FF6B2C]"></div>}
         </div>
         <div className="flex items-center gap-2">
            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-             isSelected ? 'bg-[#6C2BFF] text-white' : 'bg-gray-100 text-gray-500'
+             isSelected ? 'bg-[#FF6B2C] text-white' : 'bg-gray-100 text-gray-500'
            }`}>{type}</span>
-           {isDefault && <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-[#6C2BFF]/10 text-[#6C2BFF]">Default</span>}
+           {isDefault && <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-[#FF6B2C]/10 text-[#FF6B2C]">Default</span>}
         </div>
       </div>
 
@@ -42,7 +42,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ type, name, address, phone, i
       </div>
 
       <div className="flex items-center gap-6 pt-4 border-t border-[#ECECEC]">
-         <button className="text-[10px] font-black text-[#6C2BFF] uppercase tracking-widest hover:underline">Edit</button>
+         <button className="text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest hover:underline">Edit</button>
          <button className="text-[10px] font-black text-[#FF4D4F] uppercase tracking-widest hover:underline">Remove</button>
       </div>
     </div>

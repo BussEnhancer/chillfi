@@ -76,9 +76,11 @@ class SuggestedProductCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 6.h),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: List.generate(
                         5,
                         (index) => Icon(
@@ -99,7 +101,9 @@ class SuggestedProductCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8.h),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 6.w,
                   children: [
                     Text(
                       '₹$currentPrice',
@@ -109,7 +113,6 @@ class SuggestedProductCard extends StatelessWidget {
                         color: AppColors.darkText,
                       ),
                     ),
-                    SizedBox(width: 6.w),
                     Text(
                       '₹$oldPrice',
                       style: GoogleFonts.poppins(
@@ -118,7 +121,6 @@ class SuggestedProductCard extends StatelessWidget {
                         color: AppColors.greyText,
                       ),
                     ),
-                    SizedBox(width: 6.w),
                     Text(
                       '$discount OFF',
                       style: GoogleFonts.poppins(

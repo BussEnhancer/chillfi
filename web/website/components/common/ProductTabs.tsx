@@ -15,14 +15,14 @@ const ProductTabs: React.FC = () => {
         {tabs.map((tab, i) => (
           <li key={i} className="relative pb-4">
             <button
-              className={`text-sm font-bold transition-colors hover:text-[#6C2BFF] ${
-                tab.active ? 'text-[#6C2BFF]' : 'text-gray-500'
+              className={`text-sm font-bold transition-colors hover:text-[#FF6B2C] ${
+                tab.active ? 'text-[#FF6B2C]' : 'text-gray-500'
               }`}
             >
               {tab.label}
             </button>
             {tab.active && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6C2BFF]"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B2C]"></div>
             )}
           </li>
         ))}

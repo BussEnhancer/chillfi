@@ -45,17 +45,20 @@ class WishlistSummaryCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.secondaryPurple),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Text(
-              "Move All to Bag",
-              style: GoogleFonts.poppins(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.secondaryPurple,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "Move All to Bag",
+                style: GoogleFonts.poppins(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.secondaryPurple,
+                ),
               ),
             ),
           ),
@@ -80,23 +83,29 @@ class SortFilterSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Text(
-                "Sort by: ",
-                style: GoogleFonts.poppins(fontSize: 13.sp, color: const Color(0xFF6B7280)),
-              ),
-              Text(
-                "Recently Added",
-                style: GoogleFonts.poppins(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111827),
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  "Sort by: ",
+                  style: GoogleFonts.poppins(fontSize: 13.sp, color: const Color(0xFF6B7280)),
                 ),
-              ),
-              Icon(Icons.keyboard_arrow_down_rounded, color: const Color(0xFF111827), size: 18.sp),
-            ],
+                Flexible(
+                  child: Text(
+                    "Recently Added",
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF111827),
+                    ),
+                  ),
+                ),
+                Icon(Icons.keyboard_arrow_down_rounded, color: const Color(0xFF111827), size: 18.sp),
+              ],
+            ),
           ),
+          SizedBox(width: 8.w),
           Row(
             children: [
               Icon(Icons.filter_list_rounded, color: AppColors.secondaryPurple, size: 18.sp),
@@ -210,39 +219,48 @@ class WishlistProductCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "₹$price",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF111827),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              "₹$price",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF111827),
+                              ),
+                            ),
                           ),
-                        ),
-                        Text(
-                          stockStatus,
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: isLowStock ? const Color(0xFFF97316) : const Color(0xFF16A34A),
+                          Text(
+                            stockStatus,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w600,
+                              color: isLowStock ? const Color(0xFFF97316) : const Color(0xFF16A34A),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    SizedBox(width: 8.w),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                       decoration: BoxDecoration(
                         gradient: AppColors.purpleGradient,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
-                      child: Text(
-                        "Add to Bag",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "Add to Bag",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -295,17 +313,20 @@ class WishlistPromoCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.secondaryPurple),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Text(
-              "Explore More",
-              style: GoogleFonts.poppins(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.secondaryPurple,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "Explore More",
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.secondaryPurple,
+                ),
               ),
             ),
           ),

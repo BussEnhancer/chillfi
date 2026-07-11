@@ -1,11 +1,45 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/orders/widgets/cancel_order_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class CancelOrderScreen extends StatelessWidget {
-  const CancelOrderScreen({super.key});
+class CancelOrderScreen extends StatefulWidget {
+  final String orderId;
+  const CancelOrderScreen({super.key, required this.orderId});
+
+  @override
+  State<CancelOrderScreen> createState() => _CancelOrderScreenState();
+}
+
+class _CancelOrderScreenState extends State<CancelOrderScreen> {
+  String _reason = '';
+  bool _cancelling = false;
+  final _commentsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirmCancel() async {
+    setState(() => _cancelling = true);
+    final reason = _commentsController.text.trim().isNotEmpty
+        ? '$_reason — ${_commentsController.text.trim()}'
+        : _reason;
+    final err = await context.read<CartProvider>().cancelOrder(widget.orderId, reason);
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    if (err != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
+    } else {
+      Navigator.pop(context, true);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order cancelled'), backgroundColor: Colors.green));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +127,9 @@ class CancelOrderScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText),
                 ),
                 SizedBox(height: 16.h),
-                const ReasonRadioList(),
+                ReasonRadioList(onSelected: (r) => _reason = r),
                 SizedBox(height: 24.h),
-                const AdditionalCommentsBox(),
+                AdditionalCommentsBox(controller: _commentsController),
                 SizedBox(height: 16.h),
                 const RefundInfoCard(),
                 SizedBox(height: 16.h),
@@ -124,34 +158,40 @@ class CancelOrderScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: 60.h,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.purpleGradient,
-                        borderRadius: BorderRadius.circular(16.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.secondaryPurple.withValues(alpha: 0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22.sp),
-                          SizedBox(width: 12.w),
-                          Text(
-                            "Cancel Order",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                    GestureDetector(
+                      onTap: _cancelling ? null : _confirmCancel,
+                      child: Container(
+                        width: double.infinity,
+                        height: 60.h,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.purpleGradient,
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.secondaryPurple.withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: _cancelling
+                            ? SizedBox(width: 24.w, height: 24.w, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.delete_outline_rounded, color: Colors.white, size: 22.sp),
+                                  SizedBox(width: 12.w),
+                                  Text(
+                                    "Cancel Order",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                     SizedBox(height: 16.h),

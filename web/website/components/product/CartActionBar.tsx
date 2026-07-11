@@ -9,7 +9,7 @@ const CartActionBar: React.FC = () => {
           <input
             type="checkbox"
             checked
-            className="w-5 h-5 rounded border-[#ECECEC] text-[#6C2BFF] focus:ring-[#6C2BFF]"
+            className="w-5 h-5 rounded border-[#ECECEC] text-[#FF6B2C] focus:ring-[#FF6B2C]"
             readOnly
           />
           <span className="text-xs font-black text-[#111827] uppercase tracking-widest">Select All (4)</span>
@@ -20,7 +20,7 @@ const CartActionBar: React.FC = () => {
             <Trash2 size={16} />
             Remove Selected
           </button>
-          <button className="flex items-center gap-2 text-[11px] font-black text-gray-400 uppercase tracking-widest hover:text-[#6C2BFF] transition-colors">
+          <button className="flex items-center gap-2 text-[11px] font-black text-gray-400 uppercase tracking-widest hover:text-[#FF6B2C] transition-colors">
             <Heart size={16} />
             Move to Wishlist
           </button>

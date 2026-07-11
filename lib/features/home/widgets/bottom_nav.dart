@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/features/categories/categories_screen.dart';
 import 'package:chillfi/features/home/home_dashboard_screen.dart';
 import 'package:chillfi/features/orders/my_orders_screen.dart';
@@ -7,6 +8,7 @@ import 'package:chillfi/features/wishlist/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -81,22 +83,28 @@ class CustomBottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Stack(
-            clipBehavior: BoxShadow.none,
+            clipBehavior: Clip.none,
             children: [
               Icon(
                 icon,
                 color: isActive ? AppColors.secondaryPurple : AppColors.greyText,
                 size: 24.sp,
               ),
-              if (index == 3) // Wishlist badge
-                Positioned(
-                  top: -5,
-                  right: -5,
-                  child: Container(
-                    padding: EdgeInsets.all(4.r),
-                    decoration: const BoxDecoration(color: AppColors.secondaryPurple, shape: BoxShape.circle),
-                    child: Text("6", style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold)),
-                  ),
+              if (index == 3)
+                Consumer<WishlistProvider>(
+                  builder: (context, wishlist, _) {
+                    final count = wishlist.items.length;
+                    if (count == 0) return const SizedBox.shrink();
+                    return Positioned(
+                      top: -5,
+                      right: -5,
+                      child: Container(
+                        padding: EdgeInsets.all(4.r),
+                        decoration: const BoxDecoration(color: AppColors.secondaryPurple, shape: BoxShape.circle),
+                        child: Text('$count', style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  },
                 ),
             ],
           ),

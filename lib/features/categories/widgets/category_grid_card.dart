@@ -18,7 +18,7 @@ class CategoryGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -31,42 +31,41 @@ class CategoryGridCard extends StatelessWidget {
         ],
         border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              color: AppColors.primaryOrange.withOpacity(0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 24.sp,
-              color: AppColors.primaryOrange,
-            ),
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 24.sp,
+                color: AppColors.primaryOrange,
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkText,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                itemCount,
+                style: GoogleFonts.poppins(
+                  fontSize: 10.sp,
+                  color: AppColors.greyText,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 10.h),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkText,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            itemCount,
-            style: GoogleFonts.poppins(
-              fontSize: 9.sp,
-              color: AppColors.greyText,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

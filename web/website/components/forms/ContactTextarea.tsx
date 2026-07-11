@@ -13,7 +13,7 @@ const ContactTextarea: React.FC<ContactTextareaProps> = ({ label, required, ...p
       </label>
       <textarea
         {...props}
-        className="bg-white border border-[#ECECEC] rounded-xl px-5 py-3 text-sm font-bold text-[#111827] outline-none focus:border-[#6C2BFF] transition-all placeholder:text-gray-300 shadow-sm min-h-[120px] resize-none"
+        className="bg-white border border-[#ECECEC] rounded-xl px-5 py-3 text-sm font-bold text-[#111827] outline-none focus:border-[#FF6B2C] transition-all placeholder:text-gray-300 shadow-sm min-h-[120px] resize-none"
       />
     </div>
   );

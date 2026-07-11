@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/checkout/widgets/checkout_widgets.dart';
 import 'package:chillfi/features/orders/order_success_screen.dart';
 import 'package:chillfi/features/payment/widgets/payment_widgets.dart';
@@ -6,9 +7,41 @@ import 'package:chillfi/features/payment/widgets/cod_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class CODConfirmationScreen extends StatelessWidget {
+class CODConfirmationScreen extends StatefulWidget {
   const CODConfirmationScreen({super.key});
+
+  @override
+  State<CODConfirmationScreen> createState() => _CODConfirmationScreenState();
+}
+
+class _CODConfirmationScreenState extends State<CODConfirmationScreen> {
+  bool _confirmed = true;
+  bool _placing = false;
+  String? _error;
+
+  Future<void> _confirmOrder() async {
+    if (!_confirmed) {
+      setState(() => _error = 'Please confirm your order details first');
+      return;
+    }
+    setState(() { _placing = true; _error = null; });
+    final cart = context.read<CartProvider>();
+    final order = await cart.placeOrder(paymentMethod: 'COD');
+    if (!mounted) return;
+    if (order != null) {
+      await cart.confirmCOD(order.id);
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: order)),
+        (route) => route.isFirst,
+      );
+    } else {
+      setState(() { _placing = false; _error = 'Failed to place order. Please try again.'; });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,39 +130,43 @@ class CODConfirmationScreen extends StatelessWidget {
             const CODInfoCard(),
 
             SizedBox(height: 24.h),
-            Row(
-              children: [
-                Container(
-                  width: 20.r,
-                  height: 20.r,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryPurple,
-                    borderRadius: BorderRadius.circular(4.r),
+            GestureDetector(
+              onTap: () => setState(() => _confirmed = !_confirmed),
+              child: Row(
+                children: [
+                  Container(
+                    width: 20.r,
+                    height: 20.r,
+                    decoration: BoxDecoration(
+                      color: _confirmed ? AppColors.secondaryPurple : Colors.white,
+                      border: Border.all(color: AppColors.secondaryPurple, width: 1.5),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: _confirmed ? Icon(Icons.check, color: Colors.white, size: 14.sp) : null,
                   ),
-                  child: Icon(Icons.check, color: Colors.white, size: 14.sp),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(
-                    "I confirm my order details are correct and I want to place this order.",
-                    style: GoogleFonts.poppins(
-                      fontSize: 11.sp,
-                      color: AppColors.darkText,
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      "I confirm my order details are correct and I want to place this order.",
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        color: AppColors.darkText,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+
+            if (_error != null)
+              Padding(
+                padding: EdgeInsets.only(top: 12.h),
+                child: Text(_error!, style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.red, fontWeight: FontWeight.w600)),
+              ),
 
             SizedBox(height: 24.h),
             GestureDetector(
-              onTap: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const OrderSuccessScreen()),
-                  (route) => false,
-                );
-              },
+              onTap: _placing ? null : _confirmOrder,
               child: Container(
                 width: double.infinity,
                 height: 60.h,
@@ -145,21 +182,23 @@ class CODConfirmationScreen extends StatelessWidget {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.payments_outlined, color: Colors.white, size: 22.sp),
-                    SizedBox(width: 10.w),
-                    Text(
-                      "Confirm Order",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                child: _placing
+                    ? SizedBox(width: 24.w, height: 24.w, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.payments_outlined, color: Colors.white, size: 22.sp),
+                          SizedBox(width: 10.w),
+                          Text(
+                            "Confirm Order",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
 

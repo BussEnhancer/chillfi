@@ -1,247 +1,178 @@
 import 'package:chillfi/core/app_colors.dart';
-import 'package:chillfi/features/profile/widgets/edit_profile_widgets.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  late TextEditingController _nameC;
+  late TextEditingController _emailC;
+  bool _saving = false;
+  bool _uploadingAvatar = false;
+
+  Future<void> _pickAndUploadAvatar() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80, maxWidth: 800);
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingAvatar = true);
+    final ok = await context.read<WishlistProvider>().uploadAvatar(picked.path);
+    setState(() => _uploadingAvatar = false);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(ok ? 'Profile photo updated!' : 'Failed to upload photo'),
+      backgroundColor: ok ? Colors.green : Colors.red,
+    ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = context.read<WishlistProvider>().profile;
+    _nameC = TextEditingController(text: profile?.name ?? '');
+    _emailC = TextEditingController(text: profile?.email ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameC.dispose();
+    _emailC.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    final wp = context.read<WishlistProvider>();
+    final ok = await wp.updateProfile(
+      name: _nameC.text.trim().isNotEmpty ? _nameC.text.trim() : null,
+      email: _emailC.text.trim().isNotEmpty ? _emailC.text.trim() : null,
+    );
+    setState(() => _saving = false);
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated!'), backgroundColor: Colors.green));
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update profile'), backgroundColor: Colors.red));
+    }
+  }
+
+  Widget _field(TextEditingController c, String label, IconData icon, {TextInputType? keyboardType, bool readOnly = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: TextField(
+        controller: c,
+        readOnly: readOnly,
+        keyboardType: keyboardType,
+        style: GoogleFonts.poppins(fontSize: 14.sp, color: AppColors.darkText),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
+          prefixIcon: Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),
+          filled: true,
+          fillColor: readOnly ? const Color(0xFFF0F0F0) : const Color(0xFFF5F5F5),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14.r), borderSide: BorderSide.none),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final profile = context.watch<WishlistProvider>().profile;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 70.w,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 20.w),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Edit Profile",
-              style: GoogleFonts.poppins(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkText,
-              ),
-            ),
-            Text(
-              "Update your personal information",
-              style: GoogleFonts.poppins(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-                color: AppColors.greyText,
-              ),
-            ),
+            Text('Edit Profile', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+            Text('Update your personal information', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () {},
-            child: Text(
-              "Save",
-              style: GoogleFonts.poppins(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.secondaryPurple,
-              ),
-            ),
+            onPressed: _saving ? null : _save,
+            child: Text('Save', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppColors.secondaryPurple)),
           ),
-          SizedBox(width: 20.w),
+          SizedBox(width: 8.w),
         ],
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        padding: EdgeInsets.all(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h),
-            const ProfilePhotoEditCard(),
-            
-            const EditProfileSectionTitle(title: "Personal Information"),
-            Row(
-              children: [
-                const Expanded(
-                  child: PremiumEditField(
-                    label: "Full Name",
-                    value: "Rahul Sharma",
-                    prefixIcon: Icons.person_outline_rounded,
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                const Expanded(
-                  child: PremiumEditField(
-                    label: "Phone Number",
-                    value: "+91 98765 43210",
-                    prefixIcon: Icons.phone_outlined,
-                  ),
-                ),
-              ],
-            ),
-            const PremiumEditField(
-              label: "Email Address",
-              value: "rahul.sharma@example.com",
-              prefixIcon: Icons.mail_outline_rounded,
-            ),
-            Row(
-              children: [
-                const Expanded(
-                  child: PremiumDropdownField(
-                    label: "Date of Birth",
-                    value: "15 Aug 1995",
-                    prefixIcon: Icons.calendar_today_outlined,
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                const Expanded(
-                  child: PremiumDropdownField(
-                    label: "Gender",
-                    value: "Male",
-                    prefixIcon: Icons.person_2_outlined,
-                  ),
-                ),
-              ],
-            ),
-
-            const EditProfileSectionTitle(title: "Address"),
-            const PremiumEditField(
-              label: "Address Line 1",
-              value: "226010, 14/285, Vivek Khand",
-              prefixIcon: Icons.location_on_outlined,
-            ),
-            const PremiumEditField(
-              label: "Address Line 2",
-              value: "Near City Mall, Gomti Nagar",
-              prefixIcon: Icons.business_outlined,
-              isOptional: true,
-            ),
-            Row(
-              children: [
-                const Expanded(
-                  flex: 2,
-                  child: PremiumEditField(
-                    label: "City",
-                    value: "Lucknow",
-                    prefixIcon: Icons.location_city_outlined,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                const Expanded(
-                  flex: 3,
-                  child: PremiumDropdownField(
-                    label: "State",
-                    value: "Uttar Pradesh",
-                    prefixIcon: Icons.map_outlined,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                const Expanded(
-                  flex: 2,
-                  child: PremiumEditField(
-                    label: "Pincode",
-                    value: "226010",
-                    prefixIcon: Icons.pin_drop_outlined,
-                  ),
-                ),
-              ],
-            ),
-            const PremiumDropdownField(
-              label: "Country",
-              value: "India",
-              prefixIcon: Icons.public_rounded,
-            ),
-
-            const EditProfileSectionTitle(title: "Preferences"),
-            const PremiumDropdownField(
-              label: "Preferred Language",
-              value: "English",
-              prefixIcon: Icons.language_rounded,
-            ),
-            const PremiumDropdownField(
-              label: "Preferred Currency",
-              value: "INR (₹)",
-              prefixIcon: Icons.currency_rupee_rounded,
-            ),
-
-            SizedBox(height: 32.h),
-            Container(
-              width: double.infinity,
-              height: 60.h,
-              decoration: BoxDecoration(
-                gradient: AppColors.purpleGradient,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.secondaryPurple.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // Avatar
+            Center(
+              child: Stack(
                 children: [
-                  Icon(Icons.save_rounded, color: Colors.white, size: 20.sp),
-                  SizedBox(width: 12.w),
-                  Text(
-                    "Save Changes",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                  CircleAvatar(
+                    radius: 52.r,
+                    backgroundColor: AppColors.secondaryPurple.withOpacity(0.1),
+                    child: profile?.avatarUrl != null
+                        ? ClipOval(child: Image.network(profile!.avatarUrl!, width: 104.w, height: 104.h, fit: BoxFit.cover))
+                        : Icon(Icons.person_rounded, size: 56.sp, color: AppColors.secondaryPurple),
+                  ),
+                  Positioned(
+                    right: 0, bottom: 0,
+                    child: GestureDetector(
+                      onTap: _uploadingAvatar ? null : _pickAndUploadAvatar,
+                      child: Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(color: AppColors.secondaryPurple, shape: BoxShape.circle),
+                        child: _uploadingAvatar
+                            ? SizedBox(width: 16.sp, height: 16.sp, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16.sp),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16.h),
-            Container(
+            SizedBox(height: 28.h),
+
+            Text('Personal Information', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppColors.greyText, letterSpacing: 0.5)),
+            SizedBox(height: 12.h),
+
+            _field(_nameC, 'Full Name', Icons.person_outline_rounded),
+            _field(TextEditingController(text: profile?.phone ?? ''), 'Phone Number', Icons.phone_outlined, readOnly: true),
+            _field(_emailC, 'Email Address', Icons.mail_outline_rounded, keyboardType: TextInputType.emailAddress),
+            SizedBox(height: 24.h),
+
+            SizedBox(
               width: double.infinity,
               height: 56.h,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.red.withValues(alpha: 0.5)),
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20.sp),
-                  SizedBox(width: 10.w),
-                  Text(
-                    "Delete Account",
-                    style: GoogleFonts.poppins(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
+              child: ElevatedButton.icon(
+                onPressed: _saving ? null : _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondaryPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                ),
+                icon: _saving
+                    ? SizedBox(width: 18.w, height: 18.h, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Icon(Icons.save_rounded, size: 20.sp),
+                label: Text('Save Changes', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700)),
               ),
             ),
-            SizedBox(height: 40.h),
           ],
         ),
       ),

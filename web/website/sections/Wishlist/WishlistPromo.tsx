@@ -3,7 +3,7 @@ import { ShoppingBag, ChevronRight } from 'lucide-react';
 
 const WishlistPromo: React.FC = () => {
   return (
-    <div className="bg-gradient-to-br from-[#6C2BFF] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group">
+    <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group">
       {/* Background Decor */}
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
 
@@ -13,7 +13,7 @@ const WishlistPromo: React.FC = () => {
           Prices and availability may change. Move your favorites to bag now.
         </p>
 
-        <button className="bg-white text-[#6C2BFF] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
+        <button className="bg-white text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
           Shop Now
           <ChevronRight size={14} />
         </button>

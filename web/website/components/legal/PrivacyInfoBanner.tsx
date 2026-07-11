@@ -8,8 +8,8 @@ interface PrivacyInfoBannerProps {
 
 const PrivacyInfoBanner: React.FC<PrivacyInfoBannerProps> = ({ icon, title, desc }) => {
   return (
-    <div className="bg-[#F8F5FF] rounded-[24px] p-8 flex items-start gap-6 border border-[#6C2BFF]/10">
-      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#6C2BFF] shadow-sm shrink-0">
+    <div className="bg-[#FFF8F5] rounded-[24px] p-8 flex items-start gap-6 border border-[#FF6B2C]/10">
+      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#FF6B2C] shadow-sm shrink-0">
         {icon}
       </div>
       <div>

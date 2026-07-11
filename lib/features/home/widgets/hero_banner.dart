@@ -3,174 +3,164 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HeroBannerSlider extends StatelessWidget {
-  const HeroBannerSlider({super.key});
+class HeroBannerSlider extends StatefulWidget {
+  final List<dynamic> banners;
+
+  const HeroBannerSlider({super.key, this.banners = const []});
+
+  @override
+  State<HeroBannerSlider> createState() => _HeroBannerSliderState();
+}
+
+class _HeroBannerSliderState extends State<HeroBannerSlider> {
+  final _controller = PageController();
+  int _currentIndex = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.banners.isEmpty) return const SizedBox.shrink();
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
       child: Column(
         children: [
-          Container(
-            width: double.infinity,
+          SizedBox(
             height: 180.h,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFFBF4FF),
-                  AppColors.secondaryPurple.withOpacity(0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
-            ),
-            child: Stack(
-              children: [
-                // Text Content
-                Padding(
-                  padding: EdgeInsets.all(20.r),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryPurple.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          'FESTIVE SALE',
-                          style: GoogleFonts.poppins(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.secondaryPurple,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Big Deals for\nSmart Shoppers!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.darkText,
-                          height: 1.2,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Up to 60% OFF on Electronics\n& Accessories',
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.sp,
-                          color: AppColors.greyText,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.buttonGradient,
-                            borderRadius: BorderRadius.circular(12.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primaryOrange.withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Shop Now',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14.sp),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Product Image Mockup
-                Positioned(
-                  right: -20.w,
-                  bottom: -10.h,
-                  child: Opacity(
-                    opacity: 0.9,
-                    child: Icon(Icons.headphones_rounded, size: 150.sp, color: AppColors.darkText.withOpacity(0.1)),
-                  ),
-                ),
-                Positioned(
-                  right: 10.w,
-                  bottom: 20.h,
-                  child: _buildShoppingBag(),
-                ),
-              ],
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.banners.length,
+              onPageChanged: (i) => setState(() => _currentIndex = i),
+              itemBuilder: (context, index) => _buildBanner(widget.banners[index] as Map),
             ),
           ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(3, (index) => Container(
-              width: index == 0 ? 20.w : 6.w,
-              height: 6.h,
-              margin: EdgeInsets.symmetric(horizontal: 3.w),
-              decoration: BoxDecoration(
-                color: index == 0 ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            )),
-          ),
+          if (widget.banners.length > 1) ...[
+            SizedBox(height: 12.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.banners.length, (index) => Container(
+                width: index == _currentIndex ? 20.w : 6.w,
+                height: 6.h,
+                margin: EdgeInsets.symmetric(horizontal: 3.w),
+                decoration: BoxDecoration(
+                  color: index == _currentIndex ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              )),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildShoppingBag() {
+  Widget _buildBanner(Map banner) {
+    final title = banner['title'] as String? ?? '';
+    final subtitle = banner['subtitle'] as String?;
+    final imageUrl = banner['image_url'] as String?;
+
     return Container(
-      width: 60.w,
-      height: 80.h,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.primaryOrange,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryOrange.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFBF4FF),
+            AppColors.secondaryPurple.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 24.sp),
-          SizedBox(height: 4.h),
-          Text(
-            'CHILLFI',
-            style: GoogleFonts.poppins(
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: 1,
+          Padding(
+            padding: EdgeInsets.all(20.r),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.darkText,
+                      height: 1.2,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                    SizedBox(height: 8.h),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 10.sp,
+                        color: AppColors.greyText,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 16.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.buttonGradient,
+                      borderRadius: BorderRadius.circular(12.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryOrange.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Shop Now',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 4.w),
+                        Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14.sp),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          if (imageUrl != null && imageUrl.isNotEmpty)
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 110.w,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(24.r),
+                  bottomRight: Radius.circular(24.r),
+                ),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
         ],
       ),
     );

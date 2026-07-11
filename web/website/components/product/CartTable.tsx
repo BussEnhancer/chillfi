@@ -4,48 +4,48 @@ import CartActionBar from './CartActionBar';
 
 const cartData = [
   {
-    image: 'https://images.unsplash.com/photo-1512374382149-233c42b6a83b?auto=format&fit=crop&q=80&w=400',
-    name: "Nike Air Max Excee Men's Sneakers",
-    size: '8 UK',
-    color: 'Black/White',
-    price: 5999,
-    oldPrice: 7999,
-    discount: '25%',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400',
+    name: 'Samsung Galaxy S24 FE 5G (8GB+256GB)',
+    size: '256GB',
+    color: 'Graphite',
+    price: 39999,
+    oldPrice: 54999,
+    discount: '27%',
     quantity: 1,
-    subtotal: 5999
+    subtotal: 39999
   },
   {
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400',
-    name: 'Fastrack Men Black Analog Watch',
-    size: 'Free',
-    color: 'Black/Brown',
-    price: 2495,
-    oldPrice: 3995,
-    discount: '38%',
+    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&q=80&w=400',
+    name: 'boAt Airdopes 141 TWS Earbuds',
+    size: 'One Size',
+    color: 'Active Black',
+    price: 1299,
+    oldPrice: 2990,
+    discount: '57%',
     quantity: 1,
-    subtotal: 2495
+    subtotal: 1299
   },
   {
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400',
-    name: 'Puma Smashic Unisex Sneakers',
-    size: '7 UK',
-    color: 'White',
-    price: 2299,
-    oldPrice: 3299,
-    discount: '25%',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400',
+    name: 'Sony WH-1000XM5 Wireless Headphones',
+    size: 'One Size',
+    color: 'Midnight Black',
+    price: 24990,
+    oldPrice: 34990,
+    discount: '29%',
     quantity: 1,
-    subtotal: 2299
+    subtotal: 24990
   },
   {
-    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=400',
-    name: 'Lavie Women Green Satchel Bag',
-    size: 'Free',
-    color: 'Green',
-    price: 1799,
-    oldPrice: 2999,
-    discount: '25%',
+    image: 'https://images.unsplash.com/photo-1508685096489-7aac2715a99a?auto=format&fit=crop&q=80&w=400',
+    name: 'Mi Smart Band 8 Pro AMOLED',
+    size: 'One Size',
+    color: 'Black',
+    price: 2499,
+    oldPrice: 3999,
+    discount: '37%',
     quantity: 1,
-    subtotal: 1799
+    subtotal: 2499
   }
 ];
 

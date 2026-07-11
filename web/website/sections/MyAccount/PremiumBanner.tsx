@@ -3,7 +3,7 @@ import { Crown, Gift, ChevronRight } from 'lucide-react';
 
 const PremiumBanner: React.FC = () => {
   return (
-    <div className="bg-gradient-to-br from-[#6C2BFF] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group h-full flex flex-col justify-between">
+    <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group h-full flex flex-col justify-between">
       {/* Background Decor */}
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
 
@@ -19,7 +19,7 @@ const PremiumBanner: React.FC = () => {
           You are enjoying FREE delivery, exclusive offers and more!
         </p>
 
-        <button className="bg-white text-[#6C2BFF] px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
+        <button className="bg-white text-[#FF6B2C] px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
           View Premium Benefits
           <ChevronRight size={14} />
         </button>
@@ -29,7 +29,7 @@ const PremiumBanner: React.FC = () => {
       <div className="absolute right-0 bottom-0 p-6 opacity-30 group-hover:opacity-100 transition-opacity duration-700">
         <div className="relative">
            <Gift size={120} className="text-white transform rotate-12" />
-           <div className="absolute -top-4 -right-2 w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#6C2BFF] shadow-lg animate-bounce">
+           <div className="absolute -top-4 -right-2 w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#FF6B2C] shadow-lg animate-bounce">
               <Crown size={16} />
            </div>
         </div>

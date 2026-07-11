@@ -8,7 +8,7 @@ const OfficeInfoCard: React.FC = () => {
 
       <div className="space-y-8">
         <div className="flex gap-4">
-          <MapPin size={24} className="text-[#6C2BFF] shrink-0 mt-1" />
+          <MapPin size={24} className="text-[#FF6B2C] shrink-0 mt-1" />
           <div>
             <h4 className="text-sm font-black text-[#111827] mb-2 uppercase tracking-wider">chillFi Headquarters</h4>
             <p className="text-xs font-bold text-gray-500 leading-relaxed">
@@ -21,7 +21,7 @@ const OfficeInfoCard: React.FC = () => {
         </div>
 
         <div className="flex gap-4">
-          <Clock size={24} className="text-[#6C2BFF] shrink-0 mt-1" />
+          <Clock size={24} className="text-[#FF6B2C] shrink-0 mt-1" />
           <div>
             <h4 className="text-sm font-black text-[#111827] mb-2 uppercase tracking-wider">Business Hours</h4>
             <p className="text-xs font-bold text-gray-500">
@@ -30,7 +30,7 @@ const OfficeInfoCard: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-4 pt-4 border-t border-[#F8F5FF]">
+        <div className="flex gap-4 pt-4 border-t border-[#FFF8F5]">
           <Info size={20} className="text-amber-500 shrink-0" />
           <p className="text-[11px] font-bold text-gray-400">
             We are closed on national holidays.

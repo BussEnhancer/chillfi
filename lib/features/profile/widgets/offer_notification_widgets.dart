@@ -160,6 +160,7 @@ class OfferPreferenceRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final String? trailingText;
+  final VoidCallback? onTap;
 
   const OfferPreferenceRow({
     super.key,
@@ -167,11 +168,14 @@ class OfferPreferenceRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.trailingText,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
       padding: EdgeInsets.symmetric(vertical: 14.h),
       child: Row(
         children: [
@@ -216,8 +220,10 @@ class OfferPreferenceRow extends StatelessWidget {
               ),
             ),
           SizedBox(width: 8.w),
-          Icon(Icons.chevron_right_rounded, color: const Color(0xFF6B7280), size: 24.sp),
+          if (onTap != null)
+            Icon(Icons.chevron_right_rounded, color: const Color(0xFF6B7280), size: 24.sp),
         ],
+      ),
       ),
     );
   }

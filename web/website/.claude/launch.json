@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chillfi-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5200,
+      "cwd": "/Users/bussenhancer/SonuShah/Sonu Shah/Shubham Narwal ChillFi/FinalApp/chillfi/web/website"
+    }
+  ]
+}

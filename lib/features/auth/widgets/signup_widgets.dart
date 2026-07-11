@@ -31,114 +31,91 @@ class _PremiumAuthFieldState extends State<PremiumAuthField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: _isFocused ? AppColors.secondaryPurple : AppColors.fieldBorder,
-              width: _isFocused ? 1.5 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: _isFocused ? AppColors.secondaryPurple : AppColors.fieldBorder,
+          width: _isFocused ? 1.5 : 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _isFocused 
+                ? AppColors.secondaryPurple.withOpacity(0.06)
+                : Colors.black.withOpacity(0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryPurple.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(
-                  widget.prefixIcon,
-                  color: AppColors.secondaryPurple,
-                  size: 20.sp,
-                ),
-              ),
-              SizedBox(width: 16.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: widget.label,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.darkText,
-                            ),
-                          ),
-                          if (widget.isOptional)
-                            TextSpan(
-                              text: ' (Optional)',
-                              style: GoogleFonts.poppins(
-                                fontSize: 11.sp,
-                                color: AppColors.greyText.withOpacity(0.6),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Focus(
-                      onFocusChange: (hasFocus) {
-                        setState(() {
-                          _isFocused = hasFocus;
-                        });
-                      },
-                      child: TextField(
-                        controller: widget.controller,
-                        obscureText: widget.isPassword ? _obscureText : false,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.black,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: widget.hintText,
-                          hintStyle: GoogleFonts.poppins(
-                            fontSize: 13.sp,
-                            color: AppColors.greyText.withOpacity(0.5),
-                          ),
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(top: 4.h),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (widget.isPassword)
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _obscureText = !_obscureText;
-                    });
-                  },
-                  child: Icon(
-                    _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: AppColors.greyText.withOpacity(0.7),
-                    size: 20.sp,
+        ],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: AppColors.secondaryPurple.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(
+              widget.prefixIcon,
+              color: AppColors.secondaryPurple,
+              size: 20.sp,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkText,
+                    letterSpacing: 0.2,
                   ),
                 ),
-            ],
+                Focus(
+                  onFocusChange: (hasFocus) => setState(() => _isFocused = hasFocus),
+                  child: TextField(
+                    controller: widget.controller,
+                    obscureText: widget.isPassword ? _obscureText : false,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.black,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: widget.hintText,
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 13.sp,
+                        color: AppColors.greyText.withOpacity(0.4),
+                      ),
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.only(top: 4.h),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          if (widget.isPassword)
+            GestureDetector(
+              onTap: () => setState(() => _obscureText = !_obscureText),
+              child: Icon(
+                _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                color: AppColors.greyText.withOpacity(0.6),
+                size: 20.sp,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

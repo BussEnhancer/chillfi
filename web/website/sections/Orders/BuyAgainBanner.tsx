@@ -3,11 +3,11 @@ import { ShoppingBag, ChevronRight } from 'lucide-react';
 
 const BuyAgainBanner: React.FC = () => {
   return (
-    <div className="bg-gradient-to-br from-[#6C2BFF] to-[#8B5CFF] rounded-[24px] p-6 text-white relative overflow-hidden group">
+    <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[24px] p-6 text-white relative overflow-hidden group">
       <div className="relative z-10">
         <h3 className="text-sm font-black uppercase tracking-wider mb-2">You love it, buy it again!</h3>
         <p className="text-[11px] font-bold opacity-80 mb-6 max-w-[180px]">Reorder your favourite products in just one click.</p>
-        <button className="bg-white text-[#6C2BFF] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all">
+        <button className="bg-white text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all">
           Buy Again
           <ChevronRight size={14} />
         </button>

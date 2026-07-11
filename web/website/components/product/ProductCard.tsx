@@ -1,8 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { useStore } from '../../context/StoreContext';
 
 interface ProductCardProps {
+  id?: string | number;
   image: string;
   name: string;
   price: number;
@@ -13,21 +16,34 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  image, name, price, oldPrice, discount, rating, reviews
+  id = 1, image, name, price, oldPrice, discount, rating, reviews
 }) => {
+  const { addToCart, toggleWishlist, isInWishlist, products } = useStore();
+  const strId = String(id);
+  const inWishlist = isInWishlist(strId);
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const p = products.find(x => x.id === strId);
+    if (p) toggleWishlist(p);
+  };
+  const handleCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const p = products.find(x => x.id === strId);
+    if (p) addToCart(p);
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 relative group hover:shadow-2xl hover:border-[#6C2BFF]/30 transition-all duration-500">
-      {/* Badges */}
+    <Link to={`/product/${id}`} className="block bg-white rounded-2xl border border-gray-100 p-4 relative group hover:shadow-2xl hover:border-[#FF6B2C]/30 transition-all duration-500">
       {discount && (
         <Badge text={discount} className="absolute top-4 left-4 z-10" />
       )}
 
-      {/* Actions */}
       <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-        <button className="w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF5252] transition-colors">
-          <Heart size={18} />
+        <button onClick={handleWishlist} className={`w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center transition-colors ${inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
+          <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
         </button>
-        <button className="w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#6C2BFF] transition-colors">
+        <button onClick={handleCart} className="w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-colors">
           <ShoppingCart size={18} />
         </button>
       </div>
@@ -38,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Content */}
-      <h3 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#6C2BFF] transition-colors">
+      <h3 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 min-h-[40px] group-hover:text-[#FF6B2C] transition-colors">
         {name}
       </h3>
 
@@ -52,12 +68,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-lg font-extrabold text-[#6C2BFF]">₹{price.toLocaleString()}</span>
+        <span className="text-lg font-extrabold text-[#FF6B2C]">₹{price.toLocaleString()}</span>
         {oldPrice && (
           <span className="text-xs text-gray-400 line-through font-medium">₹{oldPrice.toLocaleString()}</span>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

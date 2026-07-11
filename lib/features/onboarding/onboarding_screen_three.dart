@@ -239,7 +239,7 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                       Text(
                         'Track Your Orders,',
                         style: GoogleFonts.poppins(
-                          fontSize: 28.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.darkText,
                         ),
@@ -247,7 +247,7 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                       PremiumGradientText(
                         text: 'Stay Updated',
                         style: GoogleFonts.poppins(
-                          fontSize: 28.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                         ),
                         gradient: AppColors.orangePurpleGradient,
@@ -256,7 +256,7 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                       Text(
                         'Real-time tracking, secure payments and 24x7 support — we’ve got you covered.',
                         style: GoogleFonts.poppins(
-                          fontSize: 15.sp,
+                          fontSize: 14.sp,
                           color: AppColors.greyText,
                           height: 1.5,
                         ),
@@ -274,7 +274,6 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                     _buildIndicator(false),
                     _buildIndicator(false),
                     _buildIndicator(true),
-                    _buildIndicator(false),
                   ],
                 ),
 

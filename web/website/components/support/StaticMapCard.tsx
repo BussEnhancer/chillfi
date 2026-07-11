@@ -6,7 +6,7 @@ const StaticMapCard: React.FC = () => {
     <div className="bg-gray-100 rounded-[24px] overflow-hidden border border-[#ECECEC] relative h-[400px] lg:h-auto min-h-[350px] shadow-inner group">
       {/* Mock Map Background Grid */}
       <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(#6C2BFF 0.5px, transparent 0.5px)',
+        backgroundImage: 'radial-gradient(#FF6B2C 0.5px, transparent 0.5px)',
         backgroundSize: '20px 20px'
       }}></div>
 
@@ -18,9 +18,9 @@ const StaticMapCard: React.FC = () => {
 
       {/* Location Pin */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group-hover:scale-110 transition-transform duration-500">
-        <div className="w-12 h-12 bg-[#6C2BFF] rounded-full flex items-center justify-center text-white shadow-2xl relative animate-bounce">
+        <div className="w-12 h-12 bg-[#FF6B2C] rounded-full flex items-center justify-center text-white shadow-2xl relative animate-bounce">
            <MapPin size={24} />
-           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#6C2BFF] rotate-45"></div>
+           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#FF6B2C] rotate-45"></div>
         </div>
       </div>
 
@@ -34,8 +34,8 @@ const StaticMapCard: React.FC = () => {
 
       {/* UI Controls */}
       <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-         <button className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 font-bold shadow-lg hover:text-[#6C2BFF] transition-all">+</button>
-         <button className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 font-bold shadow-lg hover:text-[#6C2BFF] transition-all">-</button>
+         <button className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 font-bold shadow-lg hover:text-[#FF6B2C] transition-all">+</button>
+         <button className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 font-bold shadow-lg hover:text-[#FF6B2C] transition-all">-</button>
       </div>
     </div>
   );

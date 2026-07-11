@@ -1,71 +1,57 @@
-import React from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Circle } from 'lucide-react';
+import { apiGet } from '../../utils/api';
 
-interface CategoryNode {
-  label: string;
-  count?: number;
-  children?: CategoryNode[];
-  isActive?: boolean;
+interface ApiCategory {
+  id: string;
+  name: string;
+  product_count?: number | string;
 }
 
-const treeData: CategoryNode[] = [
-  {
-    label: 'Men',
-    isActive: true,
-    children: [
-      { label: 'Topwear' },
-      { label: 'Bottomwear' },
-      {
-        label: 'Footwear',
-        isActive: true,
-        children: [
-          { label: 'Casual Shoes' },
-          { label: 'Sports Shoes' },
-          { label: 'Sneakers', isActive: true },
-          { label: 'Sandals & Floaters' },
-          { label: 'Formal Shoes' },
-        ],
-      },
-    ],
-  },
-  { label: 'Watches' },
-  { label: 'Bags & Backpacks' },
-  { label: 'Sunglasses & Frames' },
-  { label: 'Personal Care' },
-];
+interface CategoryTreeProps {
+  selected?: string;
+  onSelect?: (categoryId: string) => void;
+}
 
-const CategoryTree: React.FC = () => {
-  const renderTree = (nodes: CategoryNode[], level = 0) => {
-    return (
-      <ul className={`${level > 0 ? 'ml-4 mt-2 space-y-2' : 'space-y-3'}`}>
-        {nodes.map((node, i) => (
-          <li key={i}>
-            <div className={`flex items-center justify-between group cursor-pointer`}>
-              <div className="flex items-center gap-2">
-                {node.children && (
-                  <ChevronDown size={14} className={node.isActive ? 'text-[#6C2BFF]' : 'text-gray-400'} />
-                )}
-                <span className={`text-sm font-bold transition-colors ${
-                  node.isActive && !node.children ? 'text-[#6C2BFF]' : 'text-gray-700 hover:text-[#6C2BFF]'
-                }`}>
-                  {node.label}
-                </span>
-              </div>
-              {node.isActive && !node.children && (
-                <div className="w-1.5 h-1.5 rounded-full bg-[#6C2BFF]"></div>
-              )}
-            </div>
-            {node.children && node.isActive && renderTree(node.children, level + 1)}
-          </li>
-        ))}
-      </ul>
-    );
-  };
+const CategoryTree: React.FC<CategoryTreeProps> = ({ selected, onSelect }) => {
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+
+  useEffect(() => {
+    apiGet<{ success: boolean; data: { categories: ApiCategory[] } }>('/categories')
+      .then(res => setCategories(res.data.categories || []))
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="mb-8">
       <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-6">Categories</h3>
-      {renderTree(treeData)}
+      <ul className="space-y-3">
+        <li>
+          <button
+            onClick={() => onSelect?.('')}
+            className={`flex items-center justify-between w-full group ${!selected ? 'text-[#FF6B2C]' : 'text-gray-700 hover:text-[#FF6B2C]'}`}
+          >
+            <span className="text-sm font-bold">All Categories</span>
+            {!selected && <Circle size={6} className="fill-[#FF6B2C] text-[#FF6B2C]" />}
+          </button>
+        </li>
+        {categories.map(cat => (
+          <li key={cat.id}>
+            <button
+              onClick={() => onSelect?.(cat.id)}
+              className={`flex items-center justify-between w-full group ${selected === cat.id ? 'text-[#FF6B2C]' : 'text-gray-700 hover:text-[#FF6B2C]'}`}
+            >
+              <span className="text-sm font-bold">{cat.name}</span>
+              <span className="flex items-center gap-2">
+                {cat.product_count !== undefined && (
+                  <span className="text-[10px] font-bold text-gray-400">({cat.product_count})</span>
+                )}
+                {selected === cat.id && <Circle size={6} className="fill-[#FF6B2C] text-[#FF6B2C]" />}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

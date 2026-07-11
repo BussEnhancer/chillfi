@@ -1,19 +1,63 @@
-import React from 'react';
-import { MapPin, Truck, ShieldCheck, Heart, ShoppingCart, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Truck, ShieldCheck, Heart, ShoppingCart, Zap, CheckCircle2 } from 'lucide-react';
+import { useStore } from '../../context/StoreContext';
+import { CartItem } from '../../context/StoreContext';
 
-const DeliveryActionCard: React.FC = () => {
+interface DeliveryActionCardProps {
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    oldPrice: number;
+    stock: number;
+    img: string;
+    brand: string;
+    category: string;
+  };
+  isWishlisted?: boolean;
+  onWishlistToggle?: () => void;
+}
+
+const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
+  product,
+  isWishlisted = false,
+  onWishlistToggle,
+}) => {
+  const { addToCart, cart } = useStore();
+  const [added, setAdded] = useState(false);
+
+  const inCart = product ? cart.some(i => i.id === product.id) : false;
+
+  const handleAddToCart = () => {
+    if (!product || product.stock === 0) return;
+    const item: CartItem = {
+      id: product.id,
+      name: product.name,
+      img: product.img,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      brand: product.brand,
+      category: product.category,
+      qty: 1,
+    };
+    addToCart(item);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
+  const outOfStock = product ? product.stock === 0 : false;
+
   return (
     <div className="sticky top-32 space-y-6">
       <div className="bg-white rounded-[24px] border border-[#ECECEC] p-6 shadow-sm">
-        {/* Pincode Section */}
+        {/* Delivery */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <MapPin size={18} className="text-[#6C2BFF]" />
-            <span className="text-sm font-bold text-gray-500 uppercase tracking-wider text-[11px]">Delivery</span>
+            <MapPin size={18} className="text-[#FF6B2C]" />
+            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Delivery</span>
           </div>
           <div className="flex items-center gap-3">
-             <span className="text-sm font-black text-[#111827]">560001</span>
-             <button className="text-[11px] font-black text-[#6C2BFF] uppercase tracking-widest hover:underline">Change</button>
+            <span className="text-sm font-black text-[#111827]">Across India</span>
           </div>
         </div>
 
@@ -21,36 +65,67 @@ const DeliveryActionCard: React.FC = () => {
           <div className="flex items-start gap-3">
             <Truck size={20} className="text-gray-400 mt-0.5" />
             <div>
-              <p className="text-sm font-black text-[#111827]">Get it by Tomorrow, 19 May</p>
+              <p className="text-sm font-black text-[#111827]">Standard Delivery in 3–5 Days</p>
               <p className="text-[11px] font-bold text-green-600">FREE Delivery on orders above ₹499</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3 pt-6 border-t border-[#F8F7FC] mb-8">
-           {[
-             { icon: <ShieldCheck size={16} />, text: '100% Original Products' },
-             { icon: <Zap size={16} />, text: 'Secure Payments' },
-           ].map((item, i) => (
-             <div key={i} className="flex items-center gap-3 text-[11px] font-bold text-gray-500">
-                <span className="text-[#6C2BFF]">{item.icon}</span>
-                {item.text}
-             </div>
-           ))}
+        {outOfStock && (
+          <div className="bg-red-50 text-red-600 text-xs font-black uppercase tracking-widest px-4 py-3 rounded-xl border border-red-100 mb-6 text-center">
+            Out of Stock
+          </div>
+        )}
+
+        {product && !outOfStock && (
+          <p className="text-[11px] font-bold text-green-600 mb-4">
+            ✓ {product.stock} units in stock
+          </p>
+        )}
+
+        <div className="space-y-3 pt-4 border-t border-[#F8F7FC] mb-8">
+          {[
+            { icon: <ShieldCheck size={16} />, text: '100% Original Products' },
+            { icon: <Zap size={16} />, text: 'Secure & Easy Payments' },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-3 text-[11px] font-bold text-gray-500">
+              <span className="text-[#FF6B2C]">{item.icon}</span>
+              {item.text}
+            </div>
+          ))}
         </div>
 
-        {/* Primary Actions */}
         <div className="space-y-4">
-          <button className="w-full bg-[#6C2BFF] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#6C2BFF]/20 hover:scale-[1.02] transition-all">
-            <ShoppingCart size={20} />
-            Add To Cart
+          <button
+            onClick={handleAddToCart}
+            disabled={outOfStock}
+            className={`w-full py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl transition-all ${
+              added
+                ? 'bg-green-500 text-white shadow-green-500/20'
+                : outOfStock
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                : 'bg-[#FF6B2C] text-white shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98]'
+            }`}
+          >
+            {added ? (
+              <><CheckCircle2 size={20} />Added to Cart!</>
+            ) : inCart ? (
+              <><ShoppingCart size={20} />Go to Cart</>
+            ) : (
+              <><ShoppingCart size={20} />Add To Cart</>
+            )}
           </button>
-          <button className="w-full border-2 border-[#6C2BFF] text-[#6C2BFF] py-4 rounded-xl font-black hover:bg-[#6C2BFF]/5 transition-all">
-            Buy Now
-          </button>
-          <button className="w-full border-2 border-[#ECECEC] text-gray-700 py-4 rounded-xl font-black flex items-center justify-center gap-3 hover:border-gray-400 transition-all">
-            <Heart size={20} />
-            Add To Wishlist
+
+          <button
+            onClick={onWishlistToggle}
+            className={`w-full border-2 py-4 rounded-xl font-black flex items-center justify-center gap-3 transition-all ${
+              isWishlisted
+                ? 'border-red-400 text-red-500 bg-red-50'
+                : 'border-[#ECECEC] text-gray-700 hover:border-gray-400'
+            }`}
+          >
+            <Heart size={20} className={isWishlisted ? 'fill-red-500' : ''} />
+            {isWishlisted ? 'Wishlisted' : 'Add To Wishlist'}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/services/wishlist_service.dart';
 import 'package:chillfi/features/profile/widgets/push_notification_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ class PushNotificationsScreen extends StatefulWidget {
 }
 
 class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
+  final _profileService = ProfileService();
+
   bool masterToggle = true;
   bool orderUpdates = true;
   bool offersDeals = true;
@@ -21,6 +24,69 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
   bool recommendations = true;
   bool wishlistAlerts = true;
   bool chillfiUpdates = true;
+  TimeOfDay quietStart = const TimeOfDay(hour: 23, minute: 0);
+  TimeOfDay quietEnd = const TimeOfDay(hour: 7, minute: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await _profileService.getNotificationPreferences();
+    if (!mounted) return;
+    setState(() {
+      masterToggle = prefs['pushMaster'] as bool? ?? true;
+      orderUpdates = prefs['orderUpdates'] as bool? ?? true;
+      offersDeals = prefs['offersDeals'] as bool? ?? true;
+      newArrivals = prefs['newArrivals'] as bool? ?? true;
+      priceAlerts = prefs['priceAlerts'] as bool? ?? true;
+      recommendations = prefs['recommendations'] as bool? ?? true;
+      wishlistAlerts = prefs['wishlistAlerts'] as bool? ?? true;
+      chillfiUpdates = prefs['chillfiUpdates'] as bool? ?? true;
+      quietStart = _parseTime(prefs['pushQuietStart'] as String?) ?? quietStart;
+      quietEnd = _parseTime(prefs['pushQuietEnd'] as String?) ?? quietEnd;
+    });
+  }
+
+  TimeOfDay? _parseTime(String? value) {
+    if (value == null) return null;
+    final parts = value.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  String _formatTime(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+  void _savePrefs() {
+    _profileService.updateNotificationPreferences({
+      'pushMaster': masterToggle,
+      'orderUpdates': orderUpdates,
+      'offersDeals': offersDeals,
+      'newArrivals': newArrivals,
+      'priceAlerts': priceAlerts,
+      'recommendations': recommendations,
+      'wishlistAlerts': wishlistAlerts,
+      'chillfiUpdates': chillfiUpdates,
+      'pushQuietStart': _formatTime(quietStart),
+      'pushQuietEnd': _formatTime(quietEnd),
+    });
+  }
+
+  String get _quietHoursLabel => '${quietStart.format(context)} – ${quietEnd.format(context)}';
+
+  Future<void> _pickQuietHours() async {
+    final start = await showTimePicker(context: context, initialTime: quietStart, helpText: 'Quiet hours start');
+    if (start == null || !mounted) return;
+    final end = await showTimePicker(context: context, initialTime: quietEnd, helpText: 'Quiet hours end');
+    if (end == null || !mounted) return;
+    setState(() { quietStart = start; quietEnd = end; });
+    _savePrefs();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +193,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                       CupertinoSwitch(
                         value: masterToggle,
                         activeTrackColor: AppColors.secondaryPurple,
-                        onChanged: (val) => setState(() => masterToggle = val),
+                        onChanged: (val) { setState(() => masterToggle = val); _savePrefs(); },
                       ),
                     ],
                   ),
@@ -170,7 +236,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "Order Updates",
                     description: "Get notified about order confirmations, shipping updates and delivery status.",
                     value: orderUpdates,
-                    onChanged: (val) => setState(() => orderUpdates = val),
+                    onChanged: (val) { setState(() => orderUpdates = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -178,7 +244,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "Offers & Deals",
                     description: "Stay updated with exclusive offers, discounts and promotions.",
                     value: offersDeals,
-                    onChanged: (val) => setState(() => offersDeals = val),
+                    onChanged: (val) { setState(() => offersDeals = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -186,7 +252,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "New Arrivals",
                     description: "Be the first to know about new products and collections.",
                     value: newArrivals,
-                    onChanged: (val) => setState(() => newArrivals = val),
+                    onChanged: (val) { setState(() => newArrivals = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -194,7 +260,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "Price Alerts",
                     description: "Receive alerts when your favorite products drop in price.",
                     value: priceAlerts,
-                    onChanged: (val) => setState(() => priceAlerts = val),
+                    onChanged: (val) { setState(() => priceAlerts = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -202,7 +268,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "Recommendations",
                     description: "Get personalized product and category recommendations.",
                     value: recommendations,
-                    onChanged: (val) => setState(() => recommendations = val),
+                    onChanged: (val) { setState(() => recommendations = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -210,7 +276,7 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "Wishlist Alerts",
                     description: "Get notified about price drops and availability of wishlist items.",
                     value: wishlistAlerts,
-                    onChanged: (val) => setState(() => wishlistAlerts = val),
+                    onChanged: (val) { setState(() => wishlistAlerts = val); _savePrefs(); },
                   ),
                   _divider(),
                   PushCategoryTile(
@@ -218,18 +284,19 @@ class _PushNotificationsScreenState extends State<PushNotificationsScreen> {
                     title: "ChillFI Updates",
                     description: "Important announcements, feature updates and service alerts.",
                     value: chillfiUpdates,
-                    onChanged: (val) => setState(() => chillfiUpdates = val),
+                    onChanged: (val) { setState(() => chillfiUpdates = val); _savePrefs(); },
                   ),
                 ],
               ),
             ),
 
             SizedBox(height: 24.h),
-            const PushInfoRowCard(
+            PushInfoRowCard(
               icon: Icons.nights_stay_outlined,
               title: "Quiet Hours",
               subtitle: "Choose time when you don't want to receive notifications",
-              trailingText: "11:00 PM – 7:00 AM",
+              trailingText: _quietHoursLabel,
+              onTap: _pickQuietHours,
             ),
             SizedBox(height: 16.h),
             const PushInfoRowCard(

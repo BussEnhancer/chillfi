@@ -13,6 +13,11 @@ class OfferProductCard extends StatelessWidget {
   final double rating;
   final String reviews;
   final bool hasOfferRibbon;
+  final String? imageUrl;
+  final VoidCallback? onTap;
+  final bool isWishlisted;
+  final VoidCallback? onWishlistToggle;
+  final VoidCallback? onAddToCart;
 
   const OfferProductCard({
     super.key,
@@ -25,11 +30,18 @@ class OfferProductCard extends StatelessWidget {
     required this.rating,
     required this.reviews,
     this.hasOfferRibbon = false,
+    this.imageUrl,
+    this.onTap,
+    this.isWishlisted = false,
+    this.onWishlistToggle,
+    this.onAddToCart,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 160.w,
       margin: EdgeInsets.only(right: 16.w, bottom: 8.h),
       decoration: BoxDecoration(
@@ -59,8 +71,12 @@ class OfferProductCard extends StatelessWidget {
                     topRight: Radius.circular(16.r),
                   ),
                 ),
-                child: Center(
-                  child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300]),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+                  child: imageUrl != null && imageUrl!.isNotEmpty
+                      ? Image.network(imageUrl!, height: 110.h, width: double.infinity, fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => Center(child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300])))
+                      : Center(child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300])),
                 ),
               ),
               Positioned(
@@ -97,7 +113,14 @@ class OfferProductCard extends StatelessWidget {
               Positioned(
                 top: 8.h,
                 right: 8.w,
-                child: Icon(Icons.favorite_outline_rounded, color: AppColors.greyText, size: 18.sp),
+                child: GestureDetector(
+                  onTap: onWishlistToggle,
+                  child: Icon(
+                    isWishlisted ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                    color: isWishlisted ? Colors.red : AppColors.greyText,
+                    size: 18.sp,
+                  ),
+                ),
               ),
             ],
           ),
@@ -170,14 +193,17 @@ class OfferProductCard extends StatelessWidget {
                         color: Colors.green,
                       ),
                     ),
-                    Container(
-                      width: 28.r,
-                      height: 28.r,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryPurple,
-                        borderRadius: BorderRadius.circular(8.r),
+                    GestureDetector(
+                      onTap: onAddToCart,
+                      child: Container(
+                        width: 28.r,
+                        height: 28.r,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryPurple,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
                       ),
-                      child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
                     ),
                   ],
                 ),
@@ -185,6 +211,7 @@ class OfferProductCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

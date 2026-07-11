@@ -143,7 +143,8 @@ class CancellationWarningCard extends StatelessWidget {
 }
 
 class ReasonRadioList extends StatefulWidget {
-  const ReasonRadioList({super.key});
+  final ValueChanged<String>? onSelected;
+  const ReasonRadioList({super.key, this.onSelected});
 
   @override
   State<ReasonRadioList> createState() => _ReasonRadioListState();
@@ -180,12 +181,21 @@ class _ReasonRadioListState extends State<ReasonRadioList> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => widget.onSelected?.call(reasons[selectedIndex]['title']!));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: List.generate(reasons.length, (index) {
         bool isSelected = selectedIndex == index;
         return GestureDetector(
-          onTap: () => setState(() => selectedIndex = index),
+          onTap: () {
+            setState(() => selectedIndex = index);
+            widget.onSelected?.call(reasons[index]['title']!);
+          },
           child: Container(
             margin: EdgeInsets.only(bottom: 12.h),
             padding: EdgeInsets.all(16.w),
@@ -243,7 +253,8 @@ class _ReasonRadioListState extends State<ReasonRadioList> {
 }
 
 class AdditionalCommentsBox extends StatelessWidget {
-  const AdditionalCommentsBox({super.key});
+  final TextEditingController? controller;
+  const AdditionalCommentsBox({super.key, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -282,6 +293,7 @@ class AdditionalCommentsBox extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: controller,
                     maxLines: null,
                     decoration: InputDecoration(
                       hintText: "Write your comments here...",

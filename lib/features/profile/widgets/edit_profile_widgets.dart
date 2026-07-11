@@ -141,9 +141,9 @@ class PremiumEditField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 72.h,
+      constraints: BoxConstraints(minHeight: 72.h),
       margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -151,29 +151,31 @@ class PremiumEditField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(prefixIcon, color: AppColors.greyText, size: 22.sp),
-          SizedBox(width: 16.w),
+          Icon(prefixIcon, color: AppColors.greyText, size: 20.sp),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                     children: [
                       TextSpan(
                         text: label,
                         style: GoogleFonts.poppins(
-                          fontSize: 12.sp,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w500,
                           color: AppColors.greyText,
                         ),
                       ),
                       if (isOptional)
                         TextSpan(
-                          text: ' (Optional)',
+                          text: ' (Opt)',
                           style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
+                            fontSize: 10.sp,
                             color: AppColors.greyText.withValues(alpha: 0.6),
                           ),
                         ),
@@ -182,8 +184,10 @@ class PremiumEditField extends StatelessWidget {
                 ),
                 Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkText,
                   ),
@@ -212,9 +216,9 @@ class PremiumDropdownField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 72.h,
+      constraints: BoxConstraints(minHeight: 72.h),
       margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -222,8 +226,8 @@ class PremiumDropdownField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(prefixIcon, color: AppColors.greyText, size: 22.sp),
-          SizedBox(width: 16.w),
+          Icon(prefixIcon, color: AppColors.greyText, size: 20.sp),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -231,16 +235,20 @@ class PremiumDropdownField extends StatelessWidget {
               children: [
                 Text(
                   label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w500,
                     color: AppColors.greyText,
                   ),
                 ),
                 Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkText,
                   ),
@@ -248,7 +256,7 @@ class PremiumDropdownField extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.greyText, size: 24.sp),
+          Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.greyText, size: 20.sp),
         ],
       ),
     );

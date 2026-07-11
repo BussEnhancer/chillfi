@@ -23,11 +23,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool exclusiveOffers = true;
   bool saleAlerts = true;
   bool priceDrop = false;
-  bool coupons = true;
 
   // Account Toggles
   bool accountUpdates = true;
-  bool walletPayments = true;
   bool reviewsRatings = false;
   bool wishlistReminders = false;
 
@@ -164,13 +162,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 value: priceDrop,
                 onChanged: (val) => setState(() => priceDrop = val),
               ),
-              NotificationToggleItem(
-                icon: Icons.confirmation_number_outlined,
-                title: "Coupons & Vouchers",
-                description: "Receive coupons and voucher notifications",
-                value: coupons,
-                onChanged: (val) => setState(() => coupons = val),
-              ),
             ]),
 
             SizedBox(height: 32.h),
@@ -187,13 +178,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 description: "Important updates about your account",
                 value: accountUpdates,
                 onChanged: (val) => setState(() => accountUpdates = val),
-              ),
-              NotificationToggleItem(
-                icon: Icons.account_balance_wallet_outlined,
-                title: "Wallet & Payments",
-                description: "Updates about wallet, refunds and payments",
-                value: walletPayments,
-                onChanged: (val) => setState(() => walletPayments = val),
               ),
               NotificationToggleItem(
                 icon: Icons.chat_bubble_outline_rounded,

@@ -1,26 +1,44 @@
 import React from 'react';
-import { CheckCircle2, Star } from 'lucide-react';
+import { CheckCircle2, Truck, Clock, XCircle, Star } from 'lucide-react';
 
-const TrackingStatusCard: React.FC = () => {
+interface TrackingStatusCardProps {
+  status: string;
+  updatedAt: string;
+}
+
+const STATUS_CONFIG: Record<string, { icon: React.ReactNode; bg: string; iconBg: string; title: string; message: string }> = {
+  Delivered: { icon: <CheckCircle2 size={32} />, bg: 'bg-green-50 border-green-100', iconBg: 'bg-green-500 shadow-green-200', title: 'Delivered', message: 'Your order has been delivered on' },
+  Shipped: { icon: <Truck size={32} />, bg: 'bg-blue-50 border-blue-100', iconBg: 'bg-blue-500 shadow-blue-200', title: 'Shipped', message: 'Your order is on its way, last updated' },
+  Processing: { icon: <Clock size={32} />, bg: 'bg-amber-50 border-amber-100', iconBg: 'bg-amber-500 shadow-amber-200', title: 'Processing', message: 'Your order is being prepared, last updated' },
+  Cancelled: { icon: <XCircle size={32} />, bg: 'bg-red-50 border-red-100', iconBg: 'bg-red-500 shadow-red-200', title: 'Cancelled', message: 'Your order was cancelled on' },
+};
+
+const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updatedAt }) => {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.Processing;
+  const d = new Date(updatedAt);
+  const dateStr = `${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+
   return (
-    <div className="bg-green-50 rounded-[24px] border border-green-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+    <div className={`${cfg.bg} rounded-[24px] border p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8`}>
       <div className="flex items-center gap-6">
-        <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200">
-          <CheckCircle2 size={32} />
+        <div className={`w-14 h-14 ${cfg.iconBg} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
+          {cfg.icon}
         </div>
         <div>
-          <h3 className="text-xl font-black text-[#111827] mb-1">Delivered</h3>
+          <h3 className="text-xl font-black text-[#111827] mb-1">{cfg.title}</h3>
           <p className="text-sm font-bold text-gray-500 leading-tight">
-            Your order has been delivered on <br />
-            <span className="text-[#111827]">May 18, 2025 at 02:45 PM</span>
+            {cfg.message} <br />
+            <span className="text-[#111827]">{dateStr}</span>
           </p>
         </div>
       </div>
 
-      <button className="bg-white border-2 border-[#6C2BFF] text-[#6C2BFF] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#6C2BFF] hover:text-white transition-all shadow-sm">
-        <Star size={18} />
-        Rate & Review
-      </button>
+      {status === 'Delivered' && (
+        <button className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm">
+          <Star size={18} />
+          Rate & Review
+        </button>
+      )}
     </div>
   );
 };

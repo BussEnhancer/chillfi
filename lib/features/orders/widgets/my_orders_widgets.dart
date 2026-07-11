@@ -311,20 +311,27 @@ class OngoingOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.local_shipping_outlined, color: AppColors.secondaryPurple, size: 16.sp),
-                  SizedBox(width: 8.w),
-                  Text(
-                    "Expected Delivery: 24 May 2026",
-                    style: GoogleFonts.poppins(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.darkText,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(Icons.local_shipping_outlined, color: AppColors.secondaryPurple, size: 16.sp),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        "Expected Delivery: 24 May 2026",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.darkText,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              SizedBox(width: 8.w),
               Text(
                 "Track Order >",
                 style: GoogleFonts.poppins(
@@ -452,12 +459,16 @@ class DeliveredOrderCard extends StatelessWidget {
                       children: [
                         Icon(Icons.check_circle_rounded, color: Colors.green, size: 14.sp),
                         SizedBox(width: 4.w),
-                        Text(
-                          "Delivered on 12 May 2026",
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green,
+                        Expanded(
+                          child: Text(
+                            "Delivered on 12 May 2026",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green,
+                            ),
                           ),
                         ),
                       ],
@@ -505,31 +516,34 @@ class DeliveredOrderCard extends StatelessWidget {
 
   Widget _buildActionBtn(IconData? icon, String label) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(10.r),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, color: AppColors.secondaryPurple, size: 16.sp),
-            SizedBox(width: 6.w),
-          ],
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkText,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.secondaryPurple, size: 16.sp),
+              SizedBox(width: 6.w),
+            ],
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkText,
+              ),
             ),
-          ),
-          if (icon == null) ...[
-            SizedBox(width: 4.w),
-            Icon(Icons.chevron_right_rounded, color: AppColors.greyText, size: 16.sp),
+            if (icon == null) ...[
+              SizedBox(width: 4.w),
+              Icon(Icons.chevron_right_rounded, color: AppColors.greyText, size: 16.sp),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -893,6 +907,7 @@ class StickyTrackCTA extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   "Track Latest Order",

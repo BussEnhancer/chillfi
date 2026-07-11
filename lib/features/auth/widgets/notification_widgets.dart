@@ -49,7 +49,7 @@ class _NotificationIllustrationState extends State<NotificationIllustration> wit
   Widget build(BuildContext context) {
     return SizedBox(
       height: 220.h,
-      width: double.infinity,
+      width: 1.sw,
       child: Stack(
         alignment: Alignment.center,
         children: [

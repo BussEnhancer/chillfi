@@ -188,33 +188,37 @@ class SavedAddressCard extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 12.h),
-                          Row(
-                            children: [
-                              Text(
-                                contactName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.darkText,
-                                ),
-                              ),
-                              SizedBox(width: 12.w),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondaryPurple.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                child: Text(
-                                  phoneNumber,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text(
+                                  contactName,
                                   style: GoogleFonts.poppins(
-                                    fontSize: 11.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.secondaryPurple,
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.darkText,
                                   ),
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 12.w),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondaryPurple.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  child: Text(
+                                    phoneNumber,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.secondaryPurple,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -230,39 +234,46 @@ class SavedAddressCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: onSetDefault,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 18.r,
-                        height: 18.r,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isDefault ? AppColors.secondaryPurple : Colors.white,
-                          border: Border.all(
-                            color: isDefault ? AppColors.secondaryPurple : AppColors.lightGrey,
-                            width: isDefault ? 5.r : 1.5,
+                Expanded(
+                  child: GestureDetector(
+                    onTap: onSetDefault,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 18.r,
+                          height: 18.r,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isDefault ? AppColors.secondaryPurple : Colors.white,
+                            border: Border.all(
+                              color: isDefault ? AppColors.secondaryPurple : AppColors.lightGrey,
+                              width: isDefault ? 5.r : 1.5,
+                            ),
+                          ),
+                          child: isDefault ? Icon(Icons.check, color: Colors.white, size: 10.sp) : null,
+                        ),
+                        SizedBox(width: 10.w),
+                        Flexible(
+                          child: Text(
+                            isDefault ? "Default Address" : "Set as Default",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                              color: isDefault ? AppColors.secondaryPurple : AppColors.darkText,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        child: isDefault ? Icon(Icons.check, color: Colors.white, size: 10.sp) : null,
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        isDefault ? "Default Address" : "Set as Default",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDefault ? AppColors.secondaryPurple : AppColors.darkText,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+                SizedBox(width: 10.w),
                 Row(
                   children: [
                     _buildActionButton(Icons.edit_outlined, "Edit", AppColors.secondaryPurple, onEdit),
-                    SizedBox(width: 20.w),
+                    SizedBox(width: 12.w),
                     _buildActionButton(Icons.delete_outline_rounded, "Delete", Colors.red, onDelete),
                   ],
                 ),

@@ -39,7 +39,7 @@ class _LocationIllustrationState extends State<LocationIllustration> with Single
       builder: (context, child) {
         return SizedBox(
           height: 180.h,
-          width: double.infinity,
+          width: 1.sw,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -49,6 +49,7 @@ class _LocationIllustrationState extends State<LocationIllustration> with Single
                 child: Opacity(
                   opacity: 0.1,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

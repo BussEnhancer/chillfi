@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import CategoryNav from '../../components/navigation/CategoryNav';
@@ -7,58 +7,83 @@ import Container from '../../components/common/Container';
 import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
-import WishlistToolbar from '../../components/wishlist/WishlistToolbar';
-import WishlistItemCard from '../../components/wishlist/WishlistItemCard';
-import WishlistSummary from '../../sections/Wishlist/WishlistSummary';
 import WishlistSuggestions from '../../sections/Wishlist/WishlistSuggestions';
+import WishlistSummary from '../../sections/Wishlist/WishlistSummary';
 import WishlistPromo from '../../sections/Wishlist/WishlistPromo';
+import { Share2, ShoppingBag, Heart, Loader2, Trash2 } from 'lucide-react';
+import { apiGet, apiDelete } from '../../utils/api';
+import { useStore } from '../../context/StoreContext';
 
-import { Share2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const mockWishlistItems: any[] = [
-  {
-    image: 'https://images.unsplash.com/photo-1512374382149-233c42b6a83b?auto=format&fit=crop&q=80&w=400',
-    name: "Nike Air Max Excee Men's Sneakers",
-    size: '8 UK',
-    color: 'Black/White',
-    addedDate: 'May 15, 2025',
-    price: 5999,
-    stockStatus: 'In Stock',
-    isChecked: true,
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400',
-    name: 'Fastrack Men Black Analog Watch',
-    color: 'Brown',
-    addedDate: 'May 14, 2025',
-    price: 2495,
-    stockStatus: 'In Stock',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400',
-    name: 'Puma Smashic Unisex Sneakers',
-    size: '7 UK',
-    color: 'White',
-    addedDate: 'May 13, 2025',
-    price: 2999,
-    stockStatus: 'In Stock',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=400',
-    name: 'Lavie Women Green Satchel Bag',
-    color: 'Green',
-    addedDate: 'May 12, 2025',
-    price: 1799,
-    stockStatus: 'Low Stock',
-    stockCount: 2,
-  },
-];
+interface ApiWishlistItem {
+  id: string;
+  product_id: string;
+  name: string;
+  price: number;
+  old_price: number;
+  rating: number;
+  stock: number;
+  status: string;
+  image: string;
+}
 
 const WishlistPage: React.FC = () => {
+  const { addToCart } = useStore();
+  const [items, setItems] = useState<ApiWishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [removing, setRemoving] = useState<string | null>(null);
+
   const breadcrumbItems = [
-    { label: 'My Account', href: '#' },
+    { label: 'My Account', href: '/account' },
     { label: 'Wishlist' }
   ];
+
+  const loadWishlist = async () => {
+    setLoading(true); setError('');
+    try {
+      const res = await apiGet<{ success: boolean; data: ApiWishlistItem[] }>('/wishlist');
+      setItems(res.data || []);
+    } catch (e: any) {
+      setError(e.message || 'Failed to load wishlist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadWishlist(); }, []);
+
+  const handleRemove = async (id: string) => {
+    setRemoving(id);
+    try {
+      await apiDelete(`/wishlist/${id}`);
+      setItems(prev => prev.filter(i => i.id !== id));
+    } catch {}
+    setRemoving(null);
+  };
+
+  const handleMoveToCart = (item: ApiWishlistItem) => {
+    addToCart({
+      id: item.product_id,
+      name: item.name,
+      img: item.image,
+      price: item.price,
+      oldPrice: item.old_price || 0,
+      brand: '',
+      category: '',
+      qty: 1,
+    });
+    handleRemove(item.id);
+  };
+
+  const handleMoveAllToCart = () => {
+    items.filter(i => i.status !== 'Out of Stock').forEach(item => handleMoveToCart(item));
+  };
+
+  const stockLabel = (item: ApiWishlistItem): 'In Stock' | 'Low Stock' | 'Out of Stock' => {
+    if (item.status === 'Out of Stock' || item.stock === 0) return 'Out of Stock';
+    if (item.stock <= 5) return 'Low Stock';
+    return 'In Stock';
+  };
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
@@ -70,68 +95,102 @@ const WishlistPage: React.FC = () => {
       <Container className="py-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-black text-[#111827] mb-1">My Wishlist <span className="text-gray-400 font-bold">(12)</span></h1>
+            <h1 className="text-3xl font-black text-[#111827] mb-1">
+              My Wishlist <span className="text-gray-400 font-bold">({items.length})</span>
+            </h1>
             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Items you love, saved for later</p>
           </div>
           <div className="flex items-center gap-4">
-             <button className="flex items-center gap-2 border-2 border-[#ECECEC] text-[#111827] px-6 py-2.5 rounded-xl font-black text-sm hover:border-[#6C2BFF] hover:text-[#6C2BFF] transition-all">
-                <Share2 size={18} />
-                Share Wishlist
-             </button>
-             <button className="flex items-center gap-2 bg-[#6C2BFF] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#5A24D6] shadow-lg shadow-[#6C2BFF]/20 transition-all">
-                <ShoppingBag size={18} />
-                Move All to Bag
-             </button>
+            <button className="flex items-center gap-2 border-2 border-[#ECECEC] text-[#111827] px-6 py-2.5 rounded-xl font-black text-sm hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all">
+              <Share2 size={18} />
+              Share Wishlist
+            </button>
+            <button
+              onClick={handleMoveAllToCart}
+              disabled={items.length === 0}
+              className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] shadow-lg shadow-[#FF6B2C]/20 transition-all disabled:opacity-50"
+            >
+              <ShoppingBag size={18} />
+              Move All to Bag
+            </button>
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Left: Sidebar */}
           <AccountSidebar activeId="wishlist" />
 
-          {/* Center: Main Content */}
           <div className="flex-1 min-w-0">
-             <WishlistToolbar />
-
-             <div className="space-y-4">
-                {mockWishlistItems.map((item, i) => (
-                  <WishlistItemCard key={i} {...item} />
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={32} className="animate-spin text-[#FF6B2C]" />
+              </div>
+            ) : error ? (
+              <div className="py-16 text-center">
+                <p className="text-red-500 font-bold mb-4">{error}</p>
+                <button onClick={loadWishlist} className="text-[#FF6B2C] font-black text-sm hover:underline">Try again</button>
+              </div>
+            ) : items.length === 0 ? (
+              <div className="py-20 text-center">
+                <Heart size={48} className="mx-auto text-gray-200 mb-4" />
+                <h3 className="text-lg font-black text-[#111827] mb-2">Your wishlist is empty</h3>
+                <p className="text-sm font-bold text-gray-400">Save items you love to your wishlist</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {items.map(item => (
+                  <div key={item.id} className="bg-white rounded-[20px] p-6 border border-[#ECECEC] hover:shadow-xl hover:border-[#FF6B2C]/10 transition-all group relative">
+                    <div className="flex items-center gap-5">
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#F8F7FC] border border-[#ECECEC] shrink-0">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-[#111827] truncate mb-1">{item.name}</p>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-lg font-black text-[#FF6B2C]">₹{Number(item.price).toLocaleString()}</span>
+                          {item.old_price > item.price && (
+                            <span className="text-xs text-gray-400 line-through">₹{Number(item.old_price).toLocaleString()}</span>
+                          )}
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          stockLabel(item) === 'In Stock' ? 'bg-green-50 text-green-600' :
+                          stockLabel(item) === 'Low Stock' ? 'bg-amber-50 text-amber-600' :
+                          'bg-red-50 text-red-500'
+                        }`}>
+                          {stockLabel(item)}{item.stock > 0 && item.stock <= 5 ? ` — ${item.stock} left` : ''}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-2 shrink-0">
+                        <button
+                          onClick={() => handleMoveToCart(item)}
+                          disabled={item.stock === 0 || item.status === 'Out of Stock'}
+                          className="flex items-center gap-2 bg-[#FF6B2C] text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-[#E05520] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <ShoppingBag size={14} />
+                          Add to Cart
+                        </button>
+                        <button
+                          onClick={() => handleRemove(item.id)}
+                          disabled={removing === item.id}
+                          className="flex items-center gap-2 text-red-400 hover:text-red-600 text-xs font-black justify-center disabled:opacity-50"
+                        >
+                          {removing === item.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-             </div>
-
-             {/* Pagination */}
-             <div className="mt-12 flex items-center justify-between">
-                <p className="text-xs font-bold text-gray-400">Showing 1 to 4 of 12 items</p>
-                <div className="flex items-center gap-2">
-                   <button className="w-10 h-10 flex items-center justify-center text-gray-400 border border-[#ECECEC] rounded-xl hover:border-[#6C2BFF] transition-all">
-                      <ChevronLeft size={20} />
-                   </button>
-                   {[1, 2, 3].map((p, i) => (
-                     <button
-                       key={i}
-                       className={`w-10 h-10 flex items-center justify-center text-sm font-black rounded-xl transition-all ${
-                         p === 1 ? 'bg-[#6C2BFF] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'
-                       }`}
-                     >
-                       {p}
-                     </button>
-                   ))}
-                   <button className="w-10 h-10 flex items-center justify-center text-gray-400 border border-[#ECECEC] rounded-xl hover:border-[#6C2BFF] transition-all">
-                      <ChevronRight size={20} />
-                   </button>
-                </div>
-             </div>
+              </div>
+            )}
           </div>
 
-          {/* Right: Sidebar */}
           <div className="lg:w-[320px] shrink-0 space-y-8">
-             <WishlistSuggestions />
-             <WishlistSummary />
-             <WishlistPromo />
+            <WishlistSuggestions />
+            <WishlistSummary />
+            <WishlistPromo />
           </div>
         </div>
 
-        {/* Global Trust Strip */}
         <CheckoutTrustStrip />
       </Container>
 

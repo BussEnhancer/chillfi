@@ -279,7 +279,7 @@ class _AgreementCheckboxState extends State<AgreementCheckbox> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         GestureDetector(
           onTap: () => setState(() => _isChecked = !_isChecked),
@@ -298,12 +298,14 @@ class _AgreementCheckboxState extends State<AgreementCheckbox> {
           ),
         ),
         SizedBox(width: 12.w),
-        Text(
-          "I have read, understood and agree to the Terms & Conditions",
-          style: GoogleFonts.poppins(
-            fontSize: 11.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.darkText,
+        Expanded(
+          child: Text(
+            "I have read, understood and agree to the Terms & Conditions",
+            style: GoogleFonts.poppins(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.darkText,
+            ),
           ),
         ),
       ],

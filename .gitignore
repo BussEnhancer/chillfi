@@ -43,3 +43,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets — never commit these
+backend/.env
+backend/firebase-service-account.json
+web/website/.env
+web/website/.env.local
+android/key.properties
+
+# Build outputs
+web/website/dist/
+backend/uploads/
+
+# Node modules
+backend/node_modules/
+web/website/node_modules/

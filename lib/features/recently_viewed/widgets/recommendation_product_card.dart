@@ -7,17 +7,25 @@ class RecommendationProductCard extends StatelessWidget {
   final String title;
   final String price;
   final double rating;
+  final String? imageUrl;
+  final VoidCallback? onTap;
+  final VoidCallback? onAddToCart;
 
   const RecommendationProductCard({
     super.key,
     required this.title,
     required this.price,
     required this.rating,
+    this.imageUrl,
+    this.onTap,
+    this.onAddToCart,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 140.w,
       margin: EdgeInsets.only(right: 12.w),
       padding: EdgeInsets.all(10.w),
@@ -38,9 +46,15 @@ class RecommendationProductCard extends StatelessWidget {
                   color: const Color(0xFFF8F8F8),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: Center(
-                  child: Icon(Icons.shopping_bag_rounded, size: 40.sp, color: Colors.grey[300]),
-                ),
+                child: imageUrl != null && imageUrl!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: Image.network(imageUrl!, fit: BoxFit.cover, width: double.infinity, height: 100.h,
+                            errorBuilder: (_, _, _) => Center(child: Icon(Icons.shopping_bag_rounded, size: 40.sp, color: Colors.grey[300]))),
+                      )
+                    : Center(
+                        child: Icon(Icons.shopping_bag_rounded, size: 40.sp, color: Colors.grey[300]),
+                      ),
               ),
               Positioned(
                 top: 4.h,
@@ -87,18 +101,22 @@ class RecommendationProductCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                width: 28.r,
-                height: 28.r,
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryPurple,
-                  borderRadius: BorderRadius.circular(8.r),
+              GestureDetector(
+                onTap: onAddToCart,
+                child: Container(
+                  width: 28.r,
+                  height: 28.r,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryPurple,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
                 ),
-                child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
               ),
             ],
           ),
         ],
+      ),
       ),
     );
   }

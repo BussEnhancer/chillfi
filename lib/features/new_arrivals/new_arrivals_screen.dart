@@ -1,4 +1,8 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrival_product_card.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_category_item.dart';
@@ -7,9 +11,11 @@ import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_filter_chips.
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_header.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_hero_banner.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_notify_banner.dart';
+import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class NewArrivalsScreen extends StatefulWidget {
   const NewArrivalsScreen({super.key});
@@ -20,6 +26,25 @@ class NewArrivalsScreen extends StatefulWidget {
 
 class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
   int _selectedChipIndex = 0;
+  final _service = ProductService();
+  List<ProductModel> _arrivals = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final result = await _service.getNewArrivals(limit: 20);
+    if (!mounted) return;
+    setState(() { _arrivals = result; _loading = false; });
+  }
+
+  void _openProduct(String id) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
+  }
 
   final List<Map<String, dynamic>> _filterChips = [
     {'label': 'All', 'icon': Icons.grid_view_rounded},
@@ -40,31 +65,33 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
           children: [
             const NewArrivalsHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10.h),
-                    const NewArrivalsHeroBanner(),
-                    SizedBox(height: 20.h),
-                    _buildFilterChips(),
-                    SizedBox(height: 24.h),
-                    const NewArrivalsFeatureHighlights(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("New Arrivals"),
-                    SizedBox(height: 16.h),
-                    _buildNewArrivalsGrid(),
-                    SizedBox(height: 30.h),
-                    const NewArrivalsNotifyBanner(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("Shop by Category"),
-                    SizedBox(height: 16.h),
-                    _buildCategoryRow(),
-                    SizedBox(height: 40.h),
-                  ],
-                ),
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10.h),
+                          const NewArrivalsHeroBanner(),
+                          SizedBox(height: 20.h),
+                          _buildFilterChips(),
+                          SizedBox(height: 24.h),
+                          const NewArrivalsFeatureHighlights(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("New Arrivals"),
+                          SizedBox(height: 16.h),
+                          _buildNewArrivalsGrid(),
+                          SizedBox(height: 30.h),
+                          const NewArrivalsNotifyBanner(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("Shop by Category"),
+                          SizedBox(height: 16.h),
+                          _buildCategoryRow(),
+                          SizedBox(height: 40.h),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -119,16 +146,8 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
   }
 
   Widget _buildNewArrivalsGrid() {
-    final List<Map<String, dynamic>> products = [
-      {'title': 'Apple iPhone 15', 'variant': '(128GB)', 'price': '69,999', 'rating': 4.5, 'reviews': '2.4k'},
-      {'title': 'MacBook Air M2', 'variant': '(8GB/256GB)', 'price': '89,990', 'rating': 4.6, 'reviews': '1.2k'},
-      {'title': 'boAt Wave Elevate', 'variant': 'Smart Watch', 'price': '1,799', 'rating': 4.3, 'reviews': '980'},
-      {'title': 'Apple AirPods Pro', 'variant': '(2nd Gen)', 'price': '18,999', 'rating': 4.8, 'reviews': '1.5k'},
-      {'title': 'Nike Air Max', 'variant': 'Running Shoes', 'price': '4,549', 'rating': 4.4, 'reviews': '1.1k'},
-      {'title': 'Davidoff Cool Water', 'variant': 'Eau De Toilette', 'price': '2,399', 'rating': 4.5, 'reviews': '580'},
-      {'title': 'Lavie Women\'s', 'variant': 'Handbag', 'price': '1,299', 'rating': 4.4, 'reviews': '760'},
-      {'title': 'Sony WH-1000XM5', 'variant': 'Headphones', 'price': '22,990', 'rating': 4.5, 'reviews': '890'},
-    ];
+    if (_arrivals.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
 
     return GridView.builder(
       shrinkWrap: true,
@@ -139,15 +158,20 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 15.h,
       ),
-      itemCount: products.length,
+      itemCount: _arrivals.length,
       itemBuilder: (context, index) {
-        final p = products[index];
+        final p = _arrivals[index];
         return NewArrivalProductCard(
-          title: p['title'],
-          variant: p['variant'],
-          price: p['price'],
-          rating: p['rating'],
-          reviews: p['reviews'],
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
         );
       },
     );

@@ -1,63 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import ProductCardPLP from '../../components/product/ProductCardPLP';
+import { apiGet } from '../../utils/api';
+import { productDiscount } from '../../context/StoreContext';
 
-const mockProducts = [
-  {
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400',
-    name: 'Adidas Grand Court Base Sneakers',
-    brand: 'Adidas',
-    price: 3199,
-    oldPrice: 4999,
-    discount: '-30%',
-    rating: 4.4,
-    reviews: 750,
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&q=80&w=400',
-    name: 'Skechers Go Walk Max Sneakers',
-    brand: 'Skechers',
-    price: 3299,
-    oldPrice: 3999,
-    discount: '-18%',
-    rating: 4.6,
-    reviews: 1100,
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?auto=format&fit=crop&q=80&w=400',
-    name: 'Puma X-Ray 2 Square Sneakers',
-    brand: 'Puma',
-    price: 3499,
-    oldPrice: 6499,
-    discount: '-42%',
-    rating: 4.5,
-    reviews: 420,
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=400',
-    name: 'Nike Court Vision Low Sneakers',
-    brand: 'Nike',
-    price: 4299,
-    oldPrice: 5699,
-    discount: '-24%',
-    rating: 4.7,
-    reviews: 890,
-  },
-];
+interface ApiProduct {
+  id: string;
+  name: string;
+  price: number;
+  old_price: number;
+  rating: number;
+  review_count: number;
+  primary_image: string;
+  brand_name: string;
+  status: string;
+}
 
-const RelatedProducts: React.FC = () => {
+interface RelatedProductsProps {
+  currentId?: string;
+  categoryId?: string;
+}
+
+const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentId, categoryId }) => {
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+
+  useEffect(() => {
+    const url = categoryId
+      ? `/products?category_id=${categoryId}&limit=7`
+      : `/products/trending?limit=7`;
+
+    apiGet<{ success: boolean; data: { products?: ApiProduct[]; trending?: ApiProduct[] } }>(url)
+      .then(res => {
+        const list = res.data.products || res.data.trending || (Array.isArray(res.data) ? res.data as unknown as ApiProduct[] : []);
+        setProducts(list.filter((p: ApiProduct) => p.id !== currentId && p.status === 'Active').slice(0, 6));
+      })
+      .catch(() => {});
+  }, [currentId, categoryId]);
+
+  if (products.length === 0) return null;
+
+  const discount = (p: ApiProduct) =>
+    p.old_price > p.price
+      ? `-${Math.round((p.old_price - p.price) / p.old_price * 100)}%`
+      : undefined;
+
   return (
     <section className="mt-20">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-black text-[#111827]">You may also like</h2>
-        <button className="flex items-center gap-1 text-[#6C2BFF] font-black text-sm hover:underline">
+        <Link to="/products" className="flex items-center gap-1 text-[#FF6B2C] font-black text-sm hover:underline">
           View All <ChevronRight size={16} />
-        </button>
+        </Link>
       </div>
-
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-        {mockProducts.map((p, i) => (
-          <ProductCardPLP key={i} {...p} />
+        {products.map(p => (
+          <ProductCardPLP
+            key={p.id}
+            id={p.id}
+            image={p.primary_image}
+            name={p.name}
+            brand={p.brand_name}
+            price={p.price}
+            oldPrice={p.old_price || undefined}
+            discount={discount(p) || undefined}
+            rating={p.rating}
+            reviews={p.review_count}
+          />
         ))}
       </div>
     </section>

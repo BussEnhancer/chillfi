@@ -1,7 +1,18 @@
 import React from 'react';
-import { MapPin, Box, ExternalLink } from 'lucide-react';
+import { MapPin, Box } from 'lucide-react';
 
-const DeliveryInfoSection: React.FC = () => {
+interface DeliveryInfoSectionProps {
+  addrName: string | null;
+  addrPhone: string | null;
+  line1: string | null;
+  line2: string | null;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
+  trackingId: string | null;
+}
+
+const DeliveryInfoSection: React.FC<DeliveryInfoSectionProps> = ({ addrName, addrPhone, line1, line2, city, state, pincode, trackingId }) => {
   return (
     <div className="bg-white rounded-[24px] border border-[#ECECEC] p-8 h-full shadow-sm">
       <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8">Delivery Information</h3>
@@ -14,13 +25,12 @@ const DeliveryInfoSection: React.FC = () => {
            </div>
            <div>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Delivered To</p>
-              <h4 className="text-sm font-black text-[#111827] mb-2">Rohit Sharma</h4>
+              <h4 className="text-sm font-black text-[#111827] mb-2">{addrName || '—'}</h4>
               <p className="text-xs font-bold text-gray-500 leading-relaxed">
-                123, Green Park Society <br />
-                Indiranagar, Bengaluru <br />
-                Karnataka - 560038
+                {line1} {line2 && <>, {line2}</>} <br />
+                {city}, {state} - {pincode}
               </p>
-              <p className="text-xs font-black text-[#111827] mt-3">Phone: +91 98765 43210</p>
+              <p className="text-xs font-black text-[#111827] mt-3">Phone: {addrPhone || '—'}</p>
            </div>
         </div>
 
@@ -30,16 +40,12 @@ const DeliveryInfoSection: React.FC = () => {
               <Box size={20} />
            </div>
            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Delivery Partner</p>
-              <div className="flex items-center gap-3 mb-2">
-                 <div className="text-blue-600 font-black italic text-lg tracking-tighter">ekart</div>
-                 <span className="text-sm font-black text-[#111827]">E-Kart Logistics</span>
-              </div>
-              <p className="text-xs font-bold text-gray-500">Tracking ID: <span className="text-[#111827] font-black">EK123456789IN</span></p>
-              <button className="flex items-center gap-2 text-[10px] font-black text-[#6C2BFF] uppercase tracking-widest hover:underline mt-4">
-                 View on E-Kart
-                 <ExternalLink size={12} />
-              </button>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tracking Info</p>
+              {trackingId ? (
+                <p className="text-xs font-bold text-gray-500">Tracking ID: <span className="text-[#111827] font-black">{trackingId}</span></p>
+              ) : (
+                <p className="text-xs font-bold text-gray-400">Tracking ID not assigned yet</p>
+              )}
            </div>
         </div>
       </div>

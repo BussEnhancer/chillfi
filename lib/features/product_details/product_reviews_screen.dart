@@ -1,14 +1,30 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/services/api_service.dart';
+import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:chillfi/features/product_details/widgets/review_card.dart';
 import 'package:chillfi/features/product_details/widgets/review_filter_chips.dart';
 import 'package:chillfi/features/product_details/widgets/review_statistics_card.dart';
 import 'package:chillfi/features/product_details/widgets/review_summary_card.dart';
+import 'package:chillfi/features/search/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProductReviewsScreen extends StatelessWidget {
-  const ProductReviewsScreen({super.key});
+  final String? productId;
+  final String? productName;
+  const ProductReviewsScreen({super.key, this.productId, this.productName});
+
+  void _showWriteReviewSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _WriteReviewSheet(productId: productId, productName: productName),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,33 +77,36 @@ class ProductReviewsScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
             icon: Icon(Icons.search_rounded, color: AppColors.darkText, size: 24.sp),
           ),
-          Stack(
-            alignment: Alignment.topRight,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.shopping_cart_outlined, color: AppColors.darkText, size: 24.sp),
-              ),
-              Positioned(
-                right: 8.w,
-                top: 8.h,
-                child: Container(
-                  padding: EdgeInsets.all(4.r),
-                  decoration: const BoxDecoration(
-                    color: AppColors.secondaryPurple,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '3',
-                    style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
-                  ),
+          Consumer<CartProvider>(builder: (context, cart, _) {
+            return Stack(
+              alignment: Alignment.topRight,
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())),
+                  icon: Icon(Icons.shopping_cart_outlined, color: AppColors.darkText, size: 24.sp),
                 ),
-              ),
-            ],
-          ),
+                if (cart.cartCount > 0)
+                  Positioned(
+                    right: 8.w,
+                    top: 8.h,
+                    child: Container(
+                      padding: EdgeInsets.all(4.r),
+                      decoration: const BoxDecoration(
+                        color: AppColors.secondaryPurple,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${cart.cartCount}',
+                        style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
           SizedBox(width: 8.w),
         ],
       ),
@@ -122,7 +141,7 @@ class ProductReviewsScreen extends StatelessWidget {
                       ],
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () => _showWriteReviewSheet(context),
                       child: Row(
                         children: [
                           Text(
@@ -191,14 +210,14 @@ class ProductReviewsScreen extends StatelessWidget {
           // Sticky Bottom Bar
           Align(
             alignment: Alignment.bottomCenter,
-            child: _buildBottomPurchaseBar(),
+            child: _buildBottomPurchaseBar(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomPurchaseBar() {
+  Widget _buildBottomPurchaseBar(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 15.h, bottom: 25.h),
       decoration: BoxDecoration(
@@ -218,39 +237,45 @@ class ProductReviewsScreen extends StatelessWidget {
       child: Row(
         children: [
           // Cart with badge
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  Icon(Icons.shopping_cart_outlined, color: AppColors.darkText, size: 24.sp),
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      padding: EdgeInsets.all(4.r),
-                      decoration: const BoxDecoration(
-                        color: AppColors.secondaryPurple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '3',
-                        style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Consumer<CartProvider>(builder: (context, cart, _) {
+                  return Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Icon(Icons.shopping_cart_outlined, color: AppColors.darkText, size: 24.sp),
+                      if (cart.cartCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: EdgeInsets.all(4.r),
+                            decoration: const BoxDecoration(
+                              color: AppColors.secondaryPurple,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '${cart.cartCount}',
+                              style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+                Text(
+                  "Cart",
+                  style: GoogleFonts.poppins(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.darkText,
                   ),
-                ],
-              ),
-              Text(
-                "Cart",
-                style: GoogleFonts.poppins(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.darkText,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(width: 20.w),
           // Add to Cart
@@ -307,6 +332,149 @@ class ProductReviewsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WriteReviewSheet extends StatefulWidget {
+  final String? productId;
+  final String? productName;
+  const _WriteReviewSheet({this.productId, this.productName});
+
+  @override
+  State<_WriteReviewSheet> createState() => _WriteReviewSheetState();
+}
+
+class _WriteReviewSheetState extends State<_WriteReviewSheet> {
+  int _rating = 0;
+  final _titleCtrl = TextEditingController();
+  final _bodyCtrl = TextEditingController();
+  bool _submitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _bodyCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_rating == 0) { setState(() => _error = 'Please select a star rating'); return; }
+    if (_bodyCtrl.text.trim().isEmpty) { setState(() => _error = 'Please write your review'); return; }
+    if (widget.productId == null) { setState(() => _error = 'Product not found'); return; }
+    setState(() { _submitting = true; _error = null; });
+    try {
+      await ApiService().post(
+        '/products/${widget.productId}/reviews',
+        data: {
+          'rating': _rating,
+          'title': _titleCtrl.text.trim(),
+          'body': _bodyCtrl.text.trim(),
+        },
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Review submitted successfully!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() { _error = 'Failed to submit review. Please try again.'; _submitting = false; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40.w, height: 4.h,
+                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2.r)),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Write a Review',
+              style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText),
+            ),
+            if (widget.productName != null) ...[
+              SizedBox(height: 4.h),
+              Text(widget.productName!, style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+            SizedBox(height: 20.h),
+            Text('Your Rating', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+            SizedBox(height: 8.h),
+            Row(
+              children: List.generate(5, (i) => GestureDetector(
+                onTap: () => setState(() => _rating = i + 1),
+                child: Icon(
+                  i < _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                  color: Colors.orange,
+                  size: 36.sp,
+                ),
+              )),
+            ),
+            SizedBox(height: 16.h),
+            TextField(
+              controller: _titleCtrl,
+              decoration: InputDecoration(
+                labelText: 'Review Title (optional)',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            TextField(
+              controller: _bodyCtrl,
+              maxLines: 4,
+              decoration: InputDecoration(
+                labelText: 'Your Review',
+                hintText: 'Share your experience with this product...',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              ),
+            ),
+            if (_error != null) ...[
+              SizedBox(height: 8.h),
+              Text(_error!, style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.red)),
+            ],
+            SizedBox(height: 20.h),
+            SizedBox(
+              width: double.infinity,
+              height: 52.h,
+              child: ElevatedButton(
+                onPressed: _submitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondaryPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                ),
+                child: _submitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text('Submit Review', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+              ),
+            ),
+            SizedBox(height: 8.h),
+          ],
+        ),
       ),
     );
   }

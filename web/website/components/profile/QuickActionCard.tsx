@@ -7,7 +7,7 @@ interface QuickActionCardProps {
   color?: string;
 }
 
-const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, desc, color = '#6C2BFF' }) => {
+const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, desc, color = '#FF6B2C' }) => {
   return (
     <div className="flex-1 bg-white border border-[#ECECEC] rounded-[20px] p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
       <div

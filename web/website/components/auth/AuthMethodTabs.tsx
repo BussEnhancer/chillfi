@@ -15,7 +15,7 @@ const AuthMethodTabs: React.FC = () => {
         <button
           key={m.id}
           className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
-            m.active ? 'border-[#6C2BFF] bg-[#6C2BFF]/5 text-[#6C2BFF]' : 'border-[#ECECEC] bg-white text-gray-500 hover:border-gray-300'
+            m.active ? 'border-[#FF6B2C] bg-[#FF6B2C]/5 text-[#FF6B2C]' : 'border-[#ECECEC] bg-white text-gray-500 hover:border-gray-300'
           }`}
         >
           {m.icon}

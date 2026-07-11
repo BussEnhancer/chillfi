@@ -1,4 +1,3 @@
-import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -191,12 +190,16 @@ class DowntimeInfoCard extends StatelessWidget {
                 child: Icon(icon, color: const Color(0xFF6C2BFF), size: 16.sp),
               ),
               SizedBox(width: 8.w),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF6B7280),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF6B7280),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],

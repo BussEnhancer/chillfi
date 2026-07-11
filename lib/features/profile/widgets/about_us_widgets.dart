@@ -28,14 +28,20 @@ class HeroBrandSection extends StatelessWidget {
                   ),
                   child: Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 36.sp),
                 ),
-                SizedBox(width: 12.w),
-                Text(
-                  "chillfi",
-                  style: GoogleFonts.poppins(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.secondaryPurple,
-                    letterSpacing: -0.5,
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "chillfi",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.secondaryPurple,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -238,12 +244,11 @@ class StatisticsMetricRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildStat(Icons.people_outline_rounded, "5M+", "Happy Customers"),
-        _buildStat(Icons.inventory_2_outlined, "10M+", "Orders Delivered"),
-        _buildStat(Icons.sentiment_very_satisfied_rounded, "4.8★", "Average Rating"),
-        _buildStat(Icons.location_on_outlined, "500+", "Cities Served"),
+        Expanded(child: _buildStat(Icons.people_outline_rounded, "5M+", "Happy Customers")),
+        Expanded(child: _buildStat(Icons.inventory_2_outlined, "10M+", "Orders Delivered")),
+        Expanded(child: _buildStat(Icons.sentiment_very_satisfied_rounded, "4.8★", "Average Rating")),
+        Expanded(child: _buildStat(Icons.location_on_outlined, "500+", "Cities Served")),
       ],
     );
   }
@@ -253,9 +258,12 @@ class StatisticsMetricRow extends StatelessWidget {
       children: [
         Icon(icon, color: AppColors.secondaryPurple.withValues(alpha: 0.6), size: 20.sp),
         SizedBox(height: 6.h),
-        Text(
-          value,
-          style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w800, color: AppColors.darkText),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w800, color: AppColors.darkText),
+          ),
         ),
         Text(
           label,
@@ -268,7 +276,18 @@ class StatisticsMetricRow extends StatelessWidget {
 }
 
 class CompanyLinksCard extends StatelessWidget {
-  const CompanyLinksCard({super.key});
+  final VoidCallback? onCompanyInfo;
+  final VoidCallback? onPolicies;
+  final VoidCallback? onTerms;
+  final VoidCallback? onPrivacy;
+
+  const CompanyLinksCard({
+    super.key,
+    this.onCompanyInfo,
+    this.onPolicies,
+    this.onTerms,
+    this.onPrivacy,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -280,33 +299,36 @@ class CompanyLinksCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildLinkRow(Icons.business_outlined, "Company Information"),
+          _buildLinkRow(Icons.business_outlined, "Company Information", onCompanyInfo),
           _divider(),
-          _buildLinkRow(Icons.verified_user_outlined, "Policies & Terms"),
+          _buildLinkRow(Icons.verified_user_outlined, "Policies & Terms", onPolicies),
           _divider(),
-          _buildLinkRow(Icons.description_outlined, "Terms & Conditions"),
+          _buildLinkRow(Icons.description_outlined, "Terms & Conditions", onTerms),
           _divider(),
-          _buildLinkRow(Icons.lock_outline_rounded, "Privacy Policy"),
+          _buildLinkRow(Icons.lock_outline_rounded, "Privacy Policy", onPrivacy),
         ],
       ),
     );
   }
 
-  Widget _buildLinkRow(IconData icon, String title) {
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.darkText),
+  Widget _buildLinkRow(IconData icon, String title, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.darkText),
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: AppColors.lightGrey, size: 22.sp),
-        ],
+            Icon(Icons.chevron_right_rounded, color: AppColors.lightGrey, size: 22.sp),
+          ],
+        ),
       ),
     );
   }

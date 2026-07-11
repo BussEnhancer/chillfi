@@ -5,13 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class BrandCard extends StatelessWidget {
   final String name;
-  final IconData logo;
+  final String? logoUrl;
   final String productCount;
 
   const BrandCard({
     super.key,
     required this.name,
-    required this.logo,
+    this.logoUrl,
     required this.productCount,
   });
 
@@ -41,46 +41,51 @@ class BrandCard extends StatelessWidget {
                 color: const Color(0xFFF8F8F8),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(logo, size: 30.sp, color: AppColors.darkText),
+              child: logoUrl != null && logoUrl!.isNotEmpty
+                  ? Image.network(
+                      logoUrl!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => _fallbackIcon(),
+                    )
+                  : _fallbackIcon(),
             ),
           ),
           SizedBox(height: 8.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   name,
                   style: GoogleFonts.poppins(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              SizedBox(width: 4.w),
-              Icon(Icons.verified_rounded, color: AppColors.secondaryPurple, size: 12.sp),
-            ],
+                SizedBox(width: 4.w),
+                Icon(Icons.verified_rounded, color: AppColors.secondaryPurple, size: 12.sp),
+              ],
+            ),
           ),
           SizedBox(height: 2.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                productCount,
-                style: GoogleFonts.poppins(
-                  fontSize: 9.sp,
-                  color: AppColors.greyText,
-                ),
-              ),
-              SizedBox(width: 2.w),
-              Icon(Icons.chevron_right_rounded, size: 10.sp, color: AppColors.lightGrey),
-            ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              productCount,
+              style: GoogleFonts.poppins(fontSize: 9.sp, color: AppColors.greyText),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
     );
   }
+
+  Widget _fallbackIcon() => Icon(
+        Icons.store_rounded,
+        size: 30.sp,
+        color: AppColors.darkText,
+      );
 }

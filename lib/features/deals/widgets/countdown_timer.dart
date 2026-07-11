@@ -8,16 +8,21 @@ class CountdownTimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildTimerBlock("02", "Days"),
-        _buildDivider(),
-        _buildTimerBlock("45", "Hours"),
-        _buildDivider(),
-        _buildTimerBlock("30", "Mins"),
-        _buildDivider(),
-        _buildTimerBlock("12", "Secs"),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTimerBlock("02", "Days"),
+          _buildDivider(),
+          _buildTimerBlock("45", "Hours"),
+          _buildDivider(),
+          _buildTimerBlock("30", "Mins"),
+          _buildDivider(),
+          _buildTimerBlock("12", "Secs"),
+        ],
+      ),
     );
   }
 

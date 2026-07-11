@@ -1,6 +1,11 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_filter_chips.dart';
+import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:chillfi/features/recommended/widgets/explanation_banner.dart';
 import 'package:chillfi/features/recommended/widgets/recommended_benefit_card.dart';
 import 'package:chillfi/features/recommended/widgets/recommended_header.dart';
@@ -10,6 +15,7 @@ import 'package:chillfi/features/trending/widgets/feature_highlights_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class RecommendedProductsScreen extends StatefulWidget {
   const RecommendedProductsScreen({super.key});
@@ -20,6 +26,25 @@ class RecommendedProductsScreen extends StatefulWidget {
 
 class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
   int _selectedChipIndex = 0;
+  final _service = ProductService();
+  List<ProductModel> _recommended = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final result = await _service.getRecommended(limit: 20);
+    if (!mounted) return;
+    setState(() { _recommended = result; _loading = false; });
+  }
+
+  void _openProduct(String id) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
+  }
 
   final List<Map<String, dynamic>> _filterChips = [
     {'label': 'All Recommendations', 'icon': Icons.stars_rounded},
@@ -39,33 +64,35 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
           children: [
             const RecommendedHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10.h),
-                    const RecommendedHeroBanner(),
-                    SizedBox(height: 20.h),
-                    _buildBenefitsRow(),
-                    SizedBox(height: 24.h),
-                    _buildFilterChips(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("Top Picks for You"),
-                    SizedBox(height: 16.h),
-                    _buildTopPicksList(),
-                    SizedBox(height: 30.h),
-                    _buildSectionHeader("More Recommendations"),
-                    SizedBox(height: 16.h),
-                    _buildMoreRecommendationsList(),
-                    SizedBox(height: 30.h),
-                    const ExplanationBanner(),
-                    SizedBox(height: 30.h),
-                    const FeatureHighlightsRow(),
-                    SizedBox(height: 40.h),
-                  ],
-                ),
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10.h),
+                          const RecommendedHeroBanner(),
+                          SizedBox(height: 20.h),
+                          _buildBenefitsRow(),
+                          SizedBox(height: 24.h),
+                          _buildFilterChips(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("Top Picks for You"),
+                          SizedBox(height: 16.h),
+                          _buildTopPicksList(),
+                          SizedBox(height: 30.h),
+                          _buildSectionHeader("More Recommendations"),
+                          SizedBox(height: 16.h),
+                          _buildMoreRecommendationsList(),
+                          SizedBox(height: 30.h),
+                          const ExplanationBanner(),
+                          SizedBox(height: 30.h),
+                          const FeatureHighlightsRow(),
+                          SizedBox(height: 40.h),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -155,83 +182,55 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
   }
 
   Widget _buildTopPicksList() {
+    final top = _recommended.take(3).toList();
+    if (top.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          RecommendedProductCard(
-            title: "Apple iPhone 15",
-            variant: "Pink | 128GB",
-            price: "69,999",
-            oldPrice: "1,02,900",
-            discount: "32%",
-            savings: "32,901",
-            rating: 4.5,
-            reviews: "2.4k",
-          ),
-          RecommendedProductCard(
-            title: "Sony WH-CH720N",
-            variant: "Wireless Headphones",
-            price: "5,999",
-            oldPrice: "8,299",
-            discount: "28%",
-            savings: "2,300",
-            rating: 4.4,
-            reviews: "1.2k",
-          ),
-          RecommendedProductCard(
-            title: "boAt Wave Elevate",
-            variant: "Smart Watch",
-            price: "1,799",
-            oldPrice: "2,999",
-            discount: "40%",
-            savings: "1,200",
-            rating: 4.3,
-            reviews: "980",
-          ),
-        ],
+        children: top.map((p) => RecommendedProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          savings: ((p.oldPrice ?? p.price) - p.price).toStringAsFixed(0),
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }
 
   Widget _buildMoreRecommendationsList() {
+    final more = _recommended.skip(3).toList();
+    if (more.isEmpty) return const SizedBox.shrink();
+    final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: const [
-          RecommendedProductCard(
-            title: "Apple AirPods Pro",
-            variant: "2nd Gen",
-            price: "18,999",
-            oldPrice: "26,999",
-            discount: "30%",
-            savings: "8,000",
-            rating: 4.6,
-            reviews: "1.8k",
-          ),
-          RecommendedProductCard(
-            title: "Samsung Galaxy S23",
-            variant: "256GB",
-            price: "49,999",
-            oldPrice: "63,999",
-            discount: "22%",
-            savings: "14,000",
-            rating: 4.4,
-            reviews: "2.5k",
-          ),
-          RecommendedProductCard(
-            title: "Nike Air Max",
-            variant: "Running Shoes",
-            price: "4,549",
-            oldPrice: "6,999",
-            discount: "35%",
-            savings: "2,450",
-            rating: 4.3,
-            reviews: "1.1k",
-          ),
-        ],
+        children: more.map((p) => RecommendedProductCard(
+          title: p.name,
+          variant: p.brandName ?? p.categoryName ?? '',
+          price: p.price.toStringAsFixed(0),
+          oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+          discount: '${p.discountPct}%',
+          savings: ((p.oldPrice ?? p.price) - p.price).toStringAsFixed(0),
+          rating: p.rating,
+          reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+          imageUrl: p.primaryImage,
+          onTap: () => _openProduct(p.id),
+          isWishlisted: wishlist.isWishlisted(p.id),
+          onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+        )).toList(),
       ),
     );
   }

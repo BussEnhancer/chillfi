@@ -1,14 +1,17 @@
 import 'package:chillfi/core/app_colors.dart';
-import 'package:chillfi/features/categories/sub_categories_screen.dart';
+import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/features/categories/widgets/category_banner_widget.dart';
 import 'package:chillfi/features/categories/widgets/category_grid_card.dart';
 import 'package:chillfi/features/categories/widgets/category_sidebar_item.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/home/widgets/home_header.dart';
 import 'package:chillfi/features/home/widgets/home_search_bar.dart';
+import 'package:chillfi/features/product_listing/product_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -20,36 +23,47 @@ class CategoriesScreen extends StatefulWidget {
 class _CategoriesScreenState extends State<CategoriesScreen> {
   int _selectedCategoryIndex = 0;
 
-  final List<Map<String, dynamic>> _sidebarCategories = [
-    {'title': 'All Categories', 'icon': Icons.grid_view_rounded},
-    {'title': 'Mobiles', 'icon': Icons.smartphone_rounded},
-    {'title': 'Laptops', 'icon': Icons.laptop_rounded},
-    {'title': 'Audio', 'icon': Icons.headphones_rounded},
-    {'title': 'Wearables', 'icon': Icons.watch_rounded},
-    {'title': 'Cameras', 'icon': Icons.camera_alt_rounded},
-    {'title': 'Appliances', 'icon': Icons.kitchen_rounded},
-    {'title': 'Gaming', 'icon': Icons.sports_esports_rounded},
-    {'title': 'Beauty', 'icon': Icons.face_rounded},
-    {'title': 'Fashion', 'icon': Icons.checkroom_rounded},
-  ];
+  static IconData _iconForCategory(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('smartphone') || n.contains('mobile') || n.contains('phone')) return Icons.smartphone_rounded;
+    if (n.contains('laptop') || n.contains('computer')) return Icons.laptop_rounded;
+    if (n.contains('audio') || n.contains('headphone') || n.contains('earphone')) return Icons.headphones_rounded;
+    if (n.contains('wearable') || n.contains('watch')) return Icons.watch_rounded;
+    if (n.contains('camera')) return Icons.camera_alt_rounded;
+    if (n.contains('tv') || n.contains('television') || n.contains('entertainment')) return Icons.tv_rounded;
+    if (n.contains('gaming') || n.contains('game')) return Icons.sports_esports_rounded;
+    if (n.contains('appliance') || n.contains('kitchen')) return Icons.kitchen_rounded;
+    if (n.contains('accessory') || n.contains('accessories')) return Icons.cable_rounded;
+    if (n.contains('beauty') || n.contains('personal')) return Icons.face_rounded;
+    if (n.contains('fashion') || n.contains('clothing')) return Icons.checkroom_rounded;
+    if (n.contains('book') || n.contains('stationery')) return Icons.menu_book_rounded;
+    if (n.contains('sport') || n.contains('outdoor')) return Icons.sports_soccer_rounded;
+    if (n.contains('health') || n.contains('nutrition')) return Icons.health_and_safety_rounded;
+    if (n.contains('toy') || n.contains('baby')) return Icons.child_care_rounded;
+    if (n.contains('auto') || n.contains('car')) return Icons.directions_car_rounded;
+    return Icons.category_rounded;
+  }
 
-  final List<Map<String, dynamic>> _gridCategories = [
-    {'title': 'Mobiles & Tablets', 'items': '2,356 items', 'icon': Icons.smartphone_rounded},
-    {'title': 'Laptops & Accessories', 'items': '1,245 items', 'icon': Icons.laptop_rounded},
-    {'title': 'Audio', 'items': '1,876 items', 'icon': Icons.headphones_rounded},
-    {'title': 'Wearables', 'items': '1,234 items', 'icon': Icons.watch_rounded},
-    {'title': 'Cameras', 'items': '985 items', 'icon': Icons.camera_alt_rounded},
-    {'title': 'Home Appliances', 'items': '1,567 items', 'icon': Icons.kitchen_rounded},
-    {'title': 'TV & Entertainment', 'items': '843 items', 'icon': Icons.tv_rounded},
-    {'title': 'Gaming', 'items': '1,342 items', 'icon': Icons.sports_esports_rounded},
-    {'title': 'Beauty & Personal Care', 'items': '2,134 items', 'icon': Icons.face_rounded},
-    {'title': 'Fashion', 'items': '3,245 items', 'icon': Icons.checkroom_rounded},
-    {'title': 'Toys & Baby Products', 'items': '1,098 items', 'icon': Icons.child_care_rounded},
-    {'title': 'Sports & Outdoors', 'items': '987 items', 'icon': Icons.sports_soccer_rounded},
-    {'title': 'Automotive', 'items': '1,234 items', 'icon': Icons.directions_car_rounded},
-    {'title': 'Books & Stationery', 'items': '1,543 items', 'icon': Icons.menu_book_rounded},
-    {'title': 'Health & Nutrition', 'items': '876 items', 'icon': Icons.health_and_safety_rounded},
-  ];
+  void _openCategory(BuildContext context, CategoryModel cat) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductListingScreen(
+          categoryId: cat.id,
+          categoryName: cat.name,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final p = context.read<ProductProvider>();
+      if (p.categories.isEmpty) p.loadCategories();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,21 +72,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header (Reusing HomeHeader as it matches the design)
             const HomeHeader(),
-            
-            // Search Bar (Reusing HomeSearchBar)
             const HomeSearchBar(),
-
             Expanded(
-              child: Row(
-                children: [
-                  // Left Sidebar
-                  _buildSidebar(),
-
-                  // Main Content
-                  _buildMainContent(),
-                ],
+              child: Consumer<ProductProvider>(
+                builder: (context, pp, _) {
+                  final cats = pp.categories.where((c) => c.isActive).toList();
+                  if (cats.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Row(
+                    children: [
+                      _buildSidebar(cats),
+                      _buildMainContent(context, cats),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -82,7 +97,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(List<CategoryModel> cats) {
     return Container(
       width: 90.w,
       decoration: BoxDecoration(
@@ -90,16 +105,24 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         border: Border(right: BorderSide(color: AppColors.lightGrey.withOpacity(0.5))),
       ),
       child: ListView.builder(
-        itemCount: _sidebarCategories.length,
+        itemCount: cats.length + 1,
         itemBuilder: (context, index) {
+          if (index == 0) {
+            return CategorySidebarItem(
+              title: 'All',
+              icon: Icons.grid_view_rounded,
+              isSelected: _selectedCategoryIndex == 0,
+              onTap: () => setState(() => _selectedCategoryIndex = 0),
+            );
+          }
+          final cat = cats[index - 1];
           return CategorySidebarItem(
-            title: _sidebarCategories[index]['title'],
-            icon: _sidebarCategories[index]['icon'],
+            title: cat.name,
+            icon: _iconForCategory(cat.name),
             isSelected: _selectedCategoryIndex == index,
             onTap: () {
-              setState(() {
-                _selectedCategoryIndex = index;
-              });
+              setState(() => _selectedCategoryIndex = index);
+              _openCategory(context, cat);
             },
           );
         },
@@ -107,7 +130,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(BuildContext context, List<CategoryModel> cats) {
     return Expanded(
       child: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
@@ -115,11 +138,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Promo Banner
             const CategoryBannerWidget(),
-            
             SizedBox(height: 24.h),
-            
             Text(
               'Shop by Category',
               style: GoogleFonts.poppins(
@@ -128,9 +148,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 color: AppColors.darkText,
               ),
             ),
-            
             SizedBox(height: 16.h),
-            
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -140,26 +158,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 crossAxisSpacing: 10.w,
                 mainAxisSpacing: 15.h,
               ),
-              itemCount: _gridCategories.length,
+              itemCount: cats.length,
               itemBuilder: (context, index) {
+                final cat = cats[index];
+                final count = cat.productCount > 0 ? '${cat.productCount} items' : 'Browse';
                 return GestureDetector(
-                  onTap: () {
-                    if (_gridCategories[index]['title'] == 'Mobiles & Tablets') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SubCategoriesScreen()),
-                      );
-                    }
-                  },
+                  onTap: () => _openCategory(context, cat),
                   child: CategoryGridCard(
-                    title: _gridCategories[index]['title'],
-                    itemCount: _gridCategories[index]['items'],
-                    icon: _gridCategories[index]['icon'],
+                    title: cat.name,
+                    itemCount: count,
+                    icon: _iconForCategory(cat.name),
                   ),
                 );
               },
             ),
-            
             SizedBox(height: 20.h),
           ],
         ),

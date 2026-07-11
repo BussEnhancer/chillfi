@@ -16,18 +16,18 @@ const OfferTabs: React.FC = () => {
           <li key={i} className="relative pb-4">
             <button className="flex items-center gap-2 group">
               <span className={`text-sm font-black transition-colors ${
-                tab.active ? 'text-[#6C2BFF]' : 'text-gray-400 group-hover:text-gray-600'
+                tab.active ? 'text-[#FF6B2C]' : 'text-gray-400 group-hover:text-gray-600'
               }`}>
                 {tab.label}
               </span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                tab.active ? 'bg-[#6C2BFF]/10 text-[#6C2BFF]' : 'bg-gray-100 text-gray-400'
+                tab.active ? 'bg-[#FF6B2C]/10 text-[#FF6B2C]' : 'bg-gray-100 text-gray-400'
               }`}>
                 ({tab.count})
               </span>
             </button>
             {tab.active && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#6C2BFF] rounded-t-full"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#FF6B2C] rounded-t-full"></div>
             )}
           </li>
         ))}

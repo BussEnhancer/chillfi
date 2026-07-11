@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/features/profile/privacy_policy_screen.dart';
 import 'package:chillfi/features/profile/widgets/about_us_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,7 +85,18 @@ class AboutUsScreen extends StatelessWidget {
             SizedBox(height: 32.h),
             const StatisticsMetricRow(),
             SizedBox(height: 32.h),
-            const CompanyLinksCard(),
+            CompanyLinksCard(
+              onCompanyInfo: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Company information page is coming soon.')),
+              ),
+              onPolicies: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Policies & Terms page is coming soon.')),
+              ),
+              onTerms: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Terms & Conditions page is coming soon.')),
+              ),
+              onPrivacy: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen())),
+            ),
             SizedBox(height: 24.h),
             const ThankYouBanner(),
             SizedBox(height: 32.h),

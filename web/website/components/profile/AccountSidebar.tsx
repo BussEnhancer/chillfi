@@ -1,31 +1,33 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingBag, Truck, Heart, MapPin, Tag, Wallet,
   CircleDollarSign, Star, Users, Ticket, Settings, Bell, LogOut,
   ShieldCheck, FileText, TruckIcon
 } from 'lucide-react';
+import { useStore } from '../../context/StoreContext';
 
 const menuItems = [
-  { id: 'dashboard', label: 'My Dashboard', icon: <LayoutDashboard size={20} /> },
-  { id: 'orders', label: 'My Orders', icon: <ShoppingBag size={20} /> },
-  { id: 'track', label: 'Track Order', icon: <Truck size={20} /> },
-  { id: 'wishlist', label: 'Wishlist', icon: <Heart size={20} /> },
-  { id: 'addresses', label: 'Addresses', icon: <MapPin size={20} /> },
-  { id: 'offers', label: 'Coupons & Offers', icon: <Tag size={20} /> },
-  { id: 'wallet', label: 'chillFi Wallet', icon: <Wallet size={20} /> },
-  { id: 'coins', label: 'chillFi Coins', icon: <CircleDollarSign size={20} />, badge: '1200' },
-  { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} /> },
-  { id: 'refer', label: 'Refer & Earn', icon: <Users size={20} /> },
-  { id: 'support', label: 'Support Tickets', icon: <Ticket size={20} /> },
-  { id: 'settings', label: 'Account Settings', icon: <Settings size={20} /> },
-  { id: 'notifications', label: 'Notification Settings', icon: <Bell size={20} /> },
-  { id: 'logout', label: 'Logout', icon: <LogOut size={20} />, danger: true },
+  { id: 'dashboard', label: 'My Dashboard', icon: <LayoutDashboard size={20} />, path: '/account' },
+  { id: 'orders', label: 'My Orders', icon: <ShoppingBag size={20} />, path: '/account/orders' },
+  { id: 'track', label: 'Track Order', icon: <Truck size={20} />, path: '/account/orders' },
+  { id: 'wishlist', label: 'Wishlist', icon: <Heart size={20} />, path: '/account/wishlist' },
+  { id: 'addresses', label: 'Addresses', icon: <MapPin size={20} />, path: '/account/addresses' },
+  { id: 'offers', label: 'Coupons & Offers', icon: <Tag size={20} />, path: '/offers' },
+  { id: 'wallet', label: 'chillFi Wallet', icon: <Wallet size={20} />, comingSoon: true },
+  { id: 'coins', label: 'chillFi Coins', icon: <CircleDollarSign size={20} />, comingSoon: true },
+  { id: 'reviews', label: 'Reviews & Ratings', icon: <Star size={20} />, path: '/account/reviews' },
+  { id: 'refer', label: 'Refer & Earn', icon: <Users size={20} />, comingSoon: true },
+  { id: 'support', label: 'Support Tickets', icon: <Ticket size={20} />, path: '/support' },
+  { id: 'settings', label: 'Account Settings', icon: <Settings size={20} />, path: '/account/settings' },
+  { id: 'notifications', label: 'Notification Settings', icon: <Bell size={20} />, path: '/account/notifications' },
+  { id: 'logout', label: 'Logout', icon: <LogOut size={20} />, danger: true, action: 'logout' },
 ];
 
 const legalItems = [
-  { id: 'privacy', label: 'Privacy Policy', icon: <ShieldCheck size={20} /> },
-  { id: 'terms', label: 'Terms & Conditions', icon: <FileText size={20} /> },
-  { id: 'shipping', label: 'Shipping Policy', icon: <TruckIcon size={20} /> },
+  { id: 'privacy', label: 'Privacy Policy', icon: <ShieldCheck size={20} />, path: '/privacy-policy' },
+  { id: 'terms', label: 'Terms & Conditions', icon: <FileText size={20} />, path: '/terms' },
+  { id: 'shipping', label: 'Shipping Policy', icon: <TruckIcon size={20} />, comingSoon: true },
 ];
 
 interface AccountSidebarProps {
@@ -33,14 +35,26 @@ interface AccountSidebarProps {
 }
 
 const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' }) => {
+  const navigate = useNavigate();
+  const { logoutUser } = useStore();
+
+  const handleClick = (item: any) => {
+    if (item.comingSoon) return;
+    if (item.action === 'logout') { logoutUser(); navigate('/'); return; }
+    if (item.path) navigate(item.path);
+  };
+
   const renderItem = (item: any) => {
     const isActive = item.id === activeId;
     return (
       <button
         key={item.id}
+        onClick={() => handleClick(item)}
+        disabled={item.comingSoon}
         className={`w-full flex items-center justify-between p-3.5 rounded-xl transition-all group ${
-          isActive ? 'bg-gradient-to-r from-[#6C2BFF] to-[#8B5CFF] text-white shadow-lg shadow-[#6C2BFF]/20' :
-          item.danger ? 'text-red-500 hover:bg-red-50' : 'text-gray-600 hover:bg-[#F8F5FF] hover:text-[#6C2BFF]'
+          isActive ? 'bg-gradient-to-r from-[#FF6B2C] to-[#8B5CFF] text-white shadow-lg shadow-[#FF6B2C]/20' :
+          item.danger ? 'text-red-500 hover:bg-red-50' :
+          item.comingSoon ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-[#FFF8F5] hover:text-[#FF6B2C]'
         }`}
       >
         <div className="flex items-center gap-3">
@@ -49,11 +63,9 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
           </span>
           <span className="text-sm font-bold">{item.label}</span>
         </div>
-        {item.badge && (
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
-            isActive ? 'bg-white/20 text-white' : 'bg-[#6C2BFF]/10 text-[#6C2BFF]'
-          }`}>
-            {item.badge}
+        {item.comingSoon && (
+          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-400 uppercase tracking-wider">
+            Soon
           </span>
         )}
       </button>
@@ -67,7 +79,7 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
           {menuItems.map(renderItem)}
         </div>
 
-        <div className="mt-6 pt-6 border-t border-[#F8F5FF]">
+        <div className="mt-6 pt-6 border-t border-[#FFF8F5]">
           <h5 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-4 mb-4">Legal</h5>
           <div className="space-y-1">
             {legalItems.map(renderItem)}

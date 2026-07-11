@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/features/product_listing/product_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -147,7 +148,7 @@ class EmptyProductsWidget extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductListingScreen())),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondaryPurple,
               foregroundColor: Colors.white,

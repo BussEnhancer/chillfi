@@ -6,14 +6,14 @@ interface BreadcrumbProps {
   items?: { label: string; href?: string }[];
 }
 
-const defaultItems = [{ label: 'Categories' }];
+const defaultItems: { label: string; href?: string }[] = [{ label: 'Categories' }];
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ items = defaultItems }) => {
   return (
     <div className="py-4 bg-[#F8F7FC]">
       <Container>
         <div className="flex items-center gap-2 text-[13px] font-medium text-[#6B7280]">
-          <a href="/" className="flex items-center gap-1.5 hover:text-[#6C2BFF] transition-colors">
+          <a href="/" className="flex items-center gap-1.5 hover:text-[#FF6B2C] transition-colors">
             <Home size={14} />
             <span>Home</span>
           </a>
@@ -22,7 +22,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items = defaultItems }) => {
             <React.Fragment key={index}>
               <ChevronRight size={14} className="text-[#ECECEC]" />
               {item.href ? (
-                <a href={item.href} className="hover:text-[#6C2BFF] transition-colors">
+                <a href={item.href} className="hover:text-[#FF6B2C] transition-colors">
                   {item.label}
                 </a>
               ) : (

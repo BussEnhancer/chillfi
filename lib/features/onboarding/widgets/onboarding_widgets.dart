@@ -91,10 +91,10 @@ class OnboardingCTA extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 1.sw,
-        height: 64.h,
+        height: 56.h,
         decoration: BoxDecoration(
           gradient: AppColors.buttonGradient,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: AppColors.primaryOrange.withValues(alpha: 0.35),
@@ -110,7 +110,7 @@ class OnboardingCTA extends StatelessWidget {
               text,
               style: GoogleFonts.poppins(
                 color: Colors.white,
-                fontSize: 18.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),

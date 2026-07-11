@@ -11,6 +11,11 @@ class TopTrendingCard extends StatelessWidget {
   final String oldPrice;
   final double rating;
   final String reviews;
+  final String? imageUrl;
+  final VoidCallback? onTap;
+  final bool isWishlisted;
+  final VoidCallback? onWishlistToggle;
+  final VoidCallback? onAddToCart;
 
   const TopTrendingCard({
     super.key,
@@ -21,11 +26,18 @@ class TopTrendingCard extends StatelessWidget {
     required this.oldPrice,
     required this.rating,
     required this.reviews,
+    this.imageUrl,
+    this.onTap,
+    this.isWishlisted = false,
+    this.onWishlistToggle,
+    this.onAddToCart,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       width: 160.w,
       margin: EdgeInsets.only(right: 16.w, bottom: 8.h),
       decoration: BoxDecoration(
@@ -55,8 +67,12 @@ class TopTrendingCard extends StatelessWidget {
                     topRight: Radius.circular(16.r),
                   ),
                 ),
-                child: Center(
-                  child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300]),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+                  child: imageUrl != null && imageUrl!.isNotEmpty
+                      ? Image.network(imageUrl!, height: 110.h, width: double.infinity, fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => Center(child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300])))
+                      : Center(child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300])),
                 ),
               ),
               Positioned(
@@ -79,7 +95,14 @@ class TopTrendingCard extends StatelessWidget {
               Positioned(
                 top: 8.h,
                 right: 8.w,
-                child: Icon(Icons.favorite_outline_rounded, color: AppColors.greyText, size: 18.sp),
+                child: GestureDetector(
+                  onTap: onWishlistToggle,
+                  child: Icon(
+                    isWishlisted ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                    color: isWishlisted ? Colors.red : AppColors.greyText,
+                    size: 18.sp,
+                  ),
+                ),
               ),
             ],
           ),
@@ -143,14 +166,17 @@ class TopTrendingCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Container(
-                      width: 32.r,
-                      height: 32.r,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryPurple,
-                        borderRadius: BorderRadius.circular(10.r),
+                    GestureDetector(
+                      onTap: onAddToCart,
+                      child: Container(
+                        width: 32.r,
+                        height: 32.r,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryPurple,
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 16.sp),
                       ),
-                      child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 16.sp),
                     ),
                   ],
                 ),
@@ -158,6 +184,7 @@ class TopTrendingCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

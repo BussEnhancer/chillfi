@@ -1,14 +1,30 @@
+import 'dart:async';
+
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/features/auth/location_permission_screen.dart';
 import 'package:chillfi/features/auth/reset_password_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
-  const OtpVerificationScreen({super.key, this.phoneNumber = "+91 98765 43210"});
+  final bool isFromForgotPassword;
+  final bool isFromSignup;
+  final String? signupName;
+  final String? signupEmail;
+  const OtpVerificationScreen({
+    super.key,
+    this.phoneNumber = "+91 98765 43210",
+    this.isFromForgotPassword = false,
+    this.isFromSignup = false,
+    this.signupName,
+    this.signupEmail,
+  });
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -18,6 +34,50 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  String _enteredOtp = '';
+  int _secondsLeft = 60;
+  Timer? _countdownTimer;
+
+  Future<void> _onVerify() async {
+    if (_enteredOtp.length != 6) return;
+    final auth = context.read<AuthProvider>();
+
+    if (widget.isFromForgotPassword) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ResetPasswordScreen(phone: widget.phoneNumber, otp: _enteredOtp)),
+      );
+    } else if (widget.isFromSignup) {
+      final name = widget.signupName ?? '';
+      final success = await auth.signup(name, widget.phoneNumber, _enteredOtp, email: widget.signupEmail);
+      if (!mounted) return;
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
+        );
+      }
+    } else {
+      final success = await auth.verifyOtpLogin(widget.phoneNumber, _enteredOtp);
+      if (!mounted) return;
+      if (success) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -36,10 +96,31 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
     );
 
     _controller.forward();
+    _startCountdown();
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    setState(() => _secondsLeft = 60);
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      if (_secondsLeft <= 0) {
+        t.cancel();
+      } else {
+        setState(() => _secondsLeft--);
+      }
+    });
+  }
+
+  String get _timerLabel {
+    final m = (_secondsLeft ~/ 60).toString().padLeft(2, '0');
+    final s = (_secondsLeft % 60).toString().padLeft(2, '0');
+    return '$m:$s';
   }
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -48,9 +129,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // 1. TOP ABSTRACT BACKGROUND
+          // ... (existing background decorations)
           Positioned(
             top: 0,
             left: 0,
@@ -89,220 +171,236 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
             ),
           ),
 
-          // 3. MAIN CONTENT
-          Positioned.fill(
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // BACK BUTTON
-                        Align(
+          // Logo in Orange Part
+          Positioned(
+            top: 40.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Hero(
+                tag: 'logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 160.w,
+                  height: 160.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 100.sp, color: AppColors.primaryOrange),
+                ),
+              ),
+            ),
+          ),
+
+          // 3. MAIN CONTENT - SINGLE SCREEN (NON-SCROLLABLE)
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      // BACK BUTTON AREA
+                      SizedBox(
+                        height: 50.h,
+                        child: Align(
                           alignment: Alignment.centerLeft,
                           child: GestureDetector(
                             onTap: () => Navigator.pop(context),
-                            child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
-                          ),
-                        ),
-
-                        SizedBox(height: 10.h),
-
-                        // LOGO SECTION
-                        Hero(
-                          tag: 'logo',
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            width: 90.w,
-                            height: 90.h,
-                            fit: BoxFit.contain,
-                            errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 70.sp, color: AppColors.primaryOrange),
-                          ),
-                        ),
-                        Text(
-                          'Experience The Trust with CHILLFI',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.greyText,
-                          ),
-                        ),
-
-                        SizedBox(height: 30.h),
-
-                        // TITLE SECTION
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Verify ',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.black,
-                                ),
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              padding: EdgeInsets.all(8.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
                               ),
-                              TextSpan(
-                                text: 'Your Number',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w800,
-                                  foreground: Paint()
-                                    ..shader = AppColors.purpleGradient.createShader(
-                                      const Rect.fromLTWH(0.0, 0.0, 250.0, 70.0),
+                              child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // LOGO & HEADER SECTION
+                      Flexible(
+                        flex: 3,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: 80.h), // Space for the positioned logo
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Verify ',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Your Number',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w800,
+                                          foreground: Paint()
+                                            ..shader = AppColors.purpleGradient.createShader(
+                                              const Rect.fromLTWH(0.0, 0.0, 250.0, 70.0),
+                                            ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  'Enter the 6-digit OTP sent to',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    color: AppColors.greyText,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 24.h),
+
+                      // OTP INPUT SECTION
+                      Flexible(
+                        flex: 4,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondaryPurple.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(30.r),
+                                    border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.phone_iphone_rounded, color: AppColors.secondaryPurple, size: 16.sp),
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        widget.phoneNumber,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.darkText,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8.w),
+                                      GestureDetector(
+                                        onTap: () => Navigator.pop(context),
+                                        child: Icon(Icons.edit_outlined, color: AppColors.secondaryPurple, size: 16.sp),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 32.h),
+                                SizedBox(
+                                  width: 327.w,
+                                  child: OtpInputField(
+                                    onCompleted: (otp) {
+                                      _enteredOtp = otp;
+                                      _onVerify();
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 24.h),
+                                if (_secondsLeft > 0)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'OTP will expire in ',
+                                        style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
+                                      ),
+                                      Text(
+                                        _timerLabel,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13.sp,
+                                          color: AppColors.primaryOrange,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                SizedBox(height: 8.h),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Didn\'t receive OTP? ',
+                                      style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
                                     ),
+                                    GestureDetector(
+                                      onTap: _secondsLeft == 0
+                                          ? () async {
+                                              await context.read<AuthProvider>().sendOtp(widget.phoneNumber);
+                                              _startCountdown();
+                                            }
+                                          : null,
+                                      child: Text(
+                                        _secondsLeft == 0 ? 'Resend OTP' : 'Resend in ${_secondsLeft}s',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13.sp,
+                                          color: _secondsLeft == 0 ? AppColors.secondaryPurple : AppColors.greyText,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          'Enter the 6-digit OTP sent to',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14.sp,
-                            color: AppColors.greyText,
-                            fontWeight: FontWeight.w400,
+                      ),
+
+                      SizedBox(height: 32.h),
+
+                      // SECURITY & ACTIONS SECTION
+                      Flexible(
+                        flex: 4,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 327.w,
+                                  child: const SecurityInfoCard(),
+                                ),
+                                SizedBox(height: 32.h),
+                                SizedBox(
+                                  width: 327.w,
+                                  child: PrimaryGradientButton(
+                                    text: 'Verify & Continue',
+                                    onTap: _onVerify,
+                                  ),
+                                ),
+                                SizedBox(height: 40.h), // Bottom buffer
+                              ],
+                            ),
                           ),
                         ),
-
-                        SizedBox(height: 12.h),
-
-                        // PHONE NUMBER CARD (Pill style)
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryPurple.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(30.r),
-                            border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.phone_iphone_rounded, color: AppColors.secondaryPurple, size: 16.sp),
-                              SizedBox(width: 8.w),
-                              Text(
-                                widget.phoneNumber,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkText,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // OTP INPUT SECTION
-                        OtpInputField(
-                          onCompleted: (otp) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // TIMER SECTION
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'OTP will expire in ',
-                              style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
-                            ),
-                            Text(
-                              '00:58',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13.sp,
-                                color: AppColors.primaryOrange,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 8.h),
-
-                        // RESEND SECTION
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Didn\'t receive OTP? ',
-                              style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
-                            ),
-                            GestureDetector(
-                              onTap: () {},
-                              child: Text(
-                                'Resend OTP',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.sp,
-                                  color: AppColors.secondaryPurple,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 40.h),
-
-                        // SECURITY CARD SECTION
-                        const SecurityInfoCard(),
-
-                        SizedBox(height: 32.h),
-
-                        // PRIMARY BUTTON
-                        PrimaryGradientButton(
-                          text: 'Verify & Continue',
-                          onTap: () {},
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // DIVIDER SECTION
-                        Row(
-                          children: [
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Text(
-                                'OR',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.greyText,
-                                ),
-                              ),
-                            ),
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                          ],
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // SECONDARY BUTTON
-                        SecondaryOutlinedButton(
-                          text: 'Change Mobile Number',
-                          icon: Icons.edit_outlined,
-                          onTap: () => Navigator.pop(context),
-                        ),
-
-                        SizedBox(height: 120.h), // Spacing for bottom waves
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -313,3 +411,4 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
     );
   }
 }
+

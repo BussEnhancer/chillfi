@@ -16,8 +16,8 @@ const SuggestedProductItem: React.FC<SuggestedProductItemProps> = ({ image, name
       <div className="flex-1 min-w-0">
         <h5 className="text-[11px] font-black text-[#111827] truncate mb-1">{name}</h5>
         <div className="flex items-center justify-between">
-          <span className="text-xs font-black text-[#6C2BFF]">₹{price.toLocaleString()}</span>
-          <button className="bg-[#6C2BFF]/5 text-[#6C2BFF] p-1.5 rounded-lg hover:bg-[#6C2BFF] hover:text-white transition-all">
+          <span className="text-xs font-black text-[#FF6B2C]">₹{price.toLocaleString()}</span>
+          <button className="bg-[#FF6B2C]/5 text-[#FF6B2C] p-1.5 rounded-lg hover:bg-[#FF6B2C] hover:text-white transition-all">
             <ShoppingBag size={14} />
           </button>
         </div>

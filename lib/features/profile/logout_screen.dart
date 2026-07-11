@@ -1,12 +1,28 @@
-import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/features/auth/login_screen.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/profile/widgets/logout_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class LogoutScreen extends StatelessWidget {
+class LogoutScreen extends StatefulWidget {
   const LogoutScreen({super.key});
+
+  @override
+  State<LogoutScreen> createState() => _LogoutScreenState();
+}
+
+class _LogoutScreenState extends State<LogoutScreen> {
+  bool _loggingOut = false;
+
+  Future<void> _handleLogout() async {
+    setState(() => _loggingOut = true);
+    await context.read<AuthProvider>().logout();
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,9 +130,9 @@ class LogoutScreen extends StatelessWidget {
                         SizedBox(height: 30.h),
                         const LogoutInformationCard(),
                         SizedBox(height: 30.h),
-                        const PrimaryLogoutButton(),
+                        PrimaryLogoutButton(onTap: _handleLogout, loading: _loggingOut),
                         SizedBox(height: 16.h),
-                        const SecondaryCancelButton(),
+                        SecondaryCancelButton(onTap: _loggingOut ? null : () => Navigator.pop(context)),
                         SizedBox(height: 24.h),
                         const LogoutPrivacyFooter(),
                       ],

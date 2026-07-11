@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import CategoryNav from '../../components/navigation/CategoryNav';
@@ -13,13 +14,31 @@ import AccountSummaryCard from '../../sections/MyAccount/AccountSummaryCard';
 import ReferEarnCard from '../../sections/MyAccount/ReferEarnCard';
 import PremiumBanner from '../../sections/MyAccount/PremiumBanner';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
-
 import { ShoppingBag, Truck, Heart, MapPin, Tag, Headphones } from 'lucide-react';
+import { apiGet } from '../../utils/api';
+import { useStore } from '../../context/StoreContext';
+
+interface ApiProfile {
+  id: string;
+  name: string;
+  email?: string;
+  phone: string;
+  avatar_url?: string;
+  role: string;
+  created_at: string;
+}
 
 const MyAccountPage: React.FC = () => {
-  const breadcrumbItems = [
-    { label: 'My Account' }
-  ];
+  const { logoutUser } = useStore();
+  const [profile, setProfile] = useState<ApiProfile | null>(null);
+
+  const breadcrumbItems = [{ label: 'My Account' }];
+
+  useEffect(() => {
+    apiGet<{ success: boolean; data: ApiProfile }>('/profile')
+      .then(res => setProfile(res.data))
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
@@ -29,70 +48,60 @@ const MyAccountPage: React.FC = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <Container className="py-10">
-        <h1 className="text-3xl font-black text-[#111827] mb-8">My Account</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-black text-[#111827]">My Account</h1>
+          <button
+            onClick={logoutUser}
+            className="text-xs font-black text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+          >
+            Logout
+          </button>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Left: Account Sidebar */}
           <AccountSidebar />
 
-          {/* Right: Dashboard Content */}
           <div className="flex-1 space-y-8">
-            {/* Top Section: Profile & Stats */}
-            <ProfileOverviewCard />
+            <ProfileOverviewCard
+              name={profile?.name}
+              phone={profile?.phone}
+              email={profile?.email}
+            />
 
-            {/* Middle Section: Quick Actions */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-              <QuickActionCard
-                icon={<ShoppingBag size={24} />}
-                title="My Orders"
-                desc="View all orders"
-              />
-              <QuickActionCard
-                icon={<Truck size={24} />}
-                title="Track Order"
-                desc="Track your orders"
-              />
-              <QuickActionCard
-                icon={<Heart size={24} />}
-                title="Wishlist"
-                desc="View saved items"
-              />
-              <QuickActionCard
-                icon={<MapPin size={24} />}
-                title="Addresses"
-                desc="Manage addresses"
-              />
-              <QuickActionCard
-                icon={<Tag size={24} />}
-                title="Coupons"
-                desc="View all coupons"
-              />
-              <QuickActionCard
-                icon={<Headphones size={24} />}
-                title="Support"
-                desc="Help & Support"
-              />
+              <Link to="/account/orders">
+                <QuickActionCard icon={<ShoppingBag size={24} />} title="My Orders" desc="View all orders" />
+              </Link>
+              <Link to="/account/orders">
+                <QuickActionCard icon={<Truck size={24} />} title="Track Order" desc="Track your orders" />
+              </Link>
+              <Link to="/account/wishlist">
+                <QuickActionCard icon={<Heart size={24} />} title="Wishlist" desc="View saved items" />
+              </Link>
+              <Link to="/account/addresses">
+                <QuickActionCard icon={<MapPin size={24} />} title="Addresses" desc="Manage addresses" />
+              </Link>
+              <Link to="/offers">
+                <QuickActionCard icon={<Tag size={24} />} title="Coupons" desc="View all coupons" />
+              </Link>
+              <Link to="/support">
+                <QuickActionCard icon={<Headphones size={24} />} title="Support" desc="Help & Support" />
+              </Link>
             </div>
 
-            {/* Bottom Section: Orders, Summary & Marketing */}
             <div className="flex flex-col xl:flex-row gap-8">
-              {/* Main Column */}
               <div className="flex-1 space-y-8">
                 <RecentOrdersCard />
                 <ReferEarnCard />
               </div>
-
-              {/* Sidebar Column */}
               <div className="xl:w-[350px] space-y-8">
                 <AccountSummaryCard />
                 <PremiumBanner />
               </div>
             </div>
-
           </div>
         </div>
 
-        {/* Global Trust Strip */}
         <CheckoutTrustStrip />
       </Container>
 

@@ -12,14 +12,14 @@ const ProductSortBar: React.FC = () => {
       <div className="flex items-center gap-4 self-end">
         <div className="flex items-center gap-2 mr-4">
           <span className="text-sm font-bold text-gray-500">Sort By:</span>
-          <div className="flex items-center gap-2 bg-white border border-[#ECECEC] px-4 py-2 rounded-xl cursor-pointer hover:border-[#6C2BFF] transition-all">
+          <div className="flex items-center gap-2 bg-white border border-[#ECECEC] px-4 py-2 rounded-xl cursor-pointer hover:border-[#FF6B2C] transition-all">
             <span className="text-sm font-black text-[#111827]">Popularity</span>
-            <ChevronDown size={16} className="text-[#6C2BFF]" />
+            <ChevronDown size={16} className="text-[#FF6B2C]" />
           </div>
         </div>
 
         <div className="flex items-center bg-[#F8F7FC] p-1 rounded-xl border border-[#ECECEC]">
-           <button className="w-9 h-9 flex items-center justify-center bg-white shadow-sm text-[#6C2BFF] rounded-lg">
+           <button className="w-9 h-9 flex items-center justify-center bg-white shadow-sm text-[#FF6B2C] rounded-lg">
               <LayoutGrid size={18} />
            </button>
            <button className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600">
@@ -27,7 +27,7 @@ const ProductSortBar: React.FC = () => {
            </button>
         </div>
 
-        <button className="lg:hidden flex items-center gap-2 bg-[#6C2BFF] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#6C2BFF]/20">
+        <button className="lg:hidden flex items-center gap-2 bg-[#FF6B2C] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#FF6B2C]/20">
            <Filter size={18} />
            Filter
         </button>

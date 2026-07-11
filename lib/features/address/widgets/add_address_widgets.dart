@@ -120,6 +120,8 @@ class CustomAddressField extends StatelessWidget {
   final String hint;
   final bool isRequired;
   final Widget? suffix;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   const CustomAddressField({
     super.key,
@@ -127,6 +129,8 @@ class CustomAddressField extends StatelessWidget {
     required this.hint,
     this.isRequired = false,
     this.suffix,
+    this.controller,
+    this.keyboardType,
   });
 
   @override
@@ -170,6 +174,8 @@ class CustomAddressField extends StatelessWidget {
             children: [
               Expanded(
                 child: TextField(
+                  controller: controller,
+                  keyboardType: keyboardType,
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: GoogleFonts.poppins(
@@ -242,12 +248,15 @@ class CustomDropdownField extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.sp,
-                  color: AppColors.darkText,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13.sp,
+                    color: AppColors.darkText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.greyText, size: 20.sp),

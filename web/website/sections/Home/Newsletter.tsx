@@ -12,13 +12,13 @@ const Newsletter: React.FC = () => {
         </div>
 
         <div className="flex-1 max-w-[500px] w-full">
-           <div className="flex bg-white/5 p-1.5 rounded-xl border border-white/10 focus-within:border-[#6C2BFF] transition-all">
+           <div className="flex bg-white/5 p-1.5 rounded-xl border border-white/10 focus-within:border-[#FF6B2C] transition-all">
               <input
                 type="email"
                 placeholder="Enter your email address"
                 className="flex-1 bg-transparent px-6 text-white outline-none"
               />
-              <button className="bg-[#6C2BFF] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#5A24D6] transition-all flex items-center gap-2">
+              <button className="bg-[#FF6B2C] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#E05520] transition-all flex items-center gap-2">
                  Subscribe
                  <Send size={16} />
               </button>
@@ -29,7 +29,7 @@ const Newsletter: React.FC = () => {
            <span className="text-white font-bold text-sm uppercase tracking-widest hidden xl:block">Follow Us</span>
            <div className="flex gap-4">
               {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-[#6C2BFF] transition-all border border-white/10">
+                <a key={i} href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-[#FF6B2C] transition-all border border-white/10">
                    <Icon size={18} />
                 </a>
               ))}

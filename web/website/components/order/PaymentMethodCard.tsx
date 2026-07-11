@@ -11,20 +11,20 @@ const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({ label, icon, isSe
   return (
     <div
       className={`flex-1 flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${
-        isSelected ? 'border-[#6C2BFF] bg-[#6C2BFF]/5' : 'border-[#ECECEC] bg-white hover:border-gray-300'
+        isSelected ? 'border-[#FF6B2C] bg-[#FF6B2C]/5' : 'border-[#ECECEC] bg-white hover:border-gray-300'
       }`}
     >
       <div className="flex items-center gap-4">
         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-          isSelected ? 'border-[#6C2BFF]' : 'border-gray-200'
+          isSelected ? 'border-[#FF6B2C]' : 'border-gray-200'
         }`}>
-          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#6C2BFF]"></div>}
+          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#FF6B2C]"></div>}
         </div>
         <div className="flex items-center gap-3">
-          <div className={`text-[#111827] ${isSelected ? 'text-[#6C2BFF]' : ''}`}>
+          <div className={`text-[#111827] ${isSelected ? 'text-[#FF6B2C]' : ''}`}>
             {icon}
           </div>
-          <span className={`text-sm font-black ${isSelected ? 'text-[#6C2BFF]' : 'text-gray-700'}`}>{label}</span>
+          <span className={`text-sm font-black ${isSelected ? 'text-[#FF6B2C]' : 'text-gray-700'}`}>{label}</span>
         </div>
       </div>
       {badge && (

@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class TrackingHeaderCard extends StatelessWidget {
   const TrackingHeaderCard({super.key});
@@ -26,56 +27,67 @@ class TrackingHeaderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40.r,
-                    height: 40.r,
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        "D",
-                        style: GoogleFonts.poppins(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20.sp,
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40.r,
+                      height: 40.r,
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "D",
+                          style: GoogleFonts.poppins(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20.sp,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "DELHIVERY",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.darkText,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      Row(
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Tracking ID: 14928736123456",
+                            "DELHIVERY",
                             style: GoogleFonts.poppins(
-                              fontSize: 11.sp,
-                              color: AppColors.greyText,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.darkText,
+                              letterSpacing: 1,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(width: 4.w),
-                          Icon(Icons.copy_rounded, size: 12.sp, color: AppColors.greyText),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  "Tracking ID: 14928736123456",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11.sp,
+                                    color: AppColors.greyText,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Icon(Icons.copy_rounded, size: 12.sp, color: AppColors.greyText),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              SizedBox(width: 8.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -158,6 +170,8 @@ class TrackingProductCard extends StatelessWidget {
                 Text(
                   "Pink • 128GB  |  Qty: 1",
                   style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   "Order ID: #CHILLFI125678",
@@ -166,10 +180,13 @@ class TrackingProductCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkText,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+          SizedBox(width: 8.w),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             decoration: BoxDecoration(
@@ -179,14 +196,13 @@ class TrackingProductCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  "View Order Details",
+                  "View",
                   style: GoogleFonts.poppins(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkText,
                   ),
                 ),
-                SizedBox(width: 4.w),
                 Icon(Icons.chevron_right_rounded, color: AppColors.greyText, size: 14.sp),
               ],
             ),
@@ -198,10 +214,41 @@ class TrackingProductCard extends StatelessWidget {
 }
 
 class VerticalTrackingTimeline extends StatelessWidget {
-  const VerticalTrackingTimeline({super.key});
+  final String orderStatus;
+  final DateTime createdAt;
+
+  const VerticalTrackingTimeline({
+    super.key,
+    required this.orderStatus,
+    required this.createdAt,
+  });
+
+  static const _statusOrder = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+
+  int get _statusIndex {
+    final idx = _statusOrder.indexOf(orderStatus);
+    return idx < 0 ? 1 : idx;
+  }
+
+  String _fmt(DateTime dt) => DateFormat('d MMM yyyy, hh:mm a').format(dt);
 
   @override
   Widget build(BuildContext context) {
+    final idx = _statusIndex;
+    final isCancelled = orderStatus == 'Cancelled';
+    final placed = createdAt;
+    final confirmed = placed.add(const Duration(minutes: 15));
+    final shipped = placed.add(const Duration(days: 1));
+    final outForDelivery = placed.add(const Duration(days: 4));
+    final delivered = placed.add(const Duration(days: 5));
+
+    TimelineStatus _s(int stepIdx) {
+      if (isCancelled) return stepIdx == 0 ? TimelineStatus.completed : TimelineStatus.pending;
+      if (idx > stepIdx) return TimelineStatus.completed;
+      if (idx == stepIdx) return TimelineStatus.current;
+      return TimelineStatus.pending;
+    }
+
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -220,57 +267,60 @@ class VerticalTrackingTimeline extends StatelessWidget {
               color: AppColors.darkText,
             ),
           ),
+          if (isCancelled) ...[
+            SizedBox(height: 12.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.cancel_rounded, color: Colors.red, size: 16.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    "This order was cancelled",
+                    style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.red, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ],
           SizedBox(height: 24.h),
           _buildTimelineStep(
-            title: "Order Confirmed",
-            description: "Your order has been confirmed",
-            date: "21 May 2026, 09:41 AM",
-            location: "Gomti Nagar, Lucknow",
+            title: "Order Placed",
+            description: "Your order was placed successfully",
+            date: _fmt(placed),
             isFirst: true,
-            status: TimelineStatus.completed,
+            status: _s(0),
           ),
           _buildTimelineStep(
-            title: "Picked Up",
-            description: "Package has been picked up by Delhivery",
-            date: "21 May 2026, 11:20 AM",
-            location: "Gomti Nagar, Lucknow",
-            status: TimelineStatus.completed,
+            title: "Order Confirmed",
+            description: "Seller confirmed your order",
+            date: _s(1) == TimelineStatus.pending ? null : _fmt(confirmed),
+            status: _s(1),
           ),
           _buildTimelineStep(
-            title: "In Transit",
-            description: "Package has reached the sorting facility",
-            date: "21 May 2026, 01:30 PM",
-            location: "Lucknow Hub, Lucknow",
-            status: TimelineStatus.completed,
-          ),
-          _buildTimelineStep(
-            title: "In Transit",
-            description: "Package is in transit to the next facility",
-            date: "22 May 2026, 06:45 AM",
-            location: "Kanpur Hub, Kanpur",
-            status: TimelineStatus.completed,
-          ),
-          _buildTimelineStep(
-            title: "In Transit",
-            description: "Package has reached the destination city",
-            date: "23 May 2026, 07:15 AM",
-            location: "Lucknow Hub, Lucknow",
-            status: TimelineStatus.completed,
-            isNextPurple: true,
+            title: "Shipped",
+            description: "Package picked up by courier",
+            date: _s(2) == TimelineStatus.pending ? null : _fmt(shipped),
+            status: _s(2),
           ),
           _buildTimelineStep(
             title: "Out for Delivery",
-            description: "Package is out for delivery",
-            date: "23 May 2026, 10:05 AM",
-            location: "Gomti Nagar, Lucknow",
-            status: TimelineStatus.current,
+            description: "Package is on its way to you",
+            date: _s(3) == TimelineStatus.pending ? null : _fmt(outForDelivery),
+            status: _s(3),
           ),
           _buildTimelineStep(
             title: "Delivered",
-            description: "Expected by 24 May 2026, 08:00 PM",
-            location: "Your Location, Lucknow",
+            description: idx >= 3
+                ? "Package delivered successfully"
+                : "Expected by ${DateFormat('d MMM yyyy').format(delivered)}",
+            date: idx >= 4 ? _fmt(delivered) : null,
             isLast: true,
-            status: TimelineStatus.pending,
+            status: _s(4),
           ),
         ],
       ),
@@ -281,7 +331,6 @@ class VerticalTrackingTimeline extends StatelessWidget {
     required String title,
     required String description,
     String? date,
-    required String location,
     bool isFirst = false,
     bool isLast = false,
     bool isNextPurple = false,
@@ -391,26 +440,6 @@ class VerticalTrackingTimeline extends StatelessWidget {
                         ],
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        location.split(",")[0],
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.greyText,
-                        ),
-                      ),
-                      Text(
-                        location.split(",").last.trim(),
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.sp,
-                          color: AppColors.greyText,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -620,20 +649,27 @@ class TrustFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.verified_user_rounded, color: AppColors.greyText, size: 14.sp),
-        SizedBox(width: 8.w),
-        Text(
-          "Tracking information is 100% secure and reliable",
-          style: GoogleFonts.poppins(
-            fontSize: 11.sp,
-            color: AppColors.greyText,
-            fontWeight: FontWeight.w500,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.verified_user_rounded, color: AppColors.greyText, size: 14.sp),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              "Tracking information is 100% secure and reliable",
+              style: GoogleFonts.poppins(
+                fontSize: 11.sp,
+                color: AppColors.greyText,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

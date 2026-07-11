@@ -1,12 +1,16 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/cart_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/address/widgets/add_address_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class AddNewAddressScreen extends StatefulWidget {
-  const AddNewAddressScreen({super.key});
+  final AddressModel? existing;
+  const AddNewAddressScreen({super.key, this.existing});
 
   @override
   State<AddNewAddressScreen> createState() => _AddNewAddressScreenState();
@@ -15,6 +19,16 @@ class AddNewAddressScreen extends StatefulWidget {
 class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
   int _selectedTypeIndex = 0;
   bool _isDefault = true;
+  bool _saving = false;
+  String? _error;
+
+  late final _nameC = TextEditingController(text: widget.existing?.name);
+  late final _phoneC = TextEditingController(text: widget.existing?.phone);
+  late final _line1C = TextEditingController(text: widget.existing?.line1);
+  late final _line2C = TextEditingController(text: widget.existing?.line2);
+  late final _cityC = TextEditingController(text: widget.existing?.city);
+  late final _stateC = TextEditingController(text: widget.existing?.state);
+  late final _pinC = TextEditingController(text: widget.existing?.pincode);
 
   final List<Map<String, dynamic>> _addressTypes = [
     {'label': 'Home', 'icon': Icons.home_rounded},
@@ -22,6 +36,62 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
     {'label': 'Other', 'icon': Icons.favorite_rounded},
     {'label': 'Pick-up Point', 'icon': Icons.storefront_rounded},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existing != null) {
+      final idx = _addressTypes.indexWhere((t) => t['label'] == widget.existing!.label);
+      _selectedTypeIndex = idx >= 0 ? idx : 0;
+      _isDefault = widget.existing!.isDefault;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameC.dispose();
+    _phoneC.dispose();
+    _line1C.dispose();
+    _line2C.dispose();
+    _cityC.dispose();
+    _stateC.dispose();
+    _pinC.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    if (_nameC.text.trim().isEmpty ||
+        _phoneC.text.trim().isEmpty ||
+        _line1C.text.trim().isEmpty ||
+        _cityC.text.trim().isEmpty ||
+        _stateC.text.trim().isEmpty ||
+        _pinC.text.trim().isEmpty) {
+      setState(() => _error = 'Please fill all required fields');
+      return;
+    }
+    setState(() { _saving = true; _error = null; });
+
+    final body = {
+      'label': _addressTypes[_selectedTypeIndex]['label'],
+      'name': _nameC.text.trim(),
+      'phone': _phoneC.text.trim(),
+      'line1': _line1C.text.trim(),
+      'line2': _line2C.text.trim(),
+      'city': _cityC.text.trim(),
+      'state': _stateC.text.trim(),
+      'pincode': _pinC.text.trim(),
+      'is_default': _isDefault,
+    };
+
+    final err = await context.read<CartProvider>().saveAddress(body, existingId: widget.existing?.id);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (err == null) {
+      Navigator.pop(context, true);
+    } else {
+      setState(() => _error = err);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +123,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Add New Address",
+              widget.existing == null ? "Add New Address" : "Edit Address",
               style: GoogleFonts.poppins(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
@@ -61,7 +131,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
               ),
             ),
             Text(
-              "Add a new delivery address",
+              widget.existing == null ? "Add a new delivery address" : "Update your delivery address",
               style: GoogleFonts.poppins(
                 fontSize: 11.sp,
                 color: AppColors.greyText,
@@ -78,7 +148,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
             child: Column(
               children: [
                 SizedBox(height: 16.h),
-                
+
                 // Address Type Selection
                 AddressSectionCard(
                   title: "Address Type",
@@ -108,18 +178,21 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: const CustomAddressField(
+                        child: CustomAddressField(
                           label: "Full Name",
                           hint: "Enter full name",
                           isRequired: true,
+                          controller: _nameC,
                         ),
                       ),
                       SizedBox(width: 16.w),
                       Expanded(
-                        child: const CustomAddressField(
+                        child: CustomAddressField(
                           label: "Mobile Number",
                           hint: "Enter mobile number",
                           isRequired: true,
+                          controller: _phoneC,
+                          keyboardType: TextInputType.phone,
                         ),
                       ),
                     ],
@@ -131,79 +204,44 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                   title: "Address Details",
                   child: Column(
                     children: [
-                      const CustomAddressField(
+                      CustomAddressField(
                         label: "House / Flat / Building",
                         hint: "Enter house, flat, building name",
                         isRequired: true,
+                        controller: _line1C,
                       ),
                       SizedBox(height: 16.h),
-                      const CustomAddressField(
+                      CustomAddressField(
                         label: "Area / Street / Sector",
                         hint: "Enter area, street, sector",
+                        controller: _line2C,
+                      ),
+                      SizedBox(height: 16.h),
+                      CustomAddressField(
+                        label: "Pincode",
+                        hint: "Enter 6 digit pincode",
                         isRequired: true,
+                        controller: _pinC,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 16.h),
                       Row(
                         children: [
                           Expanded(
-                            flex: 1,
-                            child: const CustomAddressField(
-                              label: "Landmark",
-                              hint: "Enter landmark",
-                            ),
-                          ),
-                          SizedBox(width: 16.w),
-                          Expanded(
-                            flex: 1,
                             child: CustomAddressField(
-                              label: "Pincode",
-                              hint: "Enter 6 digit pincode",
-                              isRequired: true,
-                              suffix: GestureDetector(
-                                onTap: () {},
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Detect Location",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.secondaryPurple,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Icon(Icons.my_location_rounded, color: AppColors.secondaryPurple, size: 14.sp),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: const CustomDropdownField(
                               label: "City / Town",
-                              value: "Select city",
+                              hint: "Enter city",
                               isRequired: true,
+                              controller: _cityC,
                             ),
                           ),
                           SizedBox(width: 12.w),
                           Expanded(
-                            child: const CustomDropdownField(
+                            child: CustomAddressField(
                               label: "State",
-                              value: "Select state",
+                              hint: "Enter state",
                               isRequired: true,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: const CustomDropdownField(
-                              label: "Country",
-                              value: "India",
-                              isRequired: true,
+                              controller: _stateC,
                             ),
                           ),
                         ],
@@ -227,6 +265,15 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                     ],
                   ),
                 ),
+
+                if (_error != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 12.h),
+                    child: Text(
+                      _error!,
+                      style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.red, fontWeight: FontWeight.w600),
+                    ),
+                  ),
 
                 const SecurityInfoCard(),
                 SizedBox(height: 140.h), // Space for bottom buttons
@@ -267,7 +314,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: _saving ? null : () => Navigator.pop(context),
                 child: Container(
                   height: 56.h,
                   decoration: BoxDecoration(
@@ -289,7 +336,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
             SizedBox(width: 16.w),
             Expanded(
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: _saving ? null : _handleSave,
                 child: Container(
                   height: 56.h,
                   decoration: BoxDecoration(
@@ -304,21 +351,27 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.location_on_rounded, color: Colors.white, size: 18.sp),
-                      SizedBox(width: 8.w),
-                      Text(
-                        "Save Address",
-                        style: GoogleFonts.poppins(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                  child: _saving
+                      ? SizedBox(
+                          width: 22.w,
+                          height: 22.w,
+                          child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_on_rounded, color: Colors.white, size: 18.sp),
+                            SizedBox(width: 8.w),
+                            Text(
+                              "Save Address",
+                              style: GoogleFonts.poppins(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ),

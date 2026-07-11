@@ -11,6 +11,10 @@ import 'package:google_fonts/google_fonts.dart';
 class VoiceSearchScreen extends StatelessWidget {
   const VoiceSearchScreen({super.key});
 
+  void _onVoiceResult(BuildContext context, String query) {
+    if (query.isNotEmpty) Navigator.pop(context, query);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +30,7 @@ class VoiceSearchScreen extends StatelessWidget {
               painter: TopRightWavePainter(),
             ),
           ),
-          
+
           // Content
           SafeArea(
             child: Column(
@@ -39,7 +43,7 @@ class VoiceSearchScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: 20.h),
-                        
+
                         // Logo & Tagline
                         Image.asset(
                           'assets/images/logo.png',
@@ -67,9 +71,9 @@ class VoiceSearchScreen extends StatelessWidget {
                             color: AppColors.greyText,
                           ),
                         ),
-                        
+
                         SizedBox(height: 40.h),
-                        
+
                         // Main Heading
                         RichText(
                           textAlign: TextAlign.center,
@@ -102,48 +106,36 @@ class VoiceSearchScreen extends StatelessWidget {
                             color: AppColors.greyText,
                           ),
                         ),
-                        
+
                         SizedBox(height: 60.h),
-                        
+
                         // Voice Animation Area
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const VoiceWaveWidget(),
                             SizedBox(width: 30.w),
-                            const VoiceMicButton(),
+                            VoiceMicButton(onResult: (q) => _onVoiceResult(context, q)),
                             SizedBox(width: 30.w),
                             const VoiceWaveWidget(),
                           ],
                         ),
-                        
-                        SizedBox(height: 30.h),
-                        
-                        // Tap Hint
-                        Text(
-                          "Tap the mic and start speaking",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14.sp,
-                            color: AppColors.greyText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        
+
                         SizedBox(height: 40.h),
-                        
+
                         // Security Card
                         const SecurityInfoCard(),
-                        
+
                         SizedBox(height: 40.h),
-                        
+
                         // Popular Searches Grid
-                        _buildPopularSearches(),
-                        
+                        _buildPopularSearches(context),
+
                         SizedBox(height: 30.h),
-                        
+
                         // Help Banner
                         const HelpBannerWidget(),
-                        
+
                         SizedBox(height: 40.h),
                       ],
                     ),
@@ -152,7 +144,7 @@ class VoiceSearchScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Floating Sphere Decoration
           Positioned(
             top: 180.h,
@@ -212,7 +204,7 @@ class VoiceSearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPopularSearches() {
+  Widget _buildPopularSearches(BuildContext context) {
     final List<Map<String, dynamic>> items = [
       {"label": "iphone 15", "icon": Icons.smartphone},
       {"label": "gaming laptop", "icon": Icons.laptop_mac},
@@ -262,7 +254,9 @@ class VoiceSearchScreen extends StatelessWidget {
           ),
           itemCount: items.length,
           itemBuilder: (context, index) {
-            return Container(
+            return GestureDetector(
+              onTap: () => Navigator.pop(context, items[index]['label'] as String),
+              child: Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -294,6 +288,7 @@ class VoiceSearchScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             );
           },
         ),

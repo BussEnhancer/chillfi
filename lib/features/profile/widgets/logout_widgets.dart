@@ -158,63 +158,75 @@ class LogoutInformationCard extends StatelessWidget {
 }
 
 class PrimaryLogoutButton extends StatelessWidget {
-  const PrimaryLogoutButton({super.key});
+  final VoidCallback? onTap;
+  final bool loading;
+  const PrimaryLogoutButton({super.key, this.onTap, this.loading = false});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 60.h,
-      decoration: BoxDecoration(
-        gradient: AppColors.purpleGradient,
-        borderRadius: BorderRadius.circular(18.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.logout_rounded, color: Colors.white, size: 22.sp),
-          SizedBox(width: 12.w),
-          Text(
-            "Yes, Logout",
-            style: GoogleFonts.poppins(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+    return GestureDetector(
+      onTap: loading ? null : onTap,
+      child: Container(
+        width: double.infinity,
+        height: 60.h,
+        decoration: BoxDecoration(
+          gradient: AppColors.purpleGradient,
+          borderRadius: BorderRadius.circular(18.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondaryPurple.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-          ),
-        ],
+          ],
+        ),
+        alignment: Alignment.center,
+        child: loading
+            ? SizedBox(width: 24.w, height: 24.w, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.logout_rounded, color: Colors.white, size: 22.sp),
+                  SizedBox(width: 12.w),
+                  Text(
+                    "Yes, Logout",
+                    style: GoogleFonts.poppins(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
 }
 
 class SecondaryCancelButton extends StatelessWidget {
-  const SecondaryCancelButton({super.key});
+  final VoidCallback? onTap;
+  const SecondaryCancelButton({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 60.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: AppColors.secondaryPurple, width: 1.5),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        "Cancel",
-        style: GoogleFonts.poppins(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
-          color: AppColors.secondaryPurple,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 60.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18.r),
+          border: Border.all(color: AppColors.secondaryPurple, width: 1.5),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          "Cancel",
+          style: GoogleFonts.poppins(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.secondaryPurple,
+          ),
         ),
       ),
     );

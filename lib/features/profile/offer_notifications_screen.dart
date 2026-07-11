@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/services/wishlist_service.dart';
 import 'package:chillfi/features/profile/widgets/offer_notification_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ class OfferNotificationsScreen extends StatefulWidget {
 }
 
 class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
+  final _profileService = ProfileService();
+
   bool masterToggle = true;
   bool exclusiveOffers = true;
   bool discountsDeals = true;
@@ -20,6 +23,67 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
   bool flashSales = true;
   bool festiveOffers = true;
   bool bankPartnerOffers = true;
+  TimeOfDay quietStart = const TimeOfDay(hour: 23, minute: 0);
+  TimeOfDay quietEnd = const TimeOfDay(hour: 7, minute: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await _profileService.getNotificationPreferences();
+    if (!mounted) return;
+    setState(() {
+      masterToggle = prefs['offerMaster'] as bool? ?? true;
+      exclusiveOffers = prefs['exclusiveOffers'] as bool? ?? true;
+      discountsDeals = prefs['discountsDeals'] as bool? ?? true;
+      seasonalSales = prefs['seasonalSales'] as bool? ?? true;
+      flashSales = prefs['flashSales'] as bool? ?? true;
+      festiveOffers = prefs['festiveOffers'] as bool? ?? true;
+      bankPartnerOffers = prefs['bankPartnerOffers'] as bool? ?? true;
+      quietStart = _parseTime(prefs['offerQuietStart'] as String?) ?? quietStart;
+      quietEnd = _parseTime(prefs['offerQuietEnd'] as String?) ?? quietEnd;
+    });
+  }
+
+  TimeOfDay? _parseTime(String? value) {
+    if (value == null) return null;
+    final parts = value.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  String _formatTime(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+  void _savePrefs() {
+    _profileService.updateNotificationPreferences({
+      'offerMaster': masterToggle,
+      'exclusiveOffers': exclusiveOffers,
+      'discountsDeals': discountsDeals,
+      'seasonalSales': seasonalSales,
+      'flashSales': flashSales,
+      'festiveOffers': festiveOffers,
+      'bankPartnerOffers': bankPartnerOffers,
+      'offerQuietStart': _formatTime(quietStart),
+      'offerQuietEnd': _formatTime(quietEnd),
+    });
+  }
+
+  String get _quietHoursLabel => '${quietStart.format(context)} – ${quietEnd.format(context)}';
+
+  Future<void> _pickQuietHours() async {
+    final start = await showTimePicker(context: context, initialTime: quietStart, helpText: 'Quiet hours start');
+    if (start == null || !mounted) return;
+    final end = await showTimePicker(context: context, initialTime: quietEnd, helpText: 'Quiet hours end');
+    if (end == null || !mounted) return;
+    setState(() { quietStart = start; quietEnd = end; });
+    _savePrefs();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +190,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                       CupertinoSwitch(
                         value: masterToggle,
                         activeTrackColor: AppColors.secondaryPurple,
-                        onChanged: (val) => setState(() => masterToggle = val),
+                        onChanged: (val) { setState(() => masterToggle = val); _savePrefs(); },
                       ),
                     ],
                   ),
@@ -169,7 +233,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Exclusive Offers",
                     description: "Get notified about exclusive offers just for you.",
                     value: exclusiveOffers,
-                    onChanged: (val) => setState(() => exclusiveOffers = val),
+                    onChanged: (val) { setState(() => exclusiveOffers = val); _savePrefs(); },
                   ),
                   _divider(),
                   OfferTypeTile(
@@ -177,7 +241,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Discounts & Deals",
                     description: "Receive alerts for discounts and limited-time deals.",
                     value: discountsDeals,
-                    onChanged: (val) => setState(() => discountsDeals = val),
+                    onChanged: (val) { setState(() => discountsDeals = val); _savePrefs(); },
                   ),
                   _divider(),
                   OfferTypeTile(
@@ -185,7 +249,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Seasonal Sales",
                     description: "Stay updated about seasonal sales and special events.",
                     value: seasonalSales,
-                    onChanged: (val) => setState(() => seasonalSales = val),
+                    onChanged: (val) { setState(() => seasonalSales = val); _savePrefs(); },
                   ),
                   _divider(),
                   OfferTypeTile(
@@ -193,7 +257,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Flash Sales",
                     description: "Be the first to know about flash sales and surprise offers.",
                     value: flashSales,
-                    onChanged: (val) => setState(() => flashSales = val),
+                    onChanged: (val) { setState(() => flashSales = val); _savePrefs(); },
                   ),
                   _divider(),
                   OfferTypeTile(
@@ -201,7 +265,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Festive Offers",
                     description: "Get notified about offers during festivals and celebrations.",
                     value: festiveOffers,
-                    onChanged: (val) => setState(() => festiveOffers = val),
+                    onChanged: (val) { setState(() => festiveOffers = val); _savePrefs(); },
                   ),
                   _divider(),
                   OfferTypeTile(
@@ -209,7 +273,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     title: "Bank & Partner Offers",
                     description: "Receive notifications for bank offers and partner promotions.",
                     value: bankPartnerOffers,
-                    onChanged: (val) => setState(() => bankPartnerOffers = val),
+                    onChanged: (val) { setState(() => bankPartnerOffers = val); _savePrefs(); },
                   ),
                 ],
               ),
@@ -249,11 +313,12 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                     subtitle: "Select the categories you're interested in",
                   ),
                   _divider(),
-                  const OfferPreferenceRow(
+                  OfferPreferenceRow(
                     icon: Icons.notifications_off_outlined,
                     title: "Quiet Hours",
                     subtitle: "Choose time when you don't want to receive offer notifications",
-                    trailingText: "11:00 PM – 7:00 AM",
+                    trailingText: _quietHoursLabel,
+                    onTap: _pickQuietHours,
                   ),
                 ],
               ),

@@ -1,0 +1,72 @@
+===================================================
+ChillFi Backend — Railway Environment Variables
+===================================================
+Set these in Railway dashboard → your project → Variables tab
+
+REQUIRED (app won't start without these):
+------------------------------------------
+DATABASE_URL          = postgresql://...neon.tech/neondb?sslmode=require
+JWT_SECRET            = (random 64-char string — use: openssl rand -hex 32)
+NODE_ENV              = production
+APP_BASE_URL          = https://chillfi-api.up.railway.app
+
+REQUIRED FOR OTP:
+-----------------
+MSG91_AUTH_KEY        = (from msg91.com → API Keys)
+MSG91_TEMPLATE_ID     = (from msg91.com → SMS → Templates)
+
+REQUIRED FOR IMAGE UPLOAD:
+---------------------------
+CLOUDINARY_CLOUD_NAME = (from cloudinary.com dashboard)
+CLOUDINARY_API_KEY    = (from cloudinary.com dashboard)
+CLOUDINARY_API_SECRET = (from cloudinary.com dashboard)
+
+REQUIRED FOR CORS (website URL):
+----------------------------------
+FRONTEND_URL          = https://chillfi.web.app
+
+OPTIONAL:
+---------
+PORT                  = (Railway sets this automatically — do NOT override)
+PHONEPE_MERCHANT_ID   = (PhonePe dashboard)
+PHONEPE_SALT_KEY      = (PhonePe dashboard)
+PHONEPE_SALT_INDEX    = 1
+PHONEPE_BASE_URL      = https://api-preprod.phonepe.com/apis/pg-sandbox
+PHONEPE_ENV           = PROD
+DELHIVERY_API_KEY     = (Delhivery partner portal)
+FIREBASE_PROJECT_ID   = (Firebase console)
+FIREBASE_CLIENT_EMAIL = (Firebase console → Service Account)
+FIREBASE_PRIVATE_KEY  = (Firebase console → Service Account → JSON)
+
+===================================================
+DEPLOY STEPS (one-time setup):
+===================================================
+1. Push backend code to GitHub
+2. Go to railway.app → New Project → Deploy from GitHub
+3. Select your repo — set root directory to: chillfi/backend
+4. Add ALL variables from the "REQUIRED" sections above
+5. Railway auto-deploys. Your live URL will be:
+      https://chillfi-api.up.railway.app
+6. Test it: curl https://chillfi-api.up.railway.app/health
+   Should return: {"status":"ok","env":"production",...}
+7. Website is already built pointing at this URL.
+   If you need to rebuild: cd chillfi/web/website && npm run deploy
+
+===================================================
+FLUTTER APK — rebuild with production URL:
+===================================================
+flutter build apk \
+  --dart-define=API_URL=https://chillfi-api.up.railway.app/api \
+  --release
+
+Output: build/app/outputs/flutter-apk/app-release.apk
+Rename to: ChillFi-v1.0.0.apk before sharing with client.
+
+===================================================
+SECURITY NOTES:
+===================================================
+- NODE_ENV=production disables the /api/payment/dev-success endpoint
+- NODE_ENV=production stops OTP plaintext logging to Railway logs
+- APP_BASE_URL is used for PhonePe redirect/callback URLs
+- Never set NODE_ENV=development on Railway production service
+===================================================

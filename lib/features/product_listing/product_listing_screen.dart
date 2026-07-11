@@ -1,4 +1,7 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/providers/product_provider.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/features/categories/widgets/feature_highlights.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_listing/widgets/bottom_action_bar.dart';
@@ -9,9 +12,13 @@ import 'package:chillfi/features/product_listing/widgets/product_listing_search.
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProductListingScreen extends StatefulWidget {
-  const ProductListingScreen({super.key});
+  final String? categoryId;
+  final String? categoryName;
+  final String? searchQuery;
+  const ProductListingScreen({super.key, this.categoryId, this.categoryName, this.searchQuery});
 
   @override
   State<ProductListingScreen> createState() => _ProductListingScreenState();
@@ -19,6 +26,30 @@ class ProductListingScreen extends StatefulWidget {
 
 class _ProductListingScreenState extends State<ProductListingScreen> {
   int _selectedChipIndex = 0;
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductProvider>().loadProducts(
+        category: widget.categoryId,
+        search: widget.searchQuery,
+        refresh: true,
+      );
+    });
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+        context.read<ProductProvider>().loadProducts(category: widget.categoryId);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   final List<Map<String, dynamic>> _filterChips = [
     {'label': 'All', 'icon': Icons.grid_view_rounded},
@@ -26,69 +57,6 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     {'label': 'Tablets', 'icon': Icons.tablet_rounded},
     {'label': 'Feature Phones', 'icon': Icons.phone_android_rounded},
     {'label': 'Filter', 'icon': Icons.tune_rounded},
-  ];
-
-  final List<Map<String, dynamic>> _products = [
-    {
-      'title': 'Apple iPhone 15',
-      'variant': 'Pink | 128GB',
-      'price': '69,999',
-      'oldPrice': '1,02,900',
-      'discount': '32%',
-      'savings': '32,901',
-      'rating': 4.5,
-      'reviews': '2.4k',
-    },
-    {
-      'title': 'Samsung Galaxy S23',
-      'variant': 'Phantom Black | 256GB',
-      'price': '49,999',
-      'oldPrice': '63,999',
-      'discount': '22%',
-      'savings': '14,000',
-      'rating': 4.4,
-      'reviews': '2.1k',
-    },
-    {
-      'title': 'Apple AirPods Pro',
-      'variant': 'White | 2nd Gen',
-      'price': '18,999',
-      'oldPrice': '26,999',
-      'discount': '30%',
-      'savings': '8,000',
-      'rating': 4.6,
-      'reviews': '1.8k',
-    },
-    {
-      'title': 'Sony WH-CH720N',
-      'variant': 'Wireless Headphones',
-      'price': '5,999',
-      'oldPrice': '9,999',
-      'discount': '40%',
-      'savings': '4,000',
-      'rating': 4.4,
-      'reviews': '1.2k',
-    },
-    {
-      'title': 'boAt Wave Elevate',
-      'variant': 'Smart Watch',
-      'price': '1,799',
-      'oldPrice': '2,999',
-      'discount': '40%',
-      'savings': '1,200',
-      'rating': 4.3,
-      'reviews': '980',
-    },
-    {
-      'title': 'HP 15s Laptop',
-      'variant': 'i5 12th Gen | 8GB/512GB',
-      'price': '35,990',
-      'oldPrice': '47,990',
-      'discount': '25%',
-      'savings': '12,000',
-      'rating': 4.4,
-      'reviews': '760',
-    },
   ];
 
   @override
@@ -99,91 +67,116 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            Column(
-              children: [
-                const ProductListingHeader(
-                  title: "Mobiles & Tablets",
-                  productCount: "2,356 Products",
-                ),
-                const ProductListingSearch(),
-                SizedBox(height: 12.h),
-                _buildFilterChips(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 16.h),
-                        // Count and Sort Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "2,356 Products",
-                              style: GoogleFonts.poppins(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.darkText,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Sort by: ",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.sp,
-                                    color: AppColors.greyText,
-                                  ),
-                                ),
-                                Text(
-                                  "Popular",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.secondaryPurple,
-                                  ),
-                                ),
-                                Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.secondaryPurple),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 16.h),
-                        // Benefit Strip (Reused)
-                        const FeatureHighlightsRow(),
-                        SizedBox(height: 20.h),
-                        // Product Grid
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.62,
-                            crossAxisSpacing: 12.w,
-                            mainAxisSpacing: 15.h,
-                          ),
-                          itemCount: _products.length,
-                          itemBuilder: (context, index) {
-                            final p = _products[index];
-                            return ProductListingCard(
-                              title: p['title'],
-                              variant: p['variant'],
-                              price: p['price'],
-                              oldPrice: p['oldPrice'],
-                              discount: p['discount'],
-                              savings: p['savings'],
-                              rating: p['rating'],
-                              reviews: p['reviews'],
-                            );
-                          },
-                        ),
-                        SizedBox(height: 100.h), // Space for floating bar
-                      ],
+            Consumer<ProductProvider>(
+              builder: (context, pp, _) {
+                final products = pp.products;
+                final wishlist = context.watch<WishlistProvider>();
+                return Column(
+                  children: [
+                    ProductListingHeader(
+                      title: widget.categoryName ?? "All Products",
+                      productCount: "${products.length} Products",
                     ),
-                  ),
-                ),
-              ],
+                    const ProductListingSearch(),
+                    SizedBox(height: 12.h),
+                    _buildFilterChips(),
+                    Expanded(
+                      child: pp.productsState == LoadState.loading && products.isEmpty
+                          ? const Center(child: CircularProgressIndicator())
+                          : products.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'No products found',
+                                    style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.greyText),
+                                  ),
+                                )
+                              : SingleChildScrollView(
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 16.h),
+                                      // Count and Sort Row
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "${products.length} Products",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.darkText,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Sort by: ",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12.sp,
+                                                  color: AppColors.greyText,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Popular",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.secondaryPurple,
+                                                ),
+                                              ),
+                                              Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.secondaryPurple),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      // Benefit Strip (Reused)
+                                      const FeatureHighlightsRow(),
+                                      SizedBox(height: 20.h),
+                                      // Product Grid
+                                      GridView.builder(
+                                        shrinkWrap: true,
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          childAspectRatio: 0.62,
+                                          crossAxisSpacing: 12.w,
+                                          mainAxisSpacing: 15.h,
+                                        ),
+                                        itemCount: products.length,
+                                        itemBuilder: (context, index) {
+                                          final p = products[index];
+                                          return ProductListingCard(
+                                            id: p.id,
+                                            title: p.name,
+                                            variant: p.brandName ?? p.categoryName ?? '',
+                                            price: p.price.toStringAsFixed(0),
+                                            oldPrice: (p.oldPrice ?? p.price).toStringAsFixed(0),
+                                            discount: '${p.discountPct}%',
+                                            savings: ((p.oldPrice ?? p.price) - p.price).toStringAsFixed(0),
+                                            rating: p.rating,
+                                            reviews: p.reviewCount > 999 ? '${(p.reviewCount / 1000).toStringAsFixed(1)}k' : '${p.reviewCount}',
+                                            imageUrl: p.primaryImage,
+                                            isWishlisted: wishlist.isWishlisted(p.id),
+                                            onWishlistToggle: () => wishlist.toggleWishlist(p.id),
+                                            onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+                                          );
+                                        },
+                                      ),
+                                      if (pp.productsState == LoadState.loading)
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 20.h),
+                                          child: const Center(child: CircularProgressIndicator()),
+                                        ),
+                                      SizedBox(height: 100.h), // Space for floating bar
+                                    ],
+                                  ),
+                                ),
+                    ),
+                  ],
+                );
+              },
             ),
             // Floating Bottom Toolbar
             Positioned(

@@ -16,9 +16,9 @@ const ContactSelect: React.FC<ContactSelectProps> = ({ label, required, options,
       <div className="relative">
         <select
           {...props}
-          className="w-full bg-white border border-[#ECECEC] rounded-xl px-5 py-3 text-sm font-bold text-[#111827] outline-none focus:border-[#6C2BFF] transition-all appearance-none cursor-pointer shadow-sm"
+          className="w-full bg-white border border-[#ECECEC] rounded-xl px-5 py-3 text-sm font-bold text-[#111827] outline-none focus:border-[#FF6B2C] transition-all appearance-none cursor-pointer shadow-sm"
         >
-          <option value="" disabled selected>Select a {label.toLowerCase()}</option>
+          <option value="" disabled>Select a {label.toLowerCase()}</option>
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}

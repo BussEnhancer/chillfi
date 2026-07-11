@@ -350,39 +350,45 @@ class PaymentBottomBar extends StatelessWidget {
         top: false,
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Amount Payable",
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
-                    color: AppColors.greyText,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Amount Payable",
+                    style: GoogleFonts.poppins(
+                      fontSize: 11.sp,
+                      color: AppColors.greyText,
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "₹1,36,897",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.darkText,
-                      ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        Text(
+                          "₹1,36,897",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.darkText,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "You will save ₹2,100",
+                          style: GoogleFonts.poppins(
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      "You will save ₹2,100",
-                      style: GoogleFonts.poppins(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
             SizedBox(width: 20.w),
             Expanded(
@@ -400,20 +406,23 @@ class PaymentBottomBar extends StatelessWidget {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Continue to Checkout",
-                      style: GoogleFonts.poppins(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Continue to Checkout",
+                        style: GoogleFonts.poppins(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18.sp),
-                  ],
+                      SizedBox(width: 8.w),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18.sp),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -234,9 +234,10 @@ class SecondaryOutlinedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        height: 54.h,
+        height: 56.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
@@ -250,7 +251,7 @@ class SecondaryOutlinedButton extends StatelessWidget {
             Text(
               text,
               style: GoogleFonts.poppins(
-                fontSize: 14.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColors.secondaryPurple,
               ),

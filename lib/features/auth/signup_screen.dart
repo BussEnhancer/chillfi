@@ -1,10 +1,13 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/features/auth/otp_verification_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/features/auth/widgets/signup_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -17,6 +20,13 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   late AnimationController _mainController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _acceptedTerms = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -37,9 +47,51 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     _mainController.forward();
   }
 
+  Future<void> _onSignUp() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your phone number'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (!_acceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept Terms & Conditions'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    setState(() => _isLoading = true);
+    final success = await context.read<AuthProvider>().sendOtp(phone, purpose: 'signup');
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(
+            phoneNumber: phone,
+            isFromForgotPassword: false,
+            isFromSignup: true,
+            signupName: _nameController.text.trim(),
+            signupEmail: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.read<AuthProvider>().message), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _mainController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -47,6 +99,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           // 1. TOP BACKGROUND DECORATIONS
@@ -59,8 +112,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
               child: CustomPaint(painter: HeaderCurvePainter()),
             ),
           ),
-          
-          // Beige Wave Overlay (Simplified as Opacity Layer)
+
+          // Beige Wave Overlay
           Positioned(
             top: 0,
             left: 0,
@@ -71,9 +124,26 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                 height: 180.h,
                 decoration: const BoxDecoration(
                   color: Color(0xFFF5E6CA),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(100),
-                  ),
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(100)),
+                ),
+              ),
+            ),
+          ),
+
+          // Logo in Orange Part (Consistent with Login Screen)
+          Positioned(
+            top: 40.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Hero(
+                tag: 'logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 140.w,
+                  height: 140.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 90.sp, color: AppColors.primaryOrange),
                 ),
               ),
             ),
@@ -95,11 +165,6 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
             right: 30.w,
             child: const FloatingSphere(),
           ),
-          Positioned(
-            bottom: 60.h,
-            left: 30.w,
-            child: const FloatingSphere(),
-          ),
 
           // 2. BOTTOM WAVE DESIGN
           Positioned(
@@ -112,239 +177,239 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
             ),
           ),
 
-          // 3. MAIN SCROLLABLE CONTENT
-          Positioned.fill(
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // BACK BUTTON
-                        Align(
+          // 3. MAIN CONTENT - SINGLE SCREEN (NON-SCROLLABLE)
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      // BACK BUTTON
+                      SizedBox(
+                        height: 50.h,
+                        child: Align(
                           alignment: Alignment.centerLeft,
                           child: GestureDetector(
                             onTap: () => Navigator.pop(context),
-                            child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              padding: EdgeInsets.all(8.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
+                            ),
                           ),
                         ),
+                      ),
 
-                        SizedBox(height: 10.h),
-
-                        // LOGO SECTION
-                        Hero(
-                          tag: 'logo',
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            width: 80.w,
-                            height: 80.h,
-                            fit: BoxFit.contain,
-                            errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 60.sp, color: AppColors.primaryOrange),
+                      // HEADER SECTION
+                      Flexible(
+                        flex: 3,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: 140.h), // Space for the logo
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Create ',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Your Account',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.secondaryPurple,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  'Sign up and start exploring amazing deals',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    color: AppColors.greyText,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        Text(
-                          'Experience The Trust with CHILLFI',
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.greyText,
+                      ),
+
+                      SizedBox(height: 16.h),
+
+                      // FORM SECTION
+                      Flexible(
+                        flex: 6,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(
+                              width: 327.w,
+                              child: Column(
+                                children: [
+                                  PremiumAuthField(
+                                    label: 'Full Name',
+                                    hintText: 'Enter your full name',
+                                    prefixIcon: Icons.person_outline_rounded,
+                                    controller: _nameController,
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  PremiumPhoneInputWrapper(controller: _phoneController),
+                                  SizedBox(height: 12.h),
+                                  PremiumAuthField(
+                                    label: 'Email Address',
+                                    hintText: 'Enter your email address',
+                                    prefixIcon: Icons.mail_outline_rounded,
+                                    isOptional: true,
+                                    controller: _emailController,
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  PremiumAuthField(
+                                    label: 'Password',
+                                    hintText: 'Create a strong password',
+                                    prefixIcon: Icons.lock_outline_rounded,
+                                    isPassword: true,
+                                    controller: _passwordController,
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Row(
+                                    children: [
+                                      CustomCheckbox(onChanged: (val) => setState(() => _acceptedTerms = val ?? false)),
+                                      SizedBox(width: 12.w),
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            text: 'I agree to the ',
+                                            style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
+                                            children: [
+                                              TextSpan(
+                                                text: 'Terms & Conditions',
+                                                style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
+                                              ),
+                                              const TextSpan(text: ' and '),
+                                              TextSpan(
+                                                text: 'Privacy Policy',
+                                                style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
+                      ),
 
-                        SizedBox(height: 25.h),
+                      SizedBox(height: 16.h),
 
-                        // TITLE SECTION
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Create ',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.black,
+                      // ACTION SECTION
+                      Flexible(
+                        flex: 4,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: 327.w,
+                                  child: PrimaryGradientButton(
+                                    text: _isLoading ? 'Sending OTP...' : 'Sign Up',
+                                    onTap: _isLoading ? () {} : _onSignUp,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: 'Your Account',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w800,
-                                  foreground: Paint()
-                                    ..shader = const LinearGradient(
-                                      colors: [AppColors.primaryOrange, AppColors.secondaryPurple],
-                                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0)),
+                                SizedBox(height: 16.h),
+                                SizedBox(
+                                  width: 327.w,
+                                  child: Row(
+                                    children: [
+                                      const Expanded(child: Divider(color: AppColors.fieldBorder)),
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        child: Text(
+                                          'OR',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.greyText,
+                                          ),
+                                        ),
+                                      ),
+                                      const Expanded(child: Divider(color: AppColors.fieldBorder)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                SizedBox(height: 16.h),
+                                // FOOTER
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.8),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.02),
+                                        blurRadius: 10,
+                                      )
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Already have an account? ',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13.sp,
+                                          color: AppColors.greyText,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => Navigator.pop(context),
+                                        behavior: HitTestBehavior.opaque,
+                                        child: Text(
+                                          'Login',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13.sp,
+                                            color: AppColors.secondaryPurple,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'Sign up and start exploring amazing deals',
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.sp,
-                            color: AppColors.greyText,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-
-                        SizedBox(height: 30.h),
-
-                        // FORM SECTION
-                        const PremiumAuthField(
-                          label: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: Icons.person_outline_rounded,
-                        ),
-                        SizedBox(height: 16.h),
-                        
-                        // Reusing PremiumPhoneInput but customized for signup look
-                        const PremiumPhoneInputWrapper(),
-                        
-                        SizedBox(height: 16.h),
-                        const PremiumAuthField(
-                          label: 'Email Address',
-                          hintText: 'Enter your email address',
-                          prefixIcon: Icons.mail_outline_rounded,
-                          isOptional: true,
-                        ),
-                        SizedBox(height: 16.h),
-                        const PremiumAuthField(
-                          label: 'Password',
-                          hintText: 'Create a strong password',
-                          prefixIcon: Icons.lock_outline_rounded,
-                          isPassword: true,
-                        ),
-                        SizedBox(height: 16.h),
-                        const PremiumAuthField(
-                          label: 'Confirm Password',
-                          hintText: 'Confirm your password',
-                          prefixIcon: Icons.lock_outline_rounded,
-                          isPassword: true,
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        // CHECKBOX SECTION
-                        Row(
-                          children: [
-                            CustomCheckbox(onChanged: (val) {}),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  text: 'I agree to the ',
-                                  style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
-                                  children: [
-                                    TextSpan(
-                                      text: 'Terms & Conditions',
-                                      style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
-                                    ),
-                                    const TextSpan(text: ' and '),
-                                    TextSpan(
-                                      text: 'Privacy Policy',
-                                      style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // PRIMARY BUTTON
-                        PrimaryGradientButton(
-                          text: 'Sign Up',
-                          onTap: () {},
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        // DIVIDER
-                        Row(
-                          children: [
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Text(
-                                'OR',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.greyText,
-                                ),
-                              ),
-                            ),
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                          ],
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        // SOCIAL LOGIN BUTTONS
-                        Row(
-                          children: [
-                            SocialLoginButton(
-                              icon: const BrandLogoIcon(brand: 'google'),
-                              text: 'Continue with\nGoogle',
-                              onTap: () {},
-                            ),
-                            SizedBox(width: 12.w),
-                            SocialLoginButton(
-                              icon: const BrandLogoIcon(brand: 'facebook'),
-                              text: 'Continue with\nFacebook',
-                              onTap: () {},
-                            ),
-                            SizedBox(width: 12.w),
-                            SocialLoginButton(
-                              icon: const BrandLogoIcon(brand: 'apple'),
-                              text: 'Continue with\nApple',
-                              onTap: () {},
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // FOOTER
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Already have an account? ',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13.sp,
-                                color: AppColors.greyText,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Text(
-                                'Login',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.sp,
-                                  color: AppColors.secondaryPurple,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 120.h),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 40.h),
+                    ],
                   ),
                 ),
               ),
@@ -357,7 +422,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
 }
 
 class PremiumPhoneInputWrapper extends StatelessWidget {
-  const PremiumPhoneInputWrapper({super.key});
+  final TextEditingController? controller;
+  const PremiumPhoneInputWrapper({super.key, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -420,6 +486,7 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
                     SizedBox(width: 8.w),
                     Expanded(
                       child: TextField(
+                        controller: controller,
                         keyboardType: TextInputType.phone,
                         style: GoogleFonts.poppins(
                           fontSize: 14.sp,
@@ -427,7 +494,7 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
                           color: AppColors.black,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Enter your mobile number',
+                          hintText: 'Enter mobile number',
                           hintStyle: GoogleFonts.poppins(
                             fontSize: 13.sp,
                             color: AppColors.greyText.withOpacity(0.5),
@@ -448,3 +515,4 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
     );
   }
 }
+

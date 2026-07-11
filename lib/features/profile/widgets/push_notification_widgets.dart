@@ -34,7 +34,7 @@ class PushHeroBanner extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Stack(
-                    clipBehavior: BoxShadow.none,
+                    clipBehavior: Clip.none,
                     children: [
                       Icon(Icons.notifications_active_rounded, color: AppColors.secondaryPurple, size: 45.sp),
                       Positioned(
@@ -214,6 +214,7 @@ class PushInfoRowCard extends StatelessWidget {
   final String subtitle;
   final String? trailingText;
   final Color? backgroundColor;
+  final VoidCallback? onTap;
 
   const PushInfoRowCard({
     super.key,
@@ -222,11 +223,14 @@ class PushInfoRowCard extends StatelessWidget {
     required this.subtitle,
     this.trailingText,
     this.backgroundColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+    onTap: onTap,
+    child: Container(
       padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
         color: backgroundColor ?? Colors.white,
@@ -280,9 +284,11 @@ class PushInfoRowCard extends StatelessWidget {
               ),
             ),
           SizedBox(width: 8.w),
-          Icon(Icons.chevron_right_rounded, color: const Color(0xFF6B7280), size: 24.sp),
+          if (onTap != null)
+            Icon(Icons.chevron_right_rounded, color: const Color(0xFF6B7280), size: 24.sp),
         ],
       ),
+    ),
     );
   }
 }

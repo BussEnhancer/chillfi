@@ -47,12 +47,16 @@ class CartAddressCard extends StatelessWidget {
                         color: AppColors.greyText,
                       ),
                     ),
-                    Text(
-                      "John Sharma",
-                      style: GoogleFonts.poppins(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
+                    Flexible(
+                      child: Text(
+                        "John Sharma",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkText,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -81,6 +85,7 @@ class CartAddressCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: AppColors.darkText,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   "Lucknow, Uttar Pradesh",
@@ -88,6 +93,7 @@ class CartAddressCard extends StatelessWidget {
                     fontSize: 12.sp,
                     color: AppColors.greyText,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

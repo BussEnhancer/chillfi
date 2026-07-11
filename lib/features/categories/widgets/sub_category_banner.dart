@@ -37,58 +37,62 @@ class SubCategoryBanner extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Latest Smartphones',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkText,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Latest Smartphones',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkText,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Top Brands | Best Prices',
-                        style: GoogleFonts.poppins(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.secondaryPurple,
+                        Text(
+                          'Top Brands | Best Prices',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondaryPurple,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        'Up to 40% OFF on Premium Smartphones',
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.sp,
-                          color: AppColors.greyText,
+                        SizedBox(height: 6.h),
+                        Text(
+                          'Up to 40% OFF on Premium Smartphones',
+                          style: GoogleFonts.poppins(
+                            fontSize: 10.sp,
+                            color: AppColors.greyText,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.purpleGradient,
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Shop Now',
-                              style: GoogleFonts.poppins(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                        SizedBox(height: 12.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.purpleGradient,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Shop Now',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 4.w),
-                            Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 12.sp),
-                          ],
+                              SizedBox(width: 4.w),
+                              Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 12.sp),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(

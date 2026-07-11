@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/features/auth/welcome_screen.dart';
 import 'package:chillfi/features/onboarding/onboarding_screen_two.dart';
 import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:flutter/material.dart';
@@ -66,9 +67,9 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
             right: 24.w,
             child: TextButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const OnboardingScreenTwo()),
+                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                 );
               },
               style: TextButton.styleFrom(
@@ -224,7 +225,7 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
                       Text(
                         'Experience',
                         style: GoogleFonts.poppins(
-                          fontSize: 30.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.darkText,
                           letterSpacing: -0.5,
@@ -233,7 +234,7 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
                       PremiumGradientText(
                         text: 'Premium Shopping',
                         style: GoogleFonts.poppins(
-                          fontSize: 30.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.5,
                         ),
@@ -244,7 +245,7 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
                         'Discover the best electronics, accessories and more with unbeatable deals.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
-                          fontSize: 15.sp,
+                          fontSize: 14.sp,
                           color: AppColors.greyText,
                           height: 1.6,
                           fontWeight: FontWeight.w400,
@@ -261,7 +262,6 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildIndicator(true),
-                    _buildIndicator(false),
                     _buildIndicator(false),
                     _buildIndicator(false),
                   ],

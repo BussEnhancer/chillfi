@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import CategoryNav from '../../components/navigation/CategoryNav';
@@ -12,14 +13,117 @@ import OrderProgressTracker from '../../components/order/OrderProgressTracker';
 import DeliveryInfoSection from '../../sections/Tracking/DeliveryInfoSection';
 import DeliveryTimelineSection from '../../sections/Tracking/DeliveryTimelineSection';
 import TrackingOrderSummary from '../../sections/Tracking/TrackingOrderSummary';
+import { apiGet, apiPost } from '../../utils/api';
 
-import { Headphones } from 'lucide-react';
+import { Headphones, Loader2, X } from 'lucide-react';
+
+interface ApiOrderItem {
+  product_name: string;
+  product_image: string;
+  quantity: number;
+  price: number;
+}
+
+interface ApiRefundRequest {
+  id: string;
+  type: 'Refund' | 'Return' | 'Exchange';
+  reason: string;
+  status: 'Requested' | 'Approved' | 'Rejected' | 'Refunded';
+  refund_amount?: number;
+  admin_notes?: string;
+  created_at: string;
+}
+
+interface ApiOrderDetail {
+  id: string;
+  order_number: string;
+  status: string;
+  payment_method: string;
+  payment_status: string;
+  subtotal: number;
+  discount: number;
+  delivery_fee: number;
+  tax_amount: number;
+  total: number;
+  tracking_id: string | null;
+  created_at: string;
+  updated_at: string;
+  addr_name: string | null;
+  addr_phone: string | null;
+  line1: string | null;
+  line2: string | null;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
+  items: ApiOrderItem[];
+  refund_request: ApiRefundRequest | null;
+}
 
 const TrackingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [order, setOrder] = useState<ApiOrderDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
+
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [refundType, setRefundType] = useState<'Refund' | 'Return' | 'Exchange'>('Refund');
+  const [refundReason, setRefundReason] = useState('');
+  const [submittingRefund, setSubmittingRefund] = useState(false);
+  const [refundError, setRefundError] = useState('');
+
+  const loadOrder = () => {
+    if (!id) return;
+    setLoading(true);
+    apiGet<{ success: boolean; data: { order: ApiOrderDetail } }>(`/orders/${id}`)
+      .then(res => setOrder(res.data.order))
+      .catch(e => setError(e.message || 'Failed to load order'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadOrder(); }, [id]);
+
+  const handleCancelOrder = async () => {
+    if (!id) return;
+    setCancelling(true);
+    setCancelError('');
+    try {
+      await apiPost(`/orders/${id}/cancel`, { reason: cancelReason || undefined });
+      setShowCancelModal(false);
+      setCancelReason('');
+      loadOrder();
+    } catch (e: any) {
+      setCancelError(e.message || 'Failed to cancel order');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const handleRequestRefund = async () => {
+    if (!id || !refundReason.trim()) return;
+    setSubmittingRefund(true);
+    setRefundError('');
+    try {
+      await apiPost(`/orders/${id}/refund-request`, { type: refundType, reason: refundReason.trim() });
+      setShowRefundModal(false);
+      setRefundReason('');
+      loadOrder();
+    } catch (e: any) {
+      setRefundError(e.message || 'Failed to submit request');
+    } finally {
+      setSubmittingRefund(false);
+    }
+  };
+
   const breadcrumbItems = [
-    { label: 'My Orders', href: '#' },
+    { label: 'My Orders', href: '/account/orders' },
     { label: 'Track Order' }
   ];
+
+  const placedAt = order ? new Date(order.created_at) : null;
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
@@ -29,15 +133,47 @@ const TrackingPage: React.FC = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <Container className="py-10">
+        {loading ? (
+          <div className="flex items-center justify-center py-32">
+            <Loader2 size={32} className="animate-spin text-[#FF6B2C]" />
+          </div>
+        ) : error || !order ? (
+          <div className="py-32 text-center">
+            <p className="text-red-500 font-bold">{error || 'Order not found'}</p>
+          </div>
+        ) : (
+        <>
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl font-black text-[#111827] mb-1">Track Your Order</h1>
-            <p className="text-sm font-bold text-gray-400">Order ID: <span className="text-[#111827]">#CH12345678</span> | Placed on May 15, 2025 at 10:30 AM</p>
+            <p className="text-sm font-bold text-gray-400">Order ID: <span className="text-[#111827]">#{order.order_number}</span> | Placed on {placedAt!.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} at {placedAt!.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
           </div>
-          <button className="flex items-center gap-2 border-2 border-[#6C2BFF] text-[#6C2BFF] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#6C2BFF] hover:text-white transition-all">
-             <Headphones size={18} />
-             Contact Support
-          </button>
+          <div className="flex items-center gap-3">
+            {(order.status === 'Processing' || order.status === 'Shipped') && (
+              <button onClick={() => setShowCancelModal(true)} className="flex items-center gap-2 border-2 border-red-500 text-red-500 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-red-500 hover:text-white transition-all">
+                Cancel Order
+              </button>
+            )}
+            {['Delivered', 'Cancelled'].includes(order.status) && (
+              order.refund_request && ['Requested', 'Approved'].includes(order.refund_request.status) ? (
+                <span className="flex items-center gap-2 border-2 border-amber-200 bg-amber-50 text-amber-600 px-6 py-2.5 rounded-xl font-black text-sm">
+                  {order.refund_request.type} {order.refund_request.status}
+                </span>
+              ) : order.refund_request?.status === 'Refunded' ? (
+                <span className="flex items-center gap-2 border-2 border-green-200 bg-green-50 text-green-600 px-6 py-2.5 rounded-xl font-black text-sm">
+                  Refunded
+                </span>
+              ) : (
+                <button onClick={() => setShowRefundModal(true)} className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all">
+                  Request Refund / Return
+                </button>
+              )
+            )}
+            <Link to="/support" className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all">
+               <Headphones size={18} />
+               Contact Support
+            </Link>
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-10">
@@ -46,42 +182,115 @@ const TrackingPage: React.FC = () => {
 
           {/* Center: Content */}
           <div className="flex-1 min-w-0">
-             <TrackingStatusCard />
+             <TrackingStatusCard status={order.status} updatedAt={order.updated_at} />
 
-             <OrderProgressTracker />
+             <OrderProgressTracker status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
 
              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-                <DeliveryInfoSection />
-                <DeliveryTimelineSection />
+                <DeliveryInfoSection
+                  addrName={order.addr_name} addrPhone={order.addr_phone}
+                  line1={order.line1} line2={order.line2} city={order.city}
+                  state={order.state} pincode={order.pincode} trackingId={order.tracking_id}
+                />
+                <DeliveryTimelineSection status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
              </div>
 
              {/* Order Items List */}
              <div className="bg-white rounded-[24px] border border-[#ECECEC] p-8 shadow-sm">
-                <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8">Order Items (1)</h3>
-                <div className="flex items-center gap-6 p-4 rounded-2xl bg-[#F8F5FF] border border-[#6C2BFF]/10">
-                   <div className="w-20 h-20 bg-white rounded-xl overflow-hidden border border-[#ECECEC] flex items-center justify-center p-2 shrink-0 shadow-sm">
-                      <img src="https://images.unsplash.com/photo-1512374382149-233c42b6a83b?auto=format&fit=crop&q=80&w=400" alt="Product" className="w-full h-full object-contain" />
-                   </div>
-                   <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div>
-                         <h4 className="text-sm font-black text-[#111827] mb-1">Nike Air Max Excee Men's Sneakers</h4>
-                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Size: 8 UK • Color: Black / White • Qty: 1</p>
-                      </div>
-                      <div className="text-right">
-                         <span className="text-lg font-black text-[#111827]">₹5,999</span>
-                      </div>
-                   </div>
+                <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8">Order Items ({order.items.length})</h3>
+                <div className="space-y-4">
+                  {order.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-6 p-4 rounded-2xl bg-[#FFF8F5] border border-[#FF6B2C]/10">
+                       <div className="w-20 h-20 bg-white rounded-xl overflow-hidden border border-[#ECECEC] flex items-center justify-center p-2 shrink-0 shadow-sm">
+                          <img src={item.product_image} alt={item.product_name} className="w-full h-full object-contain" />
+                       </div>
+                       <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                             <h4 className="text-sm font-black text-[#111827] mb-1">{item.product_name}</h4>
+                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Qty: {item.quantity}</p>
+                          </div>
+                          <div className="text-right">
+                             <span className="text-lg font-black text-[#111827]">₹{Number(item.price).toLocaleString()}</span>
+                          </div>
+                       </div>
+                    </div>
+                  ))}
                 </div>
              </div>
           </div>
 
           {/* Right: Sidebar */}
           <div className="lg:w-[320px] shrink-0">
-             <TrackingOrderSummary />
+             <TrackingOrderSummary
+               items={order.items} subtotal={Number(order.subtotal)} deliveryFee={Number(order.delivery_fee)}
+               discount={Number(order.discount)} taxAmount={Number(order.tax_amount)} total={Number(order.total)}
+               addrName={order.addr_name} addrPhone={order.addr_phone}
+               line1={order.line1} line2={order.line2} city={order.city} state={order.state} pincode={order.pincode}
+             />
           </div>
         </div>
 
         <CheckoutTrustStrip />
+
+        {showCancelModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-[#111827]">Cancel Order?</h3>
+                <button onClick={() => setShowCancelModal(false)} disabled={cancelling} className="w-8 h-8 rounded-xl bg-[#F8F7FC] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"><X size={16} /></button>
+              </div>
+              <p className="text-sm font-bold text-gray-400 mb-4">Are you sure you want to cancel order #{order.order_number}? This cannot be undone.</p>
+              <textarea
+                value={cancelReason}
+                onChange={e => setCancelReason(e.target.value)}
+                placeholder="Reason for cancellation (optional)"
+                rows={3}
+                className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-red-500 resize-none mb-4"
+              />
+              {cancelError && <p className="text-xs font-bold text-red-500 mb-4">{cancelError}</p>}
+              <div className="flex gap-3">
+                <button onClick={() => setShowCancelModal(false)} disabled={cancelling} className="flex-1 border-2 border-[#ECECEC] text-gray-600 py-2.5 rounded-xl font-black text-sm disabled:opacity-50">Keep Order</button>
+                <button onClick={handleCancelOrder} disabled={cancelling} className="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-black text-sm hover:bg-red-600 disabled:opacity-60 flex items-center justify-center gap-2">
+                  {cancelling ? <><Loader2 size={14} className="animate-spin" />Cancelling...</> : 'Yes, Cancel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showRefundModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-[#111827]">Request Refund / Return</h3>
+                <button onClick={() => setShowRefundModal(false)} disabled={submittingRefund} className="w-8 h-8 rounded-xl bg-[#F8F7FC] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"><X size={16} /></button>
+              </div>
+              <div className="flex gap-2 mb-4">
+                {(['Refund', 'Return', 'Exchange'] as const).map(t => (
+                  <button key={t} onClick={() => setRefundType(t)} className={`flex-1 py-2 rounded-xl text-xs font-black border-2 transition-all ${refundType === t ? 'border-[#FF6B2C] bg-[#FFF3ED] text-[#FF6B2C]' : 'border-[#ECECEC] text-gray-500'}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={refundReason}
+                onChange={e => setRefundReason(e.target.value)}
+                placeholder={`Tell us why you'd like a ${refundType.toLowerCase()} for order #${order.order_number}...`}
+                rows={4}
+                className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C] resize-none mb-4"
+              />
+              {refundError && <p className="text-xs font-bold text-red-500 mb-4">{refundError}</p>}
+              <div className="flex gap-3">
+                <button onClick={() => setShowRefundModal(false)} disabled={submittingRefund} className="flex-1 border-2 border-[#ECECEC] text-gray-600 py-2.5 rounded-xl font-black text-sm disabled:opacity-50">Cancel</button>
+                <button onClick={handleRequestRefund} disabled={submittingRefund || !refundReason.trim()} className="flex-1 bg-[#FF6B2C] text-white py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center justify-center gap-2">
+                  {submittingRefund ? <><Loader2 size={14} className="animate-spin" />Submitting...</> : 'Submit Request'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
+        )}
       </Container>
 
       <Footer />

@@ -228,7 +228,7 @@ class OrderTrackingTimeline extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildStep(1, "Order Confirmed", true, "21 May, 09:41 AM"),
               _buildDivider(true),
@@ -283,11 +283,12 @@ class OrderTrackingTimeline extends StatelessWidget {
   }
 
   Widget _buildDivider(bool isActive) {
-    return Container(
-      width: 30.w,
-      height: 1,
-      margin: EdgeInsets.only(bottom: 30.h),
-      color: isActive ? AppColors.secondaryPurple : AppColors.lightGrey,
+    return Expanded(
+      child: Container(
+        height: 1,
+        margin: EdgeInsets.only(top: 12.r),
+        color: isActive ? AppColors.secondaryPurple : AppColors.lightGrey,
+      ),
     );
   }
 }
@@ -298,18 +299,18 @@ class QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildAction(Icons.local_shipping_outlined, "Track Order"),
-        _buildAction(Icons.inventory_2_outlined, "My Orders"),
-        _buildAction(Icons.file_download_outlined, "Download Invoice"),
-        _buildAction(Icons.shopping_bag_outlined, "Continue Shopping"),
+        Expanded(child: _buildAction(Icons.local_shipping_outlined, "Track Order")),
+        Expanded(child: _buildAction(Icons.inventory_2_outlined, "My Orders")),
+        Expanded(child: _buildAction(Icons.file_download_outlined, "Download Invoice")),
+        Expanded(child: _buildAction(Icons.shopping_bag_outlined, "Continue Shopping")),
       ],
     );
   }
 
   Widget _buildAction(IconData icon, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 70.w,

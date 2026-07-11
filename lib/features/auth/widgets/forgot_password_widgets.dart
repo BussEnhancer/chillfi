@@ -153,7 +153,8 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
 }
 
 class ResetFormCard extends StatelessWidget {
-  const ResetFormCard({super.key});
+  final TextEditingController? controller;
+  const ResetFormCard({super.key, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -185,25 +186,27 @@ class ResetFormCard extends StatelessWidget {
                 child: Icon(Icons.smartphone_rounded, color: AppColors.secondaryPurple, size: 20.sp),
               ),
               SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Registered Mobile Number',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Registered Mobile Number',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkText,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'We\'ll send a password reset link to your number',
-                    style: GoogleFonts.poppins(
-                      fontSize: 11.sp,
-                      color: AppColors.greyText,
+                    Text(
+                      'We\'ll send a password reset link to your number',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        color: AppColors.greyText,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -235,6 +238,7 @@ class ResetFormCard extends StatelessWidget {
                 VerticalDivider(color: AppColors.fieldBorder, indent: 15.h, endIndent: 15.h, width: 1),
                 Expanded(
                   child: TextField(
+                    controller: controller,
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: 'Enter your mobile number',
@@ -252,3 +256,4 @@ class ResetFormCard extends StatelessWidget {
     );
   }
 }
+

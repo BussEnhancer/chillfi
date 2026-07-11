@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MaintenanceScreen extends StatelessWidget {
-  const MaintenanceScreen({super.key});
+  final String? message;
+
+  const MaintenanceScreen({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,7 @@ class MaintenanceScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16.h),
                     Text(
-                      "We’re making some improvements to serve you better. We’ll be back soon! 💜",
+                      message ?? "We’re making some improvements to serve you better. We’ll be back soon! 💜",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 18.sp,

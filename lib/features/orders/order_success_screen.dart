@@ -1,178 +1,100 @@
 import 'package:chillfi/core/app_colors.dart';
-import 'package:chillfi/features/checkout/widgets/checkout_widgets.dart';
-import 'package:chillfi/features/orders/widgets/order_success_widgets.dart';
-import 'package:chillfi/features/payment/widgets/payment_widgets.dart';
+import 'package:chillfi/core/models/cart_model.dart';
+import 'package:chillfi/features/orders/my_orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
-  const OrderSuccessScreen({super.key});
+  final OrderModel order;
+  const OrderSuccessScreen({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Success icon
+              Container(
+                width: 120.w,
+                height: 120.w,
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.check_circle_rounded, color: Colors.green, size: 70.sp),
+              ),
+              SizedBox(height: 28.h),
+
+              Text('Order Placed!', style: GoogleFonts.poppins(fontSize: 26.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+              SizedBox(height: 8.h),
+              Text('Your order has been successfully placed.', style: GoogleFonts.poppins(fontSize: 14.sp, color: AppColors.greyText), textAlign: TextAlign.center),
+              SizedBox(height: 32.h),
+
+              // Order details card
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20.r),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Column(
+                  children: [
+                    _infoRow('Order Number', order.orderNumber),
+                    _infoRow('Total Amount', '₹${order.total.toStringAsFixed(0)}'),
+                    _infoRow('Payment', order.paymentMethod),
+                    _infoRow('Status', order.status),
+                  ],
+                ),
+              ),
+              SizedBox(height: 40.h),
+
+              // Track order button
+              SizedBox(
+                width: double.infinity,
+                height: 54.h,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondaryPurple,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                  ),
+                  child: Text('Continue Shopping', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                ),
+              ),
+              SizedBox(height: 12.h),
+              TextButton(
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
+                },
+                child: Text('View My Orders', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.secondaryPurple)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              children: [
-                SizedBox(height: 50.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.share_outlined, color: AppColors.secondaryPurple, size: 18.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          "Share",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.secondaryPurple,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const OrderSuccessAnimationHeader(),
-                Text(
-                  "Order Placed Successfully!",
-                  style: GoogleFonts.poppins(
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkText,
-                  ),
-                ),
-                Text(
-                  "Thank you for shopping with CHILLFI 💜",
-                  style: GoogleFonts.poppins(
-                    fontSize: 13.sp,
-                    color: AppColors.greyText,
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                const OrderIdCard(),
-                SizedBox(height: 16.h),
-                const DeliveryEstimateCard(),
-                
-                const PaymentSectionHeader(title: "Order Summary"),
-                const CheckoutOrderItemCard(),
-                SizedBox(height: 12.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Amount",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
-                      ),
-                    ),
-                    Text(
-                      "₹1,36,897",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.darkText,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const PaymentSectionHeader(title: "Order Tracking"),
-                const OrderTrackingTimeline(),
-
-                SizedBox(height: 24.h),
-                const QuickActionsGrid(),
-
-                SizedBox(height: 32.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "You Might Also Like",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.darkText,
-                      ),
-                    ),
-                    Text(
-                      "View All >",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.secondaryPurple,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: const [
-                      SuccessRecommendedCard(title: "Apple AirPods 4", price: "12,999"),
-                      SuccessRecommendedCard(title: "Samsung Galaxy Watch 6", price: "24,999"),
-                      SuccessRecommendedCard(title: "iPad Air M2", price: "54,900"),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 120.h),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: EdgeInsets.all(20.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Container(
-                  width: double.infinity,
-                  height: 56.h,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.purpleGradient,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 20.sp),
-                      SizedBox(width: 10.w),
-                      Text(
-                        "Continue Shopping",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          Text(label, style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText)),
+          Text(value, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
         ],
       ),
     );

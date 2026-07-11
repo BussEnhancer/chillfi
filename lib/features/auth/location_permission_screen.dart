@@ -60,7 +60,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> wit
               child: CustomPaint(painter: HeaderCurvePainter()),
             ),
           ),
-          
+
           // Dotted Pattern
           Positioned(
             top: 50.h,
@@ -89,209 +89,265 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> wit
             ),
           ),
 
-          // 3. MAIN CONTENT
-          Positioned.fill(
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 20.h),
+          // Logo in Orange Part
+          Positioned(
+            top: 40.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Hero(
+                tag: 'logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 140.w,
+                  height: 140.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 90.sp, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
 
-                        // LOGO
-                        Hero(
-                          tag: 'logo',
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            width: 80.w,
-                            height: 80.h,
-                            fit: BoxFit.contain,
-                            errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 60.sp, color: AppColors.primaryOrange),
+          // 3. MAIN CONTENT - NO SCROLLING
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      // LOGO & HEADER SECTION
+                      Flexible(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 140.h), // Space for the positioned logo
+                                const LocationIllustration(),
+                              ],
+                            ),
                           ),
                         ),
-                        Text(
-                          'Experience The Trust with CHILLFI',
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.greyText,
-                          ),
-                        ),
+                      ),
 
-                        SizedBox(height: 20.h),
-
-                        // ILLUSTRATION
-                        const LocationIllustration(),
-
-                        SizedBox(height: 20.h),
-
-                        // TITLE
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Allow ',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.black,
+                      // TITLE SECTION
+                      Flexible(
+                        flex: 1,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Allow ',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Location Access',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w800,
+                                          foreground: Paint()
+                                            ..shader = AppColors.purpleGradient.createShader(
+                                              const Rect.fromLTWH(0.0, 0.0, 250.0, 70.0),
+                                            ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: 'Location Access',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w800,
-                                  foreground: Paint()
-                                    ..shader = AppColors.purpleGradient.createShader(
-                                      const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0),
+                                SizedBox(height: 8.h),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                  child: Text(
+                                    'To show you nearby stores, faster delivery options, and better deals, we need access to your location.',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14.sp,
+                                      color: AppColors.greyText,
+                                      fontWeight: FontWeight.w400,
                                     ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          child: Text(
-                            'To show you nearby stores, faster delivery options, and better deals, we need access to your location.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13.sp,
-                              color: AppColors.greyText,
-                              fontWeight: FontWeight.w400,
-                              height: 1.5,
+                              ],
                             ),
                           ),
                         ),
+                      ),
 
-                        SizedBox(height: 30.h),
-
-                        // BENEFITS CARD
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.secondaryPurple.withOpacity(0.04),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                      // BENEFITS CARD
+                      Flexible(
+                        flex: 4,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Container(
+                              width: 327.w,
+                              padding: EdgeInsets.symmetric(horizontal: 20.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.secondaryPurple.withOpacity(0.04),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              const BenefitRow(
-                                icon: Icons.store_rounded,
-                                title: 'Find Nearby Stores',
-                                subtitle: 'Discover stores near you with ease',
+                              child: Column(
+                                children: [
+                                  const BenefitRow(
+                                    icon: Icons.store_rounded,
+                                    title: 'Find Nearby Stores',
+                                    subtitle: 'Discover stores near you with ease',
+                                  ),
+                                  const Divider(height: 1, color: AppColors.fieldBorder),
+                                  const BenefitRow(
+                                    icon: Icons.delivery_dining_rounded,
+                                    title: 'Faster Deliveries',
+                                    subtitle: 'Get quicker delivery to your exact location',
+                                  ),
+                                  const Divider(height: 1, color: AppColors.fieldBorder),
+                                  const BenefitRow(
+                                    icon: Icons.local_offer_rounded,
+                                    title: 'Better Deals',
+                                    subtitle: 'Receive location-based offers and discounts',
+                                  ),
+                                ],
                               ),
-                              const Divider(height: 1, color: AppColors.fieldBorder),
-                              const BenefitRow(
-                                icon: Icons.delivery_dining_rounded,
-                                title: 'Faster Deliveries',
-                                subtitle: 'Get quicker delivery to your exact location',
-                              ),
-                              const Divider(height: 1, color: AppColors.fieldBorder),
-                              const BenefitRow(
-                                icon: Icons.local_offer_rounded,
-                                title: 'Better Deals',
-                                subtitle: 'Receive location-based offers and discounts',
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // PRIMARY BUTTON
-                        PrimaryGradientButton(
-                          text: 'Allow Location Access',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const NotificationPermissionScreen()),
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        // SECONDARY BUTTON
-                        GestureDetector(
-                          onTap: () {},
-                          child: Container(
-                            width: double.infinity,
-                            height: 56.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(color: AppColors.secondaryPurple, width: 1.2),
                             ),
-                            child: Center(
-                              child: Text(
-                                'Allow While Using App',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.secondaryPurple,
+                          ),
+                        ),
+                      ),
+
+                      // ACTION BUTTONS & FOOTER
+                      Flexible(
+                        flex: 4,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 12.h),
+                                SizedBox(
+                                  width: 327.w,
+                                  child: PrimaryGradientButton(
+                                    text: 'Allow Location Access',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => NotificationPermissionScreen()),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 12.h),
-
-                        // NOT NOW
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Not Now',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.greyText,
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        // PRIVACY FOOTER
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.verified_user_rounded, color: AppColors.secondaryPurple, size: 16.sp),
-                            SizedBox(width: 10.w),
-                            Expanded(
-                              child: Text(
-                                'We value your privacy. Your location is never shared with anyone and is used only to improve your experience.',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10.sp,
-                                  color: AppColors.greyText,
-                                  height: 1.4,
+                                SizedBox(height: 12.h),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => NotificationPermissionScreen()),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 327.w,
+                                    height: 56.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16.r),
+                                      border: Border.all(color: AppColors.secondaryPurple, width: 1.2),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'Allow While Using App',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.secondaryPurple,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(height: 4.h),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => NotificationPermissionScreen()),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Not Now',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.greyText,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                // PRIVACY FOOTER
+                                Container(
+                                  width: 327.w,
+                                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.8),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.02),
+                                        blurRadius: 10,
+                                      )
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.verified_user_rounded, color: AppColors.secondaryPurple, size: 16.sp),
+                                      SizedBox(width: 10.w),
+                                      Expanded(
+                                        child: Text(
+                                          'We value your privacy. Your location is never shared with anyone and is used only to improve your experience.',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 9.sp,
+                                            color: AppColors.greyText,
+                                            height: 1.3,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 20.h),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
+                      ),
+                      const Spacer(),
 
-                        SizedBox(height: 120.h),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),

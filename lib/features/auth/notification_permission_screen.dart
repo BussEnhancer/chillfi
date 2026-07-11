@@ -48,6 +48,7 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // 1. TOP BACKGROUND
@@ -60,7 +61,7 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
               child: CustomPaint(painter: HeaderCurvePainter()),
             ),
           ),
-          
+
           // Beige Wave Overlay
           Positioned(
             top: 0,
@@ -96,234 +97,275 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
             ),
           ),
 
-          // 3. MAIN CONTENT
-          Positioned.fill(
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // BACK BUTTON (Circular with shadow)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
+          // Logo in Orange Part
+          Positioned(
+            top: 40.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Hero(
+                tag: 'logo',
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 140.w,
+                  height: 140.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 90.sp, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+
+          // 3. MAIN CONTENT - NO SCROLLING
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      // BACK BUTTON & LOGO AREA
+                      Flexible(
+                        flex: 5,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                // BACK BUTTON (Circular with shadow)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: GestureDetector(
+                                    onTap: () => Navigator.pop(context),
+                                    behavior: HitTestBehavior.opaque,
+                                    child: Container(
+                                      padding: EdgeInsets.all(8.r),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 22.sp),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 140.h), // Space for the positioned logo
+                                const NotificationIllustration(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // TITLE & DESCRIPTION
+                      Flexible(
+                        flex: 2,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Stay Updated,\n',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Never Miss ',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w800,
+                                          foreground: Paint()
+                                            ..shader = AppColors.purpleGradient.createShader(
+                                              const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0),
+                                            ),
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'a Deal!',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 12.h),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                  child: Text(
+                                    'Turn on notifications to get the latest updates on deals, offers, orders and more.',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14.sp,
+                                      color: AppColors.greyText,
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // BENEFITS CARD
+                      Flexible(
+                        flex: 4,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
                             child: Container(
-                              padding: EdgeInsets.all(8.r),
+                              width: 327.w,
+                              padding: EdgeInsets.symmetric(horizontal: 20.w),
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                                color: const Color(0xFFFBF9FF),
+                                borderRadius: BorderRadius.circular(24.r),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                                    color: AppColors.secondaryPurple.withOpacity(0.04),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
-                              child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 22.sp),
+                              child: Column(
+                                children: [
+                                  const NotificationBenefitRow(
+                                    icon: Icons.local_offer_rounded,
+                                    title: 'Exclusive Offers',
+                                    subtitle: 'Get notified about new deals and discounts',
+                                  ),
+                                  const Divider(height: 1, color: AppColors.fieldBorder),
+                                  const NotificationBenefitRow(
+                                    icon: Icons.shopping_basket_rounded,
+                                    title: 'Order Updates',
+                                    subtitle: 'Real-time updates on your orders',
+                                  ),
+                                  const Divider(height: 1, color: AppColors.fieldBorder),
+                                  const NotificationBenefitRow(
+                                    icon: Icons.campaign_rounded,
+                                    title: 'Important Alerts',
+                                    subtitle: 'Receive important announcements & alerts',
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
+                      ),
 
-                        SizedBox(height: 10.h),
-
-                        // LOGO
-                        Hero(
-                          tag: 'logo',
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            width: 80.w,
-                            height: 80.h,
-                            fit: BoxFit.contain,
-                            errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 60.sp, color: AppColors.primaryOrange),
-                          ),
-                        ),
-                        Text(
-                          'Experience The Trust with CHILLFI',
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.greyText,
-                          ),
-                        ),
-
-                        // ILLUSTRATION
-                        const NotificationIllustration(),
-
-                        // TITLE
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Stay Updated,\n',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.black,
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'Never Miss ',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w800,
-                                  foreground: Paint()
-                                    ..shader = AppColors.purpleGradient.createShader(
-                                      const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0),
-                                    ),
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'a Deal!',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          child: Text(
-                            'Turn on notifications to get the latest updates on deals, offers, orders and more.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13.sp,
-                              color: AppColors.greyText,
-                              fontWeight: FontWeight.w400,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // BENEFITS CARD
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFBF9FF), // Light lavender white
-                            borderRadius: BorderRadius.circular(24.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.secondaryPurple.withOpacity(0.04),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              const NotificationBenefitRow(
-                                icon: Icons.local_offer_rounded,
-                                title: 'Exclusive Offers',
-                                subtitle: 'Get notified about new deals and discounts',
-                              ),
-                              const Divider(height: 1, color: AppColors.fieldBorder),
-                              const NotificationBenefitRow(
-                                icon: Icons.shopping_basket_rounded,
-                                title: 'Order Updates',
-                                subtitle: 'Real-time updates on your orders',
-                              ),
-                              const Divider(height: 1, color: AppColors.fieldBorder),
-                              const NotificationBenefitRow(
-                                icon: Icons.campaign_rounded,
-                                title: 'Important Alerts',
-                                subtitle: 'Receive important announcements & alerts',
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // PRIMARY BUTTON
-                        PrimaryGradientButton(
-                          text: 'Allow Notifications',
-                          onTap: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HomeDashboardScreen()),
-                              (route) => false,
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        // SECONDARY BUTTON
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HomeDashboardScreen()),
-                              (route) => false,
-                            );
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 56.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(color: AppColors.secondaryPurple, width: 1.2),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                      // ACTION BUTTONS & FOOTER
+                      Flexible(
+                        flex: 4,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Icon(Icons.notifications_off_outlined, color: AppColors.secondaryPurple, size: 20.sp),
-                                SizedBox(width: 10.w),
-                                Text(
-                                  'Not Now',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.secondaryPurple,
+                                SizedBox(height: 12.h),
+                                SizedBox(
+                                  width: 327.w,
+                                  child: PrimaryGradientButton(
+                                    text: 'Allow Notifications',
+                                    onTap: () {
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => HomeDashboardScreen()),
+                                        (route) => false,
+                                      );
+                                    },
                                   ),
                                 ),
+                                SizedBox(height: 12.h),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => HomeDashboardScreen()),
+                                      (route) => false,
+                                    );
+                                  },
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Container(
+                                    width: 327.w,
+                                    height: 56.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16.r),
+                                      border: Border.all(color: AppColors.secondaryPurple, width: 1.2),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.notifications_off_outlined, color: AppColors.secondaryPurple, size: 20.sp),
+                                        SizedBox(width: 10.w),
+                                        Text(
+                                          'Not Now',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.secondaryPurple,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 16.h),
+                                // PRIVACY FOOTER
+                                Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.security_rounded, color: AppColors.secondaryPurple, size: 16.sp),
+                                        SizedBox(width: 8.w),
+                                        Text(
+                                          'We respect your privacy.',
+                                          style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.darkText),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      'You can change this anytime in Settings.',
+                                      style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20.h),
                               ],
                             ),
                           ),
                         ),
-
-                        SizedBox(height: 24.h),
-
-                        // PRIVACY FOOTER
-                        Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.security_rounded, color: AppColors.secondaryPurple, size: 16.sp),
-                                SizedBox(width: 8.w),
-                                Text(
-                                  'We respect your privacy.',
-                                  style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.darkText),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'You can change this anytime in Settings.',
-                              style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 120.h),
-                      ],
-                    ),
+                      ),
+                      const Spacer(),
+                    ],
                   ),
                 ),
               ),

@@ -29,7 +29,7 @@ const CheckoutStepper: React.FC = () => {
               <div className="flex items-center gap-4 flex-1">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all ${
-                    isActive ? 'bg-[#6C2BFF] text-white shadow-lg shadow-[#6C2BFF]/30' :
+                    isActive ? 'bg-[#FF6B2C] text-white shadow-lg shadow-[#FF6B2C]/30' :
                     isCompleted ? 'bg-[#16A34A] text-white' : 'bg-gray-100 text-gray-400'
                   }`}
                 >

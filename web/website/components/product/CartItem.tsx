@@ -26,7 +26,7 @@ const CartItem: React.FC<CartItemProps> = ({
         <input
           type="checkbox"
           checked={isChecked}
-          className="w-5 h-5 rounded border-[#ECECEC] text-[#6C2BFF] focus:ring-[#6C2BFF]"
+          className="w-5 h-5 rounded border-[#ECECEC] text-[#FF6B2C] focus:ring-[#FF6B2C]"
           readOnly
         />
       </div>
@@ -37,7 +37,7 @@ const CartItem: React.FC<CartItemProps> = ({
           <img src={image} alt={name} className="w-[80%] h-[80%] object-contain" />
         </div>
         <div>
-          <h3 className="text-sm font-black text-[#111827] mb-1 hover:text-[#6C2BFF] cursor-pointer transition-colors">{name}</h3>
+          <h3 className="text-sm font-black text-[#111827] mb-1 hover:text-[#FF6B2C] cursor-pointer transition-colors">{name}</h3>
           <div className="flex items-center gap-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">
             <span>Size: {size}</span>
             <span>Color: {color}</span>

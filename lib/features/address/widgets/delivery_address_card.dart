@@ -89,7 +89,8 @@ class DeliveryAddressCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
                             name,
@@ -106,7 +107,8 @@ class DeliveryAddressCard extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 4.h),
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           AddressTypeBadge(label: type, color: typeColor),
                           SizedBox(width: 8.w),
@@ -142,7 +144,9 @@ class DeliveryAddressCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  Row(
+                  Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
                     children: [
                       if (isDefault) 
                         const AddressTagChip(icon: Icons.verified_rounded, label: "Default Address", color: Colors.green),
@@ -167,27 +171,21 @@ class DeliveryAddressCard extends StatelessWidget {
   Widget _buildActionButtons() {
     return Row(
       children: [
-        _buildActionItem(Icons.edit_outlined, "Edit"),
-        SizedBox(width: 12.w),
-        _buildActionItem(Icons.delete_outline_rounded, "Remove"),
+        _buildActionItem(Icons.edit_outlined),
+        SizedBox(width: 8.w),
+        _buildActionItem(Icons.delete_outline_rounded),
       ],
     );
   }
 
-  Widget _buildActionItem(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 14.sp, color: AppColors.greyText),
-        SizedBox(width: 4.w),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 11.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.greyText,
-          ),
-        ),
-      ],
+  Widget _buildActionItem(IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(6.r),
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 16.sp, color: AppColors.greyText),
     );
   }
 }

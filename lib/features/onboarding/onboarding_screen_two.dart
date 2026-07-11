@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/features/auth/welcome_screen.dart';
 import 'package:chillfi/features/onboarding/onboarding_screen_three.dart';
 import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:flutter/material.dart';
@@ -73,9 +74,9 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
             right: 24.w,
             child: TextButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const OnboardingScreenThree()),
+                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                 );
               },
               style: TextButton.styleFrom(
@@ -232,7 +233,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                       Text(
                         'Everything You Need,',
                         style: GoogleFonts.poppins(
-                          fontSize: 28.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.darkText,
                         ),
@@ -240,7 +241,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                       PremiumGradientText(
                         text: 'All in One Place',
                         style: GoogleFonts.poppins(
-                          fontSize: 28.sp,
+                          fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
                         ),
                         gradient: AppColors.orangePurpleGradient,
@@ -249,7 +250,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                       Text(
                         'Explore a wide range of top brands and categories. Original products you can trust.',
                         style: GoogleFonts.poppins(
-                          fontSize: 15.sp,
+                          fontSize: 14.sp,
                           color: AppColors.greyText,
                           height: 1.5,
                         ),
@@ -266,7 +267,6 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                   children: [
                     _buildIndicator(false),
                     _buildIndicator(true),
-                    _buildIndicator(false),
                     _buildIndicator(false),
                   ],
                 ),

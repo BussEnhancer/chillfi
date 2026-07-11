@@ -1,7 +1,15 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/config.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/core/services/remote_config_service.dart';
+import 'package:chillfi/core/widgets/force_update_screen.dart';
+import 'package:chillfi/core/widgets/maintenance_screen.dart';
+import 'package:chillfi/features/home/home_dashboard_screen.dart';
+import 'package:chillfi/features/onboarding/onboarding_screen_one.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -11,6 +19,47 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToNext();
+  }
+
+  void _navigateToNext() async {
+    final configFuture = RemoteConfigService().fetch();
+    final authFuture = context.read<AuthProvider>().checkAuth();
+    await Future.delayed(const Duration(seconds: 3));
+    final config = await configFuture;
+    await authFuture;
+    if (!mounted) return;
+
+    if (config != null && config.maintenanceMode) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MaintenanceScreen(message: config.maintenanceMessage)),
+      );
+      return;
+    }
+
+    if (config != null &&
+        config.forceUpdateEnabled &&
+        RemoteConfigService.isBelowMinimum(AppConfig.appVersion, config.minAppVersion)) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ForceUpdateScreen(message: config.forceUpdateMessage)),
+      );
+      return;
+    }
+
+    final isLoggedIn = context.read<AuthProvider>().isAuthenticated;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => isLoggedIn ? const HomeDashboardScreen() : const OnboardingScreenOne(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,11 +107,10 @@ class _SplashScreenState extends State<SplashScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // ULTRA-MEGA Increased Logo Size (3x Focus)
-                        // Using a very large width to ensure it dominates the screen as requested
+                        // Optimized Logo Size for all screens
                         Image.asset(
                           'assets/images/logo.png',
-                          width: 680.w,
+                          width: 280.w,
                           fit: BoxFit.contain,
                         ),
                       ],
@@ -121,7 +169,6 @@ class _SplashScreenState extends State<SplashScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildIndicator(true),
-                      _buildIndicator(false),
                       _buildIndicator(false),
                       _buildIndicator(false),
                     ],

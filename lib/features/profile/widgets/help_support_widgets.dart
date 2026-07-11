@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SupportSearchBar extends StatelessWidget {
   const SupportSearchBar({super.key});
@@ -80,25 +81,28 @@ class QuickHelpBanner extends StatelessWidget {
           SizedBox(width: 12.w),
           Column(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  gradient: AppColors.purpleGradient,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16.sp),
-                    SizedBox(width: 6.w),
-                    Text(
-                      "Chat with Us",
-                      style: GoogleFonts.poppins(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+              GestureDetector(
+                onTap: () => launchUrl(Uri.parse('https://wa.me/919056224993'), mode: LaunchMode.externalApplication),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.purpleGradient,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16.sp),
+                      SizedBox(width: 6.w),
+                      Text(
+                        "Chat with Us",
+                        style: GoogleFonts.poppins(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 6.h),
@@ -125,6 +129,7 @@ class HelpCategoryCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color iconColor;
+  final VoidCallback? onTap;
 
   const HelpCategoryCard({
     super.key,
@@ -132,11 +137,14 @@ class HelpCategoryCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.iconColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -145,6 +153,7 @@ class HelpCategoryCard extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: EdgeInsets.all(10.r),
@@ -154,27 +163,33 @@ class HelpCategoryCard extends StatelessWidget {
             ),
             child: Icon(icon, color: iconColor, size: 22.sp),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Text(
             title,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
-              fontSize: 11.sp,
+              fontSize: 10.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.darkText,
+              height: 1.1,
             ),
           ),
           SizedBox(height: 4.h),
           Text(
             subtitle,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
-              fontSize: 9.sp,
+              fontSize: 8.5.sp,
               color: AppColors.greyText,
-              height: 1.2,
+              height: 1.1,
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -182,11 +197,14 @@ class HelpCategoryCard extends StatelessWidget {
 
 class PopularTopicItem extends StatelessWidget {
   final String title;
-  const PopularTopicItem({super.key, required this.title});
+  final VoidCallback? onTap;
+  const PopularTopicItem({super.key, required this.title, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
       padding: EdgeInsets.symmetric(vertical: 14.h),
       child: Row(
         children: [
@@ -212,6 +230,7 @@ class PopularTopicItem extends StatelessWidget {
           Icon(Icons.chevron_right_rounded, color: AppColors.lightGrey, size: 22.sp),
         ],
       ),
+      ),
     );
   }
 }
@@ -222,6 +241,7 @@ class ContactChannelCard extends StatelessWidget {
   final String value;
   final String time;
   final Color color;
+  final VoidCallback? onTap;
 
   const ContactChannelCard({
     super.key,
@@ -229,26 +249,32 @@ class ContactChannelCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.time,
+    this.onTap,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: EdgeInsets.all(10.r),
+          padding: EdgeInsets.all(8.r),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.08),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: color, size: 20.sp),
+          child: Icon(icon, color: color, size: 18.sp),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 8.h),
         Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: GoogleFonts.poppins(
-            fontSize: 11.sp,
+            fontSize: 10.sp,
             fontWeight: FontWeight.w700,
             color: AppColors.darkText,
           ),
@@ -256,23 +282,31 @@ class ContactChannelCard extends StatelessWidget {
         Text(
           value,
           textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(fontSize: 9.sp, color: AppColors.greyText, fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.poppins(fontSize: 8.sp, color: AppColors.greyText, fontWeight: FontWeight.w600),
         ),
         Text(
           time,
-          style: GoogleFonts.poppins(fontSize: 8.sp, color: AppColors.greyText),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.poppins(fontSize: 7.sp, color: AppColors.greyText),
         ),
       ],
+      ),
     );
   }
 }
 
 class SafeSecureBanner extends StatelessWidget {
-  const SafeSecureBanner({super.key});
+  final VoidCallback? onTap;
+  const SafeSecureBanner({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF9E7),
@@ -304,6 +338,7 @@ class SafeSecureBanner extends StatelessWidget {
           ),
           Icon(Icons.chevron_right_rounded, color: Colors.amber[800], size: 24.sp),
         ],
+      ),
       ),
     );
   }

@@ -37,34 +37,38 @@ class CategorySidebarItem extends StatelessWidget {
                 ]
               : null,
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 24.sp,
-              color: isSelected ? AppColors.secondaryPurple : AppColors.greyText,
-            ),
-            SizedBox(height: 6.h),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 9.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? AppColors.darkText : AppColors.greyText,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 22.sp,
+                color: isSelected ? AppColors.secondaryPurple : AppColors.greyText,
               ),
-            ),
-            if (isSelected)
-              Container(
-                margin: EdgeInsets.only(top: 4.h),
-                width: 20.w,
-                height: 3.h,
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryPurple,
-                  borderRadius: BorderRadius.circular(2),
+              SizedBox(height: 4.h),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 8.sp,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? AppColors.darkText : AppColors.greyText,
                 ),
               ),
-          ],
+              if (isSelected)
+                Container(
+                  margin: EdgeInsets.only(top: 4.h),
+                  width: 16.w,
+                  height: 2.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryPurple,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

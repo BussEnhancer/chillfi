@@ -248,7 +248,7 @@ class NotificationChannelsCard extends StatelessWidget {
               _buildChannelItem(Icons.phone_android_rounded, "Push", true),
               _buildChannelItem(Icons.mail_outline_rounded, "Email", true),
               _buildChannelItem(Icons.chat_bubble_outline_rounded, "SMS", false),
-              _buildChannelItem(Icons.whatsapp_rounded, "WhatsApp", true),
+              _buildChannelItem(Icons.chat_bubble_outline_rounded, "WhatsApp", true),
               Icon(Icons.chevron_right_rounded, color: AppColors.lightGrey, size: 24.sp),
             ],
           ),

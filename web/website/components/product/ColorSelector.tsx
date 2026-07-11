@@ -19,7 +19,7 @@ const ColorSelector: React.FC = () => {
           <div
             key={i}
             className={`w-14 h-14 rounded-xl border-2 overflow-hidden cursor-pointer transition-all hover:scale-105 ${
-              i === 0 ? 'border-[#6C2BFF]' : 'border-transparent bg-gray-50'
+              i === 0 ? 'border-[#FF6B2C]' : 'border-transparent bg-gray-50'
             }`}
           >
             <img src={c.image} alt={c.name} className="w-full h-full object-cover" />

@@ -9,7 +9,7 @@ interface BenefitItemProps {
 const BenefitItem: React.FC<BenefitItemProps> = ({ icon, title, desc }) => {
   return (
     <div className="flex items-start gap-4 mb-6">
-      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#6C2BFF] shadow-sm shrink-0">
+      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#FF6B2C] shadow-sm shrink-0">
         {icon}
       </div>
       <div>

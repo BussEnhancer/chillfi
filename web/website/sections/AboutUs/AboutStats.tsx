@@ -30,11 +30,11 @@ const stats = [
 
 const AboutStats: React.FC = () => {
   return (
-    <section className="py-16 border-y border-[#F8F5FF]">
+    <section className="py-16 border-y border-[#FFF8F5]">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {stats.map((stat, i) => (
-          <div key={i} className="flex items-center gap-6 p-6 bg-[#FAFAFA] rounded-[24px] border border-[#ECECEC] hover:shadow-xl hover:border-[#6C2BFF]/10 transition-all group">
-             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-[#6C2BFF] shadow-sm group-hover:scale-110 transition-transform">
+          <div key={i} className="flex items-center gap-6 p-6 bg-[#FAFAFA] rounded-[24px] border border-[#ECECEC] hover:shadow-xl hover:border-[#FF6B2C]/10 transition-all group">
+             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-[#FF6B2C] shadow-sm group-hover:scale-110 transition-transform">
                 {stat.icon}
              </div>
              <div>

@@ -1,6 +1,7 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/auth/login_screen.dart';
 import 'package:chillfi/features/auth/widgets/welcome_widgets.dart';
+import 'package:chillfi/features/home/home_dashboard_screen.dart';
 import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -51,7 +52,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                 width: 200.r,
                 height: 200.r,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryOrange.withOpacity(0.08),
+                  color: AppColors.primaryOrange.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -72,7 +73,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                 width: 180.r,
                 height: 180.r,
                 decoration: BoxDecoration(
-                  color: AppColors.secondaryPurple.withOpacity(0.05),
+                  color: AppColors.secondaryPurple.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -136,7 +137,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                           'Your one-stop destination for premium electronics, accessories and more.',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
-                            fontSize: 13.sp,
+                            fontSize: 14.sp,
                             color: AppColors.greyText,
                             height: 1.4,
                           ),
@@ -190,7 +191,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     Column(
                       children: [
                         OnboardingCTA(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          },
                           text: 'Get Started',
                         ),
                         SizedBox(height: 12.h),
@@ -205,7 +211,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         ),
                         SizedBox(height: 8.h),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomeDashboardScreen()),
+                            );
+                          },
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 4.h),
                             minimumSize: Size.zero,
