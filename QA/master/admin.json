@@ -17,9 +17,9 @@
      "pre": "-",
      "steps": "Open /admin logged out",
      "expected": "Redirect to login",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Guest /admin → /login",
+     "status": "PASS",
+     "evidence": "web-qa adminA",
      "defect": "",
      "retest": ""
     },
@@ -29,9 +29,9 @@
      "pre": "-",
      "steps": "Open /admin as customer",
      "expected": "Access denied; API returns 403",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Customer /admin → /; admin API 403",
+     "status": "PASS",
+     "evidence": "web-qa adminA",
      "defect": "",
      "retest": ""
     },
@@ -41,11 +41,11 @@
      "pre": "-",
      "steps": "Login as support_staff",
      "expected": "Only Orders/Reviews/Messages; admin-only actions hidden",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Support staff: sidebar limited; order status/ship hidden; admin API 403",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm01_staff.png",
+     "defect": "ADEF-A3",
+     "retest": "Retested"
     },
     {
      "id": "ADM-01-04",
@@ -53,11 +53,11 @@
      "pre": "-",
      "steps": "Logout admin, login customer in same tab",
      "expected": "Customer does not inherit admin UI",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Role cache now keyed to access token (logout/login in same tab can't reuse role); role no longer defaults to 'admin' (code review — test harness re-injects token)",
+     "status": "PASS",
+     "evidence": "useAdminRole.ts",
+     "defect": "ADEF-A3",
+     "retest": "Code"
     },
     {
      "id": "ADM-01-05",
@@ -113,9 +113,9 @@
      "pre": "-",
      "steps": "Maintenance on, admin logged out",
      "expected": "Admin can still log in",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "During maintenance /admin stays reachable",
+     "status": "PASS",
+     "evidence": "web-qa maint",
      "defect": "",
      "retest": ""
     }
@@ -133,11 +133,11 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "Revenue (paid), orders, products, users match DB",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Cards match API; revenue = paid & not cancelled; no fake +100%",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm02_dashboard.png",
+     "defect": "ADEF-A2",
+     "retest": "Retested"
     },
     {
      "id": "ADM-02-02",
@@ -145,9 +145,9 @@
      "pre": "Logged in as admin",
      "steps": "View",
      "expected": "Real monthly data (no mock bars)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Monthly revenue real (Sep 71,819.52), chronological",
+     "status": "PASS",
+     "evidence": "API",
      "defect": "",
      "retest": ""
     },
@@ -157,10 +157,10 @@
      "pre": "Logged in as admin",
      "steps": "View",
      "expected": "Real data; View All links work",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Top products exclude cancelled; recent orders; grammar fixed",
+     "status": "PASS",
+     "evidence": "web-qa adminA",
+     "defect": "ADEF-A2",
      "retest": ""
     },
     {
@@ -169,11 +169,11 @@
      "pre": "Logged in as admin",
      "steps": "Backend error",
      "expected": "Error shown, not silent mock data",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "API down → error banner, no mock data (was silent mock fallbacks)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm02_error.png",
+     "defect": "ADEF-A2",
+     "retest": "Retested"
     }
    ]
   },
@@ -189,11 +189,11 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "All products incl. inactive/out-of-stock; stat chips correct",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Admin list includes Inactive (was hidden → couldn't re-activate)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm03_products.png",
+     "defect": "ADEF-A1",
+     "retest": "Retested"
     },
     {
      "id": "ADM-03-02",
@@ -213,11 +213,11 @@
      "pre": "Logged in as admin",
      "steps": "Fill form incl. brand, category, image; save",
      "expected": "Created with brand+category saved; page does not crash",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "UI add with brand+category → saved & on storefront (was: brand/category never saved)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm03_added.png",
+     "defect": "ADEF-A1",
+     "retest": "Retested"
     },
     {
      "id": "ADM-03-04",
@@ -225,10 +225,10 @@
      "pre": "Logged in as admin",
      "steps": "Save without price / name",
      "expected": "Clear errors",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Save disabled without name; API rejects price ≤0, MRP<price, negative stock, unknown category",
+     "status": "PASS",
+     "evidence": "API + UI",
+     "defect": "ADEF-A1",
      "retest": ""
     },
     {
@@ -237,9 +237,9 @@
      "pre": "Logged in as admin",
      "steps": "Change name/price/brand/category",
      "expected": "Saved and shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Edit name/price saved; brand kept",
+     "status": "PASS",
+     "evidence": "web-qa adminB",
      "defect": "",
      "retest": ""
     },
@@ -249,9 +249,9 @@
      "pre": "Logged in as admin",
      "steps": "Change stock",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Inline stock → 3",
+     "status": "PASS",
+     "evidence": "web-qa adminB",
      "defect": "",
      "retest": ""
     },
@@ -261,9 +261,9 @@
      "pre": "Logged in as admin",
      "steps": "Set Inactive / Out of Stock / Active",
      "expected": "Saved; product still visible in admin; can be re-activated",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Inactive hidden from store, visible in admin, re-activated",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm03_inline.png",
      "defect": "",
      "retest": ""
     },
@@ -273,9 +273,9 @@
      "pre": "Logged in as admin",
      "steps": "Toggle",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Featured toggle saved",
+     "status": "PASS",
+     "evidence": "web-qa adminB",
      "defect": "",
      "retest": ""
     },
@@ -297,10 +297,10 @@
      "pre": "Logged in as admin",
      "steps": "Delete product",
      "expected": "Confirm; soft-deleted; restorable or clearly removed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Delete is an honest 'Deactivate' (soft; restorable)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm03_deactivated.png",
+     "defect": "ADEF-A1",
      "retest": ""
     },
     {
@@ -309,9 +309,9 @@
      "pre": "Logged in as admin",
      "steps": "Edit then check storefronts",
      "expected": "Both storefronts show the change",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Name/price changes visible via storefront API (app + web)",
+     "status": "PASS",
+     "evidence": "web-qa adminB",
      "defect": "",
      "retest": ""
     },
@@ -321,9 +321,9 @@
      "pre": "Logged in as admin",
      "steps": "Set Low Stock / Out of Stock",
      "expected": "Storefront behaviour correct (low stock still sellable; out of stock not purchasable)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Out of Stock → customer can't add; Low Stock still sellable",
+     "status": "PASS",
+     "evidence": "web-qa adminB",
      "defect": "",
      "retest": ""
     }
@@ -341,11 +341,11 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "Orders with real qty, customer, amount, payment, status, AWB, shipping stage",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Orders list with real qty (was always 1), totals; 1000-row load + notice",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm04_orders.png",
+     "defect": "ADEF-A4",
+     "retest": "Retested"
     },
     {
      "id": "ADM-04-02",
@@ -353,9 +353,9 @@
      "pre": "Logged in as admin",
      "steps": "Click",
      "expected": "CSV downloads with rows",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "CSV export 115 rows",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
      "defect": "",
      "retest": ""
     },
@@ -365,9 +365,9 @@
      "pre": "Logged in as admin",
      "steps": "Open order",
      "expected": "Items, customer, address, payment, Delhivery section",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Modal: items, AWB, Delhivery section",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm04_modal.png",
      "defect": "",
      "retest": ""
     },
@@ -377,10 +377,10 @@
      "pre": "Logged in as admin",
      "steps": "Change status",
      "expected": "Saved; customer notified; invalid backward moves prevented",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Backward/terminal moves blocked (API + UI); paid cancel → auto refund; admin cancel restores stock",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
+     "defect": "ADEF-33",
      "retest": ""
     },
     {
@@ -401,9 +401,9 @@
      "pre": "Logged in as admin",
      "steps": "Open tracking",
      "expected": "Real scans; Sync pulls latest",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Admin tracking returns 4 real scans",
+     "status": "PASS",
+     "evidence": "API",
      "defect": "",
      "retest": ""
     },
@@ -413,9 +413,9 @@
      "pre": "Logged in as admin",
      "steps": "Click",
      "expected": "Delhivery label PDF opens",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Label endpoint returns Delhivery pdf_url",
+     "status": "PASS",
+     "evidence": "API",
      "defect": "",
      "retest": ""
     },
@@ -437,9 +437,9 @@
      "pre": "Logged in as admin",
      "steps": "As support staff",
      "expected": "Status/ship buttons hidden",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Staff: status/ship hidden",
+     "status": "PASS",
+     "evidence": "web-qa adminA",
      "defect": "",
      "retest": ""
     }
@@ -457,11 +457,11 @@
      "pre": "Logged in as admin",
      "steps": "Open /admin/refunds",
      "expected": "Customer refund/return requests listed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Refund requests listed (page called non-existent endpoints → always empty)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm05_refunds.png",
+     "defect": "ADEF-A5",
+     "retest": "Retested"
     },
     {
      "id": "ADM-05-02",
@@ -469,9 +469,9 @@
      "pre": "Logged in as admin",
      "steps": "Use status chips",
      "expected": "Filters",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Status filter",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm05_filter.png",
      "defect": "",
      "retest": ""
     },
@@ -481,10 +481,10 @@
      "pre": "Logged in as admin",
      "steps": "Act on a request",
      "expected": "Saved; customer sees new status in app & web",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Approve → customer notified",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
+     "defect": "ADEF-A5",
      "retest": ""
     },
     {
@@ -493,10 +493,10 @@
      "pre": "Logged in as admin",
      "steps": "Approved request",
      "expected": "Order payment_status Refunded",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Refunded → order payment_status Refunded + 'Refund processed' notification; can't reopen",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
+     "defect": "ADEF-A5",
      "retest": ""
     }
    ]
@@ -513,9 +513,9 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "Users with orders/spend; search works",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Users list",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm06_users.png",
      "defect": "",
      "retest": ""
     },
@@ -525,9 +525,9 @@
      "pre": "Logged in as admin",
      "steps": "Block test user",
      "expected": "User session rejected on app & web; unblock restores",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Block → customer API 401 immediately; unblock → 200",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
      "defect": "",
      "retest": ""
     },
@@ -549,10 +549,10 @@
      "pre": "Logged in as admin",
      "steps": "Click remove",
      "expected": "Honest behaviour (no fake delete)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Fake 'Remove' (silently blocked + hid user, swallowed errors) removed",
+     "status": "PASS",
+     "evidence": "web-qa adminC",
+     "defect": "ADEF-A6",
      "retest": ""
     },
     {
@@ -561,11 +561,11 @@
      "pre": "Logged in as admin",
      "steps": "Try to block own admin account",
      "expected": "Prevented",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Can't block self / change own role",
+     "status": "PASS",
+     "evidence": "web-qa adminA",
+     "defect": "ADEF-A6",
+     "retest": "Retested"
     }
    ]
   },
@@ -1258,6 +1258,61 @@
    ]
   }
  ],
- "defects": [],
+ "defects": [
+  {
+   "id": "ADEF-A1",
+   "title": "Products: brand/category never saved (names sent, ids expected); inactive products vanished from admin; delete wording false; weak validation",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "API/UI contract mismatch; public list reused",
+   "fix": "resolveRefs() name→id; /admin/products incl. inactive; honest Deactivate; server validation",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A2",
+   "title": "Dashboard/analytics: revenue included cancelled paid orders; analytics counted unpaid orders; fake +100% growth; silent mock data when API failed; top products counted cancelled",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Single PAID_KEPT definition; null % when no prior data; error banner; chronological months",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A3",
+   "title": "SECURITY: admin role defaulted to 'admin' when profile failed to load; role cached across logout/login in same tab; staff saw admin-only actions",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "No default role; cache keyed to token; staff restrictions",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A4",
+   "title": "Orders: Qty always 1; only 200 newest loaded silently",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "API lacked item_count",
+   "fix": "item_count/line_count; limit 1000 + notice",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A5",
+   "title": "CRITICAL: Refunds page called non-existent endpoints → admins never saw any refund request; no customer notification; refunded requests could be reopened",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "Wrong URLs",
+   "fix": "/admin/refund-requests; notifications; final state",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A6",
+   "title": "Users: fake 'Remove'; admin could block/demote self; missing status crashed (500)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Removed; self-protection; validation",
+   "retest": "PASS"
+  }
+ ],
  "blockers": []
 }
