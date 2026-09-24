@@ -229,7 +229,8 @@ const getReviews = async (req, res) => {
       COUNT(*) FILTER (WHERE rating = 4) as four_star,
       COUNT(*) FILTER (WHERE rating = 3) as three_star,
       COUNT(*) FILTER (WHERE rating = 2) as two_star,
-      COUNT(*) FILTER (WHERE rating = 1) as one_star
+      COUNT(*) FILTER (WHERE rating = 1) as one_star,
+      COUNT(*) FILTER (WHERE is_verified) as verified
     FROM reviews WHERE product_id = $1
   `, [id]);
 
@@ -244,12 +245,20 @@ const addReview = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Rating 1-5 required' });
   }
 
+  // A review is a "verified purchase" only when the reviewer has a delivered order containing this product.
+  const purchase = await pool.query(`
+    SELECT o.id FROM orders o JOIN order_items oi ON oi.order_id = o.id
+    WHERE o.user_id = $1 AND oi.product_id = $2 AND o.status = 'Delivered'
+    ORDER BY o.created_at DESC LIMIT 1
+  `, [req.user.id, id]);
+  const orderId = purchase.rows[0]?.id || null;
+
   const result = await pool.query(`
-    INSERT INTO reviews (user_id, product_id, rating, title, body)
-    VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT (user_id, product_id) DO UPDATE SET rating=$3, title=$4, body=$5
+    INSERT INTO reviews (user_id, product_id, rating, title, body, order_id, is_verified)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    ON CONFLICT (user_id, product_id) DO UPDATE SET rating=$3, title=$4, body=$5, order_id=$6, is_verified=$7
     RETURNING *
-  `, [req.user.id, id, rating, title, body]);
+  `, [req.user.id, id, rating, title, body, orderId, !!orderId]);
 
   // Update product rating
   await pool.query(`

@@ -8,7 +8,6 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import HeroOfferBanner from '../../sections/Offers/HeroOfferBanner';
-import OfferTabs from '../../components/offers/OfferTabs';
 import OffersSidebar from '../../sections/Offers/OffersSidebar';
 import { HelpCircle, ChevronDown, Copy, Check, Tag, X, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
@@ -72,7 +71,6 @@ const OffersPage: React.FC = () => {
 
           <div className="flex-1 min-w-0">
             <HeroOfferBanner />
-            <OfferTabs />
 
             <div className="space-y-4">
               {activeCoupons.map((coupon) => (
@@ -87,8 +85,11 @@ const OffersPage: React.FC = () => {
                     <p className="text-base font-black text-[#111827] mb-0.5">
                       {coupon.type === 'Percentage' ? `Flat ${coupon.value}% OFF` : coupon.type === 'Flat' ? `Flat ₹${coupon.value} OFF` : 'Free Shipping'}
                     </p>
-                    <p className="text-xs font-bold text-gray-500">Min. order ₹{coupon.minOrder.toLocaleString()} • Max. discount ₹{coupon.maxDiscount.toLocaleString()}</p>
-                    <p className="text-[10px] font-bold text-gray-400 mt-1">Valid till {formatExpiry(coupon.expiry)}</p>
+                    <p className="text-xs font-bold text-gray-500">
+                      {coupon.minOrder > 0 ? `Min. order ₹${coupon.minOrder.toLocaleString()}` : 'No minimum order'}
+                      {coupon.maxDiscount > 0 ? ` • Max. discount ₹${coupon.maxDiscount.toLocaleString()}` : ''}
+                    </p>
+                    <p className="text-[10px] font-bold text-gray-400 mt-1">{coupon.expiry ? `Valid till ${formatExpiry(coupon.expiry)}` : 'No expiry'}</p>
                   </div>
                   <div className="flex flex-col items-end justify-center gap-2 shrink-0">
                     <div className="flex items-center gap-2 border-2 border-dashed border-[#FF6B2C]/40 bg-[#FFF8F5] px-4 py-2 rounded-xl">

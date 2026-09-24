@@ -1855,6 +1855,15 @@
    "root_cause": "api.ts threw raw fetch/res.json errors and passed any server message",
    "fix": "api.ts ApiError + friendlyError normalization; global ErrorDialogHost + showErrorDialog in contact, checkout, addresses, profile, tracking",
    "retest": "PASS WEB-17-01..06"
+  },
+  {
+   "id": "WDEF-10",
+   "title": "Offers page: invented bank offers with HDFC/ICICI/SBI/Kotak logos, fake tab counts, fake countdown, fake 'chillFi Premium', '80% OFF' claim, dead buttons",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Mock design content",
+   "fix": "Removed bank offers/tabs/premium; hero honest with working Shop Now; sidebar links to real listings; coupon wording fixed",
+   "retest": "Screenshot qa-tools/results/web_offers_1440.png"
   }
  ],
  "blockers": []

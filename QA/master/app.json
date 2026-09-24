@@ -1285,9 +1285,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open a product",
      "expected": "Name, images, price, MRP, % off, description, highlights from API",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Name, brand, price/MRP/% off, savings, description, highlights from API",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_pd_1.png, qa-tools/results/app_pd_2.png",
      "defect": "",
      "retest": ""
     },
@@ -1297,9 +1297,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Swipe / tap image",
      "expected": "Real product images; full-screen gallery shows the same product",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Gallery shows product images (seed images are placeholders — data, not code)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_pd_1.png",
      "defect": "",
      "retest": ""
     },
@@ -1309,9 +1309,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap heart",
      "expected": "Toggles, persists after reopen",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Heart toggles server wishlist (verified via API on listing, same provider)",
+     "status": "PASS",
+     "evidence": "APP-16-08 evidence",
      "defect": "",
      "retest": ""
     },
@@ -1321,11 +1321,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap share icon",
      "expected": "Share sheet opens (or icon removed)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Share sheet with name + https://chillfi.in/product/<id>",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_share.png",
+     "defect": "ADEF-24",
+     "retest": "Retested"
     },
     {
      "id": "APP-17-05",
@@ -1333,9 +1333,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Opens Reviews",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Rating row opens Product Reviews",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_reviews.png",
      "defect": "",
      "retest": ""
     },
@@ -1345,11 +1345,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "View",
      "expected": "Reflect real offers or are clearly informational",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Fake EMI/Bank/Exchange offers replaced with true info (PhonePe secure payment, Pay on Delivery on eligible pincodes, returns policy); no fake chevrons",
+     "status": "PASS",
+     "evidence": "product_details_screen.dart",
+     "defect": "ADEF-24",
+     "retest": "Retested (code)"
     },
     {
      "id": "APP-17-07",
@@ -1357,9 +1357,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Product with stock N",
      "expected": "Shows availability; out-of-stock disables add",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "In Stock (40); OOS product → 'Currently Out of Stock' disabled bar",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_oos_details.png",
      "defect": "",
      "retest": ""
     },
@@ -1369,9 +1369,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Scroll",
      "expected": "Same-category products; tap opens them",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Similar Products from same category (Audio); tap opens",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1381,9 +1381,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "POST /cart/add, \"Added to cart!\", cart badge updates",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Add to Cart → green confirmation; badge updates",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_addcart_online_ok.png",
      "defect": "",
      "retest": ""
     },
@@ -1393,9 +1393,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Adds and opens Cart",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Buy Now → Cart",
+     "status": "PASS",
+     "evidence": "adbui dump 'Cart / N Items'",
      "defect": "",
      "retest": ""
     },
@@ -1405,9 +1405,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open product",
      "expected": "POST /products/:id/recently-viewed recorded",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Recently viewed API lists Sony WH-1000XM5 first after opening",
+     "status": "PASS",
+     "evidence": "curl /products/recently-viewed",
      "defect": "",
      "retest": ""
     },
@@ -1417,9 +1417,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open deleted product id",
      "expected": "\"Product not found\" state",
-     "actual": "",
+     "actual": "No in-app path to a deleted product id; state changed to AppErrorState with retry (code)",
      "status": "NOT TESTED",
-     "evidence": "",
+     "evidence": "product_details_screen.dart",
      "defect": "",
      "retest": ""
     }
@@ -1437,9 +1437,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Stats and reviews from API; empty state if none",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Stats + list from API; 'No reviews yet' empty state; singular/plural fixed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_reviews.png, qa-tools/results/app_review_posted.png",
      "defect": "",
      "retest": ""
     },
@@ -1449,11 +1449,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap a star filter",
      "expected": "List filtered (or chips removed)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "5★ chip → 1 review; 4★ → none (server rating filter)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-25",
+     "retest": "Retested"
     },
     {
      "id": "APP-18-03",
@@ -1461,10 +1461,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Sorts (or not shown as control)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Fake 'Most Helpful ⌄' replaced by 'Newest first' label (matches backend order)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_review_posted.png",
+     "defect": "ADEF-25",
      "retest": ""
     },
     {
@@ -1473,9 +1473,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Submit without stars / body",
      "expected": "Validation messages",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "No stars → 'Please select a star rating'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_review_val.png",
      "defect": "",
      "retest": ""
     },
@@ -1485,9 +1485,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Valid review",
      "expected": "POST succeeds; appears in list; product rating updates",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "5★ review posted; appears in list; product rating 0.0(0) → 5.0(1)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_review_posted.png + API",
      "defect": "",
      "retest": ""
     },
@@ -1497,10 +1497,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Works or not presented as control",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Helpful/dislike/more controls removed (no backend support)",
+     "status": "NOT APPLICABLE",
+     "evidence": "review_card.dart",
+     "defect": "ADEF-25",
      "retest": ""
     },
     {
@@ -1509,11 +1509,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Adds product to cart",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Bottom Add to Cart → confirmation; Buy Now → Cart (8 items)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_rev_add.png",
+     "defect": "ADEF-25",
+     "retest": "Retested"
     }
    ]
   },
@@ -3296,6 +3296,24 @@
    "root_cause": "Client-side filtering over paginated data",
    "fix": "Server-side sort/brand/price/search on every page; price filter sheet; 'Newest' label; total count from server",
    "retest": "PASS APP-16-02..05,10"
+  },
+  {
+   "id": "ADEF-24",
+   "title": "Product details: dead share button, dead AR button, decorative chevrons, false EMI/Bank/Exchange offers",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Placeholder UI",
+   "fix": "Share via share_plus; AR/chevrons removed; offers replaced by true payment/return info",
+   "retest": "PASS APP-17-04/06"
+  },
+  {
+   "id": "ADEF-25",
+   "title": "Reviews: fake 'Verified Buyer'/'Purchased on CHILLFI' badges on every review, fake 'Verified Purchases' summary (any user can review), dead star filters, fake sort, dead helpful buttons, dead Add to Cart/Buy Now, chip overflow",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Static mock UI; no purchase check",
+   "fix": "Backend auto-verifies reviews from delivered orders + verified count; badge only when is_verified; server star filter; honest sort label; working bottom actions",
+   "retest": "PASS APP-18-02..07"
   }
  ],
  "blockers": [

@@ -11,6 +11,7 @@ class ReviewCard extends StatelessWidget {
   final String description;
   final int rating;
   final int helpfulCount;
+  final bool isVerified;
 
   const ReviewCard({
     super.key,
@@ -21,6 +22,7 @@ class ReviewCard extends StatelessWidget {
     required this.description,
     required this.rating,
     required this.helpfulCount,
+    this.isVerified = false,
   });
 
   @override
@@ -73,13 +75,14 @@ class ReviewCard extends StatelessWidget {
                             color: AppColors.darkText,
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        _buildBadge("Verified Buyer", Colors.purple),
+                        if (isVerified) ...[
+                          SizedBox(width: 8.w),
+                          _buildBadge("Verified Purchase", Colors.green),
+                        ],
                       ],
                     ),
                     Row(
                       children: [
-                        _buildBadge("Purchased on CHILLFI", Colors.green),
                         const Spacer(),
                         Text(
                           date,
@@ -133,24 +136,6 @@ class ReviewCard extends StatelessWidget {
           
           SizedBox(height: 16.h),
           
-          // Interaction Row
-          Row(
-            children: [
-              Text(
-                "Helpful?",
-                style: GoogleFonts.poppins(
-                  fontSize: 12.sp,
-                  color: AppColors.greyText,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              _buildInteractionItem(Icons.thumb_up_alt_outlined, helpfulCount.toString()),
-              SizedBox(width: 16.w),
-              _buildInteractionItem(Icons.thumb_down_alt_outlined, ""),
-              const Spacer(),
-              Icon(Icons.more_vert_rounded, color: AppColors.greyText, size: 20.sp),
-            ],
-          ),
         ],
       ),
     );
@@ -175,21 +160,4 @@ class ReviewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractionItem(IconData icon, String count) {
-    return Row(
-      children: [
-        Icon(icon, size: 16.sp, color: AppColors.greyText),
-        if (count.isNotEmpty) ...[
-          SizedBox(width: 4.w),
-          Text(
-            count,
-            style: GoogleFonts.poppins(
-              fontSize: 11.sp,
-              color: AppColors.greyText,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
 }

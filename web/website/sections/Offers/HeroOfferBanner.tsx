@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Sparkles, ShoppingBag } from 'lucide-react';
 
 const HeroOfferBanner: React.FC = () => {
@@ -12,16 +13,16 @@ const HeroOfferBanner: React.FC = () => {
         <div className="text-center md:text-left md:max-w-[50%]">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 mb-6">
             <Sparkles size={14} className="text-amber-300" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Mega Savings!</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Offers & Coupons</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black leading-[1.1] mb-4">
-            Get up to <br />
-            <span className="text-amber-300 italic">80% OFF</span>
+            Save more on <br />
+            <span className="text-amber-300 italic">top brands</span>
           </h1>
-          <p className="text-sm font-bold text-white/80 uppercase tracking-[0.2em] mb-10">On top brands & categories</p>
-          <button className="bg-white text-[#FF6B2C] px-10 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
+          <p className="text-sm font-bold text-white/80 uppercase tracking-[0.2em] mb-10">Apply a coupon below at checkout</p>
+          <Link to="/products" className="inline-block bg-white text-[#FF6B2C] px-10 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
             Shop Now
-          </button>
+          </Link>
         </div>
 
         <div className="relative w-full md:w-[45%] h-[200px] flex items-center justify-center">

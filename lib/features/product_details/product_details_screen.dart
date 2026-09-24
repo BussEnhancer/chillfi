@@ -1,3 +1,4 @@
+import 'package:share_plus/share_plus.dart';
 import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -105,7 +106,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           }
           final product = pp.selectedProduct;
           if (product == null) {
-            return const Center(child: Text('Product not found'));
+            return Center(
+              child: AppErrorState(
+                offline: false,
+                message: "This product couldn't be loaded. It may no longer be available, or your connection may be down.",
+                onRetry: widget.productId == null ? null : () => pp.loadProduct(widget.productId!),
+              ),
+            );
           }
           final savings = product.oldPrice != null ? (product.oldPrice! - product.price) : 0.0;
           return SingleChildScrollView(
@@ -144,13 +151,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               ),
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.all(10.r),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF8F8F8),
-                              shape: BoxShape.circle,
+                          Semantics(
+                            button: true,
+                            label: 'Share product',
+                            child: GestureDetector(
+                              onTap: () => Share.share('Check out ${product.name} on ChillFi: https://chillfi.in/product/${product.id}'),
+                              child: Container(
+                                padding: EdgeInsets.all(10.r),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF8F8F8),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.share_outlined, size: 20.sp, color: AppColors.darkText),
+                              ),
                             ),
-                            child: Icon(Icons.share_outlined, size: 20.sp, color: AppColors.darkText),
                           ),
                         ],
                       ),
@@ -251,8 +265,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   color: Colors.green[800],
                                 ),
                               ),
-                              const Spacer(),
-                              Icon(Icons.chevron_right_rounded, color: Colors.green[800], size: 20.sp),
                             ],
                           ),
                         ),
@@ -266,19 +278,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         child: Row(
                           children: const [
                             ProductOfferCard(
-                              icon: Icons.credit_card_rounded,
-                              title: "No Cost EMI",
-                              subtitle: "Available on orders above ₹3,000",
+                              icon: Icons.lock_rounded,
+                              title: "Secure Payment",
+                              subtitle: "UPI, cards & netbanking via PhonePe",
                             ),
                             ProductOfferCard(
-                              icon: Icons.account_balance_rounded,
-                              title: "Bank Offers",
-                              subtitle: "Check eligible banks at checkout",
+                              icon: Icons.payments_rounded,
+                              title: "Pay on Delivery",
+                              subtitle: "On eligible pincodes at checkout",
                             ),
                             ProductOfferCard(
-                              icon: Icons.swap_horizontal_circle_rounded,
-                              title: "Exchange Offer",
-                              subtitle: "Get extra value on exchange",
+                              icon: Icons.assignment_return_rounded,
+                              title: "Easy Returns",
+                              subtitle: "As per our return policy",
                             ),
                           ],
                         ),

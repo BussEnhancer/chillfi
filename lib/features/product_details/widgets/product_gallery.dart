@@ -125,27 +125,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                           ),
                   ),
                 ),
-
-                // 3D View Button
-                Positioned(
-                  bottom: 20.h,
-                  right: 20.w,
-                  child: Container(
-                    padding: EdgeInsets.all(10.r),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(Icons.view_in_ar_rounded, color: AppColors.secondaryPurple, size: 24.sp),
-                  ),
-                ),
               ],
             ),
           ),

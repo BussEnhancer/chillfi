@@ -1,3 +1,5 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/services/api_service.dart';
@@ -26,6 +28,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
   Map<String, dynamic> _stats = {};
   bool _loading = true;
   String? _error;
+  int? _ratingFilter;
 
   @override
   void initState() {
@@ -40,16 +43,22 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
     }
     setState(() { _loading = true; _error = null; });
     try {
-      final res = await ApiService().get('/products/${widget.productId}/reviews', params: {'limit': '50'});
+      final res = await ApiService().get('/products/${widget.productId}/reviews', params: {
+        'limit': '50',
+        if (_ratingFilter != null) 'rating': '$_ratingFilter',
+      });
       final reviews = (res.data['data']?['reviews'] as List?) ?? [];
       final stats = (res.data['data']?['stats'] as Map<String, dynamic>?) ?? {};
+      if (!mounted) return;
       setState(() {
         _reviews = reviews.cast<Map<String, dynamic>>();
-        _stats = stats;
+        // Keep overall stats when a star filter is applied (chip counts stay meaningful)
+        if (_ratingFilter == null || _stats.isEmpty) _stats = stats;
         _loading = false;
       });
-    } catch (_) {
-      setState(() { _error = 'Failed to load reviews'; _loading = false; });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _error = AppError.message(e, fallback: "We couldn't load reviews. Please try again."); _loading = false; });
     }
   }
 
@@ -172,25 +181,23 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                 SizedBox(height: 16.h),
                 ReviewSummaryCard(stats: _stats),
                 SizedBox(height: 24.h),
-                ReviewFilterChips(stats: _stats),
+                ReviewFilterChips(stats: _stats, onChanged: (star) {
+                  _ratingFilter = star;
+                  _loadReviews();
+                }),
                 SizedBox(height: 24.h),
 
                 // Sort and Write Review Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          "Most Helpful",
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.darkText,
-                          ),
-                        ),
-                        Icon(Icons.keyboard_arrow_down_rounded, size: 20.sp, color: AppColors.darkText),
-                      ],
+                    Text(
+                      "Newest first",
+                      style: GoogleFonts.poppins(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.darkText,
+                      ),
                     ),
                     GestureDetector(
                       onTap: _showWriteReviewSheet,
@@ -256,6 +263,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                       description: (r['body'] as String?) ?? '',
                       rating: (r['rating'] as num?)?.toInt() ?? 0,
                       helpfulCount: 0,
+                      isVerified: r['is_verified'] == true,
                     );
                   }),
 
@@ -339,7 +347,9 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
           SizedBox(width: 20.w),
           // Add to Cart
           Expanded(
-            child: Container(
+            child: GestureDetector(
+              onTap: widget.productId == null ? null : () => addToCartWithFeedback(context, widget.productId!),
+              child: Container(
               height: 54.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.r),
@@ -355,11 +365,20 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                 ),
               ),
             ),
+            ),
           ),
           SizedBox(width: 12.w),
           // Buy Now
           Expanded(
-            child: Container(
+            child: GestureDetector(
+              onTap: widget.productId == null
+                  ? null
+                  : () async {
+                      final navigator = Navigator.of(context);
+                      final ok = await addToCartWithFeedback(context, widget.productId!);
+                      if (ok && mounted) navigator.push(MaterialPageRoute(builder: (_) => const CartScreen()));
+                    },
+              child: Container(
               height: 54.h,
               decoration: BoxDecoration(
                 gradient: AppColors.purpleGradient,
@@ -388,6 +407,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ],

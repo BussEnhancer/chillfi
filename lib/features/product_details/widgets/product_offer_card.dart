@@ -67,7 +67,6 @@ class ProductOfferCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.chevron_right_rounded, color: AppColors.greyText, size: 16.sp),
         ],
       ),
     );

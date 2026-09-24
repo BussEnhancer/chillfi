@@ -17,6 +17,7 @@ class ReviewSummaryCard extends StatelessWidget {
     final three = int.tryParse(stats?['three_star']?.toString() ?? '0') ?? 0;
     final two = int.tryParse(stats?['two_star']?.toString() ?? '0') ?? 0;
     final one = int.tryParse(stats?['one_star']?.toString() ?? '0') ?? 0;
+    final verified = int.tryParse(stats?['verified']?.toString() ?? '0') ?? 0;
 
     double pct(int count) => total > 0 ? count / total : 0.0;
 
@@ -61,9 +62,10 @@ class ReviewSummaryCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  '$total reviews',
+                  '$total ${total == 1 ? 'review' : 'reviews'}',
                   style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
                 ),
+                if (verified > 0) ...[
                 SizedBox(height: 12.h),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
@@ -76,13 +78,17 @@ class ReviewSummaryCard extends StatelessWidget {
                     children: [
                       Icon(Icons.verified_rounded, color: Colors.green, size: 14.sp),
                       SizedBox(width: 4.w),
-                      Text(
-                        "Verified Purchases",
-                        style: GoogleFonts.poppins(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.green[700]),
+                      Flexible(
+                        child: Text(
+                          "$verified verified purchase${verified == 1 ? '' : 's'}",
+                          maxLines: 2,
+                          style: GoogleFonts.poppins(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.green[700]),
+                        ),
                       ),
                     ],
                   ),
                 ),
+                ],
               ],
             ),
           ),

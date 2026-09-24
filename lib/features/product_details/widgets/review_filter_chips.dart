@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ReviewFilterChips extends StatefulWidget {
   final Map<String, dynamic>? stats;
-  const ReviewFilterChips({super.key, this.stats});
+  /// Called with the star value (5..1) or null for "All".
+  final ValueChanged<int?>? onChanged;
+  const ReviewFilterChips({super.key, this.stats, this.onChanged});
 
   @override
   State<ReviewFilterChips> createState() => _ReviewFilterChipsState();
@@ -42,7 +44,10 @@ class _ReviewFilterChipsState extends State<ReviewFilterChips> {
         children: List.generate(
           filters.length,
           (index) => GestureDetector(
-            onTap: () => setState(() => _selectedIndex = index),
+            onTap: () {
+              setState(() => _selectedIndex = index);
+              widget.onChanged?.call(index == 0 ? null : 6 - index);
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: EdgeInsets.only(right: 12.w),
