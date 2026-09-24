@@ -44,7 +44,6 @@ const CheckoutPage: React.FC = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [deliveryType, setDeliveryType] = useState<'Standard' | 'Express'>('Standard');
   const [payment, setPayment] = useState<PaymentMethod>('COD');
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
@@ -63,9 +62,10 @@ const CheckoutPage: React.FC = () => {
 
   const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price) * i.qty, 0);
   const deliveryFee = cartSummary?.delivery_fee ?? (cartTotal > 499 ? 0 : 49);
-  const taxAmount = cartSummary?.tax_amount ?? 0;
-  const expressFee = deliveryType === 'Express' ? 79 : 0;
-  const orderTotal = cartTotal + (deliveryType === 'Standard' ? deliveryFee : expressFee) + taxAmount - couponDiscount;
+  // GST is charged on the amount after the coupon (same as the server's order calculation).
+  const grossTax = cartSummary?.tax_amount ?? 0;
+  const taxAmount = cartTotal > 0 ? Math.round((grossTax * Math.max(0, cartTotal - couponDiscount) / cartTotal) * 100) / 100 : 0;
+  const orderTotal = cartTotal + deliveryFee + taxAmount - couponDiscount;
 
   useEffect(() => {
     if (cart.length === 0) navigate('/cart', { replace: true });
@@ -306,22 +306,15 @@ const CheckoutPage: React.FC = () => {
                 <p className="text-sm font-bold text-gray-400">Choose your preferred delivery method</p>
               </div>
               <div className="flex flex-col md:flex-row gap-6">
-                <button onClick={() => setDeliveryType('Standard')} className="flex-1 text-left">
+                {/* Only standard delivery exists (the order is priced by the server with this fee). */}
+                <div className="flex-1 text-left">
                   <DeliveryOptionCard
                     type="Standard"
-                    duration="3-5 Business Days"
+                    duration="Shipped via Delhivery"
                     price={deliveryFee === 0 ? 'FREE' : deliveryFee}
-                    isSelected={deliveryType === 'Standard'}
+                    isSelected
                   />
-                </button>
-                <button onClick={() => setDeliveryType('Express')} className="flex-1 text-left">
-                  <DeliveryOptionCard
-                    type="Express"
-                    duration="1-2 Business Days"
-                    price={79}
-                    isSelected={deliveryType === 'Express'}
-                  />
-                </button>
+                </div>
               </div>
             </section>
 
@@ -401,22 +394,19 @@ const CheckoutPage: React.FC = () => {
 
               <div className="border-t border-[#F8F7FC] pt-4 space-y-3 mb-5">
                 <div className="flex justify-between text-sm font-bold text-gray-500">
-                  <span>Subtotal</span>
-                  <span className="text-[#111827]">₹{cartTotal.toLocaleString()}</span>
+                  <span>Price (MRP)</span>
+                  <span className="text-[#111827]">₹{(cartTotal + savings).toLocaleString()}</span>
                 </div>
                 {savings > 0 && (
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-gray-500">Savings</span>
+                    <span className="text-gray-500">Discount</span>
                     <span className="text-green-600">-₹{savings.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm font-bold">
                   <span className="text-gray-500">Delivery</span>
-                  <span className={deliveryType === 'Standard' && deliveryFee === 0 ? 'text-green-600 font-black text-xs uppercase' : 'text-[#111827]'}>
-                    {deliveryType === 'Standard'
-                      ? (deliveryFee === 0 ? 'Free' : `₹${deliveryFee}`)
-                      : `₹${expressFee}`
-                    }
+                  <span className={deliveryFee === 0 ? 'text-green-600 font-black text-xs uppercase' : 'text-[#111827]'}>
+                    {deliveryFee === 0 ? 'Free' : `₹${deliveryFee}`}
                   </span>
                 </div>
                 {taxAmount > 0 && (

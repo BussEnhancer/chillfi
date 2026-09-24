@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { apiGet } from '../../utils/api';
 import { Link } from 'react-router-dom';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
@@ -14,6 +15,22 @@ const CartPage: React.FC = () => {
   const { cart, products, removeFromCart, updateCartQty, cartTotal, cartCount } = useStore();
 
   const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price) * i.qty, 0);
+
+  // Same rules the server uses when the order is placed (pincode-specific rules are applied at checkout).
+  const [pricing, setPricing] = useState({ freeEnabled: true, threshold: 499, fee: 49, gstRate: 18 });
+  useEffect(() => {
+    apiGet<{ data: { free_shipping_enabled: boolean; free_shipping_threshold: number; standard_shipping_fee: number; gst_rate: number } }>('/app-config')
+      .then((r) => setPricing({
+        freeEnabled: r.data.free_shipping_enabled !== false,
+        threshold: Number(r.data.free_shipping_threshold ?? 499),
+        fee: Number(r.data.standard_shipping_fee ?? 49),
+        gstRate: Number(r.data.gst_rate ?? 18),
+      }))
+      .catch(() => { /* keep defaults */ });
+  }, []);
+  const deliveryFee = cartTotal === 0 || (pricing.freeEnabled && cartTotal >= pricing.threshold) ? 0 : pricing.fee;
+  const gst = Math.round(cartTotal * pricing.gstRate) / 100;
+  const estimatedTotal = cartTotal + deliveryFee + gst;
   const recommendations = products.filter(p => p.status === 'Active' && !cart.find(c => c.id === p.id)).slice(0, 4);
 
   return (
@@ -97,8 +114,19 @@ const CartPage: React.FC = () => {
                   )}
                   <div className="flex justify-between text-sm font-bold">
                     <span className="text-gray-500">Delivery</span>
-                    <span className="text-green-600 font-black text-xs uppercase">Free</span>
+                    {deliveryFee === 0
+                      ? <span className="text-green-600 font-black text-xs uppercase">Free</span>
+                      : <span className="text-[#111827]">₹{deliveryFee}</span>}
                   </div>
+                  {gst > 0 && (
+                    <div className="flex justify-between text-sm font-bold">
+                      <span className="text-gray-500">GST ({pricing.gstRate}%)</span>
+                      <span className="text-[#111827]">₹{gst.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {deliveryFee > 0 && pricing.freeEnabled && (
+                    <p className="text-[11px] font-bold text-gray-400">Add ₹{Math.ceil(pricing.threshold - cartTotal).toLocaleString()} more for free delivery.</p>
+                  )}
                 </div>
                 {savings > 0 && (
                   <div className="bg-green-50 px-4 py-2 rounded-xl border border-green-100 mb-5">
@@ -107,8 +135,9 @@ const CartPage: React.FC = () => {
                 )}
                 <div className="flex justify-between items-center mb-6">
                   <span className="text-lg font-black text-[#111827]">Total Amount</span>
-                  <span className="text-2xl font-black text-[#111827]">₹{cartTotal.toLocaleString()}</span>
+                  <span className="text-2xl font-black text-[#111827]">₹{estimatedTotal.toLocaleString()}</span>
                 </div>
+                <p className="-mt-4 mb-5 text-[11px] font-bold text-gray-400">Final amount (delivery for your pincode and any coupon) is confirmed at checkout.</p>
                 <Link to="/checkout" className="block w-full bg-[#FF6B2C] text-white py-4 rounded-xl font-black text-center shadow-xl shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors">
                   Proceed to Checkout <ChevronRight size={16} className="inline" />
                 </Link>

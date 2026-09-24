@@ -1,5 +1,13 @@
 import React from 'react';
-import { Search, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
+
+const quickLinks = [
+  { label: 'Track Order', to: '/account/orders' },
+  { label: 'Return & Refund', to: '/return-policy' },
+  { label: 'Cancel Order', to: '/account/orders' },
+  { label: 'Payment Help', to: '/refund-policy' },
+];
 
 const SupportHero: React.FC = () => {
   return (
@@ -9,29 +17,15 @@ const SupportHero: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
             How can we <span className="text-[#FF6B2C]">help you?</span>
           </h1>
-          <p className="text-sm font-bold text-gray-400 mb-8 uppercase tracking-widest">Search our help articles or browse topics</p>
+          <p className="text-sm font-bold text-gray-400 mb-8 uppercase tracking-widest">Browse topics below or jump to a quick link</p>
 
-          <div className="flex bg-white p-2 rounded-2xl border border-[#ECECEC] shadow-sm focus-within:border-[#FF6B2C] transition-all max-w-[600px] mx-auto md:mx-0">
-            <div className="flex items-center gap-3 flex-1 px-4">
-              <Search size={20} className="text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search for help articles..."
-                className="w-full bg-transparent outline-none text-sm font-bold text-[#111827]"
-              />
-            </div>
-            <button className="bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-[#E05520] transition-all shadow-lg shadow-[#FF6B2C]/20">
-              Search
-            </button>
-          </div>
-
-          {/* Popular Searches */}
-          <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-4">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Popular searches:</span>
-            {['Track Order', 'Return & Refund', 'Cancel Order', 'Payment Help'].map((tag) => (
-              <button key={tag} className="bg-white border border-[#ECECEC] px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#111827] hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all shadow-sm">
-                {tag}
-              </button>
+          {/* Quick Links */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Quick links:</span>
+            {quickLinks.map(({ label, to }) => (
+              <Link key={label} to={to} className="bg-white border border-[#ECECEC] px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#111827] hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all shadow-sm">
+                {label}
+              </Link>
             ))}
           </div>
         </div>

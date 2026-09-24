@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, Edit3, Wallet, CircleDollarSign, Crown, ChevronRight } from 'lucide-react';
+import { User, Edit3, Crown } from 'lucide-react';
 
 interface ProfileOverviewCardProps {
   name?: string;
   phone?: string;
   email?: string;
+  memberSince?: string;
 }
 
-const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, email }) => {
+const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, email, memberSince }) => {
   return (
     <div className="bg-white rounded-[24px] border border-[#ECECEC] p-6 shadow-sm flex flex-col xl:flex-row gap-8 items-center">
       {/* Profile Info */}
@@ -34,33 +35,8 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
 
       <div className="hidden xl:block w-px h-20 bg-gray-100"></div>
 
-      <div className="flex flex-wrap xl:flex-nowrap gap-6 w-full xl:w-auto">
-        <div className="flex-1 min-w-[140px] xl:w-[180px]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#FF6B2C]/10 flex items-center justify-center text-[#FF6B2C]">
-              <Wallet size={18} />
-            </div>
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">chillFi Wallet</span>
-          </div>
-          <p className="text-lg font-black text-[#111827] mb-1">₹0.00</p>
-          <span className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-not-allowed">
-            View Wallet <ChevronRight size={12} />
-          </span>
-        </div>
-
-        <div className="flex-1 min-w-[140px] xl:w-[180px]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
-              <CircleDollarSign size={18} />
-            </div>
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">chillFi Coins</span>
-          </div>
-          <p className="text-lg font-black text-[#111827] mb-1">0</p>
-          <span className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-not-allowed">
-            View Coins <ChevronRight size={12} />
-          </span>
-        </div>
-
+      {/* Only real account facts here (no wallet/coins/premium — those features don't exist). */}
+      {memberSince && (
         <div className="flex-1 min-w-[140px] xl:w-[180px]">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-8 rounded-lg bg-[#FF6B2C]/10 flex items-center justify-center text-[#FF6B2C]">
@@ -68,12 +44,9 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
             </div>
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">Member Since</span>
           </div>
-          <p className="text-sm font-black text-[#111827] mb-1">ChillFi User</p>
-          <Link to="/account/settings" className="flex items-center gap-1 text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest group">
-            View Benefits <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <p className="text-sm font-black text-[#111827] mb-1">{memberSince ? new Date(memberSince).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : null}</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

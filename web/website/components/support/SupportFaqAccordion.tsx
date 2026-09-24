@@ -7,11 +7,11 @@ interface FaqItem {
 }
 
 const faqs: FaqItem[] = [
-  { question: 'How can I track my order?', answer: 'You can track your order using the Order ID provided in your confirmation email or by visiting the "Track Order" section in your account dashboard.' },
-  { question: 'What is your return policy?', answer: 'We offer a 7-day easy return policy for most products. The items must be unused and in their original packaging.' },
-  { question: 'How long does delivery take?', answer: 'Standard delivery usually takes 3-5 business days. Express delivery (available in selected cities) takes 1-2 business days.' },
-  { question: 'How can I cancel or modify my order?', answer: 'You can cancel your order from the "My Orders" section before it has been shipped. Modifying an order is not possible once placed.' },
-  { question: 'Which payment methods do you accept?', answer: 'We accept all major Credit/Debit cards, Net Banking, UPI (PhonePe, Google Pay), Wallets, and Cash on Delivery.' },
+  { question: 'How can I track my order?', answer: 'Go to My Account → My Orders and open your order. Once it is shipped, you will see live Delhivery tracking there.' },
+  { question: 'What is your return policy?', answer: 'You can request a return within 7 days of delivery from the order page in My Orders. See our Return Policy for eligibility details.' },
+  { question: 'How long do refunds take?', answer: 'Refunds are usually credited within 5–7 business days after the return or cancellation is approved.' },
+  { question: 'How can I cancel my order?', answer: 'You can cancel from the order page in My Orders until the courier picks up the package. Paid orders are refunded automatically.' },
+  { question: 'Which payment methods do you accept?', answer: 'We accept UPI, credit/debit cards and netbanking via PhonePe, and Pay on Delivery on eligible pincodes.' },
 ];
 
 const SupportFaqAccordion: React.FC = () => {

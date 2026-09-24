@@ -96,6 +96,10 @@ const LoginPage: React.FC = () => {
 
   const handleSendOtp = async () => {
     if (!validatePhone(phone)) { setError('Enter a valid 10-digit Indian mobile number'); return; }
+    if (tab === 'register') {
+      if (name.trim().length < 2) { setError('Please enter your full name'); return; }
+      if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) { setError('Please enter a valid email address'); return; }
+    }
     setLoading(true); setError('');
     try {
       const verifier = getRecaptchaVerifier();

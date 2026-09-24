@@ -18,13 +18,13 @@ const AuthHeroSection: React.FC = () => {
         <div className="space-y-2">
           <BenefitItem
             icon={<Gift size={20} />}
-            title="Exclusive Offers"
-            desc="Access member-only deals & discounts"
+            title="Easy Checkout"
+            desc="Saved addresses and quick reorders"
           />
           <BenefitItem
             icon={<Zap size={20} />}
-            title="Faster Delivery"
-            desc="Get faster delivery on all orders"
+            title="Live Order Tracking"
+            desc="Follow your Delhivery shipment step by step"
           />
           <BenefitItem
             icon={<ShieldCheck size={20} />}

@@ -20,7 +20,7 @@ const TopBrands: React.FC<TopBrandsProps> = ({ brands }) => {
       <Container>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl font-bold text-gray-900">Top Brands</h2>
-          <Link to="/products" className="text-[#FF6B2C] font-bold text-sm hover:underline">View All Brands ›</Link>
+          <Link to="/categories#brands" className="text-[#FF6B2C] font-bold text-sm hover:underline">View All Brands ›</Link>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center">

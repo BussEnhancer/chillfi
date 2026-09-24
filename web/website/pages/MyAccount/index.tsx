@@ -11,8 +11,6 @@ import ProfileOverviewCard from '../../components/profile/ProfileOverviewCard';
 import QuickActionCard from '../../components/profile/QuickActionCard';
 import RecentOrdersCard from '../../sections/MyAccount/RecentOrdersCard';
 import AccountSummaryCard from '../../sections/MyAccount/AccountSummaryCard';
-import ReferEarnCard from '../../sections/MyAccount/ReferEarnCard';
-import PremiumBanner from '../../sections/MyAccount/PremiumBanner';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { ShoppingBag, Truck, Heart, MapPin, Tag, Headphones } from 'lucide-react';
 import { apiGet } from '../../utils/api';
@@ -66,6 +64,7 @@ const MyAccountPage: React.FC = () => {
               name={profile?.name}
               phone={profile?.phone}
               email={profile?.email}
+              memberSince={profile?.created_at}
             />
 
             <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-4 xl:gap-6">
@@ -92,11 +91,9 @@ const MyAccountPage: React.FC = () => {
             <div className="flex flex-col xl:flex-row gap-8">
               <div className="flex-1 min-w-0 space-y-8">
                 <RecentOrdersCard />
-                <ReferEarnCard />
               </div>
               <div className="xl:w-[350px] space-y-8">
                 <AccountSummaryCard />
-                <PremiumBanner />
               </div>
             </div>
           </div>

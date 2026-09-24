@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import CategoryNav from '../../components/navigation/CategoryNav';
@@ -33,6 +33,14 @@ const categoryColors: Record<string, string> = {
 };
 
 const CategoriesPage: React.FC = () => {
+  // /categories#brands (header "Brands" link) → scroll to the brands section once it has rendered
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 600);
+    return () => clearTimeout(t);
+  }, [hash]);
+
   const { categories } = useStore();
   const active = categories.filter(c => c.status);
   const [showMobileFilter, setShowMobileFilter] = useState(false);

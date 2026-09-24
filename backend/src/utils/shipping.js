@@ -17,13 +17,15 @@ const getShippingFee = async (pincode, subtotal) => {
   }
 
   const settings = await pool.query(
-    `SELECT key, value FROM store_settings WHERE key IN ('free_shipping_threshold', 'standard_shipping_fee')`
+    `SELECT key, value FROM store_settings WHERE key IN ('free_shipping_threshold', 'standard_shipping_fee', 'free_shipping_enabled')`
   );
   const map = {};
   settings.rows.forEach((row) => { map[row.key] = row.value; });
   const threshold = parseFloat(map.free_shipping_threshold ?? 499);
   const fee = parseFloat(map.standard_shipping_fee ?? 49);
-  return subtotal >= threshold ? 0 : fee;
+  // Admin can switch free shipping off entirely (Settings → free_shipping_enabled).
+  const freeEnabled = map.free_shipping_enabled !== 'false';
+  return freeEnabled && subtotal >= threshold ? 0 : fee;
 };
 
 module.exports = { getShippingFee };

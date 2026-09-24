@@ -20,7 +20,8 @@ interface FlashSaleProps {
 }
 
 const useCountdown = (endsAt?: string) => {
-  const target = endsAt ? new Date(endsAt).getTime() : Date.now() + 2 * 60 * 60 * 1000 + 45 * 60 * 1000;
+  // Only count down to a real end time set by the admin — never a made-up timer.
+  const target = endsAt ? new Date(endsAt).getTime() : 0;
   const [remaining, setRemaining] = useState(() => Math.max(0, target - Date.now()));
 
   useEffect(() => {
@@ -35,7 +36,8 @@ const useCountdown = (endsAt?: string) => {
 };
 
 const FlashSale: React.FC<FlashSaleProps> = ({ products }) => {
-  const endDate = products?.[0]?.flash_sale_ends_at;
+  // Earliest real end time among the flash products (if the admin set one)
+  const endDate = (products || []).map((p) => p.flash_sale_ends_at).filter(Boolean).sort()[0];
   const { h, m, s } = useCountdown(endDate);
 
   const items = products && products.length > 0 ? products : null;
@@ -49,10 +51,10 @@ const FlashSale: React.FC<FlashSaleProps> = ({ products }) => {
             <span className="text-3xl">⚡</span>
           </div>
           <p className="text-gray-500 font-medium mb-10 leading-relaxed">
-            Limited time offer! Grab your favorite products at unbeatable prices.
+            {endDate ? 'Limited time offer! Grab your favorite products at unbeatable prices.' : 'Great prices on selected products.'}
           </p>
 
-          <div className="flex gap-4 mb-10">
+          {endDate && <div className="flex gap-4 mb-10">
             {[{ val: h, unit: 'Hours' }, { val: m, unit: 'Min' }, { val: s, unit: 'Sec' }].map((t, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="w-16 h-16 bg-[#121212] rounded-2xl flex items-center justify-center text-white text-2xl font-black mb-2 shadow-lg shadow-gray-200">
@@ -61,7 +63,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ products }) => {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{t.unit}</span>
               </div>
             ))}
-          </div>
+          </div>}
 
           <Link to="/offers" className="inline-block bg-[#FF6B2C] text-white px-8 py-4 rounded-xl font-bold shadow-xl shadow-[#FF6B2C]/20 hover:scale-105 transition-all">
             Shop All Deals

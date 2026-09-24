@@ -41,7 +41,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
                  )}
                  <div>
                     <h4 className="font-bold text-gray-900">{t.customer_name}</h4>
-                    <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Verified Buyer</span>
+                    
                  </div>
               </div>
               <div className="flex gap-1 mb-4 text-yellow-400">

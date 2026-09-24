@@ -66,7 +66,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
 
           <div>
              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
-               {status === 'Delivered' ? 'Delivered on' : 'Expected by'}
+               {status === 'Delivered' ? 'Delivered on' : status === 'Cancelled' ? 'Delivery' : 'Expected by'}
              </span>
              <p className="text-sm font-black text-[#111827]">{deliveryDate}</p>
           </div>

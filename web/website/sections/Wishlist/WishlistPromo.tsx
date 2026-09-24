@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag, ChevronRight } from 'lucide-react';
 
 const WishlistPromo: React.FC = () => {
@@ -13,10 +14,10 @@ const WishlistPromo: React.FC = () => {
           Prices and availability may change. Move your favorites to bag now.
         </p>
 
-        <button className="bg-white text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
+        <Link to="/products" className="w-fit bg-white text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all">
           Shop Now
           <ChevronRight size={14} />
-        </button>
+        </Link>
       </div>
 
       <div className="absolute right-0 bottom-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">

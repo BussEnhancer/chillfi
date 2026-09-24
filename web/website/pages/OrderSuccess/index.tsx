@@ -11,6 +11,8 @@ const OrderSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const stateData = (location.state as { orderNumber?: string; total?: number; cod?: boolean }) || {};
   const orderNumber = stateData.orderNumber || searchParams.get('order_number') || undefined;
+  // COD orders are flagged by the checkout (state) or ?method=cod; online payments only land here after PhonePe confirms.
+  const isCod = stateData.cod === true || searchParams.get('method') === 'cod';
   const total = stateData.total ?? (searchParams.get('total') ? Number(searchParams.get('total')) : undefined);
 
   return (
@@ -50,10 +52,10 @@ const OrderSuccessPage: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-[#FF6B2C]/10 flex items-center justify-center text-[#FF6B2C]">
                   <Truck size={16} />
                 </div>
-                <span className="text-[11px] font-black text-[#111827] uppercase tracking-wider">Estimated Delivery</span>
+                <span className="text-[11px] font-black text-[#111827] uppercase tracking-wider">Delivery</span>
               </div>
-              <p className="text-sm font-black text-[#111827]">3–5 Business Days</p>
-              <p className="text-xs font-bold text-gray-400">You'll receive a tracking link via SMS</p>
+              <p className="text-sm font-black text-[#111827]">Shipped via Delhivery</p>
+              <p className="text-xs font-bold text-gray-400">Track it anytime from My Orders — we'll notify you at every step</p>
             </div>
             <div className="bg-green-50 rounded-2xl p-5 border border-green-100 text-left">
               <div className="flex items-center gap-3 mb-2">
@@ -62,8 +64,8 @@ const OrderSuccessPage: React.FC = () => {
                 </div>
                 <span className="text-[11px] font-black text-[#111827] uppercase tracking-wider">Payment</span>
               </div>
-              <p className="text-sm font-black text-[#111827]">Confirmed</p>
-              <p className="text-xs font-bold text-gray-400">Order confirmation sent to your phone</p>
+              <p className="text-sm font-black text-[#111827]">{isCod ? 'Pay on Delivery' : 'Paid'}</p>
+              <p className="text-xs font-bold text-gray-400">{isCod ? 'Please keep the exact amount ready when your order arrives' : 'Payment received via PhonePe'}</p>
             </div>
           </div>
 

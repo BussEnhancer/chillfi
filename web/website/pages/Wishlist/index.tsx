@@ -10,7 +10,7 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import WishlistSuggestions from '../../sections/Wishlist/WishlistSuggestions';
 import WishlistSummary from '../../sections/Wishlist/WishlistSummary';
 import WishlistPromo from '../../sections/Wishlist/WishlistPromo';
-import { Share2, ShoppingBag, Heart, Loader2, Trash2 } from 'lucide-react';
+import { ShoppingBag, Heart, Loader2, Trash2 } from 'lucide-react';
 import { apiGet, apiDelete } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 import { friendlyError } from '../../utils/api';
@@ -102,10 +102,6 @@ const WishlistPage: React.FC = () => {
             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Items you love, saved for later</p>
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 border-2 border-[#ECECEC] text-[#111827] px-6 py-2.5 rounded-xl font-black text-sm hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all">
-              <Share2 size={18} />
-              Share Wishlist
-            </button>
             <button
               onClick={handleMoveAllToCart}
               disabled={items.length === 0}

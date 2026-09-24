@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
 const AboutHero: React.FC = () => {
@@ -25,10 +26,10 @@ const AboutHero: React.FC = () => {
             </p>
           </div>
 
-          <button className="mt-10 bg-gradient-to-r from-[#FF6B2C] to-[#8B5CFF] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mx-auto lg:mx-0">
+          <Link to="/products" className="w-fit mt-10 bg-gradient-to-r from-[#FF6B2C] to-[#8B5CFF] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mx-auto lg:mx-0">
             Explore Our Products
             <ChevronRight size={20} />
-          </button>
+          </Link>
         </div>
 
         {/* Right Side: Image */}

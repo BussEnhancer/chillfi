@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Send, MessageSquare } from 'lucide-react';
 
 const SupportHelpCard: React.FC = () => {
@@ -10,10 +11,10 @@ const SupportHelpCard: React.FC = () => {
            <p className="text-sm font-bold text-gray-400 mb-8 leading-relaxed max-w-[400px] mx-auto md:mx-0">
              Our support team is here for you every day, 9 AM – 9 PM. Reach out and we'll get back to you as soon as possible.
            </p>
-           <button className="bg-[#FF6B2C] text-white px-10 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mx-auto md:mx-0">
+           <Link to="/contact" className="w-fit bg-[#FF6B2C] text-white px-10 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mx-auto md:mx-0">
               Contact Support
               <Send size={18} />
-           </button>
+           </Link>
         </div>
 
         <div className="relative w-[200px] h-[150px] flex items-center justify-center pointer-events-none">

@@ -6,14 +6,14 @@ import {
 } from 'lucide-react';
 
 const topics = [
-  { icon: <Truck size={28} />, title: 'Track Your Order', desc: 'Real-time updates on your order status' },
-  { icon: <RotateCcw size={28} />, title: 'Returns & Refunds', desc: 'Easy returns and quick refunds', color: '#FF6B2C' },
-  { icon: <CreditCard size={28} />, title: 'Orders & Payments', desc: 'Payment methods, failed payments and more', color: '#16A34A' },
-  { icon: <Ship size={28} />, title: 'Shipping & Delivery', desc: 'Delivery timelines, charges and locations', color: '#3B82F6' },
-  { icon: <User size={28} />, title: 'Account & Profile', desc: 'Manage your account, addresses and profile' },
-  { icon: <Package size={28} />, title: 'Products & Services', desc: 'Product info, availability and warranties', color: '#F59E0B' },
-  { icon: <Tag size={28} />, title: 'Offers & Promotions', desc: 'How to use coupons, deals and offers', color: '#EC4899' },
-  { icon: <ShieldQuestion size={28} />, title: 'Policies & Help', desc: 'Terms, privacy and other important policies' },
+  { icon: <Truck size={28} />, title: 'Track Your Order', to: '/account/orders', desc: 'Real-time updates on your order status' },
+  { icon: <RotateCcw size={28} />, title: 'Returns & Refunds', to: '/return-policy', desc: 'Easy returns and quick refunds', color: '#FF6B2C' },
+  { icon: <CreditCard size={28} />, title: 'Orders & Payments', to: '/refund-policy', desc: 'Payment methods, failed payments and more', color: '#16A34A' },
+  { icon: <Ship size={28} />, title: 'Shipping & Delivery', to: '/shipping-policy', desc: 'Delivery timelines, charges and locations', color: '#3B82F6' },
+  { icon: <User size={28} />, title: 'Account & Profile', to: '/account/settings', desc: 'Manage your account, addresses and profile' },
+  { icon: <Package size={28} />, title: 'Products & Services', to: '/products', desc: 'Product info, availability and warranties', color: '#F59E0B' },
+  { icon: <Tag size={28} />, title: 'Offers & Promotions', to: '/offers', desc: 'How to use coupons, deals and offers', color: '#EC4899' },
+  { icon: <ShieldQuestion size={28} />, title: 'Policies & Help', to: '/terms', desc: 'Terms, privacy and other important policies' },
 ];
 
 const SupportTopicsGrid: React.FC = () => {

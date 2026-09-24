@@ -8,7 +8,6 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 
 import AboutHero from '../../sections/AboutUs/AboutHero';
-import AboutStats from '../../sections/AboutUs/AboutStats';
 import AboutValues from '../../sections/AboutUs/AboutValues';
 import AboutJourney from '../../sections/AboutUs/AboutJourney';
 
@@ -27,9 +26,6 @@ const AboutUsPage: React.FC = () => {
       <Container>
         {/* Hero Section */}
         <AboutHero />
-
-        {/* Statistics Grid */}
-        <AboutStats />
 
         {/* Our Values Section */}
         <AboutValues />

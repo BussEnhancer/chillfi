@@ -11,7 +11,6 @@ import ContactTextarea from '../../components/forms/ContactTextarea';
 import ContactCheckbox from '../../components/forms/ContactCheckbox';
 import ContactInfoCard from '../../components/support/ContactInfoCard';
 import OfficeInfoCard from '../../components/support/OfficeInfoCard';
-import StaticMapCard from '../../components/support/StaticMapCard';
 import HelpCenterBanner from '../../components/support/HelpCenterBanner';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 
@@ -173,6 +172,7 @@ const ContactUsPage: React.FC = () => {
                      desc="We're always here"
                      detail="support@chillfi.com"
                    />
+                   {/* TODO(owner): confirm real support phone (site uses +91 98765 43210, app uses +91 90562 24993) */}
                    <ContactInfoCard
                      icon={<Phone size={24} />}
                      title="Call Us"
@@ -195,10 +195,7 @@ const ContactUsPage: React.FC = () => {
                 </div>
              </div>
 
-             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-stretch">
-                <OfficeInfoCard />
-                <StaticMapCard />
-             </div>
+             <OfficeInfoCard />
           </div>
         </div>
 

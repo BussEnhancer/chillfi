@@ -259,11 +259,16 @@ const firebaseVerify = async (req, res, next) => {
     } else {
       // New user — create with provided name/email or defaults
       const { name: reqName, email: reqEmail } = req.body;
+      // The phone is already verified here, so never fail signup over the optional email:
+      // store it only if it is well-formed and not used by another account.
+      let email = typeof reqEmail === 'string' ? reqEmail.trim().toLowerCase() : '';
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) email = '';
+      if (email && (await pool.query('SELECT 1 FROM users WHERE LOWER(email) = $1', [email])).rows.length) email = '';
       const inserted = await pool.query(
         `INSERT INTO users (name, phone, email, is_phone_verified)
          VALUES ($1, $2, $3, TRUE)
          RETURNING id, name, email, phone, avatar_url, role`,
-        [reqName?.trim() || `User${phone.slice(-4)}`, phone, reqEmail?.trim() || null]
+        [reqName?.trim() || `User${phone.slice(-4)}`, phone, email || null]
       );
       userRow = inserted.rows[0];
     }

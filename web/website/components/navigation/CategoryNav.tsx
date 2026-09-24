@@ -8,8 +8,8 @@ const navItems = [
   { label: 'Categories', to: '/categories' },
   { label: 'Deals', to: '/offers' },
   { label: 'New Arrivals', to: '/products?sort=newest' },
-  { label: 'Best Sellers', to: '/products?sort=rating' },
-  { label: 'Brands', to: '/products?view=brands' },
+  { label: 'Top Rated', to: '/products?sort=rating' },
+  { label: 'Brands', to: '/categories#brands' },
   { label: 'Track Order', to: '/account/orders' },
 ];
 

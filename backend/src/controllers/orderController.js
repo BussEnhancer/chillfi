@@ -190,13 +190,19 @@ const createOrder = async (req, res) => {
 
 // GET /api/orders
 const getOrders = async (req, res) => {
-  const { status, page = 1, limit = 10 } = req.query;
+  const { status, page = 1, limit = 10, search } = req.query;
   const offset = (page - 1) * limit;
   const values = [req.user.id];
   let statusFilter = '';
   if (status && status !== 'all') {
     values.push(status);
     statusFilter = `AND o.status = $${values.length}`;
+  }
+  // Search across ALL of the customer's orders (order number or product name), not just the current page.
+  if (search && String(search).trim()) {
+    values.push(`%${String(search).trim()}%`);
+    statusFilter += ` AND (o.order_number ILIKE $${values.length} OR EXISTS (
+      SELECT 1 FROM order_items si WHERE si.order_id = o.id AND si.product_name ILIKE $${values.length}))`;
   }
 
   const result = await pool.query(`

@@ -1,10 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { CheckCircle2, Truck, Clock, XCircle, Star } from 'lucide-react';
 
 interface TrackingStatusCardProps {
   status: string;
   updatedAt: string;
   detail?: string | null; // courier-level stage, e.g. "Out for delivery"
+  reviewProductId?: string | null; // when set, "Rate & Review" opens that product page
 }
 
 const STATUS_CONFIG: Record<string, { icon: React.ReactNode; bg: string; iconBg: string; title: string; message: string }> = {
@@ -14,7 +16,7 @@ const STATUS_CONFIG: Record<string, { icon: React.ReactNode; bg: string; iconBg:
   Cancelled: { icon: <XCircle size={32} />, bg: 'bg-red-50 border-red-100', iconBg: 'bg-red-500 shadow-red-200', title: 'Cancelled', message: 'Your order was cancelled on' },
 };
 
-const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updatedAt, detail }) => {
+const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updatedAt, detail, reviewProductId }) => {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.Processing;
   const d = new Date(updatedAt);
   const dateStr = `${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
@@ -35,10 +37,13 @@ const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updated
       </div>
 
       {status === 'Delivered' && (
-        <button className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm">
+        <Link
+          to={reviewProductId ? `/product/${reviewProductId}` : '/account/reviews'}
+          className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm"
+        >
           <Star size={18} />
           Rate & Review
-        </button>
+        </Link>
       )}
     </div>
   );

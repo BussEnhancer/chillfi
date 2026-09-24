@@ -9,7 +9,6 @@ import AccountSidebar from '../../components/profile/AccountSidebar';
 import OrderCard from '../../components/order/OrderCard';
 import OrderStatsCard from '../../sections/Orders/OrderStatsCard';
 import FindOrderCard from '../../sections/Orders/FindOrderCard';
-import BuyAgainBanner from '../../sections/Orders/BuyAgainBanner';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { Truck, RotateCcw, FileText, HelpCircle, ChevronLeft, ChevronRight, Loader2, PackageOpen } from 'lucide-react';
 import { apiGet } from '../../utils/api';
@@ -32,6 +31,8 @@ interface ApiOrder {
   total: number;
   created_at: string;
   items: ApiOrderItem[];
+  delivered_at?: string | null;
+  expected_delivery_date?: string | null;
 }
 
 const PAGE_SIZE = 5;
@@ -52,11 +53,12 @@ const OrdersPage: React.FC = () => {
     { label: 'My Orders' }
   ];
 
-  const loadOrders = async (status: string, pg: number) => {
+  const loadOrders = async (status: string, pg: number, q = search) => {
     setLoading(true); setError('');
     try {
       const params = new URLSearchParams({ page: String(pg), limit: String(PAGE_SIZE) });
       if (status !== 'All') params.set('status', status);
+      if (q.trim()) params.set('search', q.trim()); // server searches all orders, not just this page
       const res = await apiGet<{ success: boolean; data: { orders: ApiOrder[]; total: number } }>(
         `/orders?${params}`
       );
@@ -71,6 +73,11 @@ const OrdersPage: React.FC = () => {
 
   useEffect(() => { setPage(1); loadOrders(activeTab, 1); }, [activeTab]);
   useEffect(() => { loadOrders(activeTab, page); }, [page]);
+  // Debounced search → back to page 1
+  useEffect(() => {
+    const t = setTimeout(() => { setPage(1); loadOrders(activeTab, 1, search); }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   useEffect(() => {
     apiGet<{ success: boolean; data: { orders: ApiOrder[] } }>('/orders?limit=500')
@@ -86,12 +93,7 @@ const OrdersPage: React.FC = () => {
     cancelled: allStatuses.filter(s => s === 'Cancelled').length,
   };
 
-  const filtered = search
-    ? orders.filter(o =>
-        (o.order_number || o.id).toLowerCase().includes(search.toLowerCase()) ||
-        o.items?.[0]?.product_name?.toLowerCase().includes(search.toLowerCase())
-      )
-    : orders;
+  const filtered = orders;
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
   // Compact pagination: first, last, current ±1, with ellipses (never one button per page).
@@ -116,7 +118,11 @@ const OrdersPage: React.FC = () => {
       amount: Number(o.total),
       paymentStatus: o.payment_status || 'Pending',
       paymentMethod: o.payment_method || 'COD',
-      deliveryDate: '—',
+      // Real dates only: delivered_at once delivered, Delhivery's expected date while in transit.
+      deliveryDate: (() => {
+        const raw = o.status === 'Delivered' ? o.delivered_at : o.status === 'Cancelled' ? null : o.expected_delivery_date;
+        return raw ? new Date(raw).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      })(),
       status: o.status as OrderStatus,
     };
   };
@@ -235,7 +241,6 @@ const OrdersPage: React.FC = () => {
                 {[
                   { icon: <Truck size={18} />, title: 'Track Your Order', subtitle: 'Get real-time updates', href: '/account/orders' },
                   { icon: <RotateCcw size={18} />, title: 'Return / Replace Item', subtitle: 'Hassle-free returns', href: '/account' },
-                  { icon: <FileText size={18} />, title: 'Download Invoices', subtitle: 'View and download invoices', href: '/account/orders' },
                   { icon: <HelpCircle size={18} />, title: 'Need Help?', subtitle: 'Visit our support center', href: '/contact' },
                 ].map((item, i) => (
                   <button key={i} onClick={() => window.location.href = item.href} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[#FFF8F5] group transition-all text-left">
@@ -253,7 +258,6 @@ const OrdersPage: React.FC = () => {
                 ))}
               </div>
             </div>
-            <BuyAgainBanner />
           </div>
         </div>
 

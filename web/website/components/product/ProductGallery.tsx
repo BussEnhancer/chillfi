@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Heart, Maximize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Images } from 'lucide-react';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1512374382149-233c42b6a83b?auto=format&fit=crop&q=80&w=600';
 
@@ -65,10 +65,10 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
           <Heart size={20} className={isWishlisted ? 'fill-red-500' : ''} />
         </button>
 
-        <button className="absolute bottom-6 left-6 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-[#111827] shadow-sm hover:bg-white transition-all">
-          <Maximize2 size={14} className="text-[#FF6B2C]" />
+        <span className="absolute bottom-6 left-6 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-[#111827] shadow-sm">
+          <Images size={14} className="text-[#FF6B2C]" />
           {imgs.length > 1 ? `${active + 1} / ${imgs.length}` : 'Product Image'}
-        </button>
+        </span>
       </div>
     </div>
   );

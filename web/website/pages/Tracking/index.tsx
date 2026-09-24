@@ -20,6 +20,7 @@ import { showErrorDialog } from '../../components/feedback/ErrorDialog';
 import { friendlyError } from '../../utils/api';
 
 interface ApiOrderItem {
+  product_id?: string | null;
   product_name: string;
   product_image: string;
   quantity: number;
@@ -212,7 +213,8 @@ const TrackingPage: React.FC = () => {
 
           {/* Center: Content */}
           <div className="flex-1 min-w-0">
-             <TrackingStatusCard status={order.status} updatedAt={tracking?.last_update || order.updated_at} detail={tracking?.shipping_status_label || null} />
+             <TrackingStatusCard status={order.status} updatedAt={tracking?.last_update || order.updated_at} detail={tracking?.shipping_status_label || null}
+               reviewProductId={(() => { const ids = Array.from(new Set(order.items.map(i => i.product_id).filter(Boolean))); return ids.length === 1 ? ids[0] : null; })()} />
 
              <OrderProgressTracker status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
 

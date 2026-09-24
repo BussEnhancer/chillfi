@@ -216,10 +216,11 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Offers */}
             <div className="mb-8">
-              <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-widest mb-4">Offers for you</h3>
+              <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-widest mb-4">Shop with confidence</h3>
               <div className="flex flex-wrap gap-4">
-                <OfferCard title="10% Instant Discount" desc="on HDFC Bank Credit Cards. Max ₹1,500." />
-                <OfferCard title="5% Cashback" desc="on chillFi Axis Bank Credit Card." />
+                <OfferCard title="Secure Payments" desc="Pay via PhonePe — UPI, cards or netbanking." />
+                <OfferCard title="Pay on Delivery" desc="Available on eligible pincodes." />
+                <OfferCard title="7-Day Returns" desc="Return within 7 days of delivery." />
               </div>
             </div>
 

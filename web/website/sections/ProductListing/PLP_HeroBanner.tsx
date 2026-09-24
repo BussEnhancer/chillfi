@@ -8,10 +8,7 @@ const PLP_HeroBanner: React.FC = () => {
          <h2 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
             Power Up Your <span className="text-[#FF6B2C]">Tech</span>
          </h2>
-         <p className="text-gray-500 font-bold mb-6">Premium Electronics Collection <br className="hidden md:block" /> Up to 60% Off</p>
-         <button className="bg-[#FF6B2C] text-white px-8 py-3.5 rounded-xl font-black text-sm shadow-xl shadow-[#FF6B2C]/20 hover:scale-105 active:scale-95 transition-all">
-            Shop Now
-         </button>
+         <p className="text-gray-500 font-bold">Premium Electronics Collection <br className="hidden md:block" /> Free delivery on orders above ₹499</p>
       </div>
 
       <div className="relative w-full md:w-[45%] h-[200px] flex items-center justify-center mt-8 md:mt-0">
@@ -21,9 +18,6 @@ const PLP_HeroBanner: React.FC = () => {
             <div className="absolute right-0 w-48 h-32 bg-[#FF6B2C] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl rotate-6 group-hover:rotate-0 transition-transform duration-700">
                <ShoppingBag size={32} className="mb-2 opacity-40" />
                <span className="text-sm font-black tracking-tighter uppercase">chillFi</span>
-               <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#FF6B2C] rounded-lg rotate-12 flex items-center justify-center text-[10px] font-black shadow-lg">
-                  60%
-               </div>
             </div>
             {/* Shoes Illustration */}
             <div className="absolute left-0 top-0 w-56 h-48 flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform duration-700">

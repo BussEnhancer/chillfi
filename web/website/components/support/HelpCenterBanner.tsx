@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { HelpCircle, ChevronRight } from 'lucide-react';
 
 const HelpCenterBanner: React.FC = () => {
@@ -13,10 +14,10 @@ const HelpCenterBanner: React.FC = () => {
           <p className="text-sm font-bold text-gray-400">Check out our Help Center for answers to common questions.</p>
         </div>
       </div>
-      <button className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm flex items-center gap-2">
+      <Link to="/support" className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm flex items-center gap-2">
         Visit Help Center
         <ChevronRight size={18} />
-      </button>
+      </Link>
     </div>
   );
 };
