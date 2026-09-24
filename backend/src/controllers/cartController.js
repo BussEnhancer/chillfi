@@ -125,12 +125,12 @@ const applyCoupon = async (req, res) => {
     [req.user.id]
   );
   const cartSubtotal = cartRows.rows.reduce((s, r) => s + parseFloat(r.price) * r.quantity, 0);
-  const total = parseFloat(order_total) > 0 ? parseFloat(order_total) : cartSubtotal;
+  const total = cartSubtotal; // server-side cart value only (client order_total is ignored)
 
   if (total < coupon.min_order) {
     return res.status(400).json({
       success: false,
-      message: `Minimum order ₹${coupon.min_order} required for this coupon`,
+      message: `Add items worth ₹${Math.round(Number(coupon.min_order)).toLocaleString("en-IN")} or more to use this coupon`,
     });
   }
 

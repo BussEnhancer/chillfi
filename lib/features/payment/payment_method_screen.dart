@@ -118,7 +118,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
                     child: Column(
                       children: [
-                        _row('Items (${s.itemCount})', '₹${s.subtotal.toStringAsFixed(0)}'),
+                        _row('Price (${s.itemCount} ${s.itemCount == 1 ? 'item' : 'items'})', '₹${(s.subtotal + s.savings).toStringAsFixed(0)}'),
                         if (s.savings > 0) _row('Discount', '-₹${s.savings.toStringAsFixed(0)}', green: true),
                         if (cart.couponDiscount > 0) _row('Coupon', '-₹${cart.couponDiscount.toStringAsFixed(0)}', green: true),
                         _row('Delivery', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', green: s.deliveryFee == 0),

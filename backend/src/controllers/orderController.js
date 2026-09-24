@@ -19,8 +19,9 @@ const createOrder = async (req, res) => {
   // Resolve coupon: accept either coupon_id (UUID) or coupon_code (string from Flutter)
   let coupon_id = rawCouponId;
   if (!coupon_id && coupon_code) {
-    const lookup = await pool.query('SELECT id FROM coupons WHERE code = $1 AND is_active = TRUE', [coupon_code]);
-    if (lookup.rows.length) coupon_id = lookup.rows[0].id;
+    const lookup = await pool.query('SELECT id FROM coupons WHERE UPPER(code) = UPPER($1) AND is_active = TRUE', [coupon_code]);
+    if (!lookup.rows.length) return res.status(400).json({ success: false, message: 'This coupon is invalid or has expired. Please remove it and try again.' });
+    coupon_id = lookup.rows[0].id;
   }
 
   // Verify address belongs to user
@@ -33,7 +34,7 @@ const createOrder = async (req, res) => {
 
   const cartId = cartResult.rows[0].id;
   const items = await pool.query(`
-    SELECT ci.quantity, p.id as product_id, p.name, p.price, p.old_price, p.stock,
+    SELECT ci.quantity, p.id as product_id, p.name, p.price, p.old_price, p.stock, p.status,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as image
     FROM cart_items ci JOIN products p ON ci.product_id = p.id
     WHERE ci.cart_id = $1
@@ -43,6 +44,9 @@ const createOrder = async (req, res) => {
 
   // Fast pre-check (not authoritative — re-checked under lock inside the transaction below)
   for (const item of items.rows) {
+    if (item.status === 'Inactive' || item.status === 'Out of Stock') {
+      return res.status(400).json({ success: false, message: `"${item.name}" is no longer available. Please remove it from your cart.` });
+    }
     if (item.stock < item.quantity) {
       return res.status(400).json({ success: false, message: `"${item.name}" has only ${item.stock} units left` });
     }
@@ -55,8 +59,22 @@ const createOrder = async (req, res) => {
   // Apply coupon
   if (coupon_id) {
     const coupon = await pool.query('SELECT * FROM coupons WHERE id = $1 AND is_active = TRUE', [coupon_id]);
-    if (coupon.rows.length) {
+    // Re-validate every rule here: the order endpoint must not rely on the client having called apply-coupon.
+    if (!coupon.rows.length) {
+      return res.status(400).json({ success: false, message: 'This coupon is invalid or has expired. Please remove it and try again.' });
+    }
+    {
       const c = coupon.rows[0];
+      if (c.expires_at && new Date(c.expires_at) <= new Date()) {
+        return res.status(400).json({ success: false, message: 'This coupon has expired. Please remove it and try again.' });
+      }
+      if (subtotal < parseFloat(c.min_order || 0)) {
+        return res.status(400).json({ success: false, message: `Add items worth ₹${Math.round(Number(c.min_order)).toLocaleString('en-IN')} or more to use this coupon` });
+      }
+      const used = await pool.query('SELECT 1 FROM coupon_usage WHERE coupon_id = $1 AND user_id = $2', [c.id, req.user.id]);
+      if (used.rows.length) {
+        return res.status(400).json({ success: false, message: "You've already used this coupon." });
+      }
       if (c.type === 'Percentage') {
         discount = (subtotal * c.value) / 100;
         if (c.max_discount > 0) discount = Math.min(discount, c.max_discount);
@@ -65,6 +83,7 @@ const createOrder = async (req, res) => {
       } else if (c.type === 'Free Shipping') {
         discount = deliveryFee;
       }
+      discount = Math.min(parseFloat(discount) || 0, subtotal + deliveryFee); // never below zero
     }
   }
 

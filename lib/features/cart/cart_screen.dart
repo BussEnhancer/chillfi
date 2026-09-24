@@ -54,7 +54,7 @@ class _CartScreenState extends State<CartScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Cart', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
-              Text('${cart.cartCount} Items', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
+              Text('${cart.cartCount} ${cart.cartCount == 1 ? 'Item' : 'Items'}', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
             ],
           ),
         ),
@@ -238,7 +238,7 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           Text('Price Details', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
           SizedBox(height: 12.h),
-          _priceRow('Price (${s.itemCount} items)', '₹${s.subtotal.toStringAsFixed(0)}'),
+          _priceRow('Price (${s.itemCount} ${s.itemCount == 1 ? 'item' : 'items'})', '₹${(s.subtotal + s.savings).toStringAsFixed(0)}'),
           if (s.savings > 0) _priceRow('Discount', '-₹${s.savings.toStringAsFixed(0)}', valueColor: Colors.green),
           if (coupon > 0) _priceRow('Coupon Discount', '-₹${coupon.toStringAsFixed(0)}', valueColor: Colors.green),
           _priceRow('Delivery Fee', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', valueColor: s.deliveryFee == 0 ? Colors.green : null),

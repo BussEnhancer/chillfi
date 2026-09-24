@@ -202,7 +202,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               ),
                             )),
                         Divider(height: 20.h, color: const Color(0xFFEEEEEE)),
-                        _summaryRow('Subtotal', '₹${s.subtotal.toStringAsFixed(0)}'),
+                        _summaryRow('Price (MRP)', '₹${(s.subtotal + s.savings).toStringAsFixed(0)}'),
                         if (s.savings > 0) _summaryRow('Discount', '-₹${s.savings.toStringAsFixed(0)}', green: true),
                         if (cart.couponDiscount > 0) _summaryRow('Coupon', '-₹${cart.couponDiscount.toStringAsFixed(0)}', green: true),
                         _summaryRow('Delivery', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', green: s.deliveryFee == 0),
