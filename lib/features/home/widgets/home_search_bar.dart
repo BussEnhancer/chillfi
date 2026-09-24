@@ -26,12 +26,12 @@ class HomeSearchBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
+            border: Border.all(color: AppColors.fieldBorder.withValues(alpha: 0.5)),
           ),
           child: Row(
             children: [
@@ -45,7 +45,7 @@ class HomeSearchBar extends StatelessWidget {
                       hintText: 'Search for products, brands and more...',
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 13.sp,
-                        color: AppColors.greyText.withOpacity(0.6),
+                        color: AppColors.greyText.withValues(alpha: 0.6),
                       ),
                       border: InputBorder.none,
                     ),

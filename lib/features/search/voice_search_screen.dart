@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/services/api_service.dart';
 import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:chillfi/features/search/widgets/help_banner_widget.dart';
 import 'package:chillfi/features/search/widgets/security_info_card.dart';
@@ -8,10 +9,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class VoiceSearchScreen extends StatelessWidget {
+class VoiceSearchScreen extends StatefulWidget {
   const VoiceSearchScreen({super.key});
 
-  void _onVoiceResult(BuildContext context, String query) {
+  @override
+  State<VoiceSearchScreen> createState() => _VoiceSearchScreenState();
+}
+
+class _VoiceSearchScreenState extends State<VoiceSearchScreen> {
+  List<String> _trendingNames = [];
+
+  static const List<Map<String, dynamic>> _fallbackChips = [
+    {"label": "iphone 15", "icon": Icons.smartphone},
+    {"label": "gaming laptop", "icon": Icons.laptop_mac},
+    {"label": "boat headphones", "icon": Icons.headphones},
+    {"label": "samsung s24", "icon": Icons.phone_android},
+    {"label": "smart watch", "icon": Icons.watch},
+    {"label": "bluetooth speaker", "icon": Icons.speaker},
+    {"label": "canon camera", "icon": Icons.camera_alt},
+    {"label": "phone charger", "icon": Icons.power},
+    {"label": "macbook air", "icon": Icons.laptop_chromebook},
+    {"label": "best offers", "icon": Icons.local_offer},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTrending();
+  }
+
+  Future<void> _loadTrending() async {
+    try {
+      final res = await ApiService().get('/products/trending', params: {'limit': '10'});
+      final products = (res.data['data']?['products'] as List?) ?? [];
+      if (products.isNotEmpty && mounted) {
+        setState(() {
+          _trendingNames = products.map((p) => (p['name'] as String? ?? '').toLowerCase()).where((n) => n.isNotEmpty).toList();
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _onVoiceResult(String query) {
     if (query.isNotEmpty) Navigator.pop(context, query);
   }
 
@@ -35,7 +74,7 @@ class VoiceSearchScreen extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
-                _buildHeader(context),
+                _buildHeader(),
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -115,7 +154,7 @@ class VoiceSearchScreen extends StatelessWidget {
                           children: [
                             const VoiceWaveWidget(),
                             SizedBox(width: 30.w),
-                            VoiceMicButton(onResult: (q) => _onVoiceResult(context, q)),
+                            VoiceMicButton(onResult: _onVoiceResult),
                             SizedBox(width: 30.w),
                             const VoiceWaveWidget(),
                           ],
@@ -129,7 +168,7 @@ class VoiceSearchScreen extends StatelessWidget {
                         SizedBox(height: 40.h),
 
                         // Popular Searches Grid
-                        _buildPopularSearches(context),
+                        _buildPopularSearches(),
 
                         SizedBox(height: 30.h),
 
@@ -165,7 +204,7 @@ class VoiceSearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: Row(
@@ -180,7 +219,7 @@ class VoiceSearchScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                   ),
                 ],
@@ -204,19 +243,10 @@ class VoiceSearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPopularSearches(BuildContext context) {
-    final List<Map<String, dynamic>> items = [
-      {"label": "iphone 15", "icon": Icons.smartphone},
-      {"label": "gaming laptop", "icon": Icons.laptop_mac},
-      {"label": "boat headphones", "icon": Icons.headphones},
-      {"label": "samsung s24", "icon": Icons.phone_android},
-      {"label": "smart watch", "icon": Icons.watch},
-      {"label": "bluetooth speaker", "icon": Icons.speaker},
-      {"label": "canon camera", "icon": Icons.camera_alt},
-      {"label": "phone charger", "icon": Icons.power},
-      {"label": "macbook air", "icon": Icons.laptop_chromebook},
-      {"label": "best offers", "icon": Icons.local_offer},
-    ];
+  Widget _buildPopularSearches() {
+    final List<Map<String, dynamic>> items = _trendingNames.isNotEmpty
+        ? _trendingNames.map((name) => {"label": name, "icon": Icons.trending_up_rounded} as Map<String, dynamic>).toList()
+        : _fallbackChips;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,10 +291,10 @@ class VoiceSearchScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+                border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 5,
                     offset: const Offset(0, 2),
                   ),
@@ -272,7 +302,7 @@ class VoiceSearchScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(items[index]['icon'], size: 18.sp, color: AppColors.secondaryPurple.withOpacity(0.6)),
+                  Icon(items[index]['icon'], size: 18.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.6)),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Text(

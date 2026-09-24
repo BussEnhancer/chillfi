@@ -1,7 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
-import 'package:chillfi/features/auth/otp_verification_screen.dart';
-import 'package:chillfi/features/auth/location_permission_screen.dart';
 import 'package:chillfi/features/auth/login_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
@@ -81,7 +79,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with SingleTi
             right: 0,
             child: Center(
               child: Hero(
-                tag: 'logo',
+                tag: 'logo_reset',
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 140.w,
@@ -235,54 +233,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with SingleTi
                                 return;
                               }
                               final auth = context.read<AuthProvider>();
+                              final navigator = Navigator.of(context);
+                              final messenger = ScaffoldMessenger.of(context);
                               final success = await auth.resetPassword(widget.phone, widget.otp, newPass);
                               if (!mounted) return;
                               if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   const SnackBar(content: Text('Password reset successfully! Please login.')),
                                 );
-                                Navigator.pushAndRemoveUntil(
-                                  context,
+                                navigator.pushAndRemoveUntil(
                                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                                   (route) => false,
                                 );
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(content: Text(auth.message)),
                                 );
                               }
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 24.h),
-                        Row(
-                          children: [
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Text(
-                                'OR',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.greyText,
-                                ),
-                              ),
-                            ),
-                            const Expanded(child: Divider(color: AppColors.fieldBorder)),
-                          ],
-                        ),
-                        SizedBox(height: 24.h),
-                        SizedBox(
-                          width: 327.w,
-                          child: SecondaryOutlinedButton(
-                            text: 'Reset via Email Link',
-                            icon: Icons.mail_outline_rounded,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const OtpVerificationScreen(isFromForgotPassword: true)),
-                              );
                             },
                           ),
                         ),

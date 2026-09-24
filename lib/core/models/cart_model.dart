@@ -102,7 +102,7 @@ class AddressModel {
         isDefault: j['is_default'] ?? false,
       );
 
-  String get fullAddress => [line1, line2, city, state, pincode].where((e) => e != null && e!.isNotEmpty).join(', ');
+  String get fullAddress => [line1, line2, city, state, pincode].where((e) => e != null && e.isNotEmpty).join(', ');
 }
 
 class OrderModel {
@@ -117,6 +117,10 @@ class OrderModel {
   final String paymentMethod;
   final String paymentStatus;
   final String? trackingId;
+  /// Which logistics provider handled this shipment: 'shiprocket' | 'delhivery'
+  final String shipmentProvider;
+  /// Detailed courier stage from the backend, e.g. 'manifested', 'out_for_delivery'
+  final String? shippingStatus;
   final DateTime createdAt;
   final List<OrderItemModel> items;
   final RefundRequestModel? refundRequest;
@@ -133,6 +137,8 @@ class OrderModel {
     required this.paymentMethod,
     required this.paymentStatus,
     this.trackingId,
+    this.shipmentProvider = 'delhivery',
+    this.shippingStatus,
     required this.createdAt,
     this.items = const [],
     this.refundRequest,
@@ -150,6 +156,8 @@ class OrderModel {
         paymentMethod: j['payment_method'] ?? 'COD',
         paymentStatus: j['payment_status'] ?? 'Pending',
         trackingId: j['tracking_id'],
+        shipmentProvider: j['shipment_provider']?.toString() ?? 'delhivery',
+        shippingStatus: j['shipping_status']?.toString(),
         createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
         items: (j['items'] as List? ?? []).map((e) => OrderItemModel.fromJson(e)).toList(),
         refundRequest: j['refund_request'] != null ? RefundRequestModel.fromJson(j['refund_request']) : null,

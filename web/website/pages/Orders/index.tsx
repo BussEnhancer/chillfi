@@ -224,12 +224,12 @@ const OrdersPage: React.FC = () => {
               <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-6">Quick Actions</h3>
               <div className="space-y-3">
                 {[
-                  { icon: <Truck size={18} />, title: 'Track Your Order', subtitle: 'Get real-time updates' },
-                  { icon: <RotateCcw size={18} />, title: 'Return / Replace Item', subtitle: 'Hassle-free returns' },
-                  { icon: <FileText size={18} />, title: 'Download Invoices', subtitle: 'View and download invoices' },
-                  { icon: <HelpCircle size={18} />, title: 'Need Help?', subtitle: 'Visit our support center' },
+                  { icon: <Truck size={18} />, title: 'Track Your Order', subtitle: 'Get real-time updates', href: '/account/orders' },
+                  { icon: <RotateCcw size={18} />, title: 'Return / Replace Item', subtitle: 'Hassle-free returns', href: '/account' },
+                  { icon: <FileText size={18} />, title: 'Download Invoices', subtitle: 'View and download invoices', href: '/account/orders' },
+                  { icon: <HelpCircle size={18} />, title: 'Need Help?', subtitle: 'Visit our support center', href: '/contact' },
                 ].map((item, i) => (
-                  <button key={i} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[#FFF8F5] group transition-all text-left">
+                  <button key={i} onClick={() => window.location.href = item.href} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-[#FFF8F5] group transition-all text-left">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-[#FF6B2C] group-hover:bg-white transition-all">
                         {item.icon}

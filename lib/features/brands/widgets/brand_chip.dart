@@ -27,12 +27,12 @@ class BrandChip extends StatelessWidget {
           color: isSelected ? AppColors.secondaryPurple : Colors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withOpacity(0.5),
+            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withValues(alpha: 0.5),
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.secondaryPurple.withOpacity(0.2),
+                    color: AppColors.secondaryPurple.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),

@@ -58,4 +58,12 @@ const updateBrand = async (req, res) => {
   res.json({ success: true, data: { brand: result.rows[0] } });
 };
 
-module.exports = { getBrands, getBrandProducts, createBrand, updateBrand };
+// DELETE /api/admin/brands/:id
+const deleteBrand = async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query(`DELETE FROM brands WHERE id = $1 RETURNING id`, [id]);
+  if (!result.rows.length) return res.status(404).json({ success: false, message: 'Not found' });
+  res.json({ success: true });
+};
+
+module.exports = { getBrands, getBrandProducts, createBrand, updateBrand, deleteBrand };

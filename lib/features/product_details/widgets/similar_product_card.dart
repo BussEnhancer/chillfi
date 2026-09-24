@@ -48,12 +48,12 @@ class SimilarProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.3)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +83,7 @@ class SimilarProductCard extends StatelessWidget {
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (c, e, s) => Center(
-                            child: Icon(Icons.smartphone_rounded, size: 60.sp, color: AppColors.primaryOrange.withOpacity(0.2)),
+                            child: Icon(Icons.smartphone_rounded, size: 60.sp, color: AppColors.primaryOrange.withValues(alpha: 0.2)),
                           ),
                         )
                       : Center(
@@ -92,7 +92,7 @@ class SimilarProductCard extends StatelessWidget {
                             child: Icon(
                               Icons.smartphone_rounded,
                               size: 60.sp,
-                              color: AppColors.primaryOrange.withOpacity(0.2),
+                              color: AppColors.primaryOrange.withValues(alpha: 0.2),
                             ),
                           ),
                         ),

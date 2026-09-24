@@ -14,11 +14,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+enum SortOrder { popular, priceLow, priceHigh, rating }
+
+const _sortLabels = {
+  SortOrder.popular: 'Popular',
+  SortOrder.priceLow: 'Price: Low to High',
+  SortOrder.priceHigh: 'Price: High to Low',
+  SortOrder.rating: 'Top Rated',
+};
+
 class ProductListingScreen extends StatefulWidget {
   final String? categoryId;
   final String? categoryName;
+  final String? brandId;
+  final String? brandName;
   final String? searchQuery;
-  const ProductListingScreen({super.key, this.categoryId, this.categoryName, this.searchQuery});
+  const ProductListingScreen({super.key, this.categoryId, this.categoryName, this.brandId, this.brandName, this.searchQuery});
 
   @override
   State<ProductListingScreen> createState() => _ProductListingScreenState();
@@ -26,6 +37,8 @@ class ProductListingScreen extends StatefulWidget {
 
 class _ProductListingScreenState extends State<ProductListingScreen> {
   int _selectedChipIndex = 0;
+  SortOrder _sortOrder = SortOrder.popular;
+  bool _isGridView = true;
   final _scrollController = ScrollController();
 
   @override
@@ -34,13 +47,14 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductProvider>().loadProducts(
         category: widget.categoryId,
+        brand: widget.brandId,
         search: widget.searchQuery,
         refresh: true,
       );
     });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-        context.read<ProductProvider>().loadProducts(category: widget.categoryId);
+        context.read<ProductProvider>().loadProducts(category: widget.categoryId, brand: widget.brandId);
       }
     });
   }
@@ -51,13 +65,61 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     super.dispose();
   }
 
-  final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All', 'icon': Icons.grid_view_rounded},
-    {'label': 'Smartphones', 'icon': Icons.smartphone_rounded},
-    {'label': 'Tablets', 'icon': Icons.tablet_rounded},
-    {'label': 'Feature Phones', 'icon': Icons.phone_android_rounded},
-    {'label': 'Filter', 'icon': Icons.tune_rounded},
-  ];
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24.r))),
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Sort by', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+              SizedBox(height: 16.h),
+              ...SortOrder.values.map((option) {
+                final isSelected = _sortOrder == option;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => _sortOrder = option);
+                    Navigator.pop(ctx);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.secondaryPurple.withValues(alpha: 0.08) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _sortLabels[option]!,
+                            style: GoogleFonts.poppins(
+                              fontSize: 13.sp,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                              color: isSelected ? AppColors.secondaryPurple : AppColors.darkText,
+                            ),
+                          ),
+                        ),
+                        if (isSelected) Icon(Icons.check_rounded, color: AppColors.secondaryPurple, size: 18.sp),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              SizedBox(height: 8.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,21 +131,45 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           children: [
             Consumer<ProductProvider>(
               builder: (context, pp, _) {
-                final products = pp.products;
+                // Derive brand chips from loaded products
+                final brands = pp.products
+                    .map((p) => p.brandName ?? '')
+                    .where((b) => b.isNotEmpty)
+                    .toSet()
+                    .toList()
+                  ..sort();
+
+                // Apply brand filter
+                final filtered = _selectedChipIndex == 0
+                    ? pp.products
+                    : (_selectedChipIndex - 1 < brands.length
+                        ? pp.products.where((p) => (p.brandName ?? '') == brands[_selectedChipIndex - 1]).toList()
+                        : pp.products);
+
+                // Apply sort
+                final displayProducts = List.of(filtered);
+                if (_sortOrder == SortOrder.priceLow) {
+                  displayProducts.sort((a, b) => a.price.compareTo(b.price));
+                } else if (_sortOrder == SortOrder.priceHigh) {
+                  displayProducts.sort((a, b) => b.price.compareTo(a.price));
+                } else if (_sortOrder == SortOrder.rating) {
+                  displayProducts.sort((a, b) => b.rating.compareTo(a.rating));
+                }
+
                 final wishlist = context.watch<WishlistProvider>();
                 return Column(
                   children: [
                     ProductListingHeader(
                       title: widget.categoryName ?? "All Products",
-                      productCount: "${products.length} Products",
+                      productCount: "${displayProducts.length} Products",
                     ),
                     const ProductListingSearch(),
                     SizedBox(height: 12.h),
-                    _buildFilterChips(),
+                    _buildFilterChips(brands),
                     Expanded(
-                      child: pp.productsState == LoadState.loading && products.isEmpty
+                      child: pp.productsState == LoadState.loading && pp.products.isEmpty
                           ? const Center(child: CircularProgressIndicator())
-                          : products.isEmpty
+                          : displayProducts.isEmpty
                               ? Center(
                                   child: Text(
                                     'No products found',
@@ -91,62 +177,67 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                   ),
                                 )
                               : SingleChildScrollView(
+                                  controller: _scrollController,
                                   physics: const BouncingScrollPhysics(),
                                   padding: EdgeInsets.symmetric(horizontal: 20.w),
                                   child: Column(
                                     children: [
                                       SizedBox(height: 16.h),
-                                      // Count and Sort Row
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "${products.length} Products",
+                                            "${displayProducts.length} Products",
                                             style: GoogleFonts.poppins(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w600,
                                               color: AppColors.darkText,
                                             ),
                                           ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "Sort by: ",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 12.sp,
-                                                  color: AppColors.greyText,
+                                          GestureDetector(
+                                            onTap: _showSortSheet,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Sort by: ",
+                                                  style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText),
                                                 ),
-                                              ),
-                                              Text(
-                                                "Popular",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 12.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.secondaryPurple,
+                                                Text(
+                                                  _sortLabels[_sortOrder]!,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12.sp,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.secondaryPurple,
+                                                  ),
                                                 ),
-                                              ),
-                                              Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.secondaryPurple),
-                                            ],
+                                                Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.secondaryPurple),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                       SizedBox(height: 16.h),
-                                      // Benefit Strip (Reused)
                                       const FeatureHighlightsRow(),
                                       SizedBox(height: 20.h),
-                                      // Product Grid
                                       GridView.builder(
                                         shrinkWrap: true,
                                         physics: const NeverScrollableScrollPhysics(),
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 0.62,
-                                          crossAxisSpacing: 12.w,
-                                          mainAxisSpacing: 15.h,
-                                        ),
-                                        itemCount: products.length,
+                                        gridDelegate: _isGridView
+                                            ? SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 2,
+                                                childAspectRatio: 0.62,
+                                                crossAxisSpacing: 12.w,
+                                                mainAxisSpacing: 15.h,
+                                              )
+                                            : SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 1,
+                                                mainAxisExtent: 260.h,
+                                                crossAxisSpacing: 12.w,
+                                                mainAxisSpacing: 15.h,
+                                              ),
+                                        itemCount: displayProducts.length,
                                         itemBuilder: (context, index) {
-                                          final p = products[index];
+                                          final p = displayProducts[index];
                                           return ProductListingCard(
                                             id: p.id,
                                             title: p.name,
@@ -169,7 +260,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                           padding: EdgeInsets.symmetric(vertical: 20.h),
                                           child: const Center(child: CircularProgressIndicator()),
                                         ),
-                                      SizedBox(height: 100.h), // Space for floating bar
+                                      SizedBox(height: 100.h),
                                     ],
                                   ),
                                 ),
@@ -178,10 +269,23 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                 );
               },
             ),
-            // Floating Bottom Toolbar
             Positioned(
               bottom: 20.h,
-              child: const BottomActionBar(),
+              child: BottomActionBar(
+                isGridView: _isGridView,
+                activeFilterCount: _selectedChipIndex > 0 ? 1 : 0,
+                onSort: _showSortSheet,
+                onFilter: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Use the brand chips above to filter by brand'),
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                onGrid: () => setState(() => _isGridView = !_isGridView),
+              ),
             ),
           ],
         ),
@@ -190,19 +294,20 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     );
   }
 
-  Widget _buildFilterChips() {
+  Widget _buildFilterChips(List<String> brands) {
+    final allChips = ['All', ...brands];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         children: List.generate(
-          _filterChips.length,
+          allChips.length,
           (index) => Padding(
             padding: EdgeInsets.only(right: 12.w),
             child: CategoryFilterChip(
-              label: _filterChips[index]['label'],
-              icon: _filterChips[index]['icon'],
+              label: allChips[index],
+              icon: index == 0 ? Icons.grid_view_rounded : Icons.phone_android_rounded,
               isSelected: _selectedChipIndex == index,
               onTap: () => setState(() => _selectedChipIndex = index),
             ),

@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/services/api_service.dart';
 import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:chillfi/features/categories/widgets/feature_highlights.dart';
 import 'package:chillfi/features/product_details/product_reviews_screen.dart';
@@ -23,9 +24,6 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  int _selectedColorIndex = 0;
-  int _selectedStorageIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -87,6 +85,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           SizedBox(width: 8.w),
         ],
       ),
+      // Placed via the Scaffold's own bottom slot (not stacked on top of the body) so
+      // ScaffoldMessenger's SnackBars are correctly inset above it instead of being
+      // rendered underneath it, invisible to the user.
+      bottomNavigationBar: Consumer<ProductProvider>(
+        builder: (context, pp, _) {
+          if (pp.detailState == LoadState.loading || pp.selectedProduct == null) {
+            return const SizedBox.shrink();
+          }
+          return _buildBottomActionBar();
+        },
+      ),
       body: Consumer<ProductProvider>(
         builder: (context, pp, _) {
           if (pp.detailState == LoadState.loading) {
@@ -97,9 +106,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             return const Center(child: Text('Product not found'));
           }
           final savings = product.oldPrice != null ? (product.oldPrice! - product.price) : 0.0;
-          return Stack(
-        children: [
-          SingleChildScrollView(
+          return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,7 +334,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       
                       SizedBox(height: 30.h),
-                      
+
+                      // Inline Reviews Preview
+                      _InlineReviewsPreview(
+                        productId: widget.productId,
+                        productName: product.name,
+                        reviewCount: product.reviewCount,
+                      ),
+
+                      SizedBox(height: 30.h),
+
                       // Similar Products
                       SimilarProductsSection(
                         categoryId: product.categoryId,
@@ -345,15 +361,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
               ],
             ),
-          ),
-
-          // Sticky Bottom Bar
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _buildBottomActionBar(),
-          ),
-        ],
-      );
+          );
         },
       ),
     );
@@ -398,67 +406,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildColorCard(int index) {
-    bool isSelected = _selectedColorIndex == index;
-    List<String> labels = ["Pink", "Blue", "Black", "Green", "Yellow"];
-    return GestureDetector(
-      onTap: () => setState(() => _selectedColorIndex = index),
-      child: Container(
-        width: 70.w,
-        margin: EdgeInsets.only(right: 12.w),
-        padding: EdgeInsets.all(8.r),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withOpacity(0.5),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(Icons.smartphone_rounded, color: Colors.grey[300], size: 40.sp),
-            SizedBox(height: 4.h),
-            Text(
-              labels[index],
-              style: GoogleFonts.poppins(
-                fontSize: 10.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? AppColors.darkText : AppColors.greyText,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStorageChip(String label, int index) {
-    bool isSelected = _selectedStorageIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedStorageIndex = index),
-      child: Container(
-        margin: EdgeInsets.only(right: 12.w),
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondaryPurple : Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(
-            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withOpacity(0.5),
-          ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 13.sp,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.darkText,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildBottomActionBar() {
     final productId = widget.productId;
     final cart = context.read<CartProvider>();
@@ -469,7 +416,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -510,9 +457,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Expanded(
             child: GestureDetector(
               onTap: productId == null ? null : () async {
+                final messenger = ScaffoldMessenger.of(context);
                 final err = await cart.addToCart(productId);
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                if (!mounted) return;
+                messenger.showSnackBar(SnackBar(
                   content: Text(err ?? 'Added to cart!'),
                   backgroundColor: err == null ? Colors.green : Colors.red,
                   duration: const Duration(seconds: 2),
@@ -534,12 +482,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Expanded(
             child: GestureDetector(
               onTap: productId == null ? null : () async {
+                final navigator = Navigator.of(context);
+                final messenger = ScaffoldMessenger.of(context);
                 final err = await cart.addToCart(productId);
-                if (!context.mounted) return;
+                if (!mounted) return;
                 if (err == null) {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen()));
+                  navigator.push(MaterialPageRoute(builder: (_) => const CartScreen()));
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
+                  messenger.showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
                 }
               },
               child: Container(
@@ -547,7 +497,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 decoration: BoxDecoration(
                   gradient: AppColors.purpleGradient,
                   borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [BoxShadow(color: AppColors.secondaryPurple.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [BoxShadow(color: AppColors.secondaryPurple.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 alignment: Alignment.center,
                 child: Row(
@@ -563,6 +513,171 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InlineReviewsPreview extends StatefulWidget {
+  final String? productId;
+  final String? productName;
+  final int reviewCount;
+  const _InlineReviewsPreview({this.productId, this.productName, required this.reviewCount});
+
+  @override
+  State<_InlineReviewsPreview> createState() => _InlineReviewsPreviewState();
+}
+
+class _InlineReviewsPreviewState extends State<_InlineReviewsPreview> {
+  List<Map<String, dynamic>> _reviews = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (widget.productId == null) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+    try {
+      final res = await ApiService().get('/products/${widget.productId}/reviews', params: {'limit': '3'});
+      final reviews = (res.data['data']?['reviews'] as List?) ?? [];
+      if (mounted) setState(() { _reviews = reviews.cast<Map<String, dynamic>>(); _loading = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _timeAgo(String? iso) {
+    if (iso == null) return '';
+    final dt = DateTime.tryParse(iso);
+    if (dt == null) return '';
+    final diff = DateTime.now().difference(dt);
+    if (diff.inDays > 30) return '${(diff.inDays / 30).floor()}mo ago';
+    if (diff.inDays > 0) return '${diff.inDays}d ago';
+    if (diff.inHours > 0) return '${diff.inHours}h ago';
+    return 'Just now';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loading && _reviews.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Customer Reviews',
+              style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProductReviewsScreen(productId: widget.productId, productName: widget.productName)),
+              ),
+              child: Text(
+                'See all ${widget.reviewCount}',
+                style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.secondaryPurple),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 14.h),
+
+        if (_loading)
+          Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20.h), child: const CircularProgressIndicator()))
+        else
+          ..._reviews.map((r) {
+            final name = (r['user_name'] as String?) ?? 'Anonymous';
+            final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+            final rating = (r['rating'] as num?)?.toInt() ?? 0;
+            final title = (r['title'] as String?) ?? '';
+            final body = (r['body'] as String?) ?? '';
+            final date = _timeAgo(r['created_at'] as String?);
+
+            return Container(
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(14.r),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F8F8),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16.r,
+                        backgroundColor: AppColors.secondaryPurple.withValues(alpha: 0.15),
+                        child: Text(initial, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: AppColors.secondaryPurple)),
+                      ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                            if (date.isNotEmpty)
+                              Text(date, style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText)),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: List.generate(5, (i) => Icon(
+                          i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: Colors.orange,
+                          size: 14.sp,
+                        )),
+                      ),
+                    ],
+                  ),
+                  if (title.isNotEmpty) ...[
+                    SizedBox(height: 8.h),
+                    Text(title, style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                  ],
+                  if (body.isNotEmpty) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      body,
+                      style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }),
+
+        if (!_loading && widget.reviewCount > 3)
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ProductReviewsScreen(productId: widget.productId, productName: widget.productName)),
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.3)),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                'See all ${widget.reviewCount} reviews',
+                style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.secondaryPurple),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

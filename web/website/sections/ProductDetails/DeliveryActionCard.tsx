@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Truck, ShieldCheck, Heart, ShoppingCart, Zap, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { CartItem } from '../../context/StoreContext';
@@ -24,6 +25,7 @@ const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
   onWishlistToggle,
 }) => {
   const { addToCart, cart } = useStore();
+  const navigate = useNavigate();
   const [added, setAdded] = useState(false);
 
   const inCart = product ? cart.some(i => i.id === product.id) : false;
@@ -97,13 +99,15 @@ const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
 
         <div className="space-y-4">
           <button
-            onClick={handleAddToCart}
+            onClick={inCart ? () => navigate('/cart') : handleAddToCart}
             disabled={outOfStock}
             className={`w-full py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl transition-all ${
               added
                 ? 'bg-green-500 text-white shadow-green-500/20'
                 : outOfStock
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                : inCart
+                ? 'bg-green-600 text-white shadow-green-600/20 hover:scale-[1.02] active:scale-[0.98]'
                 : 'bg-[#FF6B2C] text-white shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98]'
             }`}
           >

@@ -44,8 +44,6 @@ class PremiumPhoneInput extends StatefulWidget {
 }
 
 class _PremiumPhoneInputState extends State<PremiumPhoneInput> {
-  bool _isFocused = false;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,7 +52,7 @@ class _PremiumPhoneInputState extends State<PremiumPhoneInput> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: AppColors.fieldBorder.withOpacity(0.6),
+          color: AppColors.fieldBorder.withValues(alpha: 0.6),
           width: 1.2,
         ),
       ),
@@ -96,7 +94,7 @@ class _PremiumPhoneInputState extends State<PremiumPhoneInput> {
                 hintText: 'Mobile Number',
                 hintStyle: GoogleFonts.poppins(
                   fontSize: 15.sp,
-                  color: AppColors.greyText.withOpacity(0.4),
+                  color: AppColors.greyText.withValues(alpha: 0.4),
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -136,7 +134,7 @@ class PrimaryGradientButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryOrange.withOpacity(0.3),
+              color: AppColors.primaryOrange.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

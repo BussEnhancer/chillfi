@@ -34,7 +34,7 @@ class ProductListingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -51,7 +51,7 @@ class ProductListingHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.lightBackground,
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
             ),
             child: Icon(Icons.smartphone_rounded, color: AppColors.primaryOrange, size: 24.sp),
           ),

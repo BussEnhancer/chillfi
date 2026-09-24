@@ -23,7 +23,7 @@ class RecentlyViewedBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.05),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -38,7 +38,7 @@ class RecentlyViewedBanner extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(10.r),
                   decoration: BoxDecoration(
-                    color: AppColors.secondaryPurple.withOpacity(0.1),
+                    color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.history_rounded, color: AppColors.secondaryPurple, size: 24.sp),
@@ -79,16 +79,16 @@ class RecentlyViewedBanner extends StatelessWidget {
             child: Stack(
               alignment: Alignment.bottomRight,
               children: [
-                Icon(Icons.shopping_bag_rounded, size: 80.sp, color: AppColors.secondaryPurple.withOpacity(0.8)),
+                Icon(Icons.shopping_bag_rounded, size: 80.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.8)),
                 Positioned(
                   left: 0,
                   bottom: 10.h,
-                  child: Icon(Icons.park_rounded, size: 20.sp, color: Colors.green.withOpacity(0.6)),
+                  child: Icon(Icons.park_rounded, size: 20.sp, color: Colors.green.withValues(alpha: 0.6)),
                 ),
                 Positioned(
                   top: 10.h,
                   right: 10.w,
-                  child: Icon(Icons.history_rounded, size: 24.sp, color: Colors.white.withOpacity(0.5)),
+                  child: Icon(Icons.history_rounded, size: 24.sp, color: Colors.white.withValues(alpha: 0.5)),
                 )
               ],
             ),

@@ -79,7 +79,7 @@ class _OtpInputFieldState extends State<OtpInputField> {
               width: _focusNodes[index].hasFocus ? 2 : 1,
             ),
             boxShadow: _focusNodes[index].hasFocus 
-              ? [BoxShadow(color: AppColors.secondaryPurple.withOpacity(0.1), blurRadius: 8, spreadRadius: 1)]
+              ? [BoxShadow(color: AppColors.secondaryPurple.withValues(alpha: 0.1), blurRadius: 8, spreadRadius: 1)]
               : [],
           ),
           child: TextField(
@@ -119,7 +119,7 @@ class SecurityInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -134,7 +134,7 @@ class SecurityInfoCard extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.secondaryPurple.withOpacity(0.1),
+                  color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                   blurRadius: 10,
                 )
               ],
@@ -188,7 +188,7 @@ class SecurityShieldIllustration extends StatelessWidget {
             width: 50.r,
             height: 50.r,
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.2),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
           ),
@@ -241,7 +241,7 @@ class SecondaryOutlinedButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.5), width: 1.5),
+          border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.5), width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -356,14 +356,14 @@ class _FloatingSphereState extends State<FloatingSphere> with SingleTickerProvid
           gradient: RadialGradient(
             colors: [
               const Color(0xFFA166FF),
-              AppColors.secondaryPurple.withOpacity(0.8),
+              AppColors.secondaryPurple.withValues(alpha: 0.8),
               AppColors.secondaryPurple,
             ],
             stops: const [0.2, 0.7, 1.0],
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.secondaryPurple.withOpacity(0.4),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.4),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

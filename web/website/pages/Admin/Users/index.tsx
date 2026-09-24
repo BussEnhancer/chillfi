@@ -13,7 +13,7 @@ const statusStyle: Record<string, string> = {
 interface ApiUser {
   id: string; name?: string; email?: string; phone?: string;
   role?: string; status?: string; created_at?: string;
-  order_count?: number | string; total_spent?: number | string;
+  order_count?: number | string; total_orders?: number | string; total_spent?: number | string;
 }
 
 const normalizeApiUser = (u: ApiUser): User => ({
@@ -21,7 +21,7 @@ const normalizeApiUser = (u: ApiUser): User => ({
   name: u.name || 'Unknown',
   email: u.email || '',
   phone: u.phone || '',
-  orders: Number(u.order_count || 0),
+  orders: Number(u.total_orders ?? u.order_count ?? 0),
   spent: Number(u.total_spent || 0),
   joined: u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
   status: (u.status || 'Active') as string,

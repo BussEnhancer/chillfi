@@ -3,7 +3,6 @@ import 'package:chillfi/features/address/saved_addresses_screen.dart';
 import 'package:chillfi/features/auth/login_screen.dart';
 import 'package:chillfi/features/orders/my_orders_screen.dart';
 import 'package:chillfi/features/payment/payment_method_screen.dart';
-import 'package:chillfi/features/profile/settings_screen.dart';
 import 'package:chillfi/features/profile/about_us_screen.dart';
 import 'package:chillfi/features/profile/edit_profile_screen.dart';
 import 'package:chillfi/features/profile/help_support_screen.dart';

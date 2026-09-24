@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const { authenticate, adminOnly } = require('../middleware/auth');
+const { authenticate, optionalAuthenticate, adminOnly } = require('../middleware/auth');
 const {
   getProducts, getProduct, getTrending, getNewArrivals, getFlashSale,
-  getFeatured, getRecommended, getReviews, addReview,
+  getFeatured, getRecommended, getReviews, addReview, deleteReview,
   logRecentlyViewed, getRecentlyViewed, removeRecentlyViewed, clearRecentlyViewed,
   createProduct, updateProduct, deleteProduct,
 } = require('../controllers/productController');
@@ -13,10 +13,7 @@ router.get('/trending', getTrending);
 router.get('/new-arrivals', getNewArrivals);
 router.get('/flash-sale', getFlashSale);
 router.get('/featured', getFeatured);
-router.get('/recommended', (req, res, next) => {
-  // optional auth — works both logged in and out
-  authenticate(req, res, () => next());
-}, getRecommended);
+router.get('/recommended', optionalAuthenticate, getRecommended);
 router.get('/recently-viewed', authenticate, getRecentlyViewed);
 router.delete('/recently-viewed', authenticate, clearRecentlyViewed);
 router.delete('/recently-viewed/:id', authenticate, removeRecentlyViewed);
@@ -25,6 +22,7 @@ router.get('/:id/reviews', getReviews);
 
 // Authenticated
 router.post('/:id/reviews', authenticate, addReview);
+router.delete('/:id/reviews/:reviewId', authenticate, deleteReview);
 router.post('/:id/recently-viewed', authenticate, logRecentlyViewed);
 
 // Admin

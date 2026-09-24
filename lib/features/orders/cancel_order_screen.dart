@@ -110,7 +110,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20.h),
-                const CancellationOrderCard(),
+                CancellationOrderCard(),
                 SizedBox(height: 16.h),
                 const CancellationWarningCard(),
                 SizedBox(height: 24.h),

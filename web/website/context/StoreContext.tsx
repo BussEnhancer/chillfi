@@ -197,6 +197,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const logoutUser = useCallback(() => {
+    const rt = localStorage.getItem('refresh_token');
+    if (rt) {
+      apiPost('/auth/logout', { refreshToken: rt }).catch(() => {});
+    }
     clearTokens();
     setIsLoggedIn(false);
   }, []);

@@ -46,13 +46,19 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
   }
 
   final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All Deals', 'icon': Icons.bolt_rounded},
-    {'label': 'Mobiles', 'icon': Icons.smartphone_rounded},
-    {'label': 'Electronics', 'icon': Icons.laptop_rounded},
-    {'label': 'Home', 'icon': Icons.home_rounded},
-    {'label': 'Fashion', 'icon': Icons.checkroom_rounded},
-    {'label': 'Beauty', 'icon': Icons.face_rounded},
+    {'label': 'All Deals', 'icon': Icons.bolt_rounded, 'filter': null},
+    {'label': 'Mobiles', 'icon': Icons.smartphone_rounded, 'filter': 'Mobiles'},
+    {'label': 'Electronics', 'icon': Icons.laptop_rounded, 'filter': 'Electronics'},
+    {'label': 'Home', 'icon': Icons.home_rounded, 'filter': 'Home'},
+    {'label': 'Fashion', 'icon': Icons.checkroom_rounded, 'filter': 'Fashion'},
+    {'label': 'Beauty', 'icon': Icons.face_rounded, 'filter': 'Beauty'},
   ];
+
+  List<ProductModel> get _filteredDeals {
+    final filter = _filterChips[_selectedChipIndex]['filter'] as String?;
+    if (filter == null) return _deals;
+    return _deals.where((p) => (p.categoryName ?? '').toLowerCase().contains(filter.toLowerCase())).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,13 +150,14 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
   }
 
   Widget _buildTopDeals() {
-    if (_deals.isEmpty) return const SizedBox.shrink();
+    final deals = _filteredDeals;
+    if (deals.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Row(
-        children: _deals.map((p) => DealProductCard(
+        children: deals.map((p) => DealProductCard(
           title: p.name,
           variant: p.brandName ?? p.categoryName ?? '',
           price: p.price.toStringAsFixed(0),
@@ -169,7 +176,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
   }
 
   Widget _buildDealsUnder999() {
-    final under999 = _deals.where((p) => p.price < 999).toList();
+    final under999 = _filteredDeals.where((p) => p.price < 999).toList();
     if (under999.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(

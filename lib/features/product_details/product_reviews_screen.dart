@@ -12,17 +12,68 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class ProductReviewsScreen extends StatelessWidget {
+class ProductReviewsScreen extends StatefulWidget {
   final String? productId;
   final String? productName;
   const ProductReviewsScreen({super.key, this.productId, this.productName});
 
-  void _showWriteReviewSheet(BuildContext context) {
+  @override
+  State<ProductReviewsScreen> createState() => _ProductReviewsScreenState();
+}
+
+class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
+  List<Map<String, dynamic>> _reviews = [];
+  Map<String, dynamic> _stats = {};
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    if (widget.productId == null) {
+      setState(() { _loading = false; });
+      return;
+    }
+    setState(() { _loading = true; _error = null; });
+    try {
+      final res = await ApiService().get('/products/${widget.productId}/reviews', params: {'limit': '50'});
+      final reviews = (res.data['data']?['reviews'] as List?) ?? [];
+      final stats = (res.data['data']?['stats'] as Map<String, dynamic>?) ?? {};
+      setState(() {
+        _reviews = reviews.cast<Map<String, dynamic>>();
+        _stats = stats;
+        _loading = false;
+      });
+    } catch (_) {
+      setState(() { _error = 'Failed to load reviews'; _loading = false; });
+    }
+  }
+
+  String _timeAgo(String? iso) {
+    if (iso == null) return '';
+    final dt = DateTime.tryParse(iso);
+    if (dt == null) return '';
+    final diff = DateTime.now().difference(dt);
+    if (diff.inDays > 30) return '${(diff.inDays / 30).floor()} months ago';
+    if (diff.inDays > 0) return '${diff.inDays} days ago';
+    if (diff.inHours > 0) return '${diff.inHours} hours ago';
+    return 'Just now';
+  }
+
+  void _showWriteReviewSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _WriteReviewSheet(productId: productId, productName: productName),
+      builder: (_) => _WriteReviewSheet(
+        productId: widget.productId,
+        productName: widget.productName,
+        onSubmitted: _loadReviews,
+      ),
     );
   }
 
@@ -61,15 +112,16 @@ class ProductReviewsScreen extends StatelessWidget {
                       color: AppColors.darkText,
                     ),
                   ),
-                  Text(
-                    "Apple iPhone 15 (128GB) - Pink",
-                    style: GoogleFonts.poppins(
-                      fontSize: 11.sp,
-                      color: AppColors.greyText,
+                  if (widget.productName != null)
+                    Text(
+                      widget.productName!,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        color: AppColors.greyText,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                 ],
               ),
             ),
@@ -118,11 +170,11 @@ class ProductReviewsScreen extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: 16.h),
-                const ReviewSummaryCard(),
+                ReviewSummaryCard(stats: _stats),
                 SizedBox(height: 24.h),
-                const ReviewFilterChips(),
+                ReviewFilterChips(stats: _stats),
                 SizedBox(height: 24.h),
-                
+
                 // Sort and Write Review Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,7 +193,7 @@ class ProductReviewsScreen extends StatelessWidget {
                       ],
                     ),
                     GestureDetector(
-                      onTap: () => _showWriteReviewSheet(context),
+                      onTap: _showWriteReviewSheet,
                       child: Row(
                         children: [
                           Text(
@@ -159,54 +211,61 @@ class ProductReviewsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 SizedBox(height: 20.h),
-                
+
                 // Review List
-                const ReviewCard(
-                  userName: "Rahul Agarwal",
-                  userInitial: "RA",
-                  date: "2 days ago",
-                  title: "Excellent Camera & Performance!",
-                  description: "The camera quality is awesome, especially in low light. A16 Bionic chip makes it super fast and smooth. Battery backup is also really good.",
-                  rating: 5,
-                  helpfulCount: 125,
-                ),
-                const ReviewCard(
-                  userName: "Priya Sharma",
-                  userInitial: "PS",
-                  date: "5 days ago",
-                  title: "Great Phone with Premium Feel",
-                  description: "Superb display and performance. iOS is very smooth and secure. Overall a great experience.",
-                  rating: 5,
-                  helpfulCount: 98,
-                ),
-                const ReviewCard(
-                  userName: "Amit Kumar",
-                  userInitial: "AK",
-                  date: "1 week ago",
-                  title: "Good but Could Be Better",
-                  description: "Phone is good but gets a little warm while gaming. Charging speed could have been better.",
-                  rating: 4,
-                  helpfulCount: 45,
-                ),
-                const ReviewCard(
-                  userName: "Sneha Nair",
-                  userInitial: "SN",
-                  date: "2 weeks ago",
-                  title: "Best iPhone in This Range",
-                  description: "Loving the new design and colors. Camera is fantastic and the overall performance is top-notch.",
-                  rating: 5,
-                  helpfulCount: 76,
-                ),
-                
+                if (_loading)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40.h),
+                    child: const CircularProgressIndicator(),
+                  )
+                else if (_error != null)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.h),
+                    child: Column(
+                      children: [
+                        Text(_error!, style: GoogleFonts.poppins(color: AppColors.greyText)),
+                        SizedBox(height: 12.h),
+                        TextButton(onPressed: _loadReviews, child: const Text('Retry')),
+                      ],
+                    ),
+                  )
+                else if (_reviews.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40.h),
+                    child: Column(
+                      children: [
+                        Icon(Icons.rate_review_outlined, size: 48.sp, color: AppColors.greyText),
+                        SizedBox(height: 12.h),
+                        Text("No reviews yet", style: GoogleFonts.poppins(fontSize: 14.sp, color: AppColors.greyText)),
+                        SizedBox(height: 6.h),
+                        Text("Be the first to review!", style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText)),
+                      ],
+                    ),
+                  )
+                else
+                  ..._reviews.map((r) {
+                    final name = (r['user_name'] as String?) ?? 'Anonymous';
+                    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+                    return ReviewCard(
+                      userName: name,
+                      userInitial: initial,
+                      date: _timeAgo(r['created_at'] as String?),
+                      title: (r['title'] as String?) ?? '',
+                      description: (r['body'] as String?) ?? '',
+                      rating: (r['rating'] as num?)?.toInt() ?? 0,
+                      helpfulCount: 0,
+                    );
+                  }),
+
                 SizedBox(height: 24.h),
-                const ReviewStatisticsCard(),
-                SizedBox(height: 120.h), // Space for sticky bottom bar
+                ReviewStatisticsCard(stats: _stats),
+                SizedBox(height: 120.h),
               ],
             ),
           ),
-          
+
           // Sticky Bottom Bar
           Align(
             alignment: Alignment.bottomCenter,
@@ -224,7 +283,7 @@ class ProductReviewsScreen extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -307,7 +366,7 @@ class ProductReviewsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16.r),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.secondaryPurple.withOpacity(0.3),
+                    color: AppColors.secondaryPurple.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -340,7 +399,8 @@ class ProductReviewsScreen extends StatelessWidget {
 class _WriteReviewSheet extends StatefulWidget {
   final String? productId;
   final String? productName;
-  const _WriteReviewSheet({this.productId, this.productName});
+  final VoidCallback? onSubmitted;
+  const _WriteReviewSheet({this.productId, this.productName, this.onSubmitted});
 
   @override
   State<_WriteReviewSheet> createState() => _WriteReviewSheetState();
@@ -376,6 +436,7 @@ class _WriteReviewSheetState extends State<_WriteReviewSheet> {
       );
       if (mounted) {
         Navigator.pop(context);
+        widget.onSubmitted?.call();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Review submitted successfully!'),

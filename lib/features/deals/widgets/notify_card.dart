@@ -15,7 +15,7 @@ class NotifyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.05),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -30,7 +30,7 @@ class NotifyCard extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.secondaryPurple.withOpacity(0.1),
+                  color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                   blurRadius: 10,
                 ),
               ],
@@ -60,12 +60,16 @@ class NotifyCard extends StatelessWidget {
               ],
             ),
           ),
-          Container(
+          GestureDetector(
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("You'll be notified when new deals go live!"), duration: Duration(seconds: 2)),
+            ),
+            child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.3)),
+              border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -80,6 +84,7 @@ class NotifyCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ],

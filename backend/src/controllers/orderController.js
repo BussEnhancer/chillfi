@@ -1,7 +1,9 @@
 const pool = require('../db/pool');
 const { getShippingFee } = require('../utils/shipping');
 const { getGstAmount } = require('../utils/tax');
-const { createShipment, trackShipment } = require('../utils/delhivery');
+const shiprocket = require('../utils/shiprocket');
+const shipments = require('../services/shipmentService');
+const { notifyUser } = require('../utils/notify');
 
 const generateOrderNumber = () => {
   const ts = Date.now().toString().slice(-6);
@@ -107,8 +109,8 @@ const createOrder = async (req, res) => {
 
     const orderResult = await client.query(`
       INSERT INTO orders (order_number, user_id, address_id, subtotal, discount, delivery_fee, tax_amount, total,
-        coupon_id, payment_method, payment_status, status, notes)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'Processing',$12) RETURNING *
+        coupon_id, payment_method, payment_status, status, notes, shipping_status)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'Processing',$12,'pending') RETURNING *
     `, [orderNumber, req.user.id, address_id, subtotal, discount, deliveryFee, taxAmount, total,
       coupon_id || null, payment_method,
       payment_method === 'COD' ? 'Pending' : 'Pending', notes || null]);
@@ -151,6 +153,14 @@ const createOrder = async (req, res) => {
       message: 'Order placed successfully!',
       data: { order: { ...order, items: items.rows } },
     });
+
+    // Post-commit side effects (never affect the placed order)
+    console.log(`[order] placed ${order.order_number} user=${req.user.id} method=${payment_method} total=${total}`);
+    // Prepaid orders are confirmed + shipped from the payment-success path (paymentController).
+    if (payment_method === 'COD') {
+      shipments.notifyOrderConfirmed(order);
+      shipments.maybeAutoShip(order.id, 'cod-order');
+    }
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -203,7 +213,8 @@ const getOrder = async (req, res) => {
   const { id } = req.params;
   const result = await pool.query(`
     SELECT o.*, a.name as addr_name, a.phone as addr_phone, a.line1, a.line2,
-      a.city, a.state, a.pincode, a.label as addr_label
+      a.city, a.state, a.pincode, a.label as addr_label,
+      COALESCE(o.shipment_provider, 'delhivery') as shipment_provider
     FROM orders o
     LEFT JOIN addresses a ON o.address_id = a.id
     WHERE o.id = $1 AND o.user_id = $2
@@ -259,7 +270,7 @@ const cancelOrder = async (req, res) => {
   const { reason } = req.body;
 
   const result = await pool.query(
-    `SELECT status FROM orders WHERE id = $1 AND user_id = $2`,
+    `SELECT * FROM orders WHERE id = $1 AND user_id = $2`,
     [id, req.user.id]
   );
 
@@ -271,17 +282,44 @@ const cancelOrder = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Order already cancelled' });
   }
 
-  await pool.query(
-    `UPDATE orders SET status = 'Cancelled', notes = COALESCE($1, notes), updated_at = NOW() WHERE id = $2`,
-    [reason, id]
-  );
-
-  // Restore stock
-  const items = await pool.query('SELECT product_id, quantity FROM order_items WHERE order_id = $1', [id]);
-  for (const item of items.rows) {
-    await pool.query('UPDATE products SET stock = stock + $1 WHERE id = $2', [item.quantity, item.product_id]);
+  // Cancel the courier shipment first; refuse if it has already been picked up.
+  try {
+    await shipments.cancelShipmentForOrder(result.rows[0], { by: 'customer' });
+  } catch (err) {
+    return res.status(err.status || 500).json({ success: false, message: err.message });
   }
 
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const upd = await client.query(
+      `UPDATE orders SET status = 'Cancelled', notes = COALESCE($1, notes), updated_at = NOW()
+       WHERE id = $2 AND status NOT IN ('Cancelled', 'Delivered') RETURNING id`,
+      [reason, id]
+    );
+    if (!upd.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ success: false, message: 'Order status changed; please refresh' });
+    }
+    const items = await client.query('SELECT product_id, quantity FROM order_items WHERE order_id = $1', [id]);
+    for (const item of items.rows) {
+      await client.query('UPDATE products SET stock = stock + $1 WHERE id = $2', [item.quantity, item.product_id]);
+    }
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+
+  notifyUser(req.user.id, {
+    title: 'Order cancelled',
+    body: `Your order ${result.rows[0].order_number} has been cancelled.`,
+    data: { order_id: id, order_number: result.rows[0].order_number },
+    dedupeKey: `order:${id}:cancelled`,
+    storeSettingKey: 'notify_order_cancelled',
+  });
   res.json({ success: true, message: 'Order cancelled successfully' });
 };
 
@@ -334,6 +372,9 @@ const adminGetOrders = async (req, res) => {
 };
 
 // PUT /api/admin/orders/:id/status
+// Manual override. Normally status is driven by Delhivery events; this stays for
+// exceptions (e.g. courier data missing) and is recorded in shipment_events.
+const MANUAL_STATE = { Shipped: 'in_transit', Delivered: 'delivered', Cancelled: 'cancelled' };
 const adminUpdateStatus = async (req, res) => {
   const { id } = req.params;
   const { status, tracking_id } = req.body;
@@ -342,15 +383,39 @@ const adminUpdateStatus = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid status' });
   }
 
+  const current = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+  if (!current.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
+  const before = current.rows[0];
+
+  if (status === 'Cancelled' && before.status !== 'Cancelled') {
+    try {
+      await shipments.cancelShipmentForOrder(before, { by: 'admin' });
+    } catch (err) {
+      return res.status(err.status || 500).json({ success: false, message: err.message });
+    }
+  }
+
   const result = await pool.query(`
     UPDATE orders SET status = $1::varchar, tracking_id = COALESCE($2, tracking_id),
       payment_status = CASE WHEN $1::varchar = 'Delivered' THEN 'Paid' ELSE payment_status END,
+      delivered_at = CASE WHEN $1::varchar = 'Delivered' THEN COALESCE(delivered_at, NOW()) ELSE delivered_at END,
       updated_at = NOW()
     WHERE id = $3 RETURNING *
   `, [status, tracking_id || null, id]);
+  const order = result.rows[0];
 
-  if (!result.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
-  res.json({ success: true, data: { order: result.rows[0] } });
+  if (status !== before.status) {
+    console.log(`[order] admin ${req.user.id} set ${order.order_number} ${before.status} → ${status}`);
+    if (order.tracking_id) {
+      await pool.query(`
+        INSERT INTO shipment_events (order_id, awb, source, status, instructions, event_time, applied, dedupe_key)
+        VALUES ($1,$2,'admin',$3,$4,NOW(),TRUE,$5) ON CONFLICT (dedupe_key) DO NOTHING`,
+        [id, order.tracking_id, status, `Status set manually by admin`, `${order.tracking_id}|admin|${status}|${Date.now()}`]);
+    }
+    const state = MANUAL_STATE[status];
+    if (state) await shipments.sendStatusNotification(order, state);
+  }
+  res.json({ success: true, data: { order } });
 };
 
 // GET /api/admin/refunds
@@ -400,91 +465,92 @@ const adminUpdateRefund = async (req, res) => {
   res.json({ success: true, message: 'Request updated', data: result.rows[0] });
 };
 
-// POST /api/admin/orders/:id/ship — create Delhivery shipment
+// POST /api/admin/orders/:id/ship — create (or retry) the Delhivery shipment.
+// Body: { provider?: 'delhivery' | 'shiprocket' } — defaults to Delhivery.
 const adminShipOrder = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(`
-      SELECT o.*, u.name AS customer_name, u.phone AS customer_phone,
-             a.name AS addr_name, a.phone AS addr_phone, a.line1 AS address_line1,
-             a.line2 AS address_line2, a.city, a.state, a.pincode,
-             json_agg(json_build_object('name', p.name, 'quantity', oi.quantity)) AS items
-      FROM orders o
-      JOIN users u ON u.id = o.user_id
-      LEFT JOIN addresses a ON a.id = o.address_id
-      LEFT JOIN order_items oi ON oi.order_id = o.id
-      LEFT JOIN products p ON p.id = oi.product_id
-      WHERE o.id = $1
-      GROUP BY o.id, u.name, u.phone, a.name, a.phone, a.line1,
-               a.line2, a.city, a.state, a.pincode
-    `, [id]);
-
-    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
-    const order = result.rows[0];
-
-    if (order.tracking_id) {
-      return res.status(400).json({ success: false, message: `Shipment already created. Waybill: ${order.tracking_id}` });
+    const provider = (req.body?.provider || 'delhivery').toLowerCase();
+    if (!['shiprocket', 'delhivery'].includes(provider)) {
+      return res.status(400).json({ success: false, message: 'Invalid provider. Use "delhivery" or "shiprocket".' });
     }
 
-    const orderPayload = {
-      ...order,
-      address: {
-        name: order.addr_name,
-        phone: order.addr_phone,
-        street: order.address_line1,
-        city: order.city,
-        state: order.state,
-        pincode: order.pincode,
-      },
-    };
+    if (provider === 'shiprocket') {
+      const order = await shipments.loadOrderForShipment(id);
+      if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+      if (order.tracking_id) return res.status(400).json({ success: false, message: `Shipment already created. AWB/Waybill: ${order.tracking_id}` });
+      const awb = await shiprocket.createShipmentOrder({ ...order, address: { ...order.address, street: order.address.line1 } });
+      await pool.query(`UPDATE orders SET tracking_id = $1, shipment_provider = 'shiprocket', status = 'Shipped', updated_at = NOW() WHERE id = $2`, [awb, id]);
+      return res.json({ success: true, message: 'Shipment created via Shiprocket', data: { awb, provider } });
+    }
 
-    const waybill = await createShipment(orderPayload);
-
-    await pool.query(
-      `UPDATE orders SET tracking_id = $1, status = 'Shipped', updated_at = NOW() WHERE id = $2`,
-      [waybill, id]
-    );
-
-    res.json({ success: true, message: 'Shipment created on Delhivery', data: { waybill } });
+    const r = await shipments.createShipmentForOrder(id, { trigger: `admin:${req.user.id}` });
+    if (!r.ok) {
+      return res.status(r.reason ? 400 : 502).json({ success: false, message: r.reason || r.error, data: { code: r.code || null } });
+    }
+    res.json({
+      success: true,
+      message: r.recovered ? 'Existing Delhivery shipment linked' : `Shipment created via Delhivery (${r.env})`,
+      data: { awb: r.awb, provider: 'delhivery', env: r.env },
+    });
   } catch (err) { next(err); }
 };
 
-// GET /api/admin/orders/:id/tracking — live tracking from Delhivery
+const _trackingFor = async (orderRow) => {
+  const provider = (orderRow.shipment_provider || 'delhivery').toLowerCase();
+  if (provider === 'shiprocket') return { ...(await shiprocket.trackShipment(orderRow.tracking_id)), provider };
+  return shipments.getTrackingView(orderRow.id);
+};
+
+// GET /api/admin/orders/:id/tracking — live tracking (admin)
 const adminTrackOrder = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const order = await pool.query('SELECT tracking_id FROM orders WHERE id = $1', [id]);
+    const order = await pool.query('SELECT id, tracking_id, shipment_provider FROM orders WHERE id = $1', [req.params.id]);
     if (!order.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
-
-    const waybill = order.rows[0].tracking_id;
-    if (!waybill) return res.status(400).json({ success: false, message: 'No waybill assigned to this order yet' });
-
-    const tracking = await trackShipment(waybill);
-    res.json({ success: true, data: tracking });
+    if (!order.rows[0].tracking_id) return res.status(400).json({ success: false, message: 'No AWB assigned to this order yet' });
+    res.json({ success: true, data: await _trackingFor(order.rows[0]) });
   } catch (err) { next(err); }
 };
 
-// GET /api/orders/:id/tracking — customer-facing live tracking
+// GET /api/orders/:id/tracking — customer-facing tracking (DB events, refreshed from Delhivery when stale)
 const getOrderTracking = async (req, res, next) => {
   try {
-    const { id } = req.params;
     const order = await pool.query(
-      'SELECT tracking_id FROM orders WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
+      'SELECT id, tracking_id, shipment_provider FROM orders WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
     );
     if (!order.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order.rows[0].tracking_id) return res.json({ success: true, data: null, message: 'Tracking not available yet' });
+    res.json({ success: true, data: await _trackingFor(order.rows[0]) });
+  } catch (err) { next(err); }
+};
 
-    const waybill = order.rows[0].tracking_id;
-    if (!waybill) return res.json({ success: true, data: null, message: 'Tracking not available yet' });
+// GET /api/admin/orders/:id/label — Delhivery shipping label (packing slip) for printing
+const adminShippingLabel = async (req, res, next) => {
+  try {
+    const o = (await pool.query('SELECT tracking_id, shipment_provider FROM orders WHERE id = $1', [req.params.id])).rows[0];
+    if (!o) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!o.tracking_id || (o.shipment_provider || 'delhivery') !== 'delhivery') {
+      return res.status(400).json({ success: false, message: 'No Delhivery shipment for this order yet' });
+    }
+    const slip = await require('../utils/delhivery').getPackingSlip(o.tracking_id);
+    res.json({ success: true, data: slip });
+  } catch (err) {
+    res.status(err.code === 'NOT_FOUND' ? 404 : 502).json({ success: false, message: err.message });
+  }
+};
 
-    const tracking = await trackShipment(waybill);
-    res.json({ success: true, data: tracking });
+// POST /api/admin/orders/:id/sync-tracking — pull latest status from Delhivery now
+const adminSyncTracking = async (req, res, next) => {
+  try {
+    const summary = await shipments.syncShipments({ orderIds: [req.params.id] });
+    const view = await shipments.getTrackingView(req.params.id, { refresh: false });
+    res.json({ success: true, data: { summary, tracking: view } });
   } catch (err) { next(err); }
 };
 
 module.exports = {
   createOrder, getOrders, getOrder, cancelOrder, requestRefund,
   adminGetOrders, adminUpdateStatus, adminGetRefunds, adminUpdateRefund,
-  adminShipOrder, adminTrackOrder, getOrderTracking,
+  adminShipOrder, adminTrackOrder, getOrderTracking, adminSyncTracking, adminShippingLabel,
 };

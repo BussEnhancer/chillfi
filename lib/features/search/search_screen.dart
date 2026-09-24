@@ -1,13 +1,10 @@
+import 'dart:async';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:chillfi/features/search/voice_search_screen.dart';
-import 'package:chillfi/features/search/widgets/custom_search_bar.dart';
 import 'package:chillfi/features/search/widgets/help_banner_widget.dart';
-import 'package:chillfi/features/search/widgets/popular_search_chip.dart';
-import 'package:chillfi/features/search/widgets/search_chip_widget.dart';
-import 'package:chillfi/features/search/widgets/suggested_product_card.dart';
 import 'package:chillfi/features/search/widgets/trending_chip_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,6 +21,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _ctrl = TextEditingController();
   bool _showResults = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -35,6 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
@@ -47,11 +46,15 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onChanged(String query) {
     if (query.isEmpty) {
+      _debounce?.cancel();
       setState(() => _showResults = false);
       context.read<ProductProvider>().clearSearch();
-    } else {
-      context.read<ProductProvider>().loadSuggestions(query);
+      return;
     }
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      if (mounted) context.read<ProductProvider>().loadSuggestions(query);
+    });
   }
 
   Future<void> _openVoiceSearch() async {
@@ -170,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListView.separated(
       padding: EdgeInsets.all(16.w),
       itemCount: provider.searchResults.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (_, i) {
         final p = provider.searchResults[i];
         return _ProductSearchTile(product: p);
@@ -250,7 +253,7 @@ class _ProductSearchTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         child: product.primaryImage != null
             ? Image.network(product.primaryImage!, width: 50.w, height: 50.w, fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder())
+                errorBuilder: (_, _, _) => _placeholder())
             : _placeholder(),
       ),
       title: Text(product.name,

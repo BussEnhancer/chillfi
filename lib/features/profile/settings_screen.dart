@@ -24,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -97,14 +97,14 @@ class SettingsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.lightGrey.withOpacity(0.3)),
+          border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             Container(
               padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
-                color: AppColors.secondaryPurple.withOpacity(0.1),
+                color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(icon, color: AppColors.secondaryPurple, size: 22.sp),

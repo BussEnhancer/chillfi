@@ -69,7 +69,8 @@ class CartService {
   Future<List<CouponModel>> getActiveCoupons() async {
     try {
       final res = await _api.get('/cart/coupons');
-      final list = res.data['data'] as List? ?? [];
+      final raw = res.data['data'];
+      final list = (raw is List ? raw : (raw is Map ? raw['coupons'] : null)) as List? ?? [];
       return list.map((e) => CouponModel.fromJson(e)).toList();
     } catch (_) {
       return [];
@@ -145,7 +146,7 @@ class OrderService {
   Future<List<OrderModel>> getOrders({String? status, int page = 1}) async {
     try {
       final res = await _api.get('/orders', params: {
-        if (status != null) 'status': status,
+        'status': ?status,
         'page': page,
         'limit': 20,
       });

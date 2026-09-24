@@ -23,7 +23,7 @@ class BrandBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -34,7 +34,7 @@ class BrandBanner extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.1),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.verified_user_rounded, color: AppColors.secondaryPurple, size: 24.sp),
@@ -77,11 +77,11 @@ class BrandBanner extends StatelessWidget {
                 width: 50.r,
                 height: 50.r,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
               ),
-              Icon(Icons.shopping_bag_rounded, color: AppColors.secondaryPurple.withOpacity(0.8), size: 30.sp),
+              Icon(Icons.shopping_bag_rounded, color: AppColors.secondaryPurple.withValues(alpha: 0.8), size: 30.sp),
               Positioned(
                 top: 10.h,
                 right: 10.w,

@@ -24,7 +24,7 @@ class PopularSearchChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18.sp, color: AppColors.secondaryPurple.withOpacity(0.7)),
+          Icon(icon, size: 18.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.7)),
           SizedBox(width: 8.w),
           Text(
             label,

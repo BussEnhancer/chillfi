@@ -33,10 +33,25 @@ PHONEPE_SALT_KEY      = (PhonePe dashboard)
 PHONEPE_SALT_INDEX    = 1
 PHONEPE_BASE_URL      = https://api-preprod.phonepe.com/apis/pg-sandbox
 PHONEPE_ENV           = PROD
-DELHIVERY_API_KEY     = (Delhivery partner portal)
 FIREBASE_PROJECT_ID   = (Firebase console)
 FIREBASE_CLIENT_EMAIL = (Firebase console → Service Account)
 FIREBASE_PRIVATE_KEY  = (Firebase console → Service Account → JSON)
+
+SHIPPING (recommended: configure from Admin → Settings → API Keys instead —
+takes effect immediately, no redeploy needed. Only use env vars below if you
+specifically want them baked into the deployment.):
+------------------------------------------------------------------------------
+SHIPROCKET_EMAIL           = (Shiprocket account login email — this is the DEFAULT
+                              courier provider used when an admin ships an order)
+SHIPROCKET_PASSWORD        = (Shiprocket account password)
+SHIPROCKET_PICKUP_LOCATION = (pickup location name exactly as saved in your
+                              Shiprocket dashboard → Settings → Pickup Addresses;
+                              defaults to "Primary" if not set)
+SHIPROCKET_CHANNEL_ID      = (optional — only if you use a specific sales channel)
+DELHIVERY_TOKEN            = (Delhivery partner portal API token — alternative
+                              provider, selectable per-order in Admin → Orders)
+DELHIVERY_CLIENT_NAME      = (your registered Delhivery client/seller name)
+DELHIVERY_PICKUP_LOCATION  = (pickup location name as registered with Delhivery)
 
 ===================================================
 DEPLOY STEPS (one-time setup):

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { Search, Eye, ChevronLeft, ChevronRight, Download, X, Check, MapPin, Loader2, Truck, Navigation } from 'lucide-react';
+import { Search, Eye, ChevronLeft, ChevronRight, Download, X, Check, MapPin, Loader2, Truck, Navigation, RefreshCw, AlertTriangle } from 'lucide-react';
 import { apiGet, apiPut, apiPost } from '../../../utils/api';
 import { Order } from '../../../context/StoreContext';
 
@@ -19,12 +19,28 @@ interface ApiOrder {
   customer_phone?: string; total: string | number; payment_method?: string; status?: string;
   created_at?: string; address_line1?: string; address_line2?: string;
   address_city?: string; address_state?: string; address_pincode?: string; item_count?: number;
-  tracking_id?: string;
+  tracking_id?: string; payment_status?: string;
+  shipping_status?: string; courier_status?: string; shipment_error?: string; shipment_env?: string; shipment_provider?: string;
   product?: string; img?: string;
   items?: Array<{ product_name?: string; image?: string; quantity?: number }>;
 }
 
-const normalizeApiOrder = (o: ApiOrder): Order & { trackingId?: string } => ({
+type AdminOrder = Order & {
+  trackingId?: string; paymentStatus?: string; shippingStatus?: string; courierStatus?: string;
+  shipmentError?: string; shipmentEnv?: string;
+};
+
+// Mirrors backend utils/shipmentStatus.js labels
+const SHIPPING_LABEL: Record<string, string> = {
+  pending: 'Awaiting shipment', creating: 'Creating shipment', failed: 'Shipment failed',
+  manifested: 'Shipment created', pickup_pending: 'Awaiting pickup', in_transit: 'In transit',
+  at_destination_hub: 'At delivery hub', out_for_delivery: 'Out for delivery', delivered: 'Delivered',
+  rto_in_transit: 'Returning (RTO)', rto_delivered: 'Returned to seller', cancelled: 'Shipment cancelled',
+};
+const shippingTone = (s?: string) =>
+  s === 'failed' || s?.startsWith('rto') ? 'text-red-500' : s === 'delivered' ? 'text-green-600' : 'text-blue-500';
+
+const normalizeApiOrder = (o: ApiOrder): AdminOrder => ({
   id: o.id,
   orderNumber: o.order_number || o.id,
   customer: o.customer_name || 'Unknown',
@@ -39,6 +55,11 @@ const normalizeApiOrder = (o: ApiOrder): Order & { trackingId?: string } => ({
   address: [o.address_line1, o.address_line2, o.address_city, o.address_state, o.address_pincode].filter(Boolean).join(', '),
   img: o.img || (Array.isArray(o.items) && o.items.length > 0 ? (o.items[0].image || '') : ''),
   trackingId: o.tracking_id || '',
+  paymentStatus: o.payment_status,
+  shippingStatus: o.shipping_status,
+  courierStatus: o.courier_status,
+  shipmentError: o.shipment_error,
+  shipmentEnv: o.shipment_env,
 });
 
 const Toast: React.FC<{ msg: string; onClose: () => void; isError?: boolean }> = ({ msg, onClose, isError }) => (
@@ -52,13 +73,17 @@ const Toast: React.FC<{ msg: string; onClose: () => void; isError?: boolean }> =
 );
 
 interface TrackingScan { location: string; instructions: string; status: string; time: string; }
-interface TrackingData { waybill: string; status: string; expected_delivery: string; scans: TrackingScan[]; }
+interface TrackingData {
+  waybill: string; status: string; expected_delivery: string; scans: TrackingScan[];
+  shipping_status_label?: string; last_update?: string; synced_at?: string; stale?: boolean; env?: string;
+}
 
 const TrackingModal: React.FC<{ orderId: string; waybill: string; onClose: () => void }> = ({ orderId, waybill, onClose }) => {
   const [data, setData] = useState<TrackingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [syncing, setSyncing] = useState(false);
   useEffect(() => {
     apiGet<{ success: boolean; data: TrackingData }>(`/admin/orders/${orderId}/tracking`)
       .then(res => setData(res.data))
@@ -66,14 +91,26 @@ const TrackingModal: React.FC<{ orderId: string; waybill: string; onClose: () =>
       .finally(() => setLoading(false));
   }, [orderId]);
 
+  const syncNow = async () => {
+    setSyncing(true); setError('');
+    try {
+      const res = await apiPost<{ success: boolean; data: { tracking: TrackingData } }>(`/admin/orders/${orderId}/sync-tracking`, {});
+      if (res.data?.tracking) setData(res.data.tracking);
+    } catch (e: any) { setError(e.message || 'Sync failed'); } finally { setSyncing(false); }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#F8F7FC] shrink-0">
           <div>
             <h3 className="text-lg font-black text-[#111827]">Live Tracking</h3>
-            <p className="text-xs font-bold text-gray-400">Waybill: {waybill}</p>
+            <p className="text-xs font-bold text-gray-400">Waybill: {waybill}{data?.env ? ` • ${data.env}` : ''}</p>
           </div>
+          <button onClick={syncNow} disabled={syncing} title="Pull latest status from Delhivery"
+            className="ml-auto mr-2 flex items-center gap-1 px-3 h-8 rounded-xl bg-blue-50 text-blue-600 text-xs font-black hover:bg-blue-100 disabled:opacity-60">
+            <RefreshCw size={12} className={syncing ? 'animate-spin' : ''} /> Sync
+          </button>
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[#F8F7FC] flex items-center justify-center hover:bg-red-50 hover:text-red-500"><X size={16} /></button>
         </div>
         <div className="overflow-y-auto p-6">
@@ -84,12 +121,14 @@ const TrackingModal: React.FC<{ orderId: string; waybill: string; onClose: () =>
               <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Current Status</p>
-                  <p className="text-base font-black text-blue-700 mt-0.5">{data.status}</p>
+                  <p className="text-base font-black text-blue-700 mt-0.5">{data.shipping_status_label || data.status}</p>
+                  {data.status && data.shipping_status_label && <p className="text-[10px] font-bold text-blue-400">Delhivery: {data.status}</p>}
+                  {data.synced_at && <p className="text-[10px] font-bold text-blue-300">Last synced {new Date(data.synced_at).toLocaleString('en-IN')}{data.stale ? ' (Delhivery unreachable — showing stored data)' : ''}</p>}
                 </div>
                 {data.expected_delivery && (
                   <div className="text-right">
                     <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Expected</p>
-                    <p className="text-sm font-black text-blue-700 mt-0.5">{data.expected_delivery}</p>
+                    <p className="text-sm font-black text-blue-700 mt-0.5">{new Date(data.expected_delivery).toLocaleDateString('en-IN')}</p>
                   </div>
                 )}
               </div>
@@ -121,7 +160,7 @@ const TrackingModal: React.FC<{ orderId: string; waybill: string; onClose: () =>
 };
 
 const OrderDetailModal: React.FC<{
-  order: Order & { trackingId?: string };
+  order: AdminOrder;
   onClose: () => void;
   onStatusChange: (id: string, s: string) => Promise<void>;
   onShip: (id: string) => Promise<void>;
@@ -173,13 +212,36 @@ const OrderDetailModal: React.FC<{
 
           {/* Delhivery section */}
           <div className="border border-[#ECECEC] rounded-2xl p-4 space-y-3">
-            <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Truck size={11} />Delhivery Shipment</p>
+            <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Truck size={11} />Delhivery Shipment
+              {order.shipmentEnv && <span className={`ml-1 px-1.5 py-0.5 rounded text-[9px] ${order.shipmentEnv === 'production' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>{order.shipmentEnv}</span>}
+            </p>
+            {order.shippingStatus && (
+              <p className={`text-xs font-black ${shippingTone(order.shippingStatus)}`}>
+                {SHIPPING_LABEL[order.shippingStatus] || order.shippingStatus}
+                {order.courierStatus && <span className="text-gray-400 font-bold"> • Delhivery: {order.courierStatus}</span>}
+              </p>
+            )}
+            {order.shippingStatus === 'failed' && order.shipmentError && (
+              <p className="text-[11px] font-bold text-red-500 bg-red-50 rounded-lg p-2 flex gap-1.5"><AlertTriangle size={12} className="shrink-0 mt-0.5" />{order.shipmentError}</p>
+            )}
             {order.trackingId ? (
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] font-bold text-gray-400">Waybill</p>
+                  <p className="text-[10px] font-bold text-gray-400">Waybill (AWB)</p>
                   <p className="text-sm font-black text-blue-600">{order.trackingId}</p>
                 </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const r = await apiGet<{ data: { pdf_url: string | null } }>(`/admin/orders/${order.id}/label`);
+                      if (r.data?.pdf_url) window.open(r.data.pdf_url, '_blank', 'noopener');
+                      else alert('Delhivery returned no PDF link for this label. Print it from Delhivery One → Shipments.');
+                    } catch (e: any) { alert(e.message || 'Could not fetch label'); }
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#F8F7FC] text-gray-600 rounded-xl text-xs font-black hover:bg-[#FFF3ED] hover:text-[#FF6B2C] mr-2"
+                >
+                  <Download size={12} /> Print Label
+                </button>
                 <button
                   onClick={() => onTrack(order.id, order.trackingId!)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-black hover:bg-blue-100"
@@ -189,15 +251,18 @@ const OrderDetailModal: React.FC<{
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-gray-400">No shipment created yet</p>
-                {order.status === 'Processing' && (
+                <p className="text-xs font-bold text-gray-400">
+                  {order.payment !== 'COD' && order.paymentStatus !== 'Paid' ? 'Waiting for payment before shipping' : 'No shipment created yet'}
+                </p>
+                {/* 'creating' stays clickable: the backend refuses while a claim is fresh and reclaims a stale one */}
+                {order.status === 'Processing' && (order.payment === 'COD' || order.paymentStatus === 'Paid') && (
                   <button
                     onClick={handleShip}
                     disabled={shipping}
                     className="flex items-center gap-1.5 px-4 py-2 bg-[#FF6B2C] text-white rounded-xl text-xs font-black hover:bg-[#E05520] disabled:opacity-60"
                   >
                     {shipping ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
-                    {shipping ? 'Creating...' : 'Create Shipment'}
+                    {shipping ? 'Creating...' : order.shippingStatus === 'failed' ? 'Retry Shipment' : 'Create Shipment'}
                   </button>
                 )}
               </div>
@@ -266,10 +331,10 @@ const OrderDetailModal: React.FC<{
 const PAGE_SIZE = 10;
 
 const AdminOrders: React.FC = () => {
-  const [orders, setOrders] = useState<(Order & { trackingId?: string })[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
-  const [viewing, setViewing] = useState<(Order & { trackingId?: string }) | null>(null);
+  const [viewing, setViewing] = useState<AdminOrder | null>(null);
   const [tracking, setTracking] = useState<{ orderId: string; waybill: string } | null>(null);
   const [toast, setToast] = useState('');
   const [toastError, setToastError] = useState(false);
@@ -281,7 +346,7 @@ const AdminOrders: React.FC = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const res = await apiGet<{ success: boolean; data: { orders: ApiOrder[] } }>('/orders/admin/all?limit=200');
+      const res = await apiGet<{ success: boolean; data: { orders: ApiOrder[]; pagination?: unknown } }>('/admin/orders?limit=200');
       if (res.data?.orders) setOrders(res.data.orders.map(normalizeApiOrder));
     } catch { } finally { setLoading(false); }
   };
@@ -290,19 +355,19 @@ const AdminOrders: React.FC = () => {
 
   const handleStatusChange = async (id: string, status: string) => {
     try {
-      await apiPut(`/orders/admin/${id}/status`, { status });
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+      await apiPut(`/admin/orders/${id}/status`, { status });
       showToast(`Order marked as ${status}`);
     } catch (e: any) { showToast(e.message || 'Failed to update status', true); }
+    await loadOrders();
   };
 
   const handleShip = async (id: string) => {
     try {
-      const res = await apiPost<{ success: boolean; data: { waybill: string }; message: string }>(`/admin/orders/${id}/ship`, {});
-      const waybill = res.data?.waybill;
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'Shipped', trackingId: waybill } : o));
-      showToast(`Shipment created! Waybill: ${waybill}`);
+      const res = await apiPost<{ success: boolean; data: { awb: string; env?: string }; message: string }>(`/admin/orders/${id}/ship`, { provider: 'delhivery' });
+      showToast(`${res.message || 'Shipment created'} — AWB ${res.data?.awb}`);
     } catch (e: any) { showToast(e.message || 'Failed to create shipment', true); }
+    // Order status only changes to Shipped when Delhivery reports pickup; reload server truth.
+    await loadOrders();
   };
 
   const filtered = orders.filter(o =>
@@ -382,6 +447,9 @@ const AdminOrders: React.FC = () => {
                     <td className="px-4 py-3.5 text-xs font-bold text-gray-400 whitespace-nowrap">{o.date}</td>
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wide ${statusStyle[o.status] || 'bg-gray-100 text-gray-500'}`}>{o.status}</span>
+                      {o.shippingStatus && o.shippingStatus !== 'pending' && (
+                        <p className={`text-[9px] font-black mt-1 ${shippingTone(o.shippingStatus)}`}>{SHIPPING_LABEL[o.shippingStatus] || o.shippingStatus}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       {o.trackingId ? (

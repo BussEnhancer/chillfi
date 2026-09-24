@@ -1,13 +1,64 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CancellationOrderCard extends StatelessWidget {
   const CancellationOrderCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final order = context.watch<CartProvider>().currentOrder;
+    final firstItem = (order?.items.isNotEmpty == true) ? order!.items.first : null;
+    final itemLabel = firstItem == null
+        ? 'Order'
+        : (order!.items.length > 1
+            ? '${firstItem.productName} + ${order.items.length - 1} more'
+            : firstItem.productName);
+    final qtyLabel = firstItem != null ? 'Qty: ${firstItem.quantity}' : '';
+    final orderNumber = order?.orderNumber ?? '—';
+    final dateLabel = order != null
+        ? DateFormat('d MMM yyyy, hh:mm a').format(order.createdAt.toLocal())
+        : '—';
+    final totalLabel = order != null
+        ? '₹${order.total.toStringAsFixed(0)}'
+        : '—';
+    final statusLabel = order?.status ?? '—';
+    final statusColor = statusLabel == 'Processing'
+        ? Colors.orange
+        : statusLabel == 'Shipped'
+            ? Colors.blue
+            : statusLabel == 'Delivered'
+                ? Colors.green
+                : Colors.grey;
+
+    return _buildCard(
+      context,
+      itemLabel: itemLabel,
+      qtyLabel: qtyLabel,
+      orderNumber: orderNumber,
+      dateLabel: dateLabel,
+      totalLabel: totalLabel,
+      statusLabel: statusLabel,
+      statusColor: statusColor,
+      imageUrl: firstItem?.productImage,
+    );
+  }
+
+  Widget _buildCard(
+    BuildContext context, {
+    required String itemLabel,
+    required String qtyLabel,
+    required String orderNumber,
+    required String dateLabel,
+    required String totalLabel,
+    required String statusLabel,
+    required Color statusColor,
+    String? imageUrl,
+  }) {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -32,7 +83,13 @@ class CancellationOrderCard extends StatelessWidget {
               color: const Color(0xFFF8F8F8),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Icon(Icons.smartphone_rounded, size: 35.sp, color: Colors.grey[300]),
+            child: imageUrl != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: Image.network(imageUrl, fit: BoxFit.cover,
+                        errorBuilder: (ctx, err, st) => Icon(Icons.shopping_bag_rounded, size: 35.sp, color: Colors.grey[300])),
+                  )
+                : Icon(Icons.shopping_bag_rounded, size: 35.sp, color: Colors.grey[300]),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -40,24 +97,27 @@ class CancellationOrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Apple iPhone 15 (128GB)",
+                  itemLabel,
                   style: GoogleFonts.poppins(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  "Pink • 128GB  |  Qty: 1",
-                  style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
-                ),
+                if (qtyLabel.isNotEmpty)
+                  Text(
+                    qtyLabel,
+                    style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
+                  ),
                 SizedBox(height: 8.h),
                 Text(
                   "Order ID",
                   style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
                 ),
                 Text(
-                  "#CHILLFI125678",
+                  "#$orderNumber",
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -65,7 +125,7 @@ class CancellationOrderCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Placed on 21 May 2026, 09:41 AM",
+                  "Placed on $dateLabel",
                   style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
                 ),
               ],
@@ -77,15 +137,15 @@ class CancellationOrderCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
-                  "Processing",
+                  statusLabel,
                   style: GoogleFonts.poppins(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.orange,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -95,7 +155,7 @@ class CancellationOrderCard extends StatelessWidget {
                 style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
               ),
               Text(
-                "₹69,999",
+                totalLabel,
                 style: GoogleFonts.poppins(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,

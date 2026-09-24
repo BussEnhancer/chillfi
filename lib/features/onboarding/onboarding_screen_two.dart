@@ -5,6 +5,7 @@ import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreenTwo extends StatefulWidget {
   const OnboardingScreenTwo({super.key});
@@ -50,7 +51,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
               width: 150.r,
               height: 150.r,
               decoration: BoxDecoration(
-                color: AppColors.primaryOrange.withOpacity(0.04),
+                color: AppColors.primaryOrange.withValues(alpha: 0.04),
                 shape: BoxShape.circle,
               ),
             ),
@@ -73,7 +74,10 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
             top: 55.h,
             right: 24.w,
             child: TextButton(
-              onPressed: () {
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('has_seen_onboarding', true);
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const WelcomeScreen()),
@@ -119,7 +123,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              AppColors.primaryOrange.withOpacity(0.9),
+                              AppColors.primaryOrange.withValues(alpha: 0.9),
                               AppColors.primaryOrange,
                             ],
                           ),
@@ -139,7 +143,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
                                 borderRadius: BorderRadius.all(Radius.elliptical(240.w, 50.h)),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),
@@ -320,7 +324,7 @@ class _OnboardingScreenTwoState extends State<OnboardingScreenTwo> with SingleTi
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

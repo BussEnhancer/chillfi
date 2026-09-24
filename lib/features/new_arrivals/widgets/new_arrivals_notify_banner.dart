@@ -21,7 +21,7 @@ class NewArrivalsNotifyBanner extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.orange.withOpacity(0.1)),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -32,7 +32,7 @@ class NewArrivalsNotifyBanner extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   blurRadius: 10,
                 ),
               ],

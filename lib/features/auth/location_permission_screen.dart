@@ -206,7 +206,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> wit
                                 borderRadius: BorderRadius.circular(24.r),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.secondaryPurple.withOpacity(0.04),
+                                    color: AppColors.secondaryPurple.withValues(alpha: 0.04),
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),
@@ -312,11 +312,11 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> wit
                                   width: 327.w,
                                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(12.r),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
+                                        color: Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 10,
                                       )
                                     ],

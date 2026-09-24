@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingBag, Truck, Heart, MapPin, Tag, Wallet,
   CircleDollarSign, Star, Users, Ticket, Settings, Bell, LogOut,
-  ShieldCheck, FileText, TruckIcon
+  ShieldCheck, FileText, TruckIcon, RotateCcw, Banknote
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
@@ -27,7 +27,9 @@ const menuItems = [
 const legalItems = [
   { id: 'privacy', label: 'Privacy Policy', icon: <ShieldCheck size={20} />, path: '/privacy-policy' },
   { id: 'terms', label: 'Terms & Conditions', icon: <FileText size={20} />, path: '/terms' },
-  { id: 'shipping', label: 'Shipping Policy', icon: <TruckIcon size={20} />, comingSoon: true },
+  { id: 'shipping', label: 'Shipping Policy', icon: <TruckIcon size={20} />, path: '/shipping-policy' },
+  { id: 'return', label: 'Return Policy', icon: <RotateCcw size={20} />, path: '/return-policy' },
+  { id: 'refund', label: 'Refund Policy', icon: <Banknote size={20} />, path: '/refund-policy' },
 ];
 
 interface AccountSidebarProps {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414620965564",
+    "project_id": "chillfi",
+    "storage_bucket": "chillfi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414620965564:android:7133ba1923643cc2f20eb9",
+        "android_client_info": {
+          "package_name": "com.ecom.chillfi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy-MyGzDGWKa3W1baBahfznNNEWyREoAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late Animation<double> _fadeAnimation;
 
   final TextEditingController _phoneController = TextEditingController();
+  bool _isSending = false;
 
   @override
   void initState() {
@@ -94,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             child: Container(
                               padding: EdgeInsets.all(10.r),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.25),
+                                color: Colors.white.withValues(alpha: 0.25),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20.sp),
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         height: 80.h,
                         opacity: const AlwaysStoppedAnimation(0.8),
                         fit: BoxFit.contain,
-                        errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey.withOpacity(0.4)),
+                        errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey.withValues(alpha: 0.4)),
                       ),
                     ),
 
@@ -156,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           'Login to continue shopping amazing deals',
                           style: GoogleFonts.poppins(
                             fontSize: 14.sp,
-                            color: AppColors.greyText.withOpacity(0.6),
+                            color: AppColors.greyText.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -173,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         borderRadius: BorderRadius.circular(30.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -188,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               Container(
                                 padding: EdgeInsets.all(10.r),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondaryPurple.withOpacity(0.1),
+                                  color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -214,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       'OTP will be sent for verification',
                                       style: GoogleFonts.poppins(
                                         fontSize: 12.sp,
-                                        color: AppColors.greyText.withOpacity(0.7),
+                                        color: AppColors.greyText.withValues(alpha: 0.7),
                                       ),
                                     ),
                                   ],
@@ -252,8 +253,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                     // Primary Button
                     PrimaryGradientButton(
-                      text: 'Send OTP',
-                      onTap: () async {
+                      text: _isSending ? 'Sending OTP...' : 'Send OTP',
+                      onTap: () {
+                        if (_isSending) return;
                         final auth = context.read<AuthProvider>();
                         final phone = _phoneController.text.trim();
                         if (phone.length != 10) {
@@ -263,23 +265,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           return;
                         }
                         auth.setPhone(phone);
-                        final sent = await auth.sendOtp(phone, purpose: 'login');
-                        if (!mounted) return;
-                        if (sent) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
+                        final navigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.of(context);
+                        setState(() => _isSending = true);
+                        auth.verifyPhoneFirebase(
+                          phone,
+                          codeSent: (verificationId, _) {
+                            try { setState(() => _isSending = false); } catch (_) {}
+                            navigator.push(MaterialPageRoute(
                               builder: (_) => OtpVerificationScreen(
                                 phoneNumber: phone,
+                                verificationId: verificationId,
                                 isFromForgotPassword: false,
                               ),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(auth.message)),
-                          );
-                        }
+                            ));
+                          },
+                          onFailed: (error) {
+                            try { setState(() => _isSending = false); } catch (_) {}
+                            messenger.showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+                          },
+                        );
                       },
                     ),
 
@@ -288,12 +293,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     // OR Divider
                     Row(
                       children: [
-                        Expanded(child: Divider(color: AppColors.fieldBorder.withOpacity(0.5))),
+                        Expanded(child: Divider(color: AppColors.fieldBorder.withValues(alpha: 0.5))),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Text('OR', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.greyText.withOpacity(0.4))),
+                          child: Text('OR', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColors.greyText.withValues(alpha: 0.4))),
                         ),
-                        Expanded(child: Divider(color: AppColors.fieldBorder.withOpacity(0.5))),
+                        Expanded(child: Divider(color: AppColors.fieldBorder.withValues(alpha: 0.5))),
                       ],
                     ),
 

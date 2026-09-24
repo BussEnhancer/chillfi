@@ -106,7 +106,83 @@ const updateNotificationPreferences = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const deleteAccount = async (req, res, next) => {
+  try {
+    const { id: userId } = req.user;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      // Cascade-delete all user data
+      await client.query('DELETE FROM fcm_tokens WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM wishlist WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM recently_viewed WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM reviews WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM addresses WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM coupon_usage WHERE user_id = $1', [userId]);
+      // Anonymise orders — keep history but remove personal link
+      await client.query(
+        `UPDATE orders SET user_id = NULL, notes = COALESCE(notes, '') || ' [account deleted]' WHERE user_id = $1`,
+        [userId]
+      );
+      await client.query('DELETE FROM users WHERE id = $1', [userId]);
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (err) { next(err); }
+};
+
+// POST /api/auth/request-delete  — unauthenticated, OTP-verified deletion (for web page)
+const requestDeleteByPhone = async (req, res, next) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP required' });
+
+    const { verifyOTP } = require('../utils/otp');
+    const valid = await verifyOTP(phone, otp, 'login');
+    if (!valid) return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+
+    const userResult = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
+    if (!userResult.rows.length) return res.status(404).json({ success: false, message: 'No account found with this number' });
+
+    const userId = userResult.rows[0].id;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM fcm_tokens WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM wishlist WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM recently_viewed WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM reviews WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM addresses WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM coupon_usage WHERE user_id = $1', [userId]);
+      await client.query(
+        `UPDATE orders SET user_id = NULL, notes = COALESCE(notes, '') || ' [account deleted]' WHERE user_id = $1`,
+        [userId]
+      );
+      await client.query('DELETE FROM users WHERE id = $1', [userId]);
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getProfile, updateProfile, uploadAvatar, getMyReviews, getNotifications, getUnreadNotificationCount,
   getNotificationPreferences, updateNotificationPreferences,
+  deleteAccount, requestDeleteByPhone,
 };

@@ -39,12 +39,12 @@ class RecentlyViewedProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.4)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.4)),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -162,7 +162,7 @@ class RecentlyViewedProductCard extends StatelessWidget {
                         timestamp,
                         style: GoogleFonts.poppins(
                           fontSize: 9.sp,
-                          color: AppColors.greyText.withOpacity(0.8),
+                          color: AppColors.greyText.withValues(alpha: 0.8),
                           fontStyle: FontStyle.italic,
                         ),
                       ),

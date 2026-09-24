@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { createOTPSession, verifyOTP, checkOtpRateLimit } = require('../utils/otp');
 const { generateTokens, revokeRefreshToken } = require('../utils/jwt');
+const { getSetting } = require('../utils/settings');
+const { getFirebaseApp } = require('../utils/firebase');
 
 // POST /auth/send-otp
 const sendOtp = async (req, res) => {
@@ -30,7 +32,10 @@ const sendOtp = async (req, res) => {
     return res.status(429).json({ success: false, message: rateLimit.message });
   }
 
-  await createOTPSession(phone, purpose);
+  const { sent } = await createOTPSession(phone, purpose);
+  if (!sent) {
+    return res.status(502).json({ success: false, message: 'Could not send OTP right now. Please try again in a moment.' });
+  }
   res.json({ success: true, message: `OTP sent to ${phone}` });
 };
 
@@ -47,12 +52,12 @@ const verifyOtpLogin = async (req, res) => {
   }
 
   const result = await pool.query(
-    `UPDATE users SET is_phone_verified = TRUE WHERE phone = $1 RETURNING id, name, email, phone, avatar_url, role`,
+    `UPDATE users SET is_phone_verified = TRUE WHERE phone = $1 AND is_active = TRUE RETURNING id, name, email, phone, avatar_url, role`,
     [phone]
   );
 
   if (!result.rows.length) {
-    return res.status(404).json({ success: false, message: 'User not found' });
+    return res.status(401).json({ success: false, message: 'Account not found or has been deactivated' });
   }
 
   const user = result.rows[0];
@@ -133,7 +138,10 @@ const forgotPassword = async (req, res) => {
     return res.status(404).json({ success: false, message: 'No account with this number' });
   }
 
-  await createOTPSession(phone, 'forgot_password');
+  const { sent } = await createOTPSession(phone, 'forgot_password');
+  if (!sent) {
+    return res.status(502).json({ success: false, message: 'Could not send OTP right now. Please try again in a moment.' });
+  }
   res.json({ success: true, message: 'OTP sent for password reset' });
 };
 
@@ -206,4 +214,74 @@ const saveFcmToken = async (req, res) => {
   res.json({ success: true, message: 'FCM token saved' });
 };
 
-module.exports = { sendOtp, verifyOtpLogin, signup, login, forgotPassword, resetPassword, getMe, logout, refreshToken, saveFcmToken };
+// GET /auth/otp-config — tells the app which OTP provider is active
+const getOtpConfig = async (req, res) => {
+  try {
+    const provider = await getSetting('OTP_PROVIDER') || 'firebase';
+    res.json({ success: true, data: { provider } });
+  } catch (err) {
+    res.json({ success: true, data: { provider: 'firebase' } });
+  }
+};
+
+// POST /auth/firebase-verify — Flutter sends Firebase idToken after native phone auth
+// Backend verifies it, then finds or creates the user and returns app JWT.
+const firebaseVerify = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ success: false, message: 'idToken required' });
+
+    const fbApp = getFirebaseApp();
+    if (!fbApp) return res.status(503).json({ success: false, message: 'Firebase not configured on server' });
+
+    const { getAuth } = require('firebase-admin/auth');
+    const decoded = await getAuth(fbApp).verifyIdToken(idToken);
+    const firebasePhone = decoded.phone_number; // e.g. "+919876543210"
+    if (!firebasePhone) return res.status(400).json({ success: false, message: 'No phone number in Firebase token' });
+
+    const phone = firebasePhone.replace(/^\+91/, '');
+
+    // Find or auto-create user
+    let userRow;
+    const existing = await pool.query(
+      'SELECT id, name, email, phone, avatar_url, role, is_active FROM users WHERE phone = $1',
+      [phone]
+    );
+
+    if (existing.rows.length && !existing.rows[0].is_active) {
+      return res.status(401).json({ success: false, message: 'Account not found or has been deactivated' });
+    }
+
+    if (existing.rows.length) {
+      // Existing user — mark phone verified and return
+      await pool.query('UPDATE users SET is_phone_verified = TRUE WHERE phone = $1', [phone]);
+      userRow = existing.rows[0];
+    } else {
+      // New user — create with provided name/email or defaults
+      const { name: reqName, email: reqEmail } = req.body;
+      const inserted = await pool.query(
+        `INSERT INTO users (name, phone, email, is_phone_verified)
+         VALUES ($1, $2, $3, TRUE)
+         RETURNING id, name, email, phone, avatar_url, role`,
+        [reqName?.trim() || `User${phone.slice(-4)}`, phone, reqEmail?.trim() || null]
+      );
+      userRow = inserted.rows[0];
+    }
+
+    const { accessToken, refreshToken } = await generateTokens(userRow.id);
+    const isNewUser = !existing.rows.length;
+
+    res.json({
+      success: true,
+      message: isNewUser ? 'Account created' : 'Login successful',
+      data: { user: userRow, accessToken, refreshToken, isNewUser },
+    });
+  } catch (err) {
+    if (err.code === 'auth/id-token-expired') {
+      return res.status(401).json({ success: false, message: 'Firebase token expired. Please try again.' });
+    }
+    next(err);
+  }
+};
+
+module.exports = { sendOtp, verifyOtpLogin, signup, login, forgotPassword, resetPassword, getMe, logout, refreshToken, saveFcmToken, getOtpConfig, firebaseVerify };

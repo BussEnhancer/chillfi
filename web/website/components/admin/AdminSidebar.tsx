@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Refunds', icon: <RotateCcw size={18} />, to: '/admin/refunds', staffAllowed: false },
   { label: 'Users', icon: <Users size={18} />, to: '/admin/users', staffAllowed: false },
   { label: 'Categories', icon: <LayoutGrid size={18} />, to: '/admin/categories', staffAllowed: false },
+  { label: 'Brands', icon: <Tag size={18} />, to: '/admin/brands', staffAllowed: false },
   { label: 'Reviews', icon: <Star size={18} />, to: '/admin/reviews', staffAllowed: true },
   { label: 'Messages', icon: <Mail size={18} />, to: '/admin/messages', staffAllowed: true },
   { label: 'Notifications', icon: <Bell size={18} />, to: '/admin/notifications', staffAllowed: false },

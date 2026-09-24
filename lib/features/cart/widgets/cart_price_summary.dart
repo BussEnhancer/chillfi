@@ -15,12 +15,12 @@ class CartPriceSummary extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.3)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,7 +31,7 @@ class CartPriceSummary extends StatelessWidget {
           SizedBox(height: 12.h),
           _buildPriceRow("Delivery Charges", "₹99 FREE", isDelivery: true),
           SizedBox(height: 16.h),
-          Divider(color: AppColors.lightGrey.withOpacity(0.5)),
+          Divider(color: AppColors.lightGrey.withValues(alpha: 0.5)),
           SizedBox(height: 16.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

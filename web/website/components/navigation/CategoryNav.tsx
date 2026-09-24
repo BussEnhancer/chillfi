@@ -9,7 +9,7 @@ const navItems = [
   { label: 'Deals', to: '/offers' },
   { label: 'New Arrivals', to: '/products?sort=newest' },
   { label: 'Best Sellers', to: '/products?sort=rating' },
-  { label: 'Brands', to: '/categories' },
+  { label: 'Brands', to: '/products?view=brands' },
   { label: 'Track Order', to: '/account/orders' },
 ];
 

@@ -3,10 +3,12 @@ const { authenticate } = require('../middleware/auth');
 const {
   sendOtp, verifyOtpLogin, signup, login,
   forgotPassword, resetPassword, getMe, logout,
-  refreshToken, saveFcmToken,
+  refreshToken, saveFcmToken, getOtpConfig, firebaseVerify,
 } = require('../controllers/authController');
 
 // Per-phone rate limiting is handled inside sendOtp/checkOtpRateLimit (DB-backed)
+router.get('/otp-config', getOtpConfig);
+router.post('/firebase-verify', firebaseVerify);
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtpLogin);
 router.post('/signup', signup);

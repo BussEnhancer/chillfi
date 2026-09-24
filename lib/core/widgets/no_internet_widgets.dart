@@ -1,4 +1,3 @@
-import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,7 +58,7 @@ class NoInternetIllustration extends StatelessWidget {
   }
 
   Widget _star(double size) {
-    return Icon(Icons.auto_awesome_rounded, color: const Color(0xFF8B5CFF).withOpacity(0.3), size: size);
+    return Icon(Icons.auto_awesome_rounded, color: const Color(0xFF8B5CFF).withValues(alpha: 0.3), size: size);
   }
 }
 
@@ -76,7 +75,7 @@ class InternetHelpCard extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -133,7 +132,7 @@ class InternetHelpCard extends StatelessWidget {
   Widget _divider() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 12.h),
-      child: Divider(height: 1, color: const Color(0xFFE5E7EB).withOpacity(0.5), indent: 50.w),
+      child: Divider(height: 1, color: const Color(0xFFE5E7EB).withValues(alpha: 0.5), indent: 50.w),
     );
   }
 }

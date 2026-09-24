@@ -23,7 +23,7 @@ class OffersHeroBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.05),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -81,7 +81,7 @@ class OffersHeroBanner extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(Icons.shopping_bag_rounded, size: 80.sp, color: AppColors.secondaryPurple.withOpacity(0.7)),
+                      Icon(Icons.shopping_bag_rounded, size: 80.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.7)),
                       Positioned(
                         top: 20.h,
                         right: 0,
@@ -101,7 +101,7 @@ class OffersHeroBanner extends StatelessWidget {
                       Positioned(
                         bottom: 20.h,
                         left: 0,
-                        child: Icon(Icons.card_giftcard_rounded, color: AppColors.secondaryPurple.withOpacity(0.5), size: 30.sp),
+                        child: Icon(Icons.card_giftcard_rounded, color: AppColors.secondaryPurple.withValues(alpha: 0.5), size: 30.sp),
                       )
                     ],
                   ),
@@ -134,7 +134,7 @@ class OffersHeroBanner extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(6.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4),
         ],
       ),
       child: Row(
@@ -153,7 +153,7 @@ class OffersHeroBanner extends StatelessWidget {
       width: isActive ? 12.w : 4.w,
       height: 4.h,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2.r),
       ),
     );

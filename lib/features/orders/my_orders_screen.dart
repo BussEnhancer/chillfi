@@ -100,7 +100,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
           child: ListView.separated(
             padding: EdgeInsets.all(16.r),
             itemCount: cart.orders.length,
-            separatorBuilder: (_, __) => SizedBox(height: 10.h),
+            separatorBuilder: (_, _) => SizedBox(height: 10.h),
             itemBuilder: (_, i) {
               final order = cart.orders[i];
               return _OrderCard(
@@ -139,7 +139,7 @@ class _OrderCard extends StatelessWidget {
                 Text(order.orderNumber, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                  decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8.r)),
+                  decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8.r)),
                   child: Text(order.status, style: GoogleFonts.poppins(fontSize: 11.sp, fontWeight: FontWeight.w600, color: statusColor)),
                 ),
               ],

@@ -9,7 +9,7 @@ import { CheckCircle2, ShoppingBag, Truck, ChevronRight } from 'lucide-react';
 const OrderSuccessPage: React.FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const stateData = (location.state as { orderNumber?: string; total?: number }) || {};
+  const stateData = (location.state as { orderNumber?: string; total?: number; cod?: boolean }) || {};
   const orderNumber = stateData.orderNumber || searchParams.get('order_number') || undefined;
   const total = stateData.total ?? (searchParams.get('total') ? Number(searchParams.get('total')) : undefined);
 
@@ -37,7 +37,7 @@ const OrderSuccessPage: React.FC = () => {
               </div>
               {total !== undefined && (
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">Total Paid</span>
+                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">{stateData.cod ? 'Pay on Delivery' : 'Total Paid'}</span>
                   <span className="text-lg font-black text-[#FF6B2C]">₹{Number(total).toLocaleString()}</span>
                 </div>
               )}

@@ -13,7 +13,7 @@ const getHomeData = async (req, res) => {
     `),
 
     pool.query(`
-      SELECT p.id, p.name, p.price, p.old_price,
+      SELECT p.id, p.name, p.price, p.old_price, p.rating, p.review_count,
         ROUND(((p.old_price - p.price) / NULLIF(p.old_price, 0) * 100)) as discount_pct,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image,
         p.flash_sale_ends_at

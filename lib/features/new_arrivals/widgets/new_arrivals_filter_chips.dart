@@ -27,7 +27,7 @@ class NewArrivalsFilterChip extends StatelessWidget {
           color: isSelected ? AppColors.secondaryPurple : Colors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withOpacity(0.5),
+            color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withValues(alpha: 0.5),
           ),
         ),
         child: Row(

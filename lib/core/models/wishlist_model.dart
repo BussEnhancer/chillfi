@@ -58,7 +58,7 @@ class ReviewModel {
   factory ReviewModel.fromJson(Map<String, dynamic> j) => ReviewModel(
         id: j['id'],
         rating: double.tryParse(j['rating'].toString()) ?? 0,
-        comment: j['comment'],
+        comment: j['body'] ?? j['comment'],
         createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
         productId: j['product_id'],
         productName: j['product_name'],
@@ -73,6 +73,9 @@ class NotificationModel {
   final bool isRead;
   final String? type;
   final DateTime createdAt;
+  /// From notification `data` payload (order/shipping notifications)
+  final String? orderId;
+  final String? shippingStatus;
 
   NotificationModel({
     required this.id,
@@ -81,6 +84,8 @@ class NotificationModel {
     required this.isRead,
     this.type,
     required this.createdAt,
+    this.orderId,
+    this.shippingStatus,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> j) => NotificationModel(
@@ -90,5 +95,7 @@ class NotificationModel {
         isRead: j['is_read'] ?? false,
         type: j['type'],
         createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
+        orderId: (j['data'] is Map) ? j['data']['order_id']?.toString() : null,
+        shippingStatus: (j['data'] is Map) ? j['data']['shipping_status']?.toString() : null,
       );
 }

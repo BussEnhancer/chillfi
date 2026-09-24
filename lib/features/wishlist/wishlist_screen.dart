@@ -75,7 +75,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                             child: ListView.separated(
                               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                               itemCount: wishlist.items.length,
-                              separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                              separatorBuilder: (_, _) => SizedBox(height: 10.h),
                               itemBuilder: (_, i) => _WishlistCard(item: wishlist.items[i]),
                             ),
                           ),
@@ -125,8 +125,8 @@ class _WishlistCard extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: item.image!,
                       width: 85.w, height: 85.h, fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(color: const Color(0xFFEEEEEE)),
-                      errorWidget: (_, __, ___) => _placeholder(),
+                      placeholder: (_, _) => Container(color: const Color(0xFFEEEEEE)),
+                      errorWidget: (_, _, _) => _placeholder(),
                     )
                   : _placeholder(),
             ),

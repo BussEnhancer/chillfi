@@ -24,7 +24,7 @@ class MaintenanceIllustration extends StatelessWidget {
               borderRadius: BorderRadius.circular(16.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -50,7 +50,7 @@ class MaintenanceIllustration extends StatelessWidget {
                 ),
                 // Center Gear
                 Center(
-                  child: Icon(Icons.settings_rounded, color: const Color(0xFF6C2BFF).withOpacity(0.15), size: 100.sp),
+                  child: Icon(Icons.settings_rounded, color: const Color(0xFF6C2BFF).withValues(alpha: 0.15), size: 100.sp),
                 ),
               ],
             ),
@@ -82,7 +82,7 @@ class MaintenanceIllustration extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 2.w),
       width: 6.r,
       height: 6.r,
-      decoration: BoxDecoration(color: color.withOpacity(0.5), shape: BoxShape.circle),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.5), shape: BoxShape.circle),
     );
   }
 
@@ -130,7 +130,7 @@ class MaintenanceIllustration extends StatelessWidget {
         child: Container(
           width: 40.w,
           height: 10.h,
-          color: const Color(0xFF6C2BFF).withOpacity(0.2),
+          color: const Color(0xFF6C2BFF).withValues(alpha: 0.2),
         ),
       ),
     );
@@ -226,7 +226,7 @@ class SkylineFooterDecoration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: 0.05,
-      child: Container(
+      child: SizedBox(
         height: 100.h,
         width: double.infinity,
         child: Row(

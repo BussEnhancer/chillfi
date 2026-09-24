@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { Trash2, Star, X, Check, Loader2, MessageSquareText } from 'lucide-react';
-import { apiGet, apiDelete } from '../../../utils/api';
+import { Trash2, Star, X, Check, Loader2, MessageSquareText, ShieldCheck, ShieldOff } from 'lucide-react';
+import { apiGet, apiDelete, apiPut } from '../../../utils/api';
 
 interface ApiReview {
   id: string;
@@ -76,6 +76,16 @@ const AdminReviews: React.FC = () => {
     }
   };
 
+  const handleToggleVerify = async (r: ApiReview) => {
+    try {
+      const res = await apiPut<{ success: boolean; data: { is_verified: boolean } }>(`/admin/reviews/${r.id}/verify`, {});
+      setReviews(prev => prev.map(x => x.id === r.id ? { ...x, is_verified: res.data.is_verified } : x));
+      showToast(res.data.is_verified ? 'Marked as Verified' : 'Verification removed');
+    } catch (e: any) {
+      showToast(e.message || 'Failed to update');
+    }
+  };
+
   const avgRating = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : '0.0';
   const lowRatingCount = reviews.filter(r => r.rating <= 2).length;
 
@@ -131,9 +141,14 @@ const AdminReviews: React.FC = () => {
                 {r.body && <p className="text-sm font-bold text-gray-500">{r.body}</p>}
                 <p className="text-[10px] font-bold text-gray-400 mt-1.5">{new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
-              <button onClick={() => setDeleting(r)} className="w-8 h-8 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0" title="Delete">
-                <Trash2 size={14} />
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={() => handleToggleVerify(r)} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${r.is_verified ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-[#F8F7FC] text-gray-400 hover:bg-green-50 hover:text-green-600'}`} title={r.is_verified ? 'Remove verification' : 'Mark as verified'}>
+                  {r.is_verified ? <ShieldCheck size={14} /> : <ShieldOff size={14} />}
+                </button>
+                <button onClick={() => setDeleting(r)} className="w-8 h-8 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors" title="Delete">
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
           {filtered.length === 0 && (

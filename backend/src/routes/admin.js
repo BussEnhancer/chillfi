@@ -9,22 +9,26 @@ const {
   getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
   getPromoBanners, createPromoBanner, updatePromoBanner, deletePromoBanner,
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
-  getReviews, deleteReview,
+  getReviews, deleteReview, toggleReviewVerified,
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
   getSettings, updateSettings,
   getCredentials, updateCredentials,
   uploadImage, deleteImage,
   sendPushNotification,
+  getDelhiveryStatus, testDelhiveryConnection, syncDelhiveryNow, requestDelhiveryPickup,
 } = require('../controllers/adminController');
 const {
   getProducts, getProduct, createProduct, updateProduct, deleteProduct,
 } = require('../controllers/productController');
 const {
+  getBrands, createBrand, updateBrand, deleteBrand,
+} = require('../controllers/brandController');
+const {
   getCategories, createCategory, updateCategory, deleteCategory,
 } = require('../controllers/categoryController');
 const {
   adminGetOrders, adminUpdateStatus, adminGetRefunds, adminUpdateRefund,
-  adminShipOrder, adminTrackOrder,
+  adminShipOrder, adminTrackOrder, adminSyncTracking, adminShippingLabel,
 } = require('../controllers/orderController');
 
 router.use(authenticate, staffOrAdmin);
@@ -71,6 +75,7 @@ router.delete('/promo-banners/:id', adminOnly, deletePromoBanner);
 // Reviews — staff or admin (moderation)
 router.get('/reviews', getReviews);
 router.delete('/reviews/:id', deleteReview);
+router.put('/reviews/:id/verify', toggleReviewVerified);
 
 // Contact Messages — staff or admin
 router.get('/messages', getMessages);
@@ -97,6 +102,12 @@ router.post('/products', adminOnly, upload.single('image'), createProduct);
 router.put('/products/:id', adminOnly, upload.single('image'), updateProduct);
 router.delete('/products/:id', adminOnly, deleteProduct);
 
+// Brands — admin CRUD
+router.get('/brands', adminOnly, getBrands);
+router.post('/brands', adminOnly, createBrand);
+router.put('/brands/:id', adminOnly, updateBrand);
+router.delete('/brands/:id', adminOnly, deleteBrand);
+
 // Categories — admin CRUD
 router.get('/categories', adminOnly, getCategories);
 router.post('/categories', adminOnly, createCategory);
@@ -108,6 +119,14 @@ router.get('/orders', staffOrAdmin, adminGetOrders);
 router.put('/orders/:id/status', adminOnly, adminUpdateStatus);
 router.post('/orders/:id/ship', adminOnly, adminShipOrder);
 router.get('/orders/:id/tracking', staffOrAdmin, adminTrackOrder);
+router.post('/orders/:id/sync-tracking', staffOrAdmin, adminSyncTracking);
+router.get('/orders/:id/label', staffOrAdmin, adminShippingLabel);
+
+// Delhivery integration health — admin only
+router.get('/shipping/delhivery/status', adminOnly, getDelhiveryStatus);
+router.post('/shipping/delhivery/test', adminOnly, testDelhiveryConnection);
+router.post('/shipping/delhivery/sync', adminOnly, syncDelhiveryNow);
+router.post('/shipping/delhivery/pickup', adminOnly, requestDelhiveryPickup);
 
 // Refund requests — staff can view, admin can update
 router.get('/refund-requests', staffOrAdmin, adminGetRefunds);

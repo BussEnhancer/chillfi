@@ -13,7 +13,7 @@ class HelpBannerWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF9F5FF), // Soft purple background
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
+        border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -29,7 +29,7 @@ class HelpBannerWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.secondaryPurple.withOpacity(0.1),
+                      color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                       blurRadius: 10,
                     ),
                   ],
@@ -39,7 +39,7 @@ class HelpBannerWidget extends StatelessWidget {
               Positioned(
                 top: 0,
                 right: 0,
-                child: Icon(Icons.star_rounded, color: AppColors.secondaryPurple.withOpacity(0.4), size: 12.sp),
+                child: Icon(Icons.star_rounded, color: AppColors.secondaryPurple.withValues(alpha: 0.4), size: 12.sp),
               )
             ],
           ),
@@ -73,7 +73,7 @@ class HelpBannerWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.3)),
+              border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [

@@ -44,7 +44,7 @@ class _CartScreenState extends State<CartScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
                 ),
                 child: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
               ),
@@ -132,7 +132,7 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           Container(
             padding: EdgeInsets.all(8.r),
-            decoration: BoxDecoration(color: AppColors.secondaryPurple.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppColors.secondaryPurple.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(Icons.location_on_rounded, color: AppColors.secondaryPurple, size: 18.sp),
           ),
           SizedBox(width: 12.w),
@@ -147,11 +147,15 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       Row(
                         children: [
-                          Text('Deliver to ${address.name}', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                          Flexible(
+                            child: Text('Deliver to ${address.name}',
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                          ),
                           SizedBox(width: 6.w),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                            decoration: BoxDecoration(color: AppColors.secondaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(4.r)),
+                            decoration: BoxDecoration(color: AppColors.secondaryPurple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4.r)),
                             child: Text(address.label, style: GoogleFonts.poppins(fontSize: 9.sp, color: AppColors.secondaryPurple, fontWeight: FontWeight.w600)),
                           ),
                         ],
@@ -216,6 +220,16 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildPriceSummary(CartProvider cart) {
     final s = cart.summary;
+    final coupon = cart.couponDiscount;
+
+    // GST must be calculated on the post-coupon subtotal (coupon first, then tax).
+    // The backend GET /cart returns tax on the full subtotal; adjust here when a
+    // coupon is active so the displayed total matches what the order engine charges.
+    final adjustedTax = (coupon > 0 && s.subtotal > 0)
+        ? s.taxAmount * (s.subtotal - coupon) / s.subtotal
+        : s.taxAmount;
+    final adjustedTotal = s.subtotal - coupon + s.deliveryFee + adjustedTax;
+
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)),
@@ -226,18 +240,18 @@ class _CartScreenState extends State<CartScreen> {
           SizedBox(height: 12.h),
           _priceRow('Price (${s.itemCount} items)', '₹${s.subtotal.toStringAsFixed(0)}'),
           if (s.savings > 0) _priceRow('Discount', '-₹${s.savings.toStringAsFixed(0)}', valueColor: Colors.green),
-          if (cart.couponDiscount > 0) _priceRow('Coupon Discount', '-₹${cart.couponDiscount.toStringAsFixed(0)}', valueColor: Colors.green),
+          if (coupon > 0) _priceRow('Coupon Discount', '-₹${coupon.toStringAsFixed(0)}', valueColor: Colors.green),
           _priceRow('Delivery Fee', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', valueColor: s.deliveryFee == 0 ? Colors.green : null),
-          if (s.taxAmount > 0) _priceRow('GST (18%)', '₹${s.taxAmount.toStringAsFixed(0)}'),
+          if (adjustedTax > 0) _priceRow('GST (18%)', '₹${adjustedTax.toStringAsFixed(0)}'),
           Divider(height: 20.h, color: const Color(0xFFEEEEEE)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Total Amount', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
-              Text('₹${(s.total - cart.couponDiscount).toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+              Text('₹${adjustedTotal.toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
             ],
           ),
-          if (s.savings > 0 || cart.couponDiscount > 0) ...[
+          if (s.savings > 0 || coupon > 0) ...[
             SizedBox(height: 8.h),
             Container(
               width: double.infinity,
@@ -245,7 +259,7 @@ class _CartScreenState extends State<CartScreen> {
               decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8.r)),
               alignment: Alignment.center,
               child: Text(
-                'You will save ₹${(s.savings + cart.couponDiscount).toStringAsFixed(0)} on this order',
+                'You will save ₹${(s.savings + coupon).toStringAsFixed(0)} on this order',
                 style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.green.shade700),
               ),
             ),
@@ -270,11 +284,18 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildCheckoutBar(CartProvider cart) {
     final s = cart.summary;
+    final coupon = cart.couponDiscount;
+    // Same adjusted-tax logic as _buildPriceSummary
+    final adjustedTax = (coupon > 0 && s.subtotal > 0)
+        ? s.taxAmount * (s.subtotal - coupon) / s.subtotal
+        : s.taxAmount;
+    final adjustedTotal = s.subtotal - coupon + s.deliveryFee + adjustedTax;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -5))],
         borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r), topRight: Radius.circular(24.r)),
       ),
       child: SafeArea(
@@ -286,7 +307,7 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Total Amount', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
-                Text('₹${(s.total - cart.couponDiscount).toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+                Text('₹${adjustedTotal.toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
               ],
             ),
             SizedBox(width: 20.w),
@@ -298,7 +319,7 @@ class _CartScreenState extends State<CartScreen> {
                   decoration: BoxDecoration(
                     gradient: AppColors.purpleGradient,
                     borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [BoxShadow(color: AppColors.secondaryPurple.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: AppColors.secondaryPurple.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
                   alignment: Alignment.center,
                   child: Row(
@@ -338,8 +359,8 @@ class _CartItemCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10.r),
             child: item.image != null
                 ? CachedNetworkImage(imageUrl: item.image!, width: 80.w, height: 80.h, fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: const Color(0xFFEEEEEE)),
-                    errorWidget: (_, __, ___) => Container(color: const Color(0xFFEEEEEE), child: Icon(Icons.image_outlined, size: 30.sp, color: AppColors.greyText)))
+                    placeholder: (_, _) => Container(color: const Color(0xFFEEEEEE)),
+                    errorWidget: (_, _, _) => Container(color: const Color(0xFFEEEEEE), child: Icon(Icons.image_outlined, size: 30.sp, color: AppColors.greyText)))
                 : Container(width: 80.w, height: 80.h, color: const Color(0xFFEEEEEE),
                     child: Icon(Icons.image_outlined, size: 30.sp, color: AppColors.greyText)),
           ),

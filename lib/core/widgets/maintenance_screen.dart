@@ -1,4 +1,3 @@
-import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/widgets/maintenance_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -121,7 +120,7 @@ class MaintenanceScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(18.r),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6C2BFF).withOpacity(0.3),
+                            color: const Color(0xFF6C2BFF).withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),

@@ -88,7 +88,7 @@ class _LocationIllustrationState extends State<LocationIllustration> with Single
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryOrange.withOpacity(0.4),
+                            color: AppColors.primaryOrange.withValues(alpha: 0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -142,7 +142,7 @@ class _LocationIllustrationState extends State<LocationIllustration> with Single
         width: 30.w,
         height: 50.h,
         decoration: BoxDecoration(
-          color: AppColors.secondaryPurple.withOpacity(0.1),
+          color: AppColors.secondaryPurple.withValues(alpha: 0.1),
           borderRadius: BorderRadius.all(Radius.elliptical(30.w, 50.h)),
         ),
       ),
@@ -153,7 +153,7 @@ class _LocationIllustrationState extends State<LocationIllustration> with Single
 class FoldedMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = Colors.grey.withOpacity(0.15)..style = PaintingStyle.fill;
+    Paint paint = Paint()..color = Colors.grey.withValues(alpha: 0.15)..style = PaintingStyle.fill;
     Path path = Path();
     path.moveTo(0, size.height * 0.2);
     path.lineTo(size.width * 0.3, 0);
@@ -213,7 +213,7 @@ class BenefitRow extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.08),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),

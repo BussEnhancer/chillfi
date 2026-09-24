@@ -54,7 +54,7 @@ class _ProductImageGalleryScreenState extends State<ProductImageGalleryScreen> {
                             borderRadius: BorderRadius.circular(24.r),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.secondaryPurple.withOpacity(0.05),
+                                color: AppColors.secondaryPurple.withValues(alpha: 0.05),
                                 blurRadius: 20,
                               ),
                             ],
@@ -62,7 +62,7 @@ class _ProductImageGalleryScreenState extends State<ProductImageGalleryScreen> {
                           child: Icon(
                             Icons.smartphone_rounded,
                             size: 300.sp,
-                            color: AppColors.primaryOrange.withOpacity(0.8),
+                            color: AppColors.primaryOrange.withValues(alpha: 0.8),
                           ),
                         ),
                       );
@@ -104,7 +104,7 @@ class _ProductImageGalleryScreenState extends State<ProductImageGalleryScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 10,
                           ),
                         ],
@@ -140,11 +140,11 @@ class _ProductImageGalleryScreenState extends State<ProductImageGalleryScreen> {
       child: Container(
         padding: EdgeInsets.all(8.r),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
             ),
           ],
@@ -179,13 +179,13 @@ class _ProductImageGalleryScreenState extends State<ProductImageGalleryScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withOpacity(0.5),
+                  color: isSelected ? AppColors.secondaryPurple : AppColors.lightGrey.withValues(alpha: 0.5),
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppColors.secondaryPurple.withOpacity(0.1),
+                          color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                           blurRadius: 8,
                         ),
                       ]

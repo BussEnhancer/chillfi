@@ -27,7 +27,7 @@ class WelcomeFeatureCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -38,7 +38,7 @@ class WelcomeFeatureCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: iconColor, size: 18.sp),
@@ -96,7 +96,7 @@ class ProductShowcase extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.all(Radius.elliptical(240.w, 35.h)),
-                    border: Border.all(color: AppColors.primaryOrange.withOpacity(0.2), width: 2),
+                    border: Border.all(color: AppColors.primaryOrange.withValues(alpha: 0.2), width: 2),
                   ),
                 ),
                 // Main Podium
@@ -108,7 +108,7 @@ class ProductShowcase extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.elliptical(230.w, 30.h)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -188,7 +188,7 @@ class ProductShowcase extends StatelessWidget {
                 Positioned(
                   top: 20.h,
                   right: 40.w,
-                  child: Icon(Icons.shopping_cart_rounded, color: AppColors.primaryOrange.withOpacity(0.6), size: 24.sp),
+                  child: Icon(Icons.shopping_cart_rounded, color: AppColors.primaryOrange.withValues(alpha: 0.6), size: 24.sp),
                 ),
                 // Decorative Spheres
                 Positioned(
@@ -218,7 +218,7 @@ class ProductShowcase extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

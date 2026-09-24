@@ -150,25 +150,20 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Description — desktop */}
             <div className="hidden lg:block mt-20">
-              <ProductTabs />
-              <div className="text-gray-600 space-y-4 leading-relaxed mt-6">
-                <p className="font-medium">{product.description}</p>
-                <div className="grid grid-cols-2 gap-3 py-6 border-y border-[#F8F7FC]">
-                  {[
-                    { label: 'Brand', value: product.brand_name },
-                    { label: 'Category', value: product.category_name },
-                    { label: 'Stock', value: `${product.stock} units` },
-                    { label: 'Rating', value: `${product.rating} ★ (${product.review_count?.toLocaleString()} ratings)` },
-                    ...(product.is_featured ? [{ label: 'Badge', value: 'Featured Product' }] : []),
-                    ...(product.is_flash_sale ? [{ label: 'Sale', value: 'Flash Sale Active' }] : []),
-                  ].map((spec, i) => (
-                    <div key={i} className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">{spec.label}</span>
-                      <span className="text-sm font-black text-[#111827]">{spec.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ProductTabs
+                productId={id}
+                reviewCount={product.review_count}
+                description={product.description}
+                specs={[
+                  { label: 'Brand', value: product.brand_name || '—' },
+                  { label: 'Category', value: product.category_name || '—' },
+                  { label: 'Rating', value: `${Number(product.rating).toFixed(1)} ★ (${Number(product.review_count || 0).toLocaleString()} ratings)` },
+                  { label: 'Stock', value: `${product.stock} units available` },
+                  ...(product.is_featured ? [{ label: 'Badge', value: 'Featured Product' }] : []),
+                  ...(product.is_flash_sale ? [{ label: 'Offer', value: 'Flash Sale Active' }] : []),
+                ]}
+                isLoggedIn={isLoggedIn}
+              />
             </div>
           </div>
 
@@ -214,9 +209,9 @@ const ProductDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Description — mobile */}
+            {/* Description — mobile (kept as preview above the tabs) */}
             <div className="lg:hidden mb-6">
-              <p className="text-sm font-medium text-gray-600 leading-relaxed">{product.description}</p>
+              <p className="text-sm font-medium text-gray-600 leading-relaxed line-clamp-3">{product.description}</p>
             </div>
 
             {/* Offers */}
@@ -232,7 +227,20 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Specs — mobile */}
             <div className="lg:hidden mt-6">
-              <ProductTabs />
+              <ProductTabs
+                productId={id}
+                reviewCount={product.review_count}
+                description={product.description}
+                specs={[
+                  { label: 'Brand', value: product.brand_name || '—' },
+                  { label: 'Category', value: product.category_name || '—' },
+                  { label: 'Rating', value: `${Number(product.rating).toFixed(1)} ★ (${Number(product.review_count || 0).toLocaleString()} ratings)` },
+                  { label: 'Stock', value: `${product.stock} units available` },
+                  ...(product.is_featured ? [{ label: 'Badge', value: 'Featured Product' }] : []),
+                  ...(product.is_flash_sale ? [{ label: 'Offer', value: 'Flash Sale Active' }] : []),
+                ]}
+                isLoggedIn={isLoggedIn}
+              />
             </div>
           </div>
 

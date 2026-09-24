@@ -32,12 +32,14 @@ class _TrackingData {
   final String waybill;
   final String status;
   final String? expectedDelivery;
+  final DateTime? lastUpdate;
   final List<_TrackingScan> scans;
 
   _TrackingData({
     required this.waybill,
     required this.status,
     this.expectedDelivery,
+    this.lastUpdate,
     required this.scans,
   });
 
@@ -48,8 +50,14 @@ class _TrackingData {
         : <_TrackingScan>[];
     return _TrackingData(
       waybill: j['waybill']?.toString() ?? '',
-      status: j['status']?.toString() ?? 'Unknown',
-      expectedDelivery: j['expected_delivery']?.toString(),
+      // Prefer ChillFi's normalized stage label; fall back to the raw courier status
+      status: (j['shipping_status_label'] ?? j['status'])?.toString() ?? 'Unknown',
+      expectedDelivery: j['expected_delivery'] != null
+          ? (DateTime.tryParse(j['expected_delivery'].toString()) != null
+              ? DateFormat('d MMM yyyy').format(DateTime.parse(j['expected_delivery'].toString()).toLocal())
+              : j['expected_delivery'].toString())
+          : null,
+      lastUpdate: j['last_update'] != null ? DateTime.tryParse(j['last_update'].toString()) : null,
       scans: scans,
     );
   }
@@ -61,6 +69,8 @@ class DelhiveryTrackingTimelineScreen extends StatefulWidget {
   final String? orderNumber;
   final String? orderStatus;
   final DateTime? createdAt;
+  /// 'shiprocket' | 'delhivery' — determines branding on the tracking screen
+  final String shipmentProvider;
 
   const DelhiveryTrackingTimelineScreen({
     super.key,
@@ -69,6 +79,7 @@ class DelhiveryTrackingTimelineScreen extends StatefulWidget {
     this.orderNumber,
     this.orderStatus,
     this.createdAt,
+    this.shipmentProvider = 'delhivery',
   });
 
   @override
@@ -116,9 +127,12 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
     final status = _data?.status ?? widget.orderStatus ?? 'Processing';
     final expectedDelivery = _data?.expectedDelivery;
     final scans = _data?.scans ?? [];
-    final lastUpdated = scans.isNotEmpty && scans.first.time != null
-        ? _fmt(scans.first.time!)
-        : null;
+    final lastUpdated = _data?.lastUpdate != null
+        ? _fmt(_data!.lastUpdate!)
+        : scans.isNotEmpty && scans.first.time != null
+            ? _fmt(scans.first.time!)
+            : null;
+    final isShiprocket = widget.shipmentProvider == 'shiprocket';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -151,7 +165,7 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
               ),
             ),
             Text(
-              "Delhivery live updates",
+              isShiprocket ? "Shiprocket live updates" : "Delhivery live updates",
               style: GoogleFonts.poppins(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
@@ -189,7 +203,7 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
                   CircularProgressIndicator(color: AppColors.secondaryPurple, strokeWidth: 2),
                   SizedBox(height: 16.h),
                   Text(
-                    "Fetching from Delhivery...",
+                    isShiprocket ? "Fetching from Shiprocket..." : "Fetching from Delhivery...",
                     style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
                   ),
                 ],
@@ -205,7 +219,7 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
                         Icon(Icons.location_off_rounded, size: 48.sp, color: AppColors.greyText),
                         SizedBox(height: 16.h),
                         Text(
-                          _error!,
+                          _error!, // ignore: unnecessary_null_check_on_nullable_value
                           style: GoogleFonts.poppins(
                             fontSize: 14.sp,
                             color: AppColors.greyText,
@@ -240,18 +254,25 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
                         waybill: waybill,
                         status: status,
                         expectedDelivery: expectedDelivery,
+                        isShiprocket: isShiprocket,
                       ),
                       SizedBox(height: 16.h),
                       // Order info card
                       _OrderInfoCard(orderNumber: widget.orderNumber),
                       SizedBox(height: 24.h),
-                      // Real scan timeline OR status-based fallback
-                      scans.isNotEmpty
-                          ? _LiveScanTimeline(scans: scans)
-                          : VerticalTrackingTimeline(
-                              orderStatus: status,
-                              createdAt: widget.createdAt ?? DateTime.now(),
-                            ),
+                      // Real courier scans; before the first scan show only facts we know (no invented dates)
+                      _LiveScanTimeline(
+                        scans: scans.isNotEmpty
+                            ? scans
+                            : [
+                                _TrackingScan(
+                                  location: '',
+                                  instructions: 'Tracking updates will appear once the courier scans your package',
+                                  status: 'Order placed',
+                                  time: widget.createdAt,
+                                ),
+                              ],
+                      ),
                       SizedBox(height: 24.h),
                       // Last-updated info
                       _LastUpdatedCard(lastUpdated: lastUpdated),
@@ -269,8 +290,14 @@ class _LiveHeaderCard extends StatelessWidget {
   final String waybill;
   final String status;
   final String? expectedDelivery;
+  final bool isShiprocket;
 
-  const _LiveHeaderCard({required this.waybill, required this.status, this.expectedDelivery});
+  const _LiveHeaderCard({
+    required this.waybill,
+    required this.status,
+    this.expectedDelivery,
+    this.isShiprocket = true,
+  });
 
   Color get _statusColor {
     switch (status.toLowerCase()) {
@@ -299,12 +326,23 @@ class _LiveHeaderCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Provider logo circle
           Container(
             width: 40.r,
             height: 40.r,
-            decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: isShiprocket ? const Color(0xFF002B5C) : Colors.black,
+              shape: BoxShape.circle,
+            ),
             child: Center(
-              child: Text("D", style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 20.sp)),
+              child: Text(
+                isShiprocket ? "S" : "D",
+                style: GoogleFonts.poppins(
+                  color: isShiprocket ? const Color(0xFF00C2FF) : Colors.red,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20.sp,
+                ),
+              ),
             ),
           ),
           SizedBox(width: 12.w),
@@ -312,19 +350,27 @@ class _LiveHeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("DELHIVERY", style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w800, color: AppColors.darkText, letterSpacing: 1)),
+                Text(
+                  isShiprocket ? "SHIPROCKET" : "DELHIVERY",
+                  style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w800, color: AppColors.darkText, letterSpacing: 1),
+                ),
                 if (waybill.isNotEmpty)
                   GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: waybill));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Waybill copied"), duration: Duration(seconds: 1)),
+                        SnackBar(content: Text(isShiprocket ? "AWB copied" : "Waybill copied"), duration: const Duration(seconds: 1)),
                       );
                     },
                     child: Row(
                       children: [
                         Flexible(
-                          child: Text("Waybill: $waybill", style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          child: Text(
+                            "${isShiprocket ? 'AWB' : 'Waybill'}: $waybill",
+                            style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         SizedBox(width: 4.w),
                         Icon(Icons.copy_rounded, size: 12.sp, color: AppColors.greyText),
@@ -447,7 +493,7 @@ class _LiveScanTimeline extends StatelessWidget {
                       ),
                       if (!isLast)
                         Expanded(
-                          child: Container(
+                          child: SizedBox(
                             width: 2,
                             child: CustomPaint(painter: LinePainter(color: Colors.green, isDashed: isFirst)),
                           ),

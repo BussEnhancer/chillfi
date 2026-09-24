@@ -51,12 +51,12 @@ class ProductListingCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: AppColors.lightGrey.withOpacity(0.4)),
+          border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.4)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,10 +150,10 @@ class ProductListingCard extends StatelessWidget {
                   SizedBox(height: 6.h),
                   Row(
                     children: [
-                      Icon(Icons.star_rounded, color: Colors.orange, size: 12.sp),
+                      Icon(Icons.star_rounded, color: rating > 0 ? Colors.orange : AppColors.lightGrey, size: 12.sp),
                       SizedBox(width: 2.w),
                       Text(
-                        '$rating ($reviews)',
+                        rating > 0 ? '$rating ($reviews)' : 'No ratings yet',
                         style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500, color: AppColors.greyText),
                       ),
                     ],

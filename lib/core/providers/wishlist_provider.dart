@@ -87,6 +87,15 @@ class WishlistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> deleteReview(String productId, String reviewId) async {
+    final ok = await _profileService.deleteReview(productId, reviewId);
+    if (ok) {
+      myReviews.removeWhere((r) => r.id == reviewId);
+      notifyListeners();
+    }
+    return ok;
+  }
+
   Future<void> loadNotifications() async {
     notifications = await _profileService.getNotifications();
     unreadNotificationCount = 0;

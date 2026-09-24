@@ -16,13 +16,28 @@ class OrderDetailsScreen extends StatefulWidget {
   State<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
 }
 
-class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
+class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CartProvider>().loadOrder(widget.orderId);
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Shipment status changes server-side (Delhivery webhooks); refresh when the user comes back.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<CartProvider>().loadOrder(widget.orderId);
+    }
   }
 
   Future<void> _cancelOrder(OrderModel order) async {
@@ -68,7 +83,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(color: selected ? AppColors.secondaryPurple : Colors.grey.shade300, width: 1.5),
-                            color: selected ? AppColors.secondaryPurple.withOpacity(0.08) : null,
+                            color: selected ? AppColors.secondaryPurple.withValues(alpha: 0.08) : null,
                           ),
                           child: Text(t, style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w700, color: selected ? AppColors.secondaryPurple : AppColors.greyText)),
                         ),
@@ -125,6 +140,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+  // Mirrors backend utils/shipmentStatus.js labels
+  String? _shippingLabel(String? s) => const {
+        'manifested': 'Shipment created',
+        'pickup_pending': 'Awaiting pickup',
+        'in_transit': 'In transit',
+        'at_destination_hub': 'Reached delivery hub',
+        'out_for_delivery': 'Out for delivery',
+        'delivered': 'Delivered',
+        'rto_in_transit': 'Returning to seller',
+        'rto_delivered': 'Returned to seller',
+        'cancelled': 'Shipment cancelled',
+      }[s];
+
   Color _statusColor(String status) {
     switch (status) {
       case 'Processing': return Colors.blue;
@@ -168,7 +196,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               Text(order.orderNumber, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                                decoration: BoxDecoration(color: _statusColor(order.status).withOpacity(0.1), borderRadius: BorderRadius.circular(8.r)),
+                                decoration: BoxDecoration(color: _statusColor(order.status).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8.r)),
                                 child: Text(order.status, style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: _statusColor(order.status))),
                               ),
                             ],
@@ -177,7 +205,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           _infoRow('Payment', order.paymentMethod),
                           _infoRow('Payment Status', order.paymentStatus),
                           _infoRow('Date', '${order.createdAt.day}/${order.createdAt.month}/${order.createdAt.year}'),
-                          if (order.trackingId != null) _infoRow('Tracking ID', order.trackingId!),
+                          if (order.trackingId != null) _infoRow('Tracking ID (AWB)', order.trackingId!),
+                          if (_shippingLabel(order.shippingStatus) != null) _infoRow('Shipment', _shippingLabel(order.shippingStatus)!),
                         ],
                       ),
                     ),
@@ -228,8 +257,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       ),
                     ),
 
-                    // Track button
-                    if (order.status == 'Shipped' || order.status == 'Delivered') ...[
+                    // Track button — available as soon as Delhivery assigns an AWB
+                    if (order.trackingId != null || order.status == 'Shipped' || order.status == 'Delivered') ...[
                       SizedBox(height: 20.h),
                       SizedBox(
                         width: double.infinity,
@@ -242,6 +271,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               orderNumber: order.orderNumber,
                               orderStatus: order.status,
                               createdAt: order.createdAt,
+                              shipmentProvider: order.shipmentProvider,
                             ),
                           )),
                           style: ElevatedButton.styleFrom(
@@ -281,7 +311,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
                           decoration: BoxDecoration(
-                            color: (order.refundRequest!.status == 'Refunded' ? Colors.green : Colors.amber).withOpacity(0.1),
+                            color: (order.refundRequest!.status == 'Refunded' ? Colors.green : Colors.amber).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(14.r),
                           ),
                           child: Text(
@@ -301,7 +331,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             onPressed: () => _requestRefund(order),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.secondaryPurple,
-                              side: BorderSide(color: AppColors.secondaryPurple.withOpacity(0.4)),
+                              side: BorderSide(color: AppColors.secondaryPurple.withValues(alpha: 0.4)),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                             ),
                             child: Text('Request Refund / Return', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.secondaryPurple)),

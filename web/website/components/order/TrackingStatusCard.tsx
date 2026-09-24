@@ -4,6 +4,7 @@ import { CheckCircle2, Truck, Clock, XCircle, Star } from 'lucide-react';
 interface TrackingStatusCardProps {
   status: string;
   updatedAt: string;
+  detail?: string | null; // courier-level stage, e.g. "Out for delivery"
 }
 
 const STATUS_CONFIG: Record<string, { icon: React.ReactNode; bg: string; iconBg: string; title: string; message: string }> = {
@@ -13,7 +14,7 @@ const STATUS_CONFIG: Record<string, { icon: React.ReactNode; bg: string; iconBg:
   Cancelled: { icon: <XCircle size={32} />, bg: 'bg-red-50 border-red-100', iconBg: 'bg-red-500 shadow-red-200', title: 'Cancelled', message: 'Your order was cancelled on' },
 };
 
-const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updatedAt }) => {
+const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updatedAt, detail }) => {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.Processing;
   const d = new Date(updatedAt);
   const dateStr = `${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
@@ -25,7 +26,7 @@ const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updated
           {cfg.icon}
         </div>
         <div>
-          <h3 className="text-xl font-black text-[#111827] mb-1">{cfg.title}</h3>
+          <h3 className="text-xl font-black text-[#111827] mb-1">{cfg.title}{detail && detail !== cfg.title && <span className="text-sm font-bold text-gray-500"> · {detail}</span>}</h3>
           <p className="text-sm font-bold text-gray-500 leading-tight">
             {cfg.message} <br />
             <span className="text-[#111827]">{dateStr}</span>

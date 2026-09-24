@@ -26,19 +26,19 @@ class ProductOfferCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.4)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.1),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 18.sp),

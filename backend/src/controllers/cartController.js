@@ -27,8 +27,8 @@ const getCart = async (req, res) => {
 
   const subtotal = items.rows.reduce((s, i) => s + i.price * i.quantity, 0);
   const savings = items.rows.reduce((s, i) => s + (i.old_price ? (i.old_price - i.price) * i.quantity : 0), 0);
-  const deliveryFee = await getShippingFee(req.query.pincode, subtotal);
-  const taxAmount = await getGstAmount(subtotal);
+  const deliveryFee = items.rows.length ? await getShippingFee(req.query.pincode, subtotal) : 0;
+  const taxAmount = items.rows.length ? await getGstAmount(subtotal) : 0;
 
   res.json({
     success: true,
@@ -107,7 +107,7 @@ const applyCoupon = async (req, res) => {
     SELECT * FROM coupons
     WHERE UPPER(code) = UPPER($1) AND is_active = TRUE
       AND (expires_at IS NULL OR expires_at > NOW())
-      AND used_count < usage_limit
+      AND (usage_limit IS NULL OR used_count < usage_limit)
   `, [code]);
 
   if (!result.rows.length) {
@@ -175,7 +175,7 @@ const getActiveCoupons = async (req, res) => {
   const result = await pool.query(`
     SELECT id, code, type, value, min_order, max_discount, expires_at
     FROM coupons
-    WHERE is_active = TRUE AND (expires_at IS NULL OR expires_at > NOW()) AND used_count < usage_limit
+    WHERE is_active = TRUE AND (expires_at IS NULL OR expires_at > NOW()) AND (usage_limit IS NULL OR used_count < usage_limit)
     ORDER BY created_at DESC
   `);
   res.json({ success: true, data: { coupons: result.rows } });

@@ -3,6 +3,7 @@ import AdminLayout from '../../../components/admin/AdminLayout';
 import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
 import { apiGet, apiPut } from '../../../utils/api';
+import DelhiveryStatusPanel from '../../../components/admin/DelhiveryStatusPanel';
 
 const tabs = [
   { id: 'store', label: 'Store Info', icon: <Store size={16} /> },
@@ -387,12 +388,17 @@ const AdminSettings: React.FC = () => {
               { id: 'firebase', label: 'Firebase', desc: 'Push notification credentials' },
               { id: 'payment', label: 'Payment Gateway', desc: 'PhonePe & Razorpay credentials' },
               { id: 'media', label: 'Media / CDN', desc: 'Cloudinary image upload credentials' },
+              { id: 'shipping', label: 'Shipping (Delhivery / Shiprocket)', desc: 'Courier API tokens, pickup locations and environment. Secrets are encrypted and never shown back.' },
             ];
             const saveCred = async (key: string) => {
               const val = credEdit[key];
               if (val === undefined) return;
               setCredSaving(s => ({ ...s, [key]: true }));
               try {
+                if (key === 'PHONEPE_ENV' && val === 'PRODUCTION' &&
+                    !window.confirm('Switch PhonePe to PRODUCTION? Customers will be charged REAL money. Make sure the live Merchant ID / Salt Key are saved first.')) return;
+                if (key === 'DELHIVERY_ENV' && val === 'production' &&
+                    !window.confirm('Switch Delhivery to PRODUCTION? New orders will create REAL, chargeable shipments.')) return;
                 await apiPut('/admin/credentials', { key, value: val });
                 showToast('Credential saved!');
                 loadCredentials();
@@ -405,6 +411,7 @@ const AdminSettings: React.FC = () => {
             };
             return (
               <div className="space-y-5">
+                <DelhiveryStatusPanel refreshKey={credentials.length + Object.keys(credSaving).length} />
                 {credLoading ? (
                   <div className="flex items-center gap-2 text-gray-400 py-6"><Loader2 size={16} className="animate-spin" /><span className="text-sm font-bold">Loading credentials...</span></div>
                 ) : (
@@ -475,7 +482,7 @@ const AdminSettings: React.FC = () => {
                   })
                 )}
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                  <p className="text-xs font-black text-amber-700">Credentials are stored securely in the database. Changes take effect immediately — no server restart needed.</p>
+                  <p className="text-xs font-black text-amber-700">Secret credentials are encrypted in the database and only the last 4 characters are ever shown. Changes take effect within 30 seconds — no server restart needed.</p>
                 </div>
               </div>
             );

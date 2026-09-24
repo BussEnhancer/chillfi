@@ -10,9 +10,12 @@ interface DeliveryInfoSectionProps {
   state: string | null;
   pincode: string | null;
   trackingId: string | null;
+  courier?: string | null;
+  env?: string | null;
+  expectedDelivery?: string | null;
 }
 
-const DeliveryInfoSection: React.FC<DeliveryInfoSectionProps> = ({ addrName, addrPhone, line1, line2, city, state, pincode, trackingId }) => {
+const DeliveryInfoSection: React.FC<DeliveryInfoSectionProps> = ({ addrName, addrPhone, line1, line2, city, state, pincode, trackingId, courier, env, expectedDelivery }) => {
   return (
     <div className="bg-white rounded-[24px] border border-[#ECECEC] p-8 h-full shadow-sm">
       <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8">Delivery Information</h3>
@@ -42,7 +45,16 @@ const DeliveryInfoSection: React.FC<DeliveryInfoSectionProps> = ({ addrName, add
            <div>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tracking Info</p>
               {trackingId ? (
-                <p className="text-xs font-bold text-gray-500">Tracking ID: <span className="text-[#111827] font-black">{trackingId}</span></p>
+                <>
+                  <p className="text-xs font-bold text-gray-500">Courier: <span className="text-[#111827] font-black capitalize">{courier || 'Delhivery'}</span></p>
+                  <p className="text-xs font-bold text-gray-500 mt-1">AWB: <span className="text-[#111827] font-black">{trackingId}</span></p>
+                  {expectedDelivery && (
+                    <p className="text-xs font-bold text-gray-500 mt-1">Expected by: <span className="text-[#111827] font-black">{new Date(expectedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span></p>
+                  )}
+                  {(courier || 'delhivery') === 'delhivery' && env === 'production' && (
+                    <a href={`https://www.delhivery.com/track-v2/package/${trackingId}`} target="_blank" rel="noopener noreferrer" className="inline-block text-xs font-black text-[#FF6B2C] mt-2 hover:underline">Track on Delhivery →</a>
+                  )}
+                </>
               ) : (
                 <p className="text-xs font-bold text-gray-400">Tracking ID not assigned yet</p>
               )}

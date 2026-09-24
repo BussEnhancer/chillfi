@@ -126,7 +126,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 52.r,
-                    backgroundColor: AppColors.secondaryPurple.withOpacity(0.1),
+                    backgroundColor: AppColors.secondaryPurple.withValues(alpha: 0.1),
                     child: profile?.avatarUrl != null
                         ? ClipOval(child: Image.network(profile!.avatarUrl!, width: 104.w, height: 104.h, fit: BoxFit.cover))
                         : Icon(Icons.person_rounded, size: 56.sp, color: AppColors.secondaryPurple),

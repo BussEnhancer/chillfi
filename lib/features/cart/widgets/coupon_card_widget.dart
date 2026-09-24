@@ -34,18 +34,18 @@ class CouponCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.3)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           // Left: Ticket Badge
           CustomPaint(
-            painter: CouponTicketPainter(color: themeColor.withOpacity(0.1)),
+            painter: CouponTicketPainter(color: themeColor.withValues(alpha: 0.1)),
             child: Container(
               width: 80.w,
               height: 70.h,
@@ -66,7 +66,7 @@ class CouponCardWidget extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w600,
-                      color: themeColor.withOpacity(0.6),
+                      color: themeColor.withValues(alpha: 0.6),
                     ),
                   ),
                 ],

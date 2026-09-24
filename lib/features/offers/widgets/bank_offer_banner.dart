@@ -21,7 +21,7 @@ class BankOfferBanner extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.green.withOpacity(0.1)),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -63,7 +63,7 @@ class BankOfferBanner extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -102,7 +102,7 @@ class BankOfferBanner extends StatelessWidget {
       width: isActive ? 12.w : 4.w,
       height: 4.h,
       decoration: BoxDecoration(
-        color: isActive ? Colors.green : Colors.green.withOpacity(0.2),
+        color: isActive ? Colors.green : Colors.green.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2.r),
       ),
     );

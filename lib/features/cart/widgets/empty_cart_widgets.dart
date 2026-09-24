@@ -1,4 +1,3 @@
-import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,7 +32,7 @@ class EmptyCartIllustration extends StatelessWidget {
             right: 30.w,
             child: Transform.rotate(
               angle: -0.2,
-              child: Icon(Icons.send_rounded, color: const Color(0xFF6C2BFF).withOpacity(0.4), size: 32.sp),
+              child: Icon(Icons.send_rounded, color: const Color(0xFF6C2BFF).withValues(alpha: 0.4), size: 32.sp),
             ),
           ),
 
@@ -53,7 +52,7 @@ class EmptyCartIllustration extends StatelessWidget {
   }
 
   Widget _star(double size) {
-    return Icon(Icons.auto_awesome_rounded, color: const Color(0xFF8B5CFF).withOpacity(0.3), size: size);
+    return Icon(Icons.auto_awesome_rounded, color: const Color(0xFF8B5CFF).withValues(alpha: 0.3), size: size);
   }
 }
 
@@ -81,7 +80,7 @@ class MiniProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

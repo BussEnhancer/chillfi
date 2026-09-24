@@ -23,7 +23,7 @@ class CategoryBannerWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.1),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -39,7 +39,7 @@ class CategoryBannerWidget extends StatelessWidget {
               width: 100.r,
               height: 100.r,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
             ),
@@ -103,7 +103,7 @@ class CategoryBannerWidget extends StatelessWidget {
                       Icon(
                         Icons.shopping_bag_rounded,
                         size: 80.sp,
-                        color: AppColors.secondaryPurple.withOpacity(0.8),
+                        color: AppColors.secondaryPurple.withValues(alpha: 0.8),
                       ),
                       Positioned(
                         right: 0,
@@ -131,7 +131,7 @@ class CategoryBannerWidget extends StatelessWidget {
       width: isActive ? 15.w : 6.w,
       height: 6.h,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(10),
       ),
     );

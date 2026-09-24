@@ -24,7 +24,7 @@ const ShopByCategory: React.FC = () => {
 
         <div className="flex justify-between items-center overflow-x-auto pb-4 gap-6 scrollbar-hide">
           {active.map((cat, i) => (
-            <Link key={cat.id} to="/categories" className="flex flex-col items-center gap-4 min-w-[100px] cursor-pointer group">
+            <Link key={cat.id} to={`/products?category=${cat.id}`} className="flex flex-col items-center gap-4 min-w-[100px] cursor-pointer group">
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg border-2 border-transparent group-hover:border-[#FF6B2C]"
                 style={{ backgroundColor: categoryColors[cat.name] || '#F3F4F6' }}

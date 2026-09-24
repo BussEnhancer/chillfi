@@ -1,5 +1,7 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { apiGet } from '../utils/api'
+import MaintenancePage from '../pages/Maintenance/index'
 
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 import AdminRoute from '../components/auth/AdminRoute'
@@ -20,6 +22,7 @@ import AdminPromoBanners from '../pages/Admin/PromoBanners/index'
 import AdminNotifications from '../pages/Admin/Notifications/index'
 import AdminRefunds from '../pages/Admin/Refunds/index'
 import AdminShippingRules from '../pages/Admin/ShippingRules/index'
+import AdminBrands from '../pages/Admin/Brands/index'
 
 import HomePage from '../pages/Home/index'
 import SearchPage from '../pages/Search/index'
@@ -45,9 +48,28 @@ import AboutUsPage from '../pages/AboutUs/index'
 import ContactUsPage from '../pages/ContactUs/index'
 import PrivacyPolicyPage from '../pages/PrivacyPolicy/index'
 import TermsConditionsPage from '../pages/TermsConditions/index'
+import RefundPolicyPage from '../pages/RefundPolicy/index'
+import ReturnPolicyPage from '../pages/ReturnPolicy/index'
+import ShippingPolicyPage from '../pages/ShippingPolicy/index'
+import DeleteAccountPage from '../pages/DeleteAccount/index'
 import NotFoundPage from '../pages/NotFound/index'
 
 function App() {
+  const location = useLocation()
+  const [maintenance, setMaintenance] = useState<{ on: boolean; message: string } | null>(null)
+
+  useEffect(() => {
+    apiGet<{ success: boolean; data: { maintenance_mode: boolean; maintenance_message: string } }>('/app-config')
+      .then(res => setMaintenance({ on: !!res.data.maintenance_mode, message: res.data.maintenance_message }))
+      .catch(() => setMaintenance({ on: false, message: '' }))
+  }, [])
+
+  // Admin routes must stay reachable during maintenance so an admin can log in and turn it back off.
+  const isAdminRoute = location.pathname.startsWith('/admin')
+  if (maintenance?.on && !isAdminRoute) {
+    return <MaintenancePage message={maintenance.message || "We're making some improvements to serve you better. We'll be back soon!"} />
+  }
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -76,12 +98,17 @@ function App() {
       <Route path="/contact" element={<ContactUsPage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsConditionsPage />} />
+      <Route path="/refund-policy" element={<RefundPolicyPage />} />
+      <Route path="/return-policy" element={<ReturnPolicyPage />} />
+      <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+      <Route path="/delete-account" element={<DeleteAccountPage />} />
 
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
       <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
       <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
+      <Route path="/admin/brands" element={<AdminRoute><AdminBrands /></AdminRoute>} />
       <Route path="/admin/analytics" element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
       <Route path="/admin/coupons" element={<AdminRoute><AdminCoupons /></AdminRoute>} />
       <Route path="/admin/reviews" element={<AdminRoute><AdminReviews /></AdminRoute>} />

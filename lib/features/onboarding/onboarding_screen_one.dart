@@ -5,6 +5,7 @@ import 'package:chillfi/features/onboarding/widgets/onboarding_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreenOne extends StatefulWidget {
   const OnboardingScreenOne({super.key});
@@ -66,7 +67,10 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
             top: 55.h,
             right: 24.w,
             child: TextButton(
-              onPressed: () {
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('has_seen_onboarding', true);
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const WelcomeScreen()),

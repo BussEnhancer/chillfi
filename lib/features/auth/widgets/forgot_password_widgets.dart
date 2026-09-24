@@ -37,7 +37,7 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
     return AnimatedBuilder(
       animation: _floatAnimation,
       builder: (context, child) {
-        return Container(
+        return SizedBox(
           height: 180.h,
           width: 220.w,
           child: Stack(
@@ -47,12 +47,12 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
               Positioned(
                 left: 20.w,
                 bottom: 40.h,
-                child: _buildLeaf(45, AppColors.secondaryPurple.withOpacity(0.1)),
+                child: _buildLeaf(45, AppColors.secondaryPurple.withValues(alpha: 0.1)),
               ),
               Positioned(
                 right: 20.w,
                 top: 40.h,
-                child: _buildLeaf(-30, AppColors.primaryOrange.withOpacity(0.1)),
+                child: _buildLeaf(-30, AppColors.primaryOrange.withValues(alpha: 0.1)),
               ),
 
               // Smartphone Illustration
@@ -67,7 +67,7 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
                     border: Border.all(color: AppColors.fieldBorder, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -78,7 +78,7 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
                       SizedBox(height: 8.h),
                       Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: AppColors.fieldBorder, borderRadius: BorderRadius.circular(2))),
                       const Spacer(),
-                      Icon(Icons.lock_person_rounded, size: 40.sp, color: AppColors.secondaryPurple.withOpacity(0.2)),
+                      Icon(Icons.lock_person_rounded, size: 40.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.2)),
                       const Spacer(),
                       Padding(
                         padding: EdgeInsets.all(8.r),
@@ -114,8 +114,8 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
               ),
 
               // Sparkles
-              Positioned(top: 20.h, left: 40.w, child: Icon(Icons.auto_awesome, size: 14.sp, color: AppColors.primaryOrange.withOpacity(0.6))),
-              Positioned(top: 50.h, right: 30.w, child: Icon(Icons.auto_awesome, size: 18.sp, color: AppColors.secondaryPurple.withOpacity(0.6))),
+              Positioned(top: 20.h, left: 40.w, child: Icon(Icons.auto_awesome, size: 14.sp, color: AppColors.primaryOrange.withValues(alpha: 0.6))),
+              Positioned(top: 50.h, right: 30.w, child: Icon(Icons.auto_awesome, size: 18.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.6))),
             ],
           ),
         );
@@ -144,7 +144,7 @@ class _ForgotPasswordIllustrationState extends State<ForgotPasswordIllustration>
         color: AppColors.secondaryPurple,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
-          BoxShadow(color: AppColors.secondaryPurple.withOpacity(0.4), blurRadius: 15, offset: const Offset(4, 8)),
+          BoxShadow(color: AppColors.secondaryPurple.withValues(alpha: 0.4), blurRadius: 15, offset: const Offset(4, 8)),
         ],
       ),
       child: Icon(Icons.lock_rounded, color: Colors.white, size: 32.sp),
@@ -166,7 +166,7 @@ class ResetFormCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -180,7 +180,7 @@ class ResetFormCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AppColors.secondaryPurple.withOpacity(0.1),
+                  color: AppColors.secondaryPurple.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.smartphone_rounded, color: AppColors.secondaryPurple, size: 20.sp),
@@ -242,7 +242,7 @@ class ResetFormCard extends StatelessWidget {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: 'Enter your mobile number',
-                      hintStyle: GoogleFonts.poppins(fontSize: 14.sp, color: AppColors.greyText.withOpacity(0.5)),
+                      hintStyle: GoogleFonts.poppins(fontSize: 14.sp, color: AppColors.greyText.withValues(alpha: 0.5)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
                     ),

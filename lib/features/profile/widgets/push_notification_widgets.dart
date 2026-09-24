@@ -30,7 +30,7 @@ class PushHeroBanner extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(15.r),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
                   child: Stack(
@@ -167,7 +167,7 @@ class PushCategoryTile extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.08),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 22.sp),
@@ -237,7 +237,7 @@ class PushInfoRowCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22.r),
         boxShadow: backgroundColor == null ? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

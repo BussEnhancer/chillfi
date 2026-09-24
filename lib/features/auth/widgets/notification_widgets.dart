@@ -61,7 +61,7 @@ class _NotificationIllustrationState extends State<NotificationIllustration> wit
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppColors.primaryOrange.withOpacity(0.15),
+                  AppColors.primaryOrange.withValues(alpha: 0.15),
                   Colors.transparent,
                 ],
               ),
@@ -145,7 +145,7 @@ class _NotificationIllustrationState extends State<NotificationIllustration> wit
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -160,7 +160,7 @@ class _NotificationIllustrationState extends State<NotificationIllustration> wit
       angle: isLeft ? -0.5 : 0.5,
       child: Icon(
         Icons.graphic_eq_rounded,
-        color: AppColors.primaryOrange.withOpacity(0.3),
+        color: AppColors.primaryOrange.withValues(alpha: 0.3),
         size: 30.sp,
       ),
     );
@@ -188,7 +188,7 @@ class NotificationBenefitRow extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.1),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 22.sp),

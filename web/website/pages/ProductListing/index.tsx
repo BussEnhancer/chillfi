@@ -109,7 +109,6 @@ const ProductListingPage: React.FC = () => {
   const categoryLabel = category ? (products[0]?.category_name || 'Category') : '';
 
   const breadcrumbItems = [
-    { label: 'Home', href: '/' },
     ...(categoryLabel ? [{ label: categoryLabel }] : [{ label: 'All Products' }]),
   ];
 

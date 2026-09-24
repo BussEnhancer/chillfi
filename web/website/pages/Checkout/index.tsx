@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
@@ -82,14 +82,40 @@ const CheckoutPage: React.FC = () => {
       .finally(() => setLoadingAddresses(false));
   }, []);
 
+  // Overlapping runs of the effect below (React dev-mode's double-invoke, or a
+  // quick address change) must never clear+re-add the shared server-side cart
+  // concurrently — that races and can leave duplicated/corrupted quantities.
+  // `cartSyncChain` serializes every run strictly after the previous one fully
+  // finishes; `cartSyncSeq` additionally lets a run that's gone stale while
+  // waiting in that queue skip its (now pointless) network calls entirely, and
+  // guarantees only the truly-latest run's result is ever written to state.
+  const cartSyncChain = useRef<Promise<void>>(Promise.resolve());
+  const cartSyncSeq = useRef(0);
+
   useEffect(() => {
+    if (cart.length === 0) return;
+    const mySeq = ++cartSyncSeq.current;
     const pincode = addresses.find(a => a.id === selectedAddressId)?.pincode;
-    apiGet<{ success: boolean; data: { summary: { delivery_fee: number; tax_amount: number } } }>(
-      `/cart${pincode ? `?pincode=${pincode}` : ''}`
-    )
-      .then(res => setCartSummary(res.data.summary))
-      .catch(() => {});
-  }, [selectedAddressId, addresses]);
+    const cartSnapshot = cart;
+
+    cartSyncChain.current = cartSyncChain.current.then(async () => {
+      if (cartSyncSeq.current !== mySeq) return; // superseded before its turn — skip
+      try {
+        // The backend cart can be stale (left over from a previous session) and
+        // out of sync with the locally-tracked cart — sync it first so the tax/
+        // delivery preview always reflects what's actually in the user's cart,
+        // not whatever the server happened to have last.
+        await apiDelete('/cart/clear');
+        await Promise.all(cartSnapshot.map(item => apiPost('/cart/add', { product_id: item.id, quantity: item.qty })));
+        const res = await apiGet<{ success: boolean; data: { summary: { delivery_fee: number; tax_amount: number } } }>(
+          `/cart${pincode ? `?pincode=${pincode}` : ''}`
+        );
+        if (cartSyncSeq.current === mySeq) setCartSummary(res.data.summary);
+      } catch {
+        if (cartSyncSeq.current === mySeq) setCartSummary(null);
+      }
+    });
+  }, [selectedAddressId, addresses, cart]);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -128,6 +154,7 @@ const CheckoutPage: React.FC = () => {
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) { setOrderError('Please select a delivery address'); return; }
     if (cart.length === 0) { setOrderError('Your cart is empty'); return; }
+    if (!cartSummary) { setOrderError('Still calculating your total — please wait a moment.'); return; }
     setPlacingOrder(true); setOrderError('');
 
     try {
@@ -148,7 +175,7 @@ const CheckoutPage: React.FC = () => {
       if (payment === 'COD') {
         // COD: confirm and go straight to success
         await apiPost('/payment/cod-confirm', { order_id: orderId });
-        navigate('/order-success', { state: { orderNumber, total }, replace: true });
+        navigate('/order-success', { state: { orderNumber, total, cod: true }, replace: true });
       } else {
         // Online payment: initiate PhonePe
         const pmtRes = await apiPost<{ success: boolean; data: { payment_url: string; merchant_txn_id: string } }>(
@@ -415,11 +442,13 @@ const CheckoutPage: React.FC = () => {
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={placingOrder || cart.length === 0 || !selectedAddressId}
+                disabled={placingOrder || cart.length === 0 || !selectedAddressId || !cartSummary}
                 className="w-full bg-gradient-to-r from-[#FF6B2C] to-[#E05520] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 disabled:scale-100"
               >
                 {placingOrder ? (
                   <><Loader2 size={18} className="animate-spin" />Placing Order...</>
+                ) : !cartSummary ? (
+                  <><Loader2 size={18} className="animate-spin" />Calculating total...</>
                 ) : (
                   <>Place Order • ₹{Math.max(0, orderTotal).toLocaleString()}</>
                 )}

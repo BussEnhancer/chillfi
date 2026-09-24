@@ -20,6 +20,25 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+// Attaches req.user when a valid token is present, but never rejects the request —
+// used by routes that personalize for logged-in users while staying open to guests.
+const optionalAuthenticate = async (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) return next();
+
+  const token = header.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const result = await pool.query('SELECT id, name, email, phone, role, avatar_url, is_active FROM users WHERE id = $1', [decoded.id]);
+    if (result.rows.length && result.rows[0].is_active) {
+      req.user = result.rows[0];
+    }
+  } catch {
+    // invalid/expired token — proceed as guest rather than failing
+  }
+  next();
+};
+
 const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') {
     return res.status(403).json({ success: false, message: 'Admin access required' });
@@ -34,4 +53,4 @@ const staffOrAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { authenticate, adminOnly, staffOrAdmin };
+module.exports = { authenticate, optionalAuthenticate, adminOnly, staffOrAdmin };

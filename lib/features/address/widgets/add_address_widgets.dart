@@ -187,7 +187,7 @@ class CustomAddressField extends StatelessWidget {
                   ),
                 ),
               ),
-              if (suffix != null) suffix!,
+              ?suffix,
             ],
           ),
         ),

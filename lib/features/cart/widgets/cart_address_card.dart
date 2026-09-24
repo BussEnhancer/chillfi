@@ -15,12 +15,12 @@ class CartAddressCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.4)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +28,7 @@ class CartAddressCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.1),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.location_on_rounded, color: AppColors.secondaryPurple, size: 20.sp),

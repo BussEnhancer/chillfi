@@ -34,7 +34,7 @@ class SubCategoriesHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.lightBackground,
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
             ),
             child: Icon(Icons.smartphone_rounded, color: AppColors.primaryOrange, size: 24.sp),
           ),

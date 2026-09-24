@@ -23,7 +23,7 @@ class TrendingHeroBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.05),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -35,12 +35,12 @@ class TrendingHeroBanner extends StatelessWidget {
           Positioned(
             top: 20.h,
             right: 40.w,
-            child: Icon(Icons.star_rounded, color: Colors.white.withOpacity(0.5), size: 12.sp),
+            child: Icon(Icons.star_rounded, color: Colors.white.withValues(alpha: 0.5), size: 12.sp),
           ),
           Positioned(
             bottom: 30.h,
             right: 80.w,
-            child: Icon(Icons.circle, color: Colors.white.withOpacity(0.3), size: 8.sp),
+            child: Icon(Icons.circle, color: Colors.white.withValues(alpha: 0.3), size: 8.sp),
           ),
           
           Padding(
@@ -93,7 +93,7 @@ class TrendingHeroBanner extends StatelessWidget {
                       Icon(
                         Icons.shopping_bag_rounded,
                         size: 90.sp,
-                        color: AppColors.secondaryPurple.withOpacity(0.8),
+                        color: AppColors.secondaryPurple.withValues(alpha: 0.8),
                       ),
                       Positioned(
                         top: 20.h,
@@ -140,7 +140,7 @@ class TrendingHeroBanner extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 5),
         ],
       ),
       child: Row(

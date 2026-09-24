@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'api_service.dart';
 import '../models/product_model.dart';
 
@@ -20,13 +19,13 @@ class ProductService {
     double? minPrice, double? maxPrice,
   }) async {
     final res = await _api.get('/products', params: {
-      if (category != null) 'category': category,
-      if (brand != null) 'brand': brand,
-      if (search != null) 'search': search,
+      'category': ?category,
+      'brand': ?brand,
+      'search': ?search,
       'sort': sort, 'order': order,
       'page': page, 'limit': limit,
-      if (minPrice != null) 'min_price': minPrice,
-      if (maxPrice != null) 'max_price': maxPrice,
+      'min_price': ?minPrice,
+      'max_price': ?maxPrice,
     });
     final data = res.data['data'];
     return ProductListResult(

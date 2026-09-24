@@ -24,12 +24,12 @@ class BrandCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.4)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.4)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,7 +45,7 @@ class BrandCard extends StatelessWidget {
                   ? Image.network(
                       logoUrl!,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => _fallbackIcon(),
+                      errorBuilder: (_, _, _) => _fallbackIcon(),
                     )
                   : _fallbackIcon(),
             ),

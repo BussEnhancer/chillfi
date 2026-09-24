@@ -212,7 +212,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('Total', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
-                            Text('₹${s.total.toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 17.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+                            Text('₹${(s.total - cart.couponDiscount).toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 17.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
                           ],
                         ),
                       ],
@@ -229,7 +229,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -5))],
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r), topRight: Radius.circular(24.r)),
                 ),
                 child: SafeArea(
@@ -312,7 +312,7 @@ class _EmptyAddressCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.3), style: BorderStyle.solid),
+          border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.3), style: BorderStyle.solid),
         ),
         child: Column(
           children: [
@@ -363,7 +363,7 @@ class _AddressCard extends StatelessWidget {
                       SizedBox(width: 8.w),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                        decoration: BoxDecoration(color: AppColors.secondaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(4.r)),
+                        decoration: BoxDecoration(color: AppColors.secondaryPurple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4.r)),
                         child: Text(address.label, style: GoogleFonts.poppins(fontSize: 9.sp, color: AppColors.secondaryPurple, fontWeight: FontWeight.w600)),
                       ),
                     ],

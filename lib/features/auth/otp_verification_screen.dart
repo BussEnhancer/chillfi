@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? verificationId;
   final bool isFromForgotPassword;
   final bool isFromSignup;
   final String? signupName;
@@ -20,6 +21,7 @@ class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({
     super.key,
     this.phoneNumber = "+91 98765 43210",
+    this.verificationId,
     this.isFromForgotPassword = false,
     this.isFromSignup = false,
     this.signupName,
@@ -37,45 +39,47 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
   String _enteredOtp = '';
   int _secondsLeft = 60;
   Timer? _countdownTimer;
+  String? _verificationId;
 
   Future<void> _onVerify() async {
     if (_enteredOtp.length != 6) return;
     final auth = context.read<AuthProvider>();
 
     if (widget.isFromForgotPassword) {
+      // Forgot-password stays on old backend OTP flow
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => ResetPasswordScreen(phone: widget.phoneNumber, otp: _enteredOtp)),
       );
-    } else if (widget.isFromSignup) {
-      final name = widget.signupName ?? '';
-      final success = await auth.signup(name, widget.phoneNumber, _enteredOtp, email: widget.signupEmail);
-      if (!mounted) return;
-      if (success) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
-          (route) => false,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
-        );
-      }
+      return;
+    }
+
+    // Login & signup both use Firebase phone auth
+    final verificationId = _verificationId;
+    if (verificationId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session expired. Please go back and try again.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final success = await auth.firebaseVerify(
+      verificationId,
+      _enteredOtp,
+      name: widget.signupName,
+      email: widget.signupEmail,
+    );
+    if (!mounted) return;
+    if (success) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
+        (route) => false,
+      );
     } else {
-      final success = await auth.verifyOtpLogin(widget.phoneNumber, _enteredOtp);
-      if (!mounted) return;
-      if (success) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
-          (route) => false,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -95,6 +99,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
       CurvedAnimation(parent: _controller, curve: const Interval(0.1, 0.7, curve: Curves.easeOut)),
     );
 
+    _verificationId = widget.verificationId;
     _controller.forward();
     _startCountdown();
   }
@@ -178,7 +183,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
             right: 0,
             child: Center(
               child: Hero(
-                tag: 'logo',
+                tag: 'logo_otp',
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 160.w,
@@ -211,7 +216,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                             child: Container(
                               padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
@@ -285,9 +290,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: AppColors.secondaryPurple.withOpacity(0.08),
+                                    color: AppColors.secondaryPurple.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(30.r),
-                                    border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
+                                    border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.1)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -349,9 +354,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                                     ),
                                     GestureDetector(
                                       onTap: _secondsLeft == 0
-                                          ? () async {
-                                              await context.read<AuthProvider>().sendOtp(widget.phoneNumber);
-                                              _startCountdown();
+                                          ? () {
+                                              context.read<AuthProvider>().verifyPhoneFirebase(
+                                                widget.phoneNumber,
+                                                codeSent: (newVerificationId, resendToken) {
+                                                  setState(() => _verificationId = newVerificationId);
+                                                  _startCountdown();
+                                                },
+                                                onFailed: (error) {
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                                                  );
+                                                },
+                                              );
                                             }
                                           : null,
                                       child: Text(

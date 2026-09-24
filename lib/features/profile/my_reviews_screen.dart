@@ -54,7 +54,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
         return ListView.separated(
           padding: EdgeInsets.all(16.r),
           itemCount: wp.myReviews.length,
-          separatorBuilder: (_, __) => SizedBox(height: 10.h),
+          separatorBuilder: (_, _) => SizedBox(height: 10.h),
           itemBuilder: (_, i) => _ReviewCard(review: wp.myReviews[i]),
         );
       }),
@@ -65,6 +65,37 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
 class _ReviewCard extends StatelessWidget {
   final ReviewModel review;
   const _ReviewCard({required this.review});
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Delete Review', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+        content: Text('Are you sure you want to delete this review?', style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.greyText)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Delete', style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      final ok = await context.read<WishlistProvider>().deleteReview(review.productId, review.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ok ? 'Review deleted' : 'Failed to delete review'),
+          backgroundColor: ok ? Colors.green.shade600 : Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +109,8 @@ class _ReviewCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10.r),
             child: review.productImage != null
                 ? CachedNetworkImage(imageUrl: review.productImage!, width: 60.w, height: 60.h, fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: const Color(0xFFEEEEEE)),
-                    errorWidget: (_, __, ___) => _ph())
+                    placeholder: (_, _) => Container(color: const Color(0xFFEEEEEE)),
+                    errorWidget: (_, _, _) => _ph())
                 : _ph(),
           ),
           SizedBox(width: 12.w),
@@ -100,9 +131,22 @@ class _ReviewCard extends StatelessWidget {
                   Text(review.comment!, style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText), maxLines: 3, overflow: TextOverflow.ellipsis),
                 ],
                 SizedBox(height: 6.h),
-                Text(
-                  '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
-                  style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
+                      style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColors.greyText),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _confirmDelete(context),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.r),
+                        child: Icon(Icons.delete_outline_rounded, size: 18.sp, color: Colors.red.shade400),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

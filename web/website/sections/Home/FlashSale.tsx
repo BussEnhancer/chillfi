@@ -11,6 +11,8 @@ export interface ApiFlashProduct {
   discount_pct?: number;
   primary_image?: string;
   flash_sale_ends_at?: string;
+  rating?: number;
+  review_count?: number;
 }
 
 interface FlashSaleProps {
@@ -82,8 +84,8 @@ const FlashSale: React.FC<FlashSaleProps> = ({ products }) => {
                 price={Number(p.price)}
                 oldPrice={Number(p.old_price) || undefined}
                 discount={discount}
-                rating={0}
-                reviews={0}
+                rating={Number(p.rating) || 0}
+                reviews={Number(p.review_count) || 0}
               />
             );
           }) : (

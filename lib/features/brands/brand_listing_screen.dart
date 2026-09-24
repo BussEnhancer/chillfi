@@ -6,6 +6,7 @@ import 'package:chillfi/features/brands/widgets/brand_chip.dart';
 import 'package:chillfi/features/brands/widgets/brand_header.dart';
 import 'package:chillfi/features/brands/widgets/bottom_offer_widget.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
+import 'package:chillfi/features/product_listing/product_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -140,9 +141,9 @@ class _BrandListingScreenState extends State<BrandListingScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25.r),
-        border: Border.all(color: AppColors.fieldBorder.withOpacity(0.8)),
+        border: Border.all(color: AppColors.fieldBorder.withValues(alpha: 0.8)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -154,7 +155,7 @@ class _BrandListingScreenState extends State<BrandListingScreen> {
               onChanged: (v) => setState(() => _search = v),
               decoration: InputDecoration(
                 hintText: "Search brands...",
-                hintStyle: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText.withOpacity(0.6)),
+                hintStyle: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText.withValues(alpha: 0.6)),
                 border: InputBorder.none,
               ),
             ),
@@ -224,10 +225,18 @@ class _BrandListingScreenState extends State<BrandListingScreen> {
       itemCount: _filtered.length,
       itemBuilder: (context, index) {
         final b = _filtered[index];
-        return BrandCard(
-          name: b.name,
-          logoUrl: b.logoUrl,
-          productCount: '${b.productCount} Products',
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProductListingScreen(brandId: b.id, brandName: b.name),
+            ),
+          ),
+          child: BrandCard(
+            name: b.name,
+            logoUrl: b.logoUrl,
+            productCount: '${b.productCount} Products',
+          ),
         );
       },
     );

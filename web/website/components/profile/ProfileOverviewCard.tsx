@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { User, Edit3, Wallet, CircleDollarSign, Crown, ChevronRight } from 'lucide-react';
 
 interface ProfileOverviewCardProps {
@@ -24,10 +25,10 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
             {phone && email ? ' • ' : ''}
             {email || ''}
           </p>
-          <button className="flex items-center gap-2 text-[11px] font-black text-[#FF6B2C] uppercase tracking-widest hover:underline">
+          <Link to="/account/settings" className="flex items-center gap-2 text-[11px] font-black text-[#FF6B2C] uppercase tracking-widest hover:underline">
             <Edit3 size={14} />
             Edit Profile
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -42,9 +43,9 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">chillFi Wallet</span>
           </div>
           <p className="text-lg font-black text-[#111827] mb-1">₹0.00</p>
-          <button className="flex items-center gap-1 text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest group">
-            View Wallet <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          <span className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-not-allowed">
+            View Wallet <ChevronRight size={12} />
+          </span>
         </div>
 
         <div className="flex-1 md:w-[180px]">
@@ -55,9 +56,9 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">chillFi Coins</span>
           </div>
           <p className="text-lg font-black text-[#111827] mb-1">0</p>
-          <button className="flex items-center gap-1 text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest group">
-            View Coins <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          <span className="flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest cursor-not-allowed">
+            View Coins <ChevronRight size={12} />
+          </span>
         </div>
 
         <div className="flex-1 md:w-[180px]">
@@ -68,9 +69,9 @@ const ProfileOverviewCard: React.FC<ProfileOverviewCardProps> = ({ name, phone, 
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">Member Since</span>
           </div>
           <p className="text-sm font-black text-[#111827] mb-1">ChillFi User</p>
-          <button className="flex items-center gap-1 text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest group">
+          <Link to="/account/settings" className="flex items-center gap-1 text-[10px] font-black text-[#FF6B2C] uppercase tracking-widest group">
             View Benefits <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
       </div>
     </div>

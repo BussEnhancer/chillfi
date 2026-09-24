@@ -42,7 +42,7 @@ class LogoutIllustration extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.secondaryPurple.withOpacity(0.2),
+                    color: AppColors.secondaryPurple.withValues(alpha: 0.2),
                     blurRadius: 10,
                   ),
                 ],
@@ -152,7 +152,7 @@ class LogoutInformationCard extends StatelessWidget {
   Widget _divider() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
-      child: Divider(height: 1, color: AppColors.secondaryPurple.withOpacity(0.1)),
+      child: Divider(height: 1, color: AppColors.secondaryPurple.withValues(alpha: 0.1)),
     );
   }
 }
@@ -174,7 +174,7 @@ class PrimaryLogoutButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.secondaryPurple.withOpacity(0.3),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

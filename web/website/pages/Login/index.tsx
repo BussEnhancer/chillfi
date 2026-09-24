@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import Footer from '../../components/navigation/Footer';
@@ -10,18 +12,20 @@ import { ChevronRight, Smartphone, ArrowLeft, Loader2, CheckCircle2, RefreshCw }
 import { apiPost } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 
+const firebaseConfig = {
+  apiKey: 'AIzaSyBOmbn0_LwNQhX_bitzh2Djae7NVPpFqro',
+  authDomain: 'chillfi.firebaseapp.com',
+  projectId: 'chillfi',
+  storageBucket: 'chillfi.firebasestorage.app',
+  messagingSenderId: '414620965564',
+  appId: '1:414620965564:web:2e8affe35b1da184f20eb9',
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 type Tab = 'login' | 'register';
 type Step = 'phone' | 'otp';
-
-interface AuthResponse {
-  success: boolean;
-  message: string;
-  data: {
-    user: { id: string; name: string; email?: string; phone: string; role: string };
-    accessToken: string;
-    refreshToken: string;
-  };
-}
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
@@ -32,7 +36,6 @@ const LoginPage: React.FC = () => {
   const { loginUser, isLoggedIn } = useStore();
   const from = (location.state as { from?: string })?.from || '/';
 
-  // Redirect if already logged in
   useEffect(() => { if (isLoggedIn) navigate(from, { replace: true }); }, [isLoggedIn]);
 
   const [tab, setTab] = useState<Tab>('login');
@@ -46,6 +49,8 @@ const LoginPage: React.FC = () => {
   const [timer, setTimer] = useState(0);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
 
   const startTimer = () => {
     setTimer(RESEND_SECONDS);
@@ -57,7 +62,10 @@ const LoginPage: React.FC = () => {
     }, 1000);
   };
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(() => () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    recaptchaRef.current?.clear();
+  }, []);
 
   const validatePhone = (p: string) => /^[6-9]\d{9}$/.test(p);
   const otpValue = otp.join('');
@@ -65,18 +73,39 @@ const LoginPage: React.FC = () => {
   const switchTab = (t: Tab) => {
     setTab(t); setStep('phone'); setError('');
     setPhone(''); setOtp(['', '', '', '', '', '']); setName(''); setEmail('');
+    confirmationRef.current = null;
+  };
+
+  const getRecaptchaVerifier = () => {
+    if (recaptchaRef.current) { recaptchaRef.current.clear(); recaptchaRef.current = null; }
+    recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+    return recaptchaRef.current;
+  };
+
+  const firebaseErrorMsg = (code: string) => {
+    switch (code) {
+      case 'auth/too-many-requests': return 'Too many attempts. Please wait and try again.';
+      case 'auth/invalid-phone-number': return 'Invalid phone number.';
+      case 'auth/unauthorized-domain': return 'Domain not authorized in Firebase. Contact support.';
+      case 'auth/invalid-verification-code': return 'Incorrect OTP. Please try again.';
+      case 'auth/code-expired': return 'OTP expired. Please request a new one.';
+      default: return null;
+    }
   };
 
   const handleSendOtp = async () => {
     if (!validatePhone(phone)) { setError('Enter a valid 10-digit Indian mobile number'); return; }
     setLoading(true); setError('');
     try {
-      await apiPost('/auth/send-otp', { phone, purpose: tab === 'register' ? 'signup' : 'login' });
+      const verifier = getRecaptchaVerifier();
+      const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
+      confirmationRef.current = result;
       setStep('otp');
       startTimer();
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (e: any) {
-      setError(e.message || 'Failed to send OTP. Try again.');
+      setError(firebaseErrorMsg(e.code) ?? 'Failed to send OTP. Try again.');
+      recaptchaRef.current?.clear(); recaptchaRef.current = null;
     } finally {
       setLoading(false);
     }
@@ -85,18 +114,19 @@ const LoginPage: React.FC = () => {
   const handleVerify = async () => {
     if (otpValue.length < OTP_LENGTH) { setError('Enter the 6-digit OTP'); return; }
     if (tab === 'register' && !name.trim()) { setError('Please enter your name'); return; }
+    if (!confirmationRef.current) { setError('Session expired. Please go back and request a new OTP.'); return; }
     setLoading(true); setError('');
     try {
-      let res: AuthResponse;
-      if (tab === 'login') {
-        res = await apiPost<AuthResponse>('/auth/verify-otp', { phone, otp: otpValue });
-      } else {
-        res = await apiPost<AuthResponse>('/auth/signup', { phone, otp: otpValue, name: name.trim(), email: email.trim() || undefined });
-      }
+      const credential = await confirmationRef.current.confirm(otpValue);
+      const idToken = await credential.user.getIdToken();
+      const res = await apiPost<{ success: boolean; data: { user: any; accessToken: string; refreshToken: string } }>(
+        '/auth/firebase-verify',
+        { idToken, name: name.trim() || undefined, email: email.trim() || undefined }
+      );
       loginUser(res.data.accessToken, res.data.refreshToken);
       navigate(from, { replace: true });
     } catch (e: any) {
-      setError(e.message || 'Invalid OTP. Try again.');
+      setError(firebaseErrorMsg(e.code) ?? (e.message || 'Verification failed. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -131,11 +161,14 @@ const LoginPage: React.FC = () => {
     if (timer > 0) return;
     setLoading(true); setError(''); setOtp(['', '', '', '', '', '']);
     try {
-      await apiPost('/auth/send-otp', { phone, purpose: tab === 'register' ? 'signup' : 'login' });
+      const verifier = getRecaptchaVerifier();
+      const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
+      confirmationRef.current = result;
       startTimer();
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (e: any) {
-      setError(e.message || 'Failed to resend OTP');
+      setError(firebaseErrorMsg(e.code) ?? 'Failed to resend OTP. Try again.');
+      recaptchaRef.current?.clear(); recaptchaRef.current = null;
     } finally {
       setLoading(false);
     }
@@ -235,7 +268,7 @@ const LoginPage: React.FC = () => {
               ) : (
                 <>
                   {/* Step 2 — OTP entry */}
-                  <button onClick={() => { setStep('phone'); setError(''); setOtp(['', '', '', '', '', '']); }} className="flex items-center gap-2 text-xs font-black text-gray-400 hover:text-[#FF6B2C] mb-6 transition-colors">
+                  <button onClick={() => { setStep('phone'); setError(''); setOtp(['', '', '', '', '', '']); confirmationRef.current = null; }} className="flex items-center gap-2 text-xs font-black text-gray-400 hover:text-[#FF6B2C] mb-6 transition-colors">
                     <ArrowLeft size={14} /> Change number
                   </button>
 
@@ -321,6 +354,9 @@ const LoginPage: React.FC = () => {
       </Container>
 
       <Footer />
+
+      {/* Invisible reCAPTCHA container — required by Firebase Phone Auth */}
+      <div id="recaptcha-container" />
     </div>
   );
 };

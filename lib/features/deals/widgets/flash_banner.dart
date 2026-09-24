@@ -25,7 +25,7 @@ class FlashBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryOrange.withOpacity(0.2),
+            color: AppColors.primaryOrange.withValues(alpha: 0.2),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -41,7 +41,7 @@ class FlashBanner extends StatelessWidget {
               width: 100.r,
               height: 100.r,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -75,7 +75,7 @@ class FlashBanner extends StatelessWidget {
                         "Grab it before it's gone!",
                         style: GoogleFonts.poppins(
                           fontSize: 12.sp,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -88,7 +88,7 @@ class FlashBanner extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(Icons.shopping_bag_rounded, size: 90.sp, color: Colors.white.withOpacity(0.2)),
+                      Icon(Icons.shopping_bag_rounded, size: 90.sp, color: Colors.white.withValues(alpha: 0.2)),
                       Positioned(
                         bottom: 20.h,
                         child: Container(
@@ -110,7 +110,7 @@ class FlashBanner extends StatelessWidget {
                       Positioned(
                         top: 20.h,
                         right: 0,
-                        child: Icon(Icons.alarm_rounded, color: Colors.white.withOpacity(0.8), size: 30.sp),
+                        child: Icon(Icons.alarm_rounded, color: Colors.white.withValues(alpha: 0.8), size: 30.sp),
                       )
                     ],
                   ),

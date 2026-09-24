@@ -74,7 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
             right: 0,
             child: Center(
               child: Hero(
-                tag: 'logo',
+                tag: 'logo_forgot',
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 140.w,
@@ -136,7 +136,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                             child: Container(
                               padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
@@ -236,11 +236,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                         return;
                                       }
                                       final auth = context.read<AuthProvider>();
+                                      final navigator = Navigator.of(context);
+                                      final messenger = ScaffoldMessenger.of(context);
                                       final sent = await auth.forgotPassword(phone);
                                       if (!mounted) return;
                                       if (sent) {
-                                        Navigator.push(
-                                          context,
+                                        navigator.push(
                                           MaterialPageRoute(
                                             builder: (_) => OtpVerificationScreen(
                                               phoneNumber: phone,
@@ -249,7 +250,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                           ),
                                         );
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        messenger.showSnackBar(
                                           SnackBar(content: Text(auth.message)),
                                         );
                                       }
@@ -298,10 +299,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                     text: 'Reset via Email',
                                     icon: Icons.mail_outline_rounded,
                                     onTap: () {
+                                      final phone = _phoneController.text.trim();
+                                      if (phone.length != 10) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Enter your 10-digit phone number first')),
+                                        );
+                                        return;
+                                      }
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => OtpVerificationScreen(isFromForgotPassword: true),
+                                          builder: (context) => OtpVerificationScreen(
+                                            phoneNumber: phone,
+                                            isFromForgotPassword: true,
+                                          ),
                                         ),
                                       );
                                     },
@@ -312,11 +323,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(12.r),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
+                                        color: Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 10,
                                       )
                                     ],

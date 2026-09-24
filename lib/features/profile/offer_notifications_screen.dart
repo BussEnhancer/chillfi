@@ -98,11 +98,11 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -154,7 +154,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                 borderRadius: BorderRadius.circular(22.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -219,7 +219,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                 borderRadius: BorderRadius.circular(22.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -298,7 +298,7 @@ class _OfferNotificationsScreenState extends State<OfferNotificationsScreen> {
                 borderRadius: BorderRadius.circular(22.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

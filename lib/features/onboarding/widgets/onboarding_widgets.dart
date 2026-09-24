@@ -266,7 +266,7 @@ class PhoneMockupWithUI extends StatelessWidget {
                     Image.asset(
                       'assets/images/logo.png', 
                       height: 16.h, 
-                      errorBuilder: (_,__,___) => Row(
+                      errorBuilder: (_,_,_) => Row(
                         children: [
                           Icon(Icons.shopping_bag, size: 14.h, color: AppColors.primaryOrange),
                           SizedBox(width: 4.w),

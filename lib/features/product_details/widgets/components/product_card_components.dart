@@ -44,7 +44,7 @@ class WishlistButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 6,
             ),
           ],
@@ -108,7 +108,7 @@ class AddToCartButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.secondaryPurple.withOpacity(0.2),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -174,7 +174,7 @@ class ShimmerProductCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.2)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

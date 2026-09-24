@@ -1,8 +1,8 @@
-// Pass --dart-define=API_URL=https://your-railway-url.up.railway.app/api at build time
-// flutter build apk --dart-define=API_URL=https://chillfi-api.up.railway.app/api
+// Pass --dart-define=API_URL=... at build time to override.
+// flutter build apk --release (uses defaultValue below)
 const String _kApiUrl = String.fromEnvironment(
   'API_URL',
-  defaultValue: 'http://10.0.2.2:5000/api', // Android emulator → localhost
+  defaultValue: 'https://chillfi.in/api', // production domain
 );
 
 class AppConfig {

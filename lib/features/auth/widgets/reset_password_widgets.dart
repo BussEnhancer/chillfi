@@ -37,7 +37,7 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
     return AnimatedBuilder(
       animation: _floatAnimation,
       builder: (context, child) {
-        return Container(
+        return SizedBox(
           height: 160.h,
           width: 200.w,
           child: Stack(
@@ -47,12 +47,12 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
               Positioned(
                 left: 30.w,
                 bottom: 20.h,
-                child: _buildDecorativeShape(AppColors.secondaryPurple.withOpacity(0.1)),
+                child: _buildDecorativeShape(AppColors.secondaryPurple.withValues(alpha: 0.1)),
               ),
               Positioned(
                 right: 30.w,
                 bottom: 20.h,
-                child: _buildDecorativeShape(AppColors.primaryOrange.withOpacity(0.1)),
+                child: _buildDecorativeShape(AppColors.primaryOrange.withValues(alpha: 0.1)),
               ),
 
               // Shield
@@ -71,7 +71,7 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.secondaryPurple.withOpacity(0.3),
+                        color: AppColors.secondaryPurple.withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -93,7 +93,7 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
                     borderRadius: BorderRadius.circular(30.r),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -104,7 +104,7 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
                     children: [
                       ...List.generate(4, (index) => Padding(
                         padding: EdgeInsets.symmetric(horizontal: 2.w),
-                        child: Text('●', style: TextStyle(color: AppColors.greyText.withOpacity(0.5), fontSize: 10.sp)),
+                        child: Text('●', style: TextStyle(color: AppColors.greyText.withValues(alpha: 0.5), fontSize: 10.sp)),
                       )),
                       SizedBox(width: 8.w),
                       Container(
@@ -118,8 +118,8 @@ class _ResetIllustrationState extends State<ResetIllustration> with SingleTicker
               ),
 
               // Sparkles
-              Positioned(top: 20.h, right: 30.w, child: Icon(Icons.star_rounded, size: 14.sp, color: AppColors.primaryOrange.withOpacity(0.6))),
-              Positioned(top: 40.h, left: 30.w, child: Icon(Icons.star_rounded, size: 12.sp, color: AppColors.secondaryPurple.withOpacity(0.6))),
+              Positioned(top: 20.h, right: 30.w, child: Icon(Icons.star_rounded, size: 14.sp, color: AppColors.primaryOrange.withValues(alpha: 0.6))),
+              Positioned(top: 40.h, left: 30.w, child: Icon(Icons.star_rounded, size: 12.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.6))),
             ],
           ),
         );

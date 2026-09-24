@@ -110,7 +110,7 @@ class _VoiceMicButtonState extends State<VoiceMicButton>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (_isListening ? Colors.red : AppColors.secondaryPurple).withOpacity(0.4),
+                          color: (_isListening ? Colors.red : AppColors.secondaryPurple).withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -149,7 +149,7 @@ class _VoiceMicButtonState extends State<VoiceMicButton>
         height: 80.r,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.red.withOpacity(opacity > 0 ? opacity : 0),
+          color: Colors.red.withValues(alpha: opacity > 0 ? opacity : 0),
         ),
       ),
     );

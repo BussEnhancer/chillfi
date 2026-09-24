@@ -30,7 +30,7 @@ class OfferHeroBanner extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(12.r),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
                   child: Stack(
@@ -114,7 +114,7 @@ class OfferTypeTile extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.08),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 22.sp),
@@ -182,7 +182,7 @@ class OfferPreferenceRow extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.05),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),

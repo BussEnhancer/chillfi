@@ -23,7 +23,7 @@ class RecommendedHeroBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryPurple.withOpacity(0.05),
+            color: AppColors.secondaryPurple.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -66,7 +66,7 @@ class RecommendedHeroBanner extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(Icons.shopping_bag_rounded, size: 100.sp, color: AppColors.secondaryPurple.withOpacity(0.8)),
+                      Icon(Icons.shopping_bag_rounded, size: 100.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.8)),
                       Positioned(
                         child: Icon(Icons.favorite_rounded, color: Colors.white, size: 40.sp),
                       ),
@@ -78,7 +78,7 @@ class RecommendedHeroBanner extends StatelessWidget {
                       Positioned(
                         bottom: 10.h,
                         left: 0,
-                        child: Icon(Icons.park_rounded, color: Colors.green.withOpacity(0.6), size: 24.sp),
+                        child: Icon(Icons.park_rounded, color: Colors.green.withValues(alpha: 0.6), size: 24.sp),
                       )
                     ],
                   ),
@@ -110,7 +110,7 @@ class RecommendedHeroBanner extends StatelessWidget {
       width: isActive ? 12.w : 4.w,
       height: 4.h,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2.r),
       ),
     );

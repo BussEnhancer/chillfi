@@ -4,6 +4,7 @@ import 'package:chillfi/features/auth/otp_verification_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/features/auth/widgets/signup_widgets.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +28,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   final TextEditingController _passwordController = TextEditingController();
   bool _acceptedTerms = false;
   bool _isLoading = false;
+  late final TapGestureRecognizer _termsTap;
+  late final TapGestureRecognizer _privacyTap;
 
   @override
   void initState() {
@@ -45,6 +48,23 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     );
 
     _mainController.forward();
+    _termsTap = TapGestureRecognizer()
+      ..onTap = () => _showPolicy('Terms & Conditions',
+          'By using ChillFi, you agree to our Terms & Conditions. You must be 18+ to use this app. Orders are subject to availability and our return policy.');
+    _privacyTap = TapGestureRecognizer()
+      ..onTap = () => _showPolicy('Privacy Policy',
+          'We collect only the data needed to process your orders. Your data is encrypted and never sold to third parties. You may request deletion of your data at any time.');
+  }
+
+  void _showPolicy(String title, String body) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+      ),
+    );
   }
 
   Future<void> _onSignUp() async {
@@ -61,28 +81,31 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
       );
       return;
     }
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final signupName = _nameController.text.trim();
+    final signupEmail = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
     setState(() => _isLoading = true);
-    final success = await context.read<AuthProvider>().sendOtp(phone, purpose: 'signup');
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    if (success) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationScreen(
+    context.read<AuthProvider>().verifyPhoneFirebase(
+      phone,
+      codeSent: (verificationId, _) {
+        try { setState(() => _isLoading = false); } catch (_) {}
+        navigator.push(MaterialPageRoute(
+          builder: (_) => OtpVerificationScreen(
             phoneNumber: phone,
+            verificationId: verificationId,
             isFromForgotPassword: false,
             isFromSignup: true,
-            signupName: _nameController.text.trim(),
-            signupEmail: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+            signupName: signupName,
+            signupEmail: signupEmail,
           ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.read<AuthProvider>().message), backgroundColor: Colors.red),
-      );
-    }
+        ));
+      },
+      onFailed: (error) {
+        try { setState(() => _isLoading = false); } catch (_) {}
+        messenger.showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+      },
+    );
   }
 
   @override
@@ -92,6 +115,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _termsTap.dispose();
+    _privacyTap.dispose();
     super.dispose();
   }
 
@@ -137,7 +162,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
             right: 0,
             child: Center(
               child: Hero(
-                tag: 'logo',
+                tag: 'logo_signup',
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 140.w,
@@ -198,7 +223,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                             child: Container(
                               padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
@@ -294,7 +319,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                   SizedBox(height: 16.h),
                                   Row(
                                     children: [
-                                      CustomCheckbox(onChanged: (val) => setState(() => _acceptedTerms = val ?? false)),
+                                      CustomCheckbox(onChanged: (val) => setState(() => _acceptedTerms = val)),
                                       SizedBox(width: 12.w),
                                       Expanded(
                                         child: RichText(
@@ -304,11 +329,13 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                             children: [
                                               TextSpan(
                                                 text: 'Terms & Conditions',
+                                                recognizer: _termsTap,
                                                 style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
                                               ),
-                                              const TextSpan(text: ' and '),
+                                              TextSpan(text: ' and ', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
                                               TextSpan(
                                                 text: 'Privacy Policy',
+                                                recognizer: _privacyTap,
                                                 style: GoogleFonts.poppins(color: AppColors.secondaryPurple, fontWeight: FontWeight.w600),
                                               ),
                                             ],
@@ -367,11 +394,11 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(12.r),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
+                                        color: Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 10,
                                       )
                                     ],
@@ -434,7 +461,7 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
         border: Border.all(color: AppColors.fieldBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -446,7 +473,7 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.08),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Icon(
@@ -497,7 +524,7 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
                           hintText: 'Enter mobile number',
                           hintStyle: GoogleFonts.poppins(
                             fontSize: 13.sp,
-                            color: AppColors.greyText.withOpacity(0.5),
+                            color: AppColors.greyText.withValues(alpha: 0.5),
                           ),
                           isDense: true,
                           border: InputBorder.none,

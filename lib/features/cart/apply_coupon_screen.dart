@@ -76,6 +76,7 @@ class _ApplyCouponScreenState extends State<ApplyCouponScreen> {
                         hintText: 'Enter coupon code',
                         hintStyle: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
                         errorText: _error,
+                        errorMaxLines: 3,
                         filled: true,
                         fillColor: const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide.none),
@@ -128,14 +129,14 @@ class _CouponCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFEEEEEE)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.all(10.r),
-            decoration: BoxDecoration(color: AppColors.secondaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(10.r)),
+            decoration: BoxDecoration(color: AppColors.secondaryPurple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
             child: Icon(Icons.local_offer_rounded, color: AppColors.secondaryPurple, size: 22.sp),
           ),
           SizedBox(width: 12.w),

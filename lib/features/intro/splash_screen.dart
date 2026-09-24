@@ -5,11 +5,13 @@ import 'package:chillfi/core/services/remote_config_service.dart';
 import 'package:chillfi/core/widgets/force_update_screen.dart';
 import 'package:chillfi/core/widgets/maintenance_screen.dart';
 import 'package:chillfi/features/home/home_dashboard_screen.dart';
+import 'package:chillfi/features/auth/welcome_screen.dart';
 import 'package:chillfi/features/onboarding/onboarding_screen_one.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -52,10 +54,22 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     final isLoggedIn = context.read<AuthProvider>().isAuthenticated;
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeDashboardScreen()),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+    if (!mounted) return;
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => isLoggedIn ? const HomeDashboardScreen() : const OnboardingScreenOne(),
+        builder: (context) => hasSeenOnboarding ? const WelcomeScreen() : const OnboardingScreenOne(),
       ),
     );
   }
@@ -207,7 +221,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Container(
       height: 40.h,
       width: 1,
-      color: Colors.grey.withOpacity(0.2),
+      color: Colors.grey.withValues(alpha: 0.2),
     );
   }
 
@@ -217,7 +231,7 @@ class _SplashScreenState extends State<SplashScreen> {
       height: 5.h,
       width: isActive ? 28.w : 10.w,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondaryPurple : Colors.grey.withOpacity(0.3),
+        color: isActive ? AppColors.secondaryPurple : Colors.grey.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
       ),
     );

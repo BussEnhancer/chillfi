@@ -18,7 +18,7 @@ class TrendingChipWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

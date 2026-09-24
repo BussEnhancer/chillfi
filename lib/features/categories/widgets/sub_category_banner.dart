@@ -23,7 +23,7 @@ class SubCategoryBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -100,10 +100,10 @@ class SubCategoryBanner extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(Icons.smartphone_rounded, size: 80.sp, color: AppColors.secondaryPurple.withOpacity(0.1)),
+                      Icon(Icons.smartphone_rounded, size: 80.sp, color: AppColors.secondaryPurple.withValues(alpha: 0.1)),
                       Positioned(
                         right: 0,
-                        child: Icon(Icons.phone_iphone_rounded, size: 60.sp, color: AppColors.primaryOrange.withOpacity(0.8)),
+                        child: Icon(Icons.phone_iphone_rounded, size: 60.sp, color: AppColors.primaryOrange.withValues(alpha: 0.8)),
                       ),
                     ],
                   ),
@@ -135,7 +135,7 @@ class SubCategoryBanner extends StatelessWidget {
       width: isActive ? 12.w : 4.w,
       height: 4.h,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+        color: isActive ? AppColors.secondaryPurple : AppColors.secondaryPurple.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2.r),
       ),
     );

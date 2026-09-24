@@ -32,9 +32,30 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   void _logout() async {
-    await context.read<AuthProvider>().logout();
+    final navigator = Navigator.of(context);
+    final auth = context.read<AuthProvider>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.w700)),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await auth.logout();
     if (!mounted) return;
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+    navigator.pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
   }
 
   @override
@@ -86,7 +107,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       SizedBox(height: 16.h),
                       CircleAvatar(
                         radius: 42.r,
-                        backgroundColor: Colors.white.withOpacity(0.2),
+                        backgroundColor: Colors.white.withValues(alpha: 0.2),
                         child: user?.avatarUrl != null
                             ? ClipOval(child: Image.network(user!.avatarUrl!, width: 84.w, height: 84.h, fit: BoxFit.cover))
                             : Icon(Icons.person_rounded, size: 48.sp, color: Colors.white),
@@ -253,7 +274,7 @@ class _ProfileTile extends StatelessWidget {
     return ListTile(
       leading: Container(
         padding: EdgeInsets.all(8.r),
-        decoration: BoxDecoration(color: AppColors.secondaryPurple.withOpacity(0.08), borderRadius: BorderRadius.circular(10.r)),
+        decoration: BoxDecoration(color: AppColors.secondaryPurple.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10.r)),
         child: Icon(icon, color: AppColors.secondaryPurple, size: 20.sp),
       ),
       title: Text(label, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColors.darkText)),

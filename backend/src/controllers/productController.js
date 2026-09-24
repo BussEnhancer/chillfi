@@ -1,5 +1,13 @@
 const pool = require('../db/pool');
 
+// Accepts either a plain URL string or a { url } object (defensive against callers
+// that pass the same shape the API returns elsewhere) and always returns a plain string.
+const toImageUrl = (image) => {
+  if (typeof image === 'string') return image;
+  if (image && typeof image === 'object' && typeof image.url === 'string') return image.url;
+  return null;
+};
+
 // GET /api/products
 const getProducts = async (req, res) => {
   const {
@@ -254,6 +262,25 @@ const addReview = async (req, res) => {
   res.status(201).json({ success: true, data: { review: result.rows[0] } });
 };
 
+// DELETE /api/products/:id/reviews/:reviewId
+const deleteReview = async (req, res) => {
+  const { id, reviewId } = req.params;
+  const result = await pool.query(
+    'DELETE FROM reviews WHERE id = $1 AND user_id = $2 AND product_id = $3 RETURNING id',
+    [reviewId, req.user.id, id]
+  );
+  if (result.rowCount === 0) {
+    return res.status(404).json({ success: false, message: 'Review not found or not yours' });
+  }
+  await pool.query(`
+    UPDATE products SET
+      rating = COALESCE((SELECT ROUND(AVG(rating), 1) FROM reviews WHERE product_id = $1), 0),
+      review_count = (SELECT COUNT(*) FROM reviews WHERE product_id = $1)
+    WHERE id = $1
+  `, [id]);
+  res.json({ success: true });
+};
+
 // POST /api/products/:id/recently-viewed
 const logRecentlyViewed = async (req, res) => {
   const { id } = req.params;
@@ -316,11 +343,15 @@ const createProduct = async (req, res) => {
 
   // Insert images
   if (images.length) {
-    for (let i = 0; i < images.length; i++) {
+    let sortOrder = 0;
+    for (const raw of images) {
+      const url = toImageUrl(raw);
+      if (!url) continue;
       await pool.query(
         `INSERT INTO product_images (product_id, url, is_primary, sort_order) VALUES ($1, $2, $3, $4)`,
-        [product.id, images[i], i === 0, i]
+        [product.id, url, sortOrder === 0, sortOrder]
       );
+      sortOrder++;
     }
   }
 
@@ -350,11 +381,15 @@ const updateProduct = async (req, res) => {
 
   if (images?.length) {
     await pool.query(`DELETE FROM product_images WHERE product_id = $1`, [id]);
-    for (let i = 0; i < images.length; i++) {
+    let sortOrder = 0;
+    for (const raw of images) {
+      const url = toImageUrl(raw);
+      if (!url) continue;
       await pool.query(
         `INSERT INTO product_images (product_id, url, is_primary, sort_order) VALUES ($1, $2, $3, $4)`,
-        [id, images[i], i === 0, i]
+        [id, url, sortOrder === 0, sortOrder]
       );
+      sortOrder++;
     }
   }
 
@@ -370,7 +405,7 @@ const deleteProduct = async (req, res) => {
 
 module.exports = {
   getProducts, getProduct, getTrending, getNewArrivals, getFlashSale,
-  getFeatured, getRecommended, getReviews, addReview,
+  getFeatured, getRecommended, getReviews, addReview, deleteReview,
   logRecentlyViewed, getRecentlyViewed, removeRecentlyViewed, clearRecentlyViewed,
   createProduct, updateProduct, deleteProduct,
 };

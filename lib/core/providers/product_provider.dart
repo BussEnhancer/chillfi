@@ -33,7 +33,6 @@ class ProductProvider extends ChangeNotifier {
   List<ProductModel> _products = [];
   LoadState _productsState = LoadState.idle;
   int _currentPage = 1;
-  int _totalPages = 1;
   bool _hasMore = true;
 
   // Product detail
@@ -110,7 +109,6 @@ class ProductProvider extends ChangeNotifier {
         minPrice: minPrice, maxPrice: maxPrice,
       );
       _products = refresh ? result.products : [..._products, ...result.products];
-      _totalPages = result.pages;
       _hasMore = _currentPage < result.pages;
       _currentPage++;
       _productsState = LoadState.loaded;

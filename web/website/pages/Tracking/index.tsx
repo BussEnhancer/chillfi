@@ -57,11 +57,28 @@ interface ApiOrderDetail {
   pincode: string | null;
   items: ApiOrderItem[];
   refund_request: ApiRefundRequest | null;
+  shipping_status?: string | null;
+  shipment_provider?: string | null;
+}
+
+export interface ApiTracking {
+  waybill: string;
+  provider: string;
+  env?: string | null;
+  status: string | null;
+  shipping_status?: string | null;
+  shipping_status_label?: string | null;
+  location?: string | null;
+  expected_delivery?: string | null;
+  last_update?: string | null;
+  stale?: boolean;
+  scans: { status: string | null; location: string | null; instructions: string | null; time: string | null }[];
 }
 
 const TrackingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<ApiOrderDetail | null>(null);
+  const [tracking, setTracking] = useState<ApiTracking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -79,7 +96,15 @@ const TrackingPage: React.FC = () => {
     if (!id) return;
     setLoading(true);
     apiGet<{ success: boolean; data: { order: ApiOrderDetail } }>(`/orders/${id}`)
-      .then(res => setOrder(res.data.order))
+      .then(res => {
+        setOrder(res.data.order);
+        // Courier timeline (stored Delhivery events, refreshed server-side when stale)
+        if (res.data.order.tracking_id) {
+          apiGet<{ success: boolean; data: ApiTracking | null }>(`/orders/${id}/tracking`)
+            .then(t => setTracking(t.data))
+            .catch(() => setTracking(null));
+        }
+      })
       .catch(e => setError(e.message || 'Failed to load order'))
       .finally(() => setLoading(false));
   };
@@ -149,7 +174,8 @@ const TrackingPage: React.FC = () => {
             <p className="text-sm font-bold text-gray-400">Order ID: <span className="text-[#111827]">#{order.order_number}</span> | Placed on {placedAt!.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} at {placedAt!.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
           </div>
           <div className="flex items-center gap-3">
-            {(order.status === 'Processing' || order.status === 'Shipped') && (
+            {/* Cancellable only before the courier picks it up (backend enforces this too) */}
+            {order.status === 'Processing' && (
               <button onClick={() => setShowCancelModal(true)} className="flex items-center gap-2 border-2 border-red-500 text-red-500 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-red-500 hover:text-white transition-all">
                 Cancel Order
               </button>
@@ -182,7 +208,7 @@ const TrackingPage: React.FC = () => {
 
           {/* Center: Content */}
           <div className="flex-1 min-w-0">
-             <TrackingStatusCard status={order.status} updatedAt={order.updated_at} />
+             <TrackingStatusCard status={order.status} updatedAt={tracking?.last_update || order.updated_at} detail={tracking?.shipping_status_label || null} />
 
              <OrderProgressTracker status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
 
@@ -191,8 +217,10 @@ const TrackingPage: React.FC = () => {
                   addrName={order.addr_name} addrPhone={order.addr_phone}
                   line1={order.line1} line2={order.line2} city={order.city}
                   state={order.state} pincode={order.pincode} trackingId={order.tracking_id}
+                  courier={tracking?.provider || order.shipment_provider || null} env={tracking?.env || null}
+                  expectedDelivery={tracking?.expected_delivery || null}
                 />
-                <DeliveryTimelineSection status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
+                <DeliveryTimelineSection status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} scans={tracking?.scans} />
              </div>
 
              {/* Order Items List */}

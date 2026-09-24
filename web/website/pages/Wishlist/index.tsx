@@ -27,7 +27,7 @@ interface ApiWishlistItem {
 }
 
 const WishlistPage: React.FC = () => {
-  const { addToCart } = useStore();
+  const { addToCart, cart } = useStore();
   const [items, setItems] = useState<ApiWishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -186,7 +186,11 @@ const WishlistPage: React.FC = () => {
 
           <div className="lg:w-[320px] shrink-0 space-y-8">
             <WishlistSuggestions />
-            <WishlistSummary />
+            <WishlistSummary
+              totalItems={items.length}
+              totalValue={items.reduce((s, i) => s + Number(i.price), 0)}
+              itemsInBag={items.filter(i => cart.some(c => c.id === i.product_id)).length}
+            />
             <WishlistPromo />
           </div>
         </div>

@@ -41,8 +41,8 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentId, categoryId
   if (products.length === 0) return null;
 
   const discount = (p: ApiProduct) =>
-    p.old_price > p.price
-      ? `-${Math.round((p.old_price - p.price) / p.old_price * 100)}%`
+    Number(p.old_price) > Number(p.price)
+      ? `-${Math.round((Number(p.old_price) - Number(p.price)) / Number(p.old_price) * 100)}%`
       : undefined;
 
   return (
@@ -61,8 +61,8 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentId, categoryId
             image={p.primary_image}
             name={p.name}
             brand={p.brand_name}
-            price={p.price}
-            oldPrice={p.old_price || undefined}
+            price={Number(p.price)}
+            oldPrice={p.old_price ? Number(p.old_price) : undefined}
             discount={discount(p) || undefined}
             rating={p.rating}
             reviews={p.review_count}

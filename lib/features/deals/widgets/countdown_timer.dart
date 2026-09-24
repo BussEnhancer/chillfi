@@ -38,7 +38,7 @@ class CountdownTimer extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -58,7 +58,7 @@ class CountdownTimer extends StatelessWidget {
           label,
           style: GoogleFonts.poppins(
             fontSize: 10.sp,
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -72,7 +72,7 @@ class CountdownTimer extends StatelessWidget {
       child: Text(
         ":",
         style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
           fontWeight: FontWeight.bold,
           fontSize: 16.sp,
         ),

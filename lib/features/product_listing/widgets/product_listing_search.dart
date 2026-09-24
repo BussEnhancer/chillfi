@@ -15,10 +15,10 @@ class ProductListingSearch extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.fieldBorder.withOpacity(0.8)),
+          border: Border.all(color: AppColors.fieldBorder.withValues(alpha: 0.8)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -35,7 +35,7 @@ class ProductListingSearch extends StatelessWidget {
                   hintText: 'Search for products, brands and more...',
                   hintStyle: GoogleFonts.poppins(
                     fontSize: 13.sp,
-                    color: AppColors.greyText.withOpacity(0.6),
+                    color: AppColors.greyText.withValues(alpha: 0.6),
                   ),
                   border: InputBorder.none,
                 ),

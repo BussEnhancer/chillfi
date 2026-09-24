@@ -59,9 +59,9 @@ class ProfileService {
   Future<UserModel?> updateProfile({String? name, String? email, String? avatarUrl}) async {
     try {
       final res = await _api.put('/profile', data: {
-        if (name != null) 'name': name,
-        if (email != null) 'email': email,
-        if (avatarUrl != null) 'avatar_url': avatarUrl,
+        'name': ?name,
+        'email': ?email,
+        'avatar_url': ?avatarUrl,
       });
       return UserModel.fromJson(res.data['data']);
     } on DioException {
@@ -88,6 +88,15 @@ class ProfileService {
       return list.map((e) => ReviewModel.fromJson(e)).toList();
     } catch (_) {
       return [];
+    }
+  }
+
+  Future<bool> deleteReview(String productId, String reviewId) async {
+    try {
+      await _api.delete('/products/$productId/reviews/$reviewId');
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

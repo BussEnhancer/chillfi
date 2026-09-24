@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/services/wishlist_service.dart';
 import 'package:chillfi/features/profile/widgets/notification_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,8 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+  final _profileService = ProfileService();
+
   // Order Updates Toggles
   bool orderConfirmation = true;
   bool orderProcessing = true;
@@ -28,6 +31,46 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool accountUpdates = true;
   bool reviewsRatings = false;
   bool wishlistReminders = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await _profileService.getNotificationPreferences();
+    if (!mounted) return;
+    setState(() {
+      orderConfirmation = prefs['orderConfirmation'] as bool? ?? true;
+      orderProcessing = prefs['orderProcessing'] as bool? ?? true;
+      shippingUpdates = prefs['shippingUpdates'] as bool? ?? true;
+      outForDelivery = prefs['outForDelivery'] as bool? ?? true;
+      delivered = prefs['delivered'] as bool? ?? true;
+      exclusiveOffers = prefs['exclusiveOffers'] as bool? ?? true;
+      saleAlerts = prefs['saleAlerts'] as bool? ?? true;
+      priceDrop = prefs['priceDrop'] as bool? ?? false;
+      accountUpdates = prefs['accountUpdates'] as bool? ?? true;
+      reviewsRatings = prefs['reviewsRatings'] as bool? ?? false;
+      wishlistReminders = prefs['wishlistReminders'] as bool? ?? false;
+    });
+  }
+
+  void _savePrefs() {
+    _profileService.updateNotificationPreferences({
+      'orderConfirmation': orderConfirmation,
+      'orderProcessing': orderProcessing,
+      'shippingUpdates': shippingUpdates,
+      'outForDelivery': outForDelivery,
+      'delivered': delivered,
+      'exclusiveOffers': exclusiveOffers,
+      'saleAlerts': saleAlerts,
+      'priceDrop': priceDrop,
+      'accountUpdates': accountUpdates,
+      'reviewsRatings': reviewsRatings,
+      'wishlistReminders': wishlistReminders,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,35 +144,35 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 title: "Order Confirmations",
                 description: "Get notified when your order is confirmed",
                 value: orderConfirmation,
-                onChanged: (val) => setState(() => orderConfirmation = val),
+                onChanged: (val) { setState(() => orderConfirmation = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.inventory_2_outlined,
                 title: "Order Processing",
                 description: "Updates when your order is being processed",
                 value: orderProcessing,
-                onChanged: (val) => setState(() => orderProcessing = val),
+                onChanged: (val) { setState(() => orderProcessing = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.local_shipping_outlined,
                 title: "Shipping Updates",
                 description: "Notifications when your order is shipped",
                 value: shippingUpdates,
-                onChanged: (val) => setState(() => shippingUpdates = val),
+                onChanged: (val) { setState(() => shippingUpdates = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.location_on_outlined,
                 title: "Out for Delivery",
                 description: "Get notified when your order is out for delivery",
                 value: outForDelivery,
-                onChanged: (val) => setState(() => outForDelivery = val),
+                onChanged: (val) { setState(() => outForDelivery = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.check_circle_outline_rounded,
                 title: "Delivered",
                 description: "Get notified when your order is delivered",
                 value: delivered,
-                onChanged: (val) => setState(() => delivered = val),
+                onChanged: (val) { setState(() => delivered = val); _savePrefs(); },
               ),
             ]),
 
@@ -146,21 +189,21 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 title: "Exclusive Offers",
                 description: "Receive exclusive offers and discounts",
                 value: exclusiveOffers,
-                onChanged: (val) => setState(() => exclusiveOffers = val),
+                onChanged: (val) { setState(() => exclusiveOffers = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.redeem_rounded,
                 title: "Sale Alerts",
                 description: "Get notified about big sales and events",
                 value: saleAlerts,
-                onChanged: (val) => setState(() => saleAlerts = val),
+                onChanged: (val) { setState(() => saleAlerts = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.notifications_active_outlined,
                 title: "Price Drop Alerts",
                 description: "Get notified when items in wishlist drop price",
                 value: priceDrop,
-                onChanged: (val) => setState(() => priceDrop = val),
+                onChanged: (val) { setState(() => priceDrop = val); _savePrefs(); },
               ),
             ]),
 
@@ -177,28 +220,28 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 title: "Account Updates",
                 description: "Important updates about your account",
                 value: accountUpdates,
-                onChanged: (val) => setState(() => accountUpdates = val),
+                onChanged: (val) { setState(() => accountUpdates = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.chat_bubble_outline_rounded,
                 title: "Reviews & Ratings",
                 description: "Get reminders for reviews and ratings",
                 value: reviewsRatings,
-                onChanged: (val) => setState(() => reviewsRatings = val),
+                onChanged: (val) { setState(() => reviewsRatings = val); _savePrefs(); },
               ),
               NotificationToggleItem(
                 icon: Icons.favorite_border_rounded,
                 title: "Wishlist Reminders",
                 description: "Get reminders for items in your wishlist",
                 value: wishlistReminders,
-                onChanged: (val) => setState(() => wishlistReminders = val),
+                onChanged: (val) { setState(() => wishlistReminders = val); _savePrefs(); },
               ),
             ]),
 
             SizedBox(height: 24.h),
-            const NotificationChannelsCard(),
+            NotificationChannelsCard(),
             SizedBox(height: 16.h),
-            const DNDCard(),
+            DNDCard(),
             SizedBox(height: 32.h),
             const NotificationPrivacyFooter(),
             SizedBox(height: 40.h),

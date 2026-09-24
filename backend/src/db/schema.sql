@@ -30,7 +30,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS otp_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   phone VARCHAR(15) NOT NULL,
-  otp VARCHAR(6) NOT NULL,
+  otp TEXT NOT NULL,
   purpose VARCHAR(30) DEFAULT 'login' CHECK (purpose IN ('login', 'signup', 'forgot_password')),
   attempts INT DEFAULT 0,
   is_used BOOLEAN DEFAULT FALSE,
@@ -198,6 +198,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_amount DECIMAL(10,2) DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_provider VARCHAR(20) DEFAULT 'delhivery';
 
 -- ORDER ITEMS
 CREATE TABLE IF NOT EXISTS order_items (
@@ -374,3 +375,56 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_payments_merchant_txn ON payments(merchant_txn_id);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(is_featured);
 CREATE INDEX IF NOT EXISTS idx_cart_user ON cart(user_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_coupon_usage_coupon_user ON coupon_usage(coupon_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_user ON reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
+
+-- SHIPPING / DELHIVERY LIFECYCLE
+-- orders.status stays the customer-facing 4-state value (Processing/Shipped/Delivered/Cancelled);
+-- orders.shipping_status carries the detailed courier stage (see utils/shipmentStatus.js).
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_status VARCHAR(30);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_status VARCHAR(60);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_status_type VARCHAR(10);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_status_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier_location VARCHAR(150);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS expected_delivery_date TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_env VARCHAR(12);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_error TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_attempts INT DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_claimed_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipment_created_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_synced_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS pickup_scheduled_for DATE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS pickup_request_id VARCHAR(40);
+CREATE INDEX IF NOT EXISTS idx_orders_tracking_id ON orders(tracking_id);
+CREATE INDEX IF NOT EXISTS idx_orders_shipping_status ON orders(shipping_status);
+
+CREATE TABLE IF NOT EXISTS shipment_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+  awb VARCHAR(100) NOT NULL,
+  source VARCHAR(20) NOT NULL,             -- webhook | poll | api | admin
+  status VARCHAR(60),
+  status_type VARCHAR(10),
+  location VARCHAR(150),
+  instructions TEXT,
+  event_time TIMESTAMP,
+  applied BOOLEAN DEFAULT FALSE,           -- whether it changed the order's state
+  dedupe_key VARCHAR(300) NOT NULL UNIQUE,
+  raw JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_shipment_events_order ON shipment_events(order_id, event_time);
+
+-- Notification de-duplication (courier webhooks are retried; one notification per event)
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS dedupe_key VARCHAR(200);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(dedupe_key) WHERE dedupe_key IS NOT NULL;
+
+INSERT INTO store_settings (key, value) VALUES ('DELHIVERY_ENV', 'staging') ON CONFLICT (key) DO NOTHING;
+
+-- Default OTP provider setting
+INSERT INTO store_settings (key, value) VALUES ('OTP_PROVIDER', 'firebase')
+  ON CONFLICT (key) DO NOTHING;

@@ -1,3 +1,39 @@
+/// Picks the best available primary image from a product JSON map.
+/// Priority: top-level primary_image > images[is_primary=true].url > images[0].url (flat string)
+String? _parsePrimaryImage(Map<String, dynamic> json) {
+  // 1. Top-level field (list/search/home APIs)
+  if (json['primary_image'] is String && (json['primary_image'] as String).isNotEmpty) {
+    return json['primary_image'] as String;
+  }
+  final rawImages = json['images'] as List<dynamic>?;
+  if (rawImages == null || rawImages.isEmpty) return null;
+
+  // 2. Object array (detail API) — prefer is_primary=true
+  final primary = rawImages
+      .whereType<Map>()
+      .where((e) => e['is_primary'] == true)
+      .map((e) => e['url']?.toString())
+      .whereType<String>()
+      .where((u) => u.isNotEmpty)
+      .firstOrNull;
+  if (primary != null) return primary;
+
+  // 3. First object URL
+  final firstObj = rawImages
+      .whereType<Map>()
+      .map((e) => e['url']?.toString())
+      .whereType<String>()
+      .where((u) => u.isNotEmpty)
+      .firstOrNull;
+  if (firstObj != null) return firstObj;
+
+  // 4. Flat string (list API)
+  return rawImages
+      .whereType<String>()
+      .where((u) => u.isNotEmpty)
+      .firstOrNull;
+}
+
 class ProductModel {
   final String id;
   final String name;
@@ -52,8 +88,11 @@ class ProductModel {
         status: json['status'] ?? 'Active',
         isFeatured: json['is_featured'] ?? false,
         isFlashSale: json['is_flash_sale'] ?? false,
-        primaryImage: json['primary_image'],
-        images: (json['images'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        images: (json['images'] as List<dynamic>?)
+                ?.map((e) => e is Map ? (e['url'] as String? ?? '') : e.toString())
+                .where((e) => e.isNotEmpty)
+                .toList() ?? [],
+        primaryImage: _parsePrimaryImage(json),
         createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
       );
 

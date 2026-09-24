@@ -5,8 +5,8 @@ const { sendPushToTokens } = require('../utils/firebase');
 
 const getDashboardStats = async (req, res, next) => {
   try {
-    const [revenue, orders, products, users, recentOrders, topProducts, monthlyRevenue,
-           prevRevenue, prevOrders, prevUsers] = await Promise.all([
+    const [revenue, orders, products, users, prevRevenue, prevOrders, prevUsers,
+           recentOrders, topProducts, monthlyRevenue] = await Promise.all([
       pool.query(`SELECT COALESCE(SUM(total),0) AS total FROM orders WHERE payment_status='Paid'`),
       pool.query(`SELECT COUNT(*) AS total, status FROM orders GROUP BY status`),
       pool.query(`SELECT COUNT(*) AS total FROM products WHERE status!='Inactive'`),
@@ -96,35 +96,35 @@ const getDashboardStats = async (req, res, next) => {
 const getAnalytics = async (req, res, next) => {
   try {
     const { period = '30' } = req.query;
-    const days = parseInt(period);
+    const days = Math.max(1, Math.min(365, parseInt(period) || 30));
 
     const [sales, topCats, conversionData, userGrowth] = await Promise.all([
       pool.query(`
         SELECT DATE(created_at) AS date, COUNT(*) AS orders, COALESCE(SUM(total),0) AS revenue
         FROM orders
-        WHERE created_at >= NOW() - INTERVAL '${days} days'
+        WHERE created_at >= NOW() - ($1 * INTERVAL '1 day')
         GROUP BY DATE(created_at)
         ORDER BY date
-      `),
+      `, [days]),
       pool.query(`
         SELECT c.name AS category, COUNT(oi.id) AS items_sold, SUM(oi.quantity*oi.price) AS revenue
         FROM order_items oi
         JOIN products p ON p.id=oi.product_id
         JOIN categories c ON c.id=p.category_id
         JOIN orders o ON o.id = oi.order_id
-        WHERE o.created_at >= NOW() - INTERVAL '${days} days'
+        WHERE o.created_at >= NOW() - ($1 * INTERVAL '1 day')
         GROUP BY c.name ORDER BY revenue DESC LIMIT 6
-      `),
+      `, [days]),
       pool.query(`
         SELECT COUNT(DISTINCT user_id) AS buyers FROM orders
-        WHERE created_at >= NOW() - INTERVAL '${days} days'
-      `),
+        WHERE created_at >= NOW() - ($1 * INTERVAL '1 day')
+      `, [days]),
       pool.query(`
         SELECT DATE(created_at) AS date, COUNT(*) AS new_users
         FROM users WHERE role='customer'
-          AND created_at >= NOW() - INTERVAL '${days} days'
+          AND created_at >= NOW() - ($1 * INTERVAL '1 day')
         GROUP BY DATE(created_at) ORDER BY date
-      `),
+      `, [days]),
     ]);
 
     res.json({
@@ -166,9 +166,9 @@ const getUsers = async (req, res, next) => {
                CASE WHEN u.is_active THEN 'Active' ELSE 'Blocked' END AS status,
                u.created_at,
                COUNT(o.id) AS total_orders,
-               COALESCE(SUM(o.total),0) AS total_spent
+               COALESCE(SUM(CASE WHEN o.payment_status='Paid' THEN o.total ELSE 0 END),0) AS total_spent
         FROM users u
-        LEFT JOIN orders o ON o.user_id=u.id AND o.payment_status='Paid'
+        LEFT JOIN orders o ON o.user_id=u.id
         ${whereClause}
         GROUP BY u.id ORDER BY u.created_at DESC
         LIMIT $${params.length+1} OFFSET $${params.length+2}
@@ -481,6 +481,18 @@ const deleteReview = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const toggleReviewVerified = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'UPDATE reviews SET is_verified = NOT is_verified WHERE id=$1 RETURNING is_verified',
+      [id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Review not found' });
+    res.json({ success: true, data: { is_verified: result.rows[0].is_verified } });
+  } catch (err) { next(err); }
+};
+
 // ── Contact Messages ─────────────────────────────────────────────────────────
 
 const getMessages = async (req, res, next) => {
@@ -539,11 +551,15 @@ const deleteMessage = async (req, res, next) => {
 
 // ── Store Settings ─────────────────────────────────────────────────────────
 
+// Credential keys and integration-internal keys are never exposed/edited through generic settings.
+const isCredentialKey = (key) => CREDENTIAL_KEYS.some((c) => c.key === key) || /^DELHIVERY_|^SHIPROCKET_|^PHONEPE_/.test(key);
+
 const getSettings = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT key, value FROM store_settings');
     const data = {};
-    result.rows.forEach(row => { data[row.key] = row.value; });
+    // Credentials are served (masked) only by GET /admin/credentials.
+    result.rows.forEach(row => { if (!isCredentialKey(row.key)) data[row.key] = row.value; });
     res.json({ success: true, data });
   } catch (err) { next(err); }
 };
@@ -553,6 +569,11 @@ const updateSettings = async (req, res, next) => {
     const fields = req.body;
     const keys = Object.keys(fields);
     if (!keys.length) return res.status(400).json({ success: false, message: 'No fields to update' });
+
+    const blocked = keys.filter(isCredentialKey);
+    if (blocked.length) {
+      return res.status(400).json({ success: false, message: `Use Admin → API Keys to change: ${blocked.join(', ')}` });
+    }
 
     for (const key of keys) {
       const value = fields[key] === null || fields[key] === undefined ? null : String(fields[key]);
@@ -573,12 +594,15 @@ const updateSettings = async (req, res, next) => {
 // ── API Credentials ────────────────────────────────────────────────────────
 
 const CREDENTIAL_KEYS = [
-  { key: 'OTP_PROVIDER', label: 'OTP Provider', group: 'otp', secret: false, options: ['2factor', 'msg91'] },
+  { key: 'OTP_PROVIDER', label: 'OTP Provider', group: 'otp', secret: false, options: ['firebase', '2factor', 'msg91', 'fast2sms'] },
+  { key: 'FIREBASE_WEB_API_KEY', label: 'Firebase Web API Key', group: 'otp', secret: true },
   { key: 'TWO_FACTOR_API_KEY', label: '2Factor.in API Key', group: 'otp', secret: true },
   { key: 'MSG91_AUTH_KEY', label: 'MSG91 Auth Key', group: 'otp', secret: true },
   { key: 'MSG91_TEMPLATE_ID', label: 'MSG91 Template ID', group: 'otp', secret: false },
   { key: 'MSG91_SENDER_ID', label: 'MSG91 Sender ID', group: 'otp', secret: false },
+  { key: 'FAST2SMS_API_KEY', label: 'Fast2SMS API Key', group: 'otp', secret: true },
   { key: 'FIREBASE_SERVER_KEY', label: 'Firebase Server Key', group: 'firebase', secret: true },
+  { key: 'PHONEPE_ENV', label: 'PhonePe Environment (UAT = test, PRODUCTION = live money)', group: 'payment', secret: false, options: ['UAT', 'PRODUCTION'] },
   { key: 'PHONEPE_MERCHANT_ID', label: 'PhonePe Merchant ID', group: 'payment', secret: false },
   { key: 'PHONEPE_SALT_KEY', label: 'PhonePe Salt Key', group: 'payment', secret: true },
   { key: 'PHONEPE_SALT_INDEX', label: 'PhonePe Salt Index', group: 'payment', secret: false },
@@ -587,12 +611,29 @@ const CREDENTIAL_KEYS = [
   { key: 'CLOUDINARY_CLOUD_NAME', label: 'Cloudinary Cloud Name', group: 'media', secret: false },
   { key: 'CLOUDINARY_API_KEY', label: 'Cloudinary API Key', group: 'media', secret: false },
   { key: 'CLOUDINARY_API_SECRET', label: 'Cloudinary API Secret', group: 'media', secret: true },
-  { key: 'DELHIVERY_TOKEN', label: 'Delhivery API Token', group: 'shipping', secret: true },
-  { key: 'DELHIVERY_CLIENT_NAME', label: 'Delhivery Client Name', group: 'shipping', secret: false },
-  { key: 'DELHIVERY_PICKUP_LOCATION', label: 'Delhivery Pickup Location Name', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_ENV', label: 'Delhivery Environment', group: 'shipping', secret: false, options: ['staging', 'production'] },
+  { key: 'DELHIVERY_AUTO_SHIP', label: 'Auto-create Delhivery shipment for new orders', group: 'shipping', secret: false, options: ['true', 'false'] },
+  { key: 'DELHIVERY_STAGING_TOKEN', label: 'Delhivery STAGING API Token', group: 'shipping', secret: true },
+  { key: 'DELHIVERY_STAGING_PICKUP_LOCATION', label: 'Delhivery STAGING Pickup Location (exact name)', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_TOKEN', label: 'Delhivery PRODUCTION API Token', group: 'shipping', secret: true },
+  { key: 'DELHIVERY_PICKUP_LOCATION', label: 'Delhivery PRODUCTION Pickup Location (exact name)', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_CLIENT_NAME', label: 'Delhivery Seller / Client Name', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_SELLER_GST', label: 'Seller GSTIN (sent on shipments)', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_DEFAULT_WEIGHT_GRAMS', label: 'Default package weight (grams)', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_AUTO_PICKUP', label: 'Auto-book Delhivery pickup after shipment creation', group: 'shipping', secret: false, options: ['true', 'false'] },
+  { key: 'DELHIVERY_PICKUP_TIME', label: 'Pickup time (HH:MM, IST) — default 14:00', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_PICKUP_CUTOFF', label: 'Same-day pickup cut-off (HH:MM, IST) — default 12:00', group: 'shipping', secret: false },
+  { key: 'DELHIVERY_WEBHOOK_SECRET', label: 'Delhivery Webhook Secret (Bearer token Delhivery sends)', group: 'shipping', secret: true },
+  { key: 'SHIPROCKET_EMAIL', label: 'Shiprocket Login Email', group: 'shipping', secret: false },
+  { key: 'SHIPROCKET_PASSWORD', label: 'Shiprocket Password', group: 'shipping', secret: true },
+  { key: 'SHIPROCKET_PICKUP_LOCATION', label: 'Shiprocket Pickup Location Name', group: 'shipping', secret: false },
+  { key: 'SHIPROCKET_CHANNEL_ID', label: 'Shiprocket Channel ID (optional)', group: 'shipping', secret: false },
 ];
 
-const { invalidateCache } = require('../utils/settings');
+const { setSetting, decryptValue } = require('../utils/settings');
+const delhivery = require('../utils/delhivery');
+const shipmentService = require('../services/shipmentService');
+const { invalidateToken: invalidateShiprocketToken } = require('../utils/shiprocket');
 
 const getCredentials = async (req, res, next) => {
   try {
@@ -601,10 +642,9 @@ const getCredentials = async (req, res, next) => {
     result.rows.forEach(r => { dbVals[r.key] = r.value; });
 
     const data = CREDENTIAL_KEYS.map(meta => {
-      const rawVal = dbVals[meta.key] || process.env[meta.key] || '';
-      const maskedVal = meta.secret && rawVal.length > 6
-        ? rawVal.slice(0, 4) + '••••' + rawVal.slice(-4)
-        : rawVal;
+      const rawVal = decryptValue(dbVals[meta.key]) || process.env[meta.key] || '';
+      // Secrets never leave the server; only the last 4 chars are shown for identification.
+      const maskedVal = meta.secret && rawVal ? `••••••••${rawVal.length > 8 ? rawVal.slice(-4) : ''}` : rawVal;
       return { ...meta, value: maskedVal, isSet: !!rawVal };
     });
 
@@ -620,14 +660,84 @@ const updateCredentials = async (req, res, next) => {
     const meta = CREDENTIAL_KEYS.find(c => c.key === key);
     if (!meta) return res.status(400).json({ success: false, message: 'Unknown credential key' });
 
-    await pool.query(
-      `INSERT INTO store_settings (key, value) VALUES ($1, $2)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
-      [key, value || null]
-    );
-    invalidateCache(key);
+    if (meta.options && value && !meta.options.includes(value)) {
+      return res.status(400).json({ success: false, message: `${meta.label} must be one of: ${meta.options.join(', ')}` });
+    }
+    await setSetting(key, typeof value === 'string' ? value.trim() : value, { secret: !!meta.secret });
+    console.log(`[admin] ${req.user.id} updated credential ${key}${meta.secret ? ' (secret)' : `=${value}`}`);
+    // Bust Shiprocket token cache whenever email or password changes
+    if (key === 'SHIPROCKET_EMAIL' || key === 'SHIPROCKET_PASSWORD') invalidateShiprocketToken();
 
     res.json({ success: true, message: `${meta.label} updated` });
+  } catch (err) { next(err); }
+};
+
+// ── Delhivery integration health ──────────────────────────────────────────
+
+// GET /api/admin/shipping/delhivery/status
+const getDelhiveryStatus = async (req, res, next) => {
+  try {
+    const cfg = await delhivery.getConfig();
+    const missing = delhivery.configProblems(cfg);
+    const [counts, lastEvent, webhookLast, webhookSecret, autoShip] = await Promise.all([
+      pool.query(`SELECT COALESCE(shipping_status, 'none') AS s, COUNT(*)::int AS n FROM orders
+                  WHERE created_at > NOW() - INTERVAL '90 days' GROUP BY 1`),
+      pool.query(`SELECT source, created_at FROM shipment_events ORDER BY created_at DESC LIMIT 1`),
+      pool.query(`SELECT value FROM store_settings WHERE key = 'DELHIVERY_WEBHOOK_LAST_RECEIVED'`),
+      pool.query(`SELECT 1 FROM store_settings WHERE key = 'DELHIVERY_WEBHOOK_SECRET' AND value IS NOT NULL`),
+      pool.query(`SELECT value FROM store_settings WHERE key = 'DELHIVERY_AUTO_SHIP'`),
+    ]);
+    const lastPickup = (await pool.query(`SELECT value FROM store_settings WHERE key = 'DELHIVERY_LAST_PICKUP'`)).rows[0]?.value;
+    const awaitingPickup = (await pool.query(`SELECT COUNT(*)::int n FROM orders WHERE shipping_status IN ('manifested','pickup_pending') AND status <> 'Cancelled'`)).rows[0].n;
+    const failed = await pool.query(`SELECT id, order_number, shipment_error, shipment_attempts FROM orders
+      WHERE shipping_status = 'failed' AND status = 'Processing' ORDER BY updated_at DESC LIMIT 20`);
+    const apiBase = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    res.json({
+      success: true,
+      data: {
+        provider: 'delhivery',
+        environment: cfg.env,
+        configured: missing.length === 0,
+        missing,
+        pickup_location: cfg.pickupLocation || null,
+        base_url: cfg.baseUrl,
+        auto_ship: autoShip.rows[0]?.value !== 'false',
+        webhook: {
+          url: `${apiBase.replace(/\/$/, '')}/api/shipping/delhivery/webhook`,
+          secret_set: !!webhookSecret.rows.length || !!process.env.DELHIVERY_WEBHOOK_SECRET,
+          last_received: webhookLast.rows[0]?.value || null,
+        },
+        last_event: lastEvent.rows[0] || null,
+        pickup: { last: lastPickup ? JSON.parse(lastPickup) : null, awaiting_pickup: awaitingPickup },
+        last_scheduled_sync: shipmentService.lastRun,
+        shipping_status_counts: Object.fromEntries(counts.rows.map((r) => [r.s, r.n])),
+        failed_shipments: failed.rows,
+      },
+    });
+  } catch (err) { next(err); }
+};
+
+// POST /api/admin/shipping/delhivery/test  { pincode? }
+const testDelhiveryConnection = async (req, res, next) => {
+  try {
+    const r = await delhivery.testConnection(req.body?.pincode || '110001');
+    res.status(r.ok ? 200 : 502).json({ success: r.ok, message: r.message, data: r });
+  } catch (err) { next(err); }
+};
+
+// POST /api/admin/shipping/delhivery/pickup — book (or confirm) a pickup for parcels waiting at the warehouse
+const requestDelhiveryPickup = async (req, res, next) => {
+  try {
+    const r = await shipmentService.ensurePickup({ trigger: 'admin' });
+    res.status(r.ok ? 200 : 502).json({ success: !!r.ok, message: r.ok ? (r.existing ? 'Pickup already booked for this warehouse' : `Pickup booked for ${r.date} ${r.time}`) : r.error, data: r });
+  } catch (err) { next(err); }
+};
+
+// POST /api/admin/shipping/delhivery/sync — sync all active shipments + retry failed creations now
+const syncDelhiveryNow = async (req, res, next) => {
+  try {
+    await shipmentService.runScheduledSync();
+    res.json({ success: true, data: shipmentService.lastRun });
   } catch (err) { next(err); }
 };
 
@@ -706,10 +816,11 @@ module.exports = {
   getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
   getPromoBanners, createPromoBanner, updatePromoBanner, deletePromoBanner,
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
-  getReviews, deleteReview,
+  getReviews, deleteReview, toggleReviewVerified,
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
   getSettings, updateSettings,
   getCredentials, updateCredentials,
   uploadImage, deleteImage,
   sendPushNotification,
+  getDelhiveryStatus, testDelhiveryConnection, syncDelhiveryNow, requestDelhiveryPickup,
 };

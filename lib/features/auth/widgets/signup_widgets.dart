@@ -43,8 +43,8 @@ class _PremiumAuthFieldState extends State<PremiumAuthField> {
         boxShadow: [
           BoxShadow(
             color: _isFocused 
-                ? AppColors.secondaryPurple.withOpacity(0.06)
-                : Colors.black.withOpacity(0.03),
+                ? AppColors.secondaryPurple.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -56,7 +56,7 @@ class _PremiumAuthFieldState extends State<PremiumAuthField> {
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.08),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
@@ -94,7 +94,7 @@ class _PremiumAuthFieldState extends State<PremiumAuthField> {
                       hintText: widget.hintText,
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 13.sp,
-                        color: AppColors.greyText.withOpacity(0.4),
+                        color: AppColors.greyText.withValues(alpha: 0.4),
                       ),
                       isDense: true,
                       border: InputBorder.none,
@@ -110,7 +110,7 @@ class _PremiumAuthFieldState extends State<PremiumAuthField> {
               onTap: () => setState(() => _obscureText = !_obscureText),
               child: Icon(
                 _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                color: AppColors.greyText.withOpacity(0.6),
+                color: AppColors.greyText.withValues(alpha: 0.6),
                 size: 20.sp,
               ),
             ),

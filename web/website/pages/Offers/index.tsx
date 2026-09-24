@@ -35,8 +35,12 @@ const OffersPage: React.FC = () => {
   };
 
   const formatExpiry = (iso: string) => {
-    try { return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
-    catch { return iso; }
+    if (!iso) return 'No expiry';
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return 'No expiry';
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return 'No expiry'; }
   };
 
   const breadcrumbItems = [
@@ -55,7 +59,7 @@ const OffersPage: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl font-black text-[#111827] mb-1">Offers & Coupons</h1>
-            <p className="text-sm font-bold text-gray-400">Save more with {activeCoupons.length} exclusive offers and coupons</p>
+            <p className="text-sm font-bold text-gray-400">{activeCoupons.length > 0 ? `Save more with ${activeCoupons.length} exclusive offers and coupons` : 'Exclusive deals & coupon codes'}</p>
           </div>
           <button onClick={() => setShowHowToUse(true)} className="flex items-center gap-2 border-2 border-[#ECECEC] text-[#111827] px-6 py-2.5 rounded-xl font-black text-sm hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all group">
             <HelpCircle size={18} className="text-gray-400 group-hover:text-[#FF6B2C]" />
@@ -103,7 +107,11 @@ const OffersPage: React.FC = () => {
               ))}
 
               {activeCoupons.length === 0 && (
-                <div className="py-16 text-center text-gray-400 font-bold">No active coupons. Admin can add coupons from Admin → Coupons.</div>
+                <div className="py-16 text-center">
+                  <Tag size={40} className="text-gray-200 mx-auto mb-4" />
+                  <p className="text-gray-500 font-bold text-base mb-1">No active offers right now</p>
+                  <p className="text-gray-400 font-medium text-sm">Check back soon — new deals are added regularly.</p>
+                </div>
               )}
             </div>
           </div>

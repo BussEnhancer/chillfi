@@ -44,7 +44,7 @@ class FeatureItem extends StatelessWidget {
           Container(
             height: 40.h,
             width: 1,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
           ),
           SizedBox(width: 15.w),
         ],

@@ -52,8 +52,8 @@ const Footer: React.FC = () => {
             <ul className="space-y-4 text-sm">
               <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
               <li><Link to="/account/orders" className="hover:text-white transition-colors">Track Order</Link></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Return &amp; Refund</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Shipping Policy</span></li>
+              <li><Link to="/return-policy" className="hover:text-white transition-colors">Return &amp; Refund</Link></li>
+              <li><Link to="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link></li>
               <li><Link to="/support" className="hover:text-white transition-colors">FAQs</Link></li>
             </ul>
           </div>
@@ -63,10 +63,10 @@ const Footer: React.FC = () => {
             <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-sm">Company</h4>
             <ul className="space-y-4 text-sm">
               <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Careers</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Blog</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Affiliate Program</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Sitemap</span></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Careers<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Blog<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Affiliate Program<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Sitemap<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
             </ul>
           </div>
 
@@ -76,9 +76,9 @@ const Footer: React.FC = () => {
             <ul className="space-y-4 text-sm">
               <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms" className="hover:text-white transition-colors">Terms &amp; Conditions</Link></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Refund Policy</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Cancellation Policy</span></li>
-              <li><span title="Coming soon" className="opacity-50 cursor-not-allowed">Disclaimer</span></li>
+              <li><Link to="/refund-policy" className="hover:text-white transition-colors">Refund Policy</Link></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Cancellation Policy<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
+              <li><span className="flex items-center gap-2 opacity-50 cursor-not-allowed">Disclaimer<span className="text-[9px] font-bold tracking-wider bg-white/10 text-white/60 px-1.5 py-0.5 rounded-full uppercase">Soon</span></span></li>
             </ul>
           </div>
         </div>

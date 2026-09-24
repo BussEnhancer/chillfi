@@ -102,7 +102,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       width: 90.w,
       decoration: BoxDecoration(
         color: const Color(0xFFF8F8F8),
-        border: Border(right: BorderSide(color: AppColors.lightGrey.withOpacity(0.5))),
+        border: Border(right: BorderSide(color: AppColors.lightGrey.withValues(alpha: 0.5))),
       ),
       child: ListView.builder(
         itemCount: cats.length + 1,

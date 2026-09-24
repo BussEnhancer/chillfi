@@ -13,10 +13,10 @@ class ViewAllRecentlyViewedCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.lightGrey.withOpacity(0.5)),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -27,7 +27,7 @@ class ViewAllRecentlyViewedCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
-              color: AppColors.secondaryPurple.withOpacity(0.1),
+              color: AppColors.secondaryPurple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(Icons.history_toggle_off_rounded, color: AppColors.secondaryPurple, size: 20.sp),

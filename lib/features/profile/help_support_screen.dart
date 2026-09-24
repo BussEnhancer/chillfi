@@ -46,13 +46,13 @@ class HelpSupportScreen extends StatelessWidget {
             Text(
               "Help & Support",
               style: GoogleFonts.poppins(
-                fontSize: 22.sp,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkText,
               ),
             ),
             Text(
-              "We're here to assist you!",
+              "We're here to help!",
               style: GoogleFonts.poppins(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,

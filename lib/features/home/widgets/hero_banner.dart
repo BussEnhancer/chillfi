@@ -1,4 +1,5 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/features/product_listing/product_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,7 +37,7 @@ class _HeroBannerSliderState extends State<HeroBannerSlider> {
               controller: _controller,
               itemCount: widget.banners.length,
               onPageChanged: (i) => setState(() => _currentIndex = i),
-              itemBuilder: (context, index) => _buildBanner(widget.banners[index] as Map),
+              itemBuilder: (context, index) => _buildBanner(context, widget.banners[index] as Map),
             ),
           ),
           if (widget.banners.length > 1) ...[
@@ -48,7 +49,7 @@ class _HeroBannerSliderState extends State<HeroBannerSlider> {
                 height: 6.h,
                 margin: EdgeInsets.symmetric(horizontal: 3.w),
                 decoration: BoxDecoration(
-                  color: index == _currentIndex ? AppColors.secondaryPurple : AppColors.secondaryPurple.withOpacity(0.2),
+                  color: index == _currentIndex ? AppColors.secondaryPurple : AppColors.secondaryPurple.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
               )),
@@ -59,29 +60,37 @@ class _HeroBannerSliderState extends State<HeroBannerSlider> {
     );
   }
 
-  Widget _buildBanner(Map banner) {
+  Widget _buildBanner(BuildContext context, Map banner) {
     final title = banner['title'] as String? ?? '';
     final subtitle = banner['subtitle'] as String?;
     final imageUrl = banner['image_url'] as String?;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ProductListingScreen()),
+      ),
+      child: Container(
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             const Color(0xFFFBF4FF),
-            AppColors.secondaryPurple.withOpacity(0.05),
+            AppColors.secondaryPurple.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: AppColors.secondaryPurple.withOpacity(0.1)),
+        border: Border.all(color: AppColors.secondaryPurple.withValues(alpha: 0.1)),
       ),
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(20.r),
+            // Reserve space for the image positioned on the right (110.w) so the
+            // FittedBox below scales text to fit next to it, instead of laying out
+            // at the full banner width and then being covered by the image.
+            padding: EdgeInsets.only(left: 20.r, top: 20.r, bottom: 20.r, right: 110.w + 20.r),
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
@@ -117,7 +126,7 @@ class _HeroBannerSliderState extends State<HeroBannerSlider> {
                       borderRadius: BorderRadius.circular(12.r),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryOrange.withOpacity(0.3),
+                          color: AppColors.primaryOrange.withValues(alpha: 0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -162,6 +171,7 @@ class _HeroBannerSliderState extends State<HeroBannerSlider> {
               ),
             ),
         ],
+      ),
       ),
     );
   }

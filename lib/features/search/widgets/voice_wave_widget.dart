@@ -46,7 +46,7 @@ class _VoiceWaveWidgetState extends State<VoiceWaveWidget>
               width: 3.w,
               height: height,
               decoration: BoxDecoration(
-                color: AppColors.secondaryPurple.withOpacity(0.6),
+                color: AppColors.secondaryPurple.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(2.r),
               ),
             );

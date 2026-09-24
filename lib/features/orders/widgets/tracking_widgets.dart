@@ -242,7 +242,7 @@ class VerticalTrackingTimeline extends StatelessWidget {
     final outForDelivery = placed.add(const Duration(days: 4));
     final delivered = placed.add(const Duration(days: 5));
 
-    TimelineStatus _s(int stepIdx) {
+    TimelineStatus st(int stepIdx) {
       if (isCancelled) return stepIdx == 0 ? TimelineStatus.completed : TimelineStatus.pending;
       if (idx > stepIdx) return TimelineStatus.completed;
       if (idx == stepIdx) return TimelineStatus.current;
@@ -293,25 +293,25 @@ class VerticalTrackingTimeline extends StatelessWidget {
             description: "Your order was placed successfully",
             date: _fmt(placed),
             isFirst: true,
-            status: _s(0),
+            status: st(0),
           ),
           _buildTimelineStep(
             title: "Order Confirmed",
             description: "Seller confirmed your order",
-            date: _s(1) == TimelineStatus.pending ? null : _fmt(confirmed),
-            status: _s(1),
+            date: st(1) == TimelineStatus.pending ? null : _fmt(confirmed),
+            status: st(1),
           ),
           _buildTimelineStep(
             title: "Shipped",
             description: "Package picked up by courier",
-            date: _s(2) == TimelineStatus.pending ? null : _fmt(shipped),
-            status: _s(2),
+            date: st(2) == TimelineStatus.pending ? null : _fmt(shipped),
+            status: st(2),
           ),
           _buildTimelineStep(
             title: "Out for Delivery",
             description: "Package is on its way to you",
-            date: _s(3) == TimelineStatus.pending ? null : _fmt(outForDelivery),
-            status: _s(3),
+            date: st(3) == TimelineStatus.pending ? null : _fmt(outForDelivery),
+            status: st(3),
           ),
           _buildTimelineStep(
             title: "Delivered",
@@ -320,7 +320,7 @@ class VerticalTrackingTimeline extends StatelessWidget {
                 : "Expected by ${DateFormat('d MMM yyyy').format(delivered)}",
             date: idx >= 4 ? _fmt(delivered) : null,
             isLast: true,
-            status: _s(4),
+            status: st(4),
           ),
         ],
       ),
@@ -384,7 +384,7 @@ class VerticalTrackingTimeline extends StatelessWidget {
               ),
               if (!isLast)
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     width: 2,
                     child: CustomPaint(
                       painter: LinePainter(

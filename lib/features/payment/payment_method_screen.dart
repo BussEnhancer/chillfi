@@ -37,7 +37,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         _showError('Failed to place order. Please try again.');
       }
     } else {
-      // PhonePe
+      // PhonePe — snapshot cart items before placing order so we can restore on failure
+      final savedItems = List.of(cart.items);
       final order = await cart.placeOrder(paymentMethod: 'PhonePe');
       if (!mounted) return;
       if (order != null) {
@@ -46,7 +47,14 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         if (payData != null) {
           Navigator.push(context, MaterialPageRoute(builder: (_) => PhonePePaymentScreen(orderId: order.id, paymentUrl: payData['payment_url'] ?? '')));
         } else {
-          _showError('Could not initiate payment. Try COD.');
+          // Cancel the dangling pending order and re-add saved items to restore cart
+          await cart.cancelOrder(order.id, 'PhonePe initiation failed');
+          if (!mounted) return;
+          for (final item in savedItems) {
+            await cart.addToCart(item.productId, quantity: item.quantity);
+            if (!mounted) return;
+          }
+          _showError('Could not initiate payment. Your cart has been restored — try COD.');
         }
       } else {
         _showError('Failed to place order.');
@@ -113,12 +121,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         if (s.savings > 0) _row('Discount', '-₹${s.savings.toStringAsFixed(0)}', green: true),
                         if (cart.couponDiscount > 0) _row('Coupon', '-₹${cart.couponDiscount.toStringAsFixed(0)}', green: true),
                         _row('Delivery', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', green: s.deliveryFee == 0),
+                        if (s.taxAmount > 0) _row('GST', '₹${s.taxAmount.toStringAsFixed(0)}'),
                         Divider(height: 20.h),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('Total to Pay', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
-                            Text('₹${s.total.toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
+                            Text('₹${(s.total - cart.couponDiscount).toStringAsFixed(0)}', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
                           ],
                         ),
                       ],
@@ -134,7 +143,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, -5))],
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(24.r), topRight: Radius.circular(24.r)),
                 ),
                 child: SafeArea(
@@ -152,7 +161,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       child: _placing
                           ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                           : Text(
-                              _selected == 'COD' ? 'Place Order (COD)' : 'Pay ₹${s.total.toStringAsFixed(0)}',
+                              _selected == 'COD' ? 'Place Order (COD)' : 'Pay ₹${(s.total - cart.couponDiscount).toStringAsFixed(0)}',
                               style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white),
                             ),
                     ),
@@ -207,7 +216,7 @@ class _PaymentOption extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.secondaryPurple.withOpacity(0.1) : const Color(0xFFF5F5F5),
+                color: isSelected ? AppColors.secondaryPurple.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(icon, color: isSelected ? AppColors.secondaryPurple : AppColors.greyText, size: 22.sp),

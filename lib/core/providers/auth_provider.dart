@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
@@ -87,6 +88,41 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     final result = await _authService.signup(name, phone, otp, email: email);
+    _message = result.message;
+    if (result.success && result.user != null) {
+      _user = result.user;
+      _state = AuthState.authenticated;
+      _saveFcmToken();
+    } else {
+      _state = AuthState.error;
+    }
+    notifyListeners();
+    return result.success;
+  }
+
+  void verifyPhoneFirebase(
+    String phone, {
+    required Function(String verificationId, int? resendToken) codeSent,
+    required Function(String error) onFailed,
+    Function(PhoneAuthCredential)? verificationCompleted,
+  }) {
+    _authService.verifyPhoneFirebase(
+      phone,
+      codeSent: codeSent,
+      onFailed: onFailed,
+      verificationCompleted: verificationCompleted,
+    );
+  }
+
+  Future<bool> firebaseVerify(
+    String verificationId,
+    String smsCode, {
+    String? name,
+    String? email,
+  }) async {
+    _state = AuthState.loading;
+    notifyListeners();
+    final result = await _authService.firebaseVerify(verificationId, smsCode, name: name, email: email);
     _message = result.message;
     if (result.success && result.user != null) {
       _user = result.user;

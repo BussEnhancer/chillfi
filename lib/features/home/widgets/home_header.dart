@@ -1,6 +1,8 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/cart/cart_screen.dart';
+import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/features/profile/notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,7 +24,7 @@ class HomeHeader extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryOrange.withOpacity(0.1),
+                  color: AppColors.primaryOrange.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.location_on_rounded, color: AppColors.primaryOrange, size: 18.sp),
@@ -39,18 +41,22 @@ class HomeHeader extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        'Home - 123456',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkText,
+                  Consumer<CartProvider>(
+                    builder: (context, cart, _) => Row(
+                      children: [
+                        Text(
+                          cart.selectedAddress != null
+                              ? '${cart.selectedAddress!.label} - ${cart.selectedAddress!.pincode}'
+                              : 'Select Address',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkText,
+                          ),
                         ),
-                      ),
-                      Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.darkText),
-                    ],
+                        Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.darkText),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -71,7 +77,13 @@ class HomeHeader extends StatelessWidget {
               final cartCount = cart.summary.itemCount;
               return Row(
                 children: [
-                  _buildBadgeIcon(Icons.notifications_none_rounded, 3, onTap: null),
+                  _buildBadgeIcon(Icons.notifications_none_rounded,
+                      context.watch<WishlistProvider>().unreadNotificationCount, onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                    );
+                  }),
                   SizedBox(width: 12.w),
                   _buildBadgeIcon(Icons.shopping_cart_outlined, cartCount, onTap: () {
                     Navigator.push(
@@ -101,7 +113,7 @@ class HomeHeader extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
