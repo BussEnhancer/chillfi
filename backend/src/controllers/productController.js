@@ -243,6 +243,10 @@ const getReviews = async (req, res) => {
 const addReview = async (req, res) => {
   const { id } = req.params;
   const { rating, title, body } = req.body;
+  const reviewsSetting = await pool.query(`SELECT value FROM store_settings WHERE key = 'product_reviews_enabled'`);
+  if (reviewsSetting.rows[0]?.value === 'false') {
+    return res.status(403).json({ success: false, message: 'Reviews are turned off at the moment. Please try again later.' });
+  }
   if (!rating || rating < 1 || rating > 5) {
     return res.status(400).json({ success: false, message: 'Rating 1-5 required' });
   }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Search, Trash2, Mail, ChevronLeft, ChevronRight, X, Check, ShieldOff, ShieldCheck, Eye, Loader2, Headset } from 'lucide-react';
 import { apiGet, apiPut } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import { useStore, StoreUser as User } from '../../../context/StoreContext';
 
 const statusStyle: Record<string, string> = {
@@ -104,8 +105,8 @@ const AdminUsers: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: { users: ApiUser[]; total: number } }>(`/admin/users?limit=200${q ? `&search=${encodeURIComponent(q)}` : ''}`);
       if (res.data?.users) setUsers(res.data.users.map(normalizeApiUser));
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load coupons', error: e });
     } finally {
       setLoading(false);
     }
@@ -124,7 +125,7 @@ const AdminUsers: React.FC = () => {
     } catch (e: any) {
       // revert
       setUsers(prev => prev.map(x => x.id === id ? { ...x, status: u.status } : x));
-      showToast(e.message || 'Failed to update user status');
+      showErrorDialog({ title: 'Couldn’t update user status', error: e });
     }
   };
 
@@ -138,7 +139,7 @@ const AdminUsers: React.FC = () => {
       showToast(`${u.name} is ${newRole === 'support_staff' ? 'now Support Staff' : 'no longer Support Staff'}`);
     } catch (e: any) {
       setUsers(prev => prev.map(x => x.id === id ? { ...x, role: u.role } : x));
-      showToast(e.message || 'Failed to update role');
+      showErrorDialog({ title: 'Couldn’t update role', error: e });
     }
   };
 

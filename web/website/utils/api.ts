@@ -15,6 +15,14 @@ export const isUserFacing = (m?: string | null) => {
   return !TECHNICAL.some((w) => l.includes(w));
 };
 
+// Our backend's generic 5xx carries an errorRef; a 5xx without one is a deliberate, human-written message
+// (e.g. "Image uploads aren't set up yet…"), so it may be shown when it passes the safety check.
+const pickMessage = (status: number, data: any, fallback: string) => {
+  const m = data?.message as string | undefined;
+  if (status >= 500) return data && !data.errorRef && isUserFacing(m) ? m! : ERR_SERVER;
+  return isUserFacing(m) ? m! : fallback;
+};
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) { super(message); this.status = status; this.name = 'ApiError'; }
@@ -98,8 +106,7 @@ export const api = async <T = unknown>(
   try { data = await res.json(); } catch { /* non-JSON body (proxy error page, empty 502, …) */ }
   if (!res.ok || data === null) {
     const status = res.ok ? 502 : res.status;
-    const serverMsg = data?.message as string | undefined;
-    throw new ApiError(status >= 500 ? ERR_SERVER : isUserFacing(serverMsg) ? serverMsg! : ERR_GENERIC, status);
+    throw new ApiError(pickMessage(status, data, ERR_GENERIC), status);
   }
   return data;
 };
@@ -127,7 +134,7 @@ export const uploadImage = async (file: File, folder = 'chillfi/products'): Prom
   try { data = await res.json(); } catch { /* non-JSON */ }
   if (!res.ok || !data?.data?.url) {
     const status = res.ok ? 502 : res.status;
-    throw new ApiError(status >= 500 ? ERR_SERVER : isUserFacing(data?.message) ? data.message : 'Upload failed. Please try again.', status);
+    throw new ApiError(pickMessage(status, data, 'Upload failed. Please try again.'), status);
   }
   return data.data.url;
 };

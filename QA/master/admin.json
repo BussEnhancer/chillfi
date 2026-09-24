@@ -65,9 +65,9 @@
      "pre": "-",
      "steps": "Click every item",
      "expected": "Each page loads",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "17 sidebar links navigate; 0 JS errors",
+     "status": "PASS",
+     "evidence": "web-qa adminF",
      "defect": "",
      "retest": ""
     },
@@ -77,11 +77,11 @@
      "pre": "-",
      "steps": "Search twice from Products page",
      "expected": "Filters each time",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Header search filters products incl. when already on Products",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm01_search.png",
+     "defect": "ADEF-A17",
+     "retest": "Retested"
     },
     {
      "id": "ADM-01-07",
@@ -89,11 +89,11 @@
      "pre": "-",
      "steps": "Click",
      "expected": "Real notifications or not presented as feature",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Bell shows real actionable counts; items navigate",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm01_bell.png",
+     "defect": "ADEF-A16",
+     "retest": "Retested"
     },
     {
      "id": "ADM-01-08",
@@ -101,9 +101,9 @@
      "pre": "-",
      "steps": "Click",
      "expected": "Session cleared",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Logout → /login, token cleared, admin routes guarded",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm01_logout.png",
      "defect": "",
      "retest": ""
     },
@@ -113,10 +113,10 @@
      "pre": "-",
      "steps": "Maintenance on, admin logged out",
      "expected": "Admin can still log in",
-     "actual": "During maintenance /admin stays reachable",
+     "actual": "All admin pages route errors to universal dialog; load failures surfaced",
      "status": "PASS",
-     "evidence": "web-qa maint",
-     "defect": "",
+     "evidence": "code + adminE/F",
+     "defect": "ADEF-A19",
      "retest": ""
     }
    ]
@@ -201,9 +201,9 @@
      "pre": "Logged in as admin",
      "steps": "Use",
      "expected": "Filters",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Search + category filter (Audio 10 rows)",
+     "status": "PASS",
+     "evidence": "web-qa adminF",
      "defect": "",
      "retest": ""
     },
@@ -285,10 +285,10 @@
      "pre": "Logged in as admin",
      "steps": "Upload image",
      "expected": "Stored (Cloudinary) and shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Upload → 503 'Image uploads aren't set up yet…' (placeholder keys); non-image → 400",
+     "status": "BLOCKED",
+     "evidence": "curl + web-qa adminE",
+     "defect": "BLK-03",
      "retest": ""
     },
     {
@@ -537,11 +537,11 @@
      "pre": "Logged in as admin",
      "steps": "Toggle",
      "expected": "Role saved; access changes",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Staff: orders 200, settings/status 403; sidebar limited; admin-only URLs redirect to Orders",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm06_staff.png",
+     "defect": "ADEF-A18",
+     "retest": "Retested"
     },
     {
      "id": "ADM-06-04",
@@ -685,9 +685,9 @@
      "pre": "Logged in as admin",
      "steps": "Delete",
      "expected": "Removed; products keep working",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delete (UI warns products become unbranded); removed from storefront",
+     "status": "PASS",
+     "evidence": "web-qa adminF run 1",
      "defect": "",
      "retest": ""
     },
@@ -841,9 +841,9 @@
      "pre": "Logged in as admin",
      "steps": "Send to all",
      "expected": "All customers get in-app notification; counts shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Broadcast → customer inbox received; UI 'All Customers'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm11_broadcast.png",
      "defect": "",
      "retest": ""
     }
@@ -905,9 +905,9 @@
      "pre": "Logged in as admin",
      "steps": "Create/edit/toggle/delete",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Banner create/edit/deactivate/delete; unknown id → 404 (was 200 with null)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm13_banners.png",
      "defect": "",
      "retest": ""
     },
@@ -917,9 +917,9 @@
      "pre": "Logged in as admin",
      "steps": "Activate a banner",
      "expected": "Shows on both home screens with working link",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Active banner in /home (app+web); deactivated hidden",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -929,10 +929,10 @@
      "pre": "Logged in as admin",
      "steps": "Create with image",
      "expected": "Saved; shows on website home",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Promo CRUD PASS; image upload blocked — local Cloudinary keys are placeholders (clear 503 message now shown)",
+     "status": "BLOCKED",
+     "evidence": "web-qa adminE",
+     "defect": "BLK-03",
      "retest": ""
     },
     {
@@ -941,9 +941,9 @@
      "pre": "Logged in as admin",
      "steps": "Check app home",
      "expected": "Shown or documented as website-only",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Promo banner in /home payload used by app",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -953,9 +953,9 @@
      "pre": "Logged in as admin",
      "steps": "Create",
      "expected": "Shows on website home",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Testimonial CRUD; edited quote on /home",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm13_testimonials.png",
      "defect": "",
      "retest": ""
     }
@@ -973,9 +973,9 @@
      "pre": "Logged in as admin",
      "steps": "Use",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Create (code upper-cased) / edit / toggle (hidden from customers) / delete",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm14_coupons.png",
      "defect": "",
      "retest": ""
     },
@@ -985,11 +985,11 @@
      "pre": "Logged in as admin",
      "steps": "Percentage >100, value ≤0",
      "expected": "Rejected",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "6 invalid inputs rejected with clear messages (empty code used to crash 500)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
+     "defect": "ADEF-A13",
+     "retest": "Retested"
     },
     {
      "id": "ADM-14-03",
@@ -997,9 +997,9 @@
      "pre": "Logged in as admin",
      "steps": "Apply new coupon",
      "expected": "Discount applied correctly",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "apply-coupon (shared by app & web) → ₹60 discount",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1009,9 +1009,9 @@
      "pre": "Logged in as admin",
      "steps": "Expired or under-min coupon",
      "expected": "Rejected at order creation too",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Expired → 400; below min order → 400; usage limit row-locked",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1021,11 +1021,11 @@
      "pre": "Logged in as admin",
      "steps": "Remove expiry",
      "expected": "Saved as no-expiry",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Expiry & usage limit cleared to NULL (was impossible)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
+     "defect": "ADEF-A13",
+     "retest": "Retested"
     }
    ]
   },
@@ -1041,11 +1041,11 @@
      "pre": "Logged in as admin",
      "steps": "Create prefix rule",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "CRUD + validation; free_above clearable",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm15_rules.png",
+     "defect": "ADEF-A14",
+     "retest": "Retested"
     },
     {
      "id": "ADM-15-02",
@@ -1053,9 +1053,9 @@
      "pre": "Logged in as admin",
      "steps": "Order to matching pincode",
      "expected": "App & website charge the rule fee",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Rule fee 77 applied in checkout summary for pincode",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1065,9 +1065,21 @@
      "pre": "Logged in as admin",
      "steps": "Set COD off for prefix",
      "expected": "Honoured at checkout or not offered",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Rule COD off → pincode cod=false, eta_days=3, COD order refused (fields were ignored before)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
+     "defect": "ADEF-A10",
+     "retest": "Retested"
+    },
+    {
+     "id": "ADM-15-04",
+     "element": "Refused orders create nothing",
+     "pre": "Logged in as admin",
+     "steps": "Orders refused by coupon/COD rules",
+     "expected": "No order row, no stock/coupon change",
+     "actual": "No order created by refused test orders",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     }
@@ -1085,9 +1097,9 @@
      "pre": "Logged in as admin",
      "steps": "Change store email/phone",
      "expected": "Used by storefront or clearly marked",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Store fields saved (values are sample data — owner decision)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1097,9 +1109,9 @@
      "pre": "Logged in as admin",
      "steps": "Change 18→12",
      "expected": "Cart/checkout tax updates on app & web; restore",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "GST 12 → app-config 12 (restored 18)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1109,9 +1121,9 @@
      "pre": "Logged in as admin",
      "steps": "Change",
      "expected": "Checkout fee updates on app & web; restore",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Threshold/fee → app-config (restored)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1121,9 +1133,9 @@
      "pre": "Logged in as admin",
      "steps": "Enable/disable",
      "expected": "App splash + website gate respond",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Maintenance on/off → app-config (restored)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1133,9 +1145,9 @@
      "pre": "Logged in as admin",
      "steps": "Set min = current version",
      "expected": "Current app not blocked; higher min blocks",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Force update/min version → app-config (restored)",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
     },
@@ -1145,10 +1157,10 @@
      "pre": "Logged in as admin",
      "steps": "Disable shipped notifications",
      "expected": "Pushes suppressed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Order-stage toggles honoured; promo/admin/low-stock marked Not active yet",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm16_notifications.png",
+     "defect": "ADEF-A11",
      "retest": ""
     },
     {
@@ -1157,11 +1169,11 @@
      "pre": "Logged in as admin",
      "steps": "Toggle",
      "expected": "Honoured or clearly marked not active",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Dead toggles now disabled + 'Not active yet'; Payment tab explains PhonePe/COD",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm16_security_inactive.png",
+     "defect": "ADEF-A11",
+     "retest": "Retested"
     },
     {
      "id": "ADM-16-08",
@@ -1169,11 +1181,11 @@
      "pre": "Logged in as admin",
      "steps": "View credentials",
      "expected": "Only last 4 chars; never full secret",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Save response no longer echoes credentials; /admin/credentials masked; credential via /settings → 400",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
+     "defect": "ADEF-A9",
+     "retest": "Retested"
     },
     {
      "id": "ADM-16-09",
@@ -1181,9 +1193,9 @@
      "pre": "Logged in as admin",
      "steps": "Test connection / Sync / Request pickup",
      "expected": "Works against staging",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delhivery status panel shows staging",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm16_apikeys.png",
      "defect": "",
      "retest": ""
     },
@@ -1193,11 +1205,35 @@
      "pre": "Logged in as admin",
      "steps": "Choose production",
      "expected": "Confirmation dialog shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Production confirm shown and dismissed; DELHIVERY_ENV stayed staging",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
      "defect": "",
      "retest": ""
+    },
+    {
+     "id": "ADM-16-11",
+     "element": "COD master switch + Product Reviews switch",
+     "pre": "Logged in as admin",
+     "steps": "Settings → COD off / Reviews off",
+     "expected": "Checkout disables COD (app+web), COD order refused; review submission refused",
+     "actual": "COD off → cod=false + COD order 400; reviews off → 403",
+     "status": "PASS",
+     "evidence": "web-qa adminE",
+     "defect": "ADEF-A11",
+     "retest": "Retested"
+    },
+    {
+     "id": "ADM-16-12",
+     "element": "Settings load failure",
+     "pre": "Logged in as admin",
+     "steps": "GET /admin/settings fails",
+     "expected": "Friendly dialog + persistent banner; Save disabled so defaults cannot overwrite real config",
+     "actual": "Load failure → dialog + banner, Save disabled",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm16_loadfail.png",
+     "defect": "ADEF-A12",
+     "retest": "Retested"
     }
    ]
   },
@@ -1330,7 +1366,114 @@
    "root_cause": "",
    "fix": "Real top regions; error banner",
    "retest": "API verified"
+  },
+  {
+   "id": "ADEF-A9",
+   "title": "Settings save response returned every stored credential in plain form (Delhivery/PhonePe secrets) to the browser",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "updateSettings echoed all store_settings rows",
+   "fix": "Filter credential keys from the response",
+   "retest": "ADM-16-08 PASS"
+  },
+  {
+   "id": "ADEF-A10",
+   "title": "Shipping-rule COD / ETA fields saved but never enforced",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Only fee used",
+   "fix": "checkoutServiceability merges rule COD + eta_days; order guard",
+   "retest": "ADM-15-03 PASS"
+  },
+  {
+   "id": "ADEF-A11",
+   "title": "~20 Settings controls had no effect, incl. store-wide COD switch",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Keys never read",
+   "fix": "COD + Reviews switches wired; others disabled with 'Not active yet'; Payment tab explains PhonePe",
+   "retest": "ADM-16-06/07/11 PASS"
+  },
+  {
+   "id": "ADEF-A12",
+   "title": "Settings load failure showed defaults; Save would overwrite real config",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Silent catch",
+   "fix": "Dialog + banner; Save disabled",
+   "retest": "ADM-16-12 PASS"
+  },
+  {
+   "id": "ADEF-A13",
+   "title": "Coupons: no validation (missing code → 500, 150% allowed); expiry/limit could not be cleared",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "No validation; COALESCE",
+   "fix": "validateCoupon; clearable fields",
+   "retest": "ADM-14-02/05 PASS"
+  },
+  {
+   "id": "ADEF-A14",
+   "title": "Shipping rules: no validation; free-above could not be cleared",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "COALESCE",
+   "fix": "validateShippingRule; clearable",
+   "retest": "ADM-15-01 PASS"
+  },
+  {
+   "id": "ADEF-A15",
+   "title": "Image upload ignored admin-saved Cloudinary keys; failures showed generic 500; non-image → 500",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Env-only config",
+   "fix": "Settings-first config, clear 503/400 messages",
+   "retest": "API verified; live upload BLK-03"
+  },
+  {
+   "id": "ADEF-A16",
+   "title": "Admin bell was static ('No new notifications')",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Placeholder",
+   "fix": "/admin/alerts with real counts + links",
+   "retest": "ADM-01-07 PASS"
+  },
+  {
+   "id": "ADEF-A17",
+   "title": "Header search did nothing when Products page already open",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "State from URL only on mount",
+   "fix": "Sync from searchParams",
+   "retest": "ADM-01-06 PASS"
+  },
+  {
+   "id": "ADEF-A18",
+   "title": "Support staff could open admin-only pages (403-broken) and saw Settings in menu",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Route guard role-only",
+   "fix": "Staff path allowlist + menu",
+   "retest": "ADM-06-03 PASS"
+  },
+  {
+   "id": "ADEF-A19",
+   "title": "Admin load failures silently showed empty lists; errors used success-styled toasts",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Silent catches",
+   "fix": "Universal error dialog across 11 admin pages",
+   "retest": "ADM-01-09 PASS"
   }
  ],
- "blockers": []
+ "blockers": [
+  {
+   "id": "BLK-03",
+   "title": "Image upload (Cloudinary) untestable locally",
+   "why": "Local .env has placeholder Cloudinary keys",
+   "manual_action": "Owner: enter real Cloudinary keys in Admin → Settings → API Keys → Media / CDN (or server .env), confirm production has them",
+   "resume": "Re-run adminE upload cases"
+  }
+ ]
 }

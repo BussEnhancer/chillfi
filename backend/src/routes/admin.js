@@ -11,7 +11,7 @@ const {
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
   getReviews, deleteReview, toggleReviewVerified,
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
-  getSettings, updateSettings,
+  getSettings, updateSettings, getAdminAlerts,
   getCredentials, updateCredentials,
   uploadImage, deleteImage,
   sendPushNotification,
@@ -115,6 +115,7 @@ router.put('/categories/:id', adminOnly, updateCategory);
 router.delete('/categories/:id', adminOnly, deleteCategory);
 
 // Orders — staff can view, admin can update/ship
+router.get('/alerts', staffOrAdmin, getAdminAlerts);
 router.get('/orders', staffOrAdmin, adminGetOrders);
 router.put('/orders/:id/status', adminOnly, adminUpdateStatus);
 router.post('/orders/:id/ship', adminOnly, adminShipOrder);

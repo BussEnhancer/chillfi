@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2, Zap, Upload } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete, uploadImage } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface PromoBanner {
   id: string;
@@ -144,7 +145,7 @@ const AdminPromoBanners: React.FC = () => {
     setLoading(true);
     apiGet<{ success: boolean; data: PromoBanner[] }>('/admin/promo-banners')
       .then(res => setPromos(res.data || []))
-      .catch(() => {})
+      .catch((e) => showErrorDialog({ title: "Couldn't load promo banners", error: e }))
       .finally(() => setLoading(false));
   };
 
@@ -173,7 +174,7 @@ const AdminPromoBanners: React.FC = () => {
       closeModal();
       load();
     } catch (e: any) {
-      showToast(e.message || 'Error saving promo banner');
+      showErrorDialog({ title: 'Couldn’t save promo banner', error: e });
     } finally {
       setSaving(false);
     }
@@ -186,8 +187,8 @@ const AdminPromoBanners: React.FC = () => {
       await apiDelete(`/admin/promo-banners/${id}`);
       showToast('Promo banner deleted');
       load();
-    } catch {
-      showToast('Error deleting promo banner');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     } finally {
       setDeleting(null);
     }
@@ -198,8 +199,8 @@ const AdminPromoBanners: React.FC = () => {
       await apiPut(`/admin/promo-banners/${p.id}`, { is_active: !p.is_active });
       setPromos(prev => prev.map(x => x.id === p.id ? { ...x, is_active: !x.is_active } : x));
       showToast(p.is_active ? 'Promo banner deactivated' : 'Promo banner activated');
-    } catch {
-      showToast('Error toggling promo banner');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     }
   };
 

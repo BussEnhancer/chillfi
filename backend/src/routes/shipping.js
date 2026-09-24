@@ -2,7 +2,8 @@ const router = require('express').Router();
 const crypto = require('crypto');
 const { getSetting, setSetting } = require('../utils/settings');
 const rateLimit = require('express-rate-limit');
-const { normalizeShipment, pincodeServiceability } = require('../utils/delhivery');
+const { normalizeShipment } = require('../utils/delhivery');
+const { checkoutServiceability } = require('../utils/shipping');
 const { applyCourierUpdate } = require('../services/shipmentService');
 
 const safeEqual = (a, b) => {
@@ -66,7 +67,7 @@ router.post('/delhivery/webhook', async (req, res) => {
 const pinLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
   message: { success: false, message: 'Too many pincode checks. Please wait a minute and try again.' } });
 router.get('/pincode/:pin', pinLimiter, async (req, res) => {
-  const r = await pincodeServiceability(req.params.pin);
+  const r = await checkoutServiceability(req.params.pin);
   res.json({ success: true, data: r });
 });
 

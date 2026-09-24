@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2, Star, User, Upload } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete, uploadImage } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface Testimonial {
   id: string;
@@ -142,7 +143,7 @@ const AdminTestimonials: React.FC = () => {
     setLoading(true);
     apiGet<{ success: boolean; data: Testimonial[] }>('/admin/testimonials')
       .then(res => setTestimonials(res.data || []))
-      .catch(() => {})
+      .catch((e) => showErrorDialog({ title: "Couldn't load testimonials", error: e }))
       .finally(() => setLoading(false));
   };
 
@@ -171,7 +172,7 @@ const AdminTestimonials: React.FC = () => {
       closeModal();
       load();
     } catch (e: any) {
-      showToast(e.message || 'Error saving testimonial');
+      showErrorDialog({ title: 'Couldn’t save testimonial', error: e });
     } finally {
       setSaving(false);
     }
@@ -184,8 +185,8 @@ const AdminTestimonials: React.FC = () => {
       await apiDelete(`/admin/testimonials/${id}`);
       showToast('Testimonial deleted');
       load();
-    } catch {
-      showToast('Error deleting testimonial');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     } finally {
       setDeleting(null);
     }
@@ -196,8 +197,8 @@ const AdminTestimonials: React.FC = () => {
       await apiPut(`/admin/testimonials/${t.id}`, { is_active: !t.is_active });
       setTestimonials(prev => prev.map(x => x.id === t.id ? { ...x, is_active: !x.is_active } : x));
       showToast(t.is_active ? 'Testimonial deactivated' : 'Testimonial activated');
-    } catch {
-      showToast('Error toggling testimonial');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     }
   };
 

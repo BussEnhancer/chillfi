@@ -24,6 +24,8 @@ const errorHandler = (err, req, res, next) => {
   if (status < 500) {
     return res.status(status).json({ success: false, message: err.message || 'Request could not be completed.' });
   }
+  // Deliberately user-facing 5xx (e.g. "uploads not set up") — message written by us, not a raw internal error.
+  if (err.expose === true && err.message) return res.status(status).json({ success: false, message: err.message });
 
   const ref = crypto.randomBytes(4).toString('hex').toUpperCase();
   console.error(`[${new Date().toISOString()}] ERR-${ref} ${req.method} ${req.originalUrl || req.path} → ${err.message}`);

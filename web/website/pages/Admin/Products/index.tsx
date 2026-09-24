@@ -203,6 +203,8 @@ const AdminProducts: React.FC = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('search') || '');
+  // Header search navigates here with ?search= — also when this page is already open.
+  useEffect(() => { const q = searchParams.get('search'); if (q !== null) { setSearch(q); setPage(1); } }, [searchParams]);
   const [catFilter, setCatFilter] = useState('All');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);

@@ -3,6 +3,7 @@ import AdminLayout from '../../../components/admin/AdminLayout';
 import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
 import { apiGet, apiPut } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import DelhiveryStatusPanel from '../../../components/admin/DelhiveryStatusPanel';
 
 const tabs = [
@@ -23,13 +24,17 @@ const Toast: React.FC<{ msg: string; onClose: () => void }> = ({ msg, onClose })
   </div>
 );
 
-const Toggle: React.FC<{ value: boolean; onChange: (v: boolean) => void; label: string; desc?: string }> = ({ value, onChange, label, desc }) => (
-  <div className="flex items-center justify-between py-4 border-b border-[#F8F7FC] last:border-0">
+// inactive = the setting is stored but nothing in the store/app reads it yet → shown disabled so admins aren't misled.
+const NotActive: React.FC = () => (
+  <span className="ml-2 align-middle text-[9px] font-black uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Not active yet</span>
+);
+const Toggle: React.FC<{ value: boolean; onChange: (v: boolean) => void; label: string; desc?: string; inactive?: boolean }> = ({ value, onChange, label, desc, inactive }) => (
+  <div className={`flex items-center justify-between py-4 border-b border-[#F8F7FC] last:border-0 ${inactive ? 'opacity-60' : ''}`}>
     <div>
-      <p className="text-sm font-black text-[#111827]">{label}</p>
+      <p className="text-sm font-black text-[#111827]">{label}{inactive && <NotActive />}</p>
       {desc && <p className="text-[11px] font-bold text-gray-400 mt-0.5">{desc}</p>}
     </div>
-    <button onClick={() => onChange(!value)} className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-[#FF6B2C]' : 'bg-gray-200'}`}>
+    <button type="button" role="switch" aria-checked={value} aria-label={label} disabled={inactive} onClick={() => onChange(!value)} className={`relative w-11 h-6 rounded-full transition-colors disabled:cursor-not-allowed ${value ? 'bg-[#FF6B2C]' : 'bg-gray-200'}`}>
       <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${value ? 'left-6' : 'left-1'}`} />
     </button>
   </div>
@@ -79,6 +84,7 @@ const AdminSettings: React.FC = () => {
   const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
   const [credSaving, setCredSaving] = useState<Record<string, boolean>>({});
   const [credLoading, setCredLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
@@ -86,7 +92,7 @@ const AdminSettings: React.FC = () => {
     setCredLoading(true);
     apiGet<{ success: boolean; data: CredentialMeta[] }>('/admin/credentials')
       .then(res => { if (res.data) setCredentials(res.data); })
-      .catch(() => {})
+      .catch((e) => showErrorDialog({ title: "Couldn't load API keys", error: e }))
       .finally(() => setCredLoading(false));
   };
 
@@ -165,11 +171,13 @@ const AdminSettings: React.FC = () => {
           }));
         }
       })
-      .catch(() => {})
+      .catch((e) => { setLoadFailed(true); showErrorDialog({ title: "Couldn't load settings", error: e }); })
       .finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
+    // Never save while the real values failed to load — that would overwrite them with the defaults on screen.
+    if (loadFailed) { showErrorDialog({ title: "Can't save yet", message: 'Settings could not be loaded, so saving is disabled to protect your current configuration. Please reload the page.' }); return; }
     setSaving(true);
     try {
       await apiPut('/admin/settings', {
@@ -221,7 +229,7 @@ const AdminSettings: React.FC = () => {
       setSettings(s => ({ ...s, ...store, ...shipping }));
       showToast('Settings saved successfully!');
     } catch (e: any) {
-      showToast(e.message || 'Failed to save settings');
+      showErrorDialog({ title: "Couldn't save settings", error: e });
     } finally {
       setSaving(false);
     }
@@ -250,6 +258,12 @@ const AdminSettings: React.FC = () => {
           )}
 
           {/* Store Info */}
+          {loadFailed && (
+            <div role="alert" className="mb-5 flex items-center justify-between gap-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4">
+              <p className="text-sm font-bold">Your saved settings couldn't be loaded. The values below are defaults, not your configuration — saving is disabled until the page reloads successfully.</p>
+              <button onClick={() => window.location.reload()} className="shrink-0 px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black">Reload</button>
+            </div>
+          )}
           {activeTab === 'store' && (
             <>
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
@@ -270,9 +284,9 @@ const AdminSettings: React.FC = () => {
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
                 <h3 className="text-sm font-black text-[#111827] mb-4">Store Features</h3>
                 <Toggle value={features.maintenanceMode} onChange={v => setFeatures(f => ({ ...f, maintenanceMode: v }))} label="Maintenance Mode" desc="Put the store in maintenance mode for visitors" />
-                <Toggle value={features.userRegistration} onChange={v => setFeatures(f => ({ ...f, userRegistration: v }))} label="User Registration" desc="Allow new users to register on the platform" />
-                <Toggle value={features.guestCheckout} onChange={v => setFeatures(f => ({ ...f, guestCheckout: v }))} label="Guest Checkout" desc="Allow users to checkout without an account" />
-                <Toggle value={features.productReviews} onChange={v => setFeatures(f => ({ ...f, productReviews: v }))} label="Product Reviews" desc="Allow customers to leave product reviews" />
+                <Toggle value={features.userRegistration} onChange={v => setFeatures(f => ({ ...f, userRegistration: v }))} label="User Registration" inactive desc="Allow new users to register on the platform" />
+                <Toggle value={features.guestCheckout} onChange={v => setFeatures(f => ({ ...f, guestCheckout: v }))} label="Guest Checkout" inactive desc="Allow users to checkout without an account" />
+                <Toggle value={features.productReviews} onChange={v => setFeatures(f => ({ ...f, productReviews: v }))} label="Product Reviews" desc="When off, new reviews are refused (existing reviews stay visible)" />
               </div>
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
                 <h3 className="text-sm font-black text-[#111827] mb-4">App Control</h3>
@@ -300,29 +314,28 @@ const AdminSettings: React.FC = () => {
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
               <h3 className="text-sm font-black text-[#111827] mb-5">Shipping Configuration</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {([['Free Shipping Threshold (₹)', 'freeThreshold'], ['Standard Shipping Fee (₹)', 'standardFee'], ['Express Shipping Fee (₹)', 'expressFee'], ['Max Delivery Days', 'maxDays']] as [string, keyof typeof shipping][]).map(([label, key]) => (
-                  <div key={key}>
-                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">{label}</label>
-                    <input type="number" value={shipping[key] as string} onChange={e => setShipping(s => ({ ...s, [key]: e.target.value }))} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]" />
+                {([['Free Shipping Threshold (₹)', 'freeThreshold'], ['Standard Shipping Fee (₹)', 'standardFee'], ['Express Shipping Fee (₹)', 'expressFee', true], ['Max Delivery Days', 'maxDays', true]] as [string, keyof typeof shipping, boolean?][]).map(([label, key, inactive]) => (
+                  <div key={key} className={inactive ? 'opacity-60' : ''}>
+                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">{label}{inactive && <NotActive />}</label>
+                    <input type="number" min={0} disabled={inactive} value={shipping[key] as string} onChange={e => setShipping(s => ({ ...s, [key]: e.target.value }))} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]" />
                   </div>
                 ))}
               </div>
               <Toggle value={shipping.freeShipping} onChange={v => setShipping(s => ({ ...s, freeShipping: v }))} label="Free Shipping on Orders Above Threshold" />
-              <Toggle value={shipping.express} onChange={v => setShipping(s => ({ ...s, express: v }))} label="Enable Express Delivery" desc="Show express delivery option at checkout" />
-              <Toggle value={shipping.cod} onChange={v => setShipping(s => ({ ...s, cod: v }))} label="COD Available" desc="Allow cash on delivery payments" />
+              <Toggle value={shipping.express} onChange={v => setShipping(s => ({ ...s, express: v }))} label="Enable Express Delivery" inactive desc="Show express delivery option at checkout" />
+              <Toggle value={shipping.cod} onChange={v => setShipping(s => ({ ...s, cod: v }))} label="COD Available" desc="When off, Pay on Delivery is disabled at checkout on the app and website" />
             </div>
           )}
 
           {/* Payment */}
           {activeTab === 'payment' && (
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-              <h3 className="text-sm font-black text-[#111827] mb-5">Payment Methods</h3>
-              <Toggle value={payment.upi} onChange={v => setPayment(p => ({ ...p, upi: v }))} label="UPI Payments" desc="Accept UPI via Razorpay/PayU" />
-              <Toggle value={payment.cards} onChange={v => setPayment(p => ({ ...p, cards: v }))} label="Credit / Debit Cards" desc="Visa, Mastercard, RuPay" />
-              <Toggle value={payment.netBanking} onChange={v => setPayment(p => ({ ...p, netBanking: v }))} label="Net Banking" desc="All major Indian banks" />
-              <Toggle value={payment.emi} onChange={v => setPayment(p => ({ ...p, emi: v }))} label="EMI Options" desc="No-cost EMI on eligible orders" />
-              <Toggle value={payment.cod} onChange={v => setPayment(p => ({ ...p, cod: v }))} label="Cash on Delivery" desc="COD for eligible pincodes" />
-              <Toggle value={payment.wallets} onChange={v => setPayment(p => ({ ...p, wallets: v }))} label="Wallets" desc="Paytm, PhonePe, Google Pay" />
+              <h3 className="text-sm font-black text-[#111827] mb-2">Payment Methods</h3>
+              <p className="text-xs font-bold text-gray-500 leading-relaxed">
+                Online payments (UPI, cards, net banking, wallets) are handled by PhonePe — the methods shown to customers are
+                controlled from your PhonePe merchant dashboard. Cash on Delivery is switched on/off under <b>Shipping → COD Available</b>.
+                Payment credentials are managed under <b>API Keys</b>.
+              </p>
             </div>
           )}
 
@@ -334,9 +347,9 @@ const AdminSettings: React.FC = () => {
               <Toggle value={notif.orderShipped} onChange={v => setNotif(n => ({ ...n, orderShipped: v }))} label="Order Shipped" desc="Send shipping updates with tracking link" />
               <Toggle value={notif.orderDelivered} onChange={v => setNotif(n => ({ ...n, orderDelivered: v }))} label="Order Delivered" desc="Confirm delivery to customer" />
               <Toggle value={notif.orderCancelled} onChange={v => setNotif(n => ({ ...n, orderCancelled: v }))} label="Order Cancelled" desc="Inform customer about cancellation" />
-              <Toggle value={notif.promo} onChange={v => setNotif(n => ({ ...n, promo: v }))} label="Promotional Emails" desc="Send offer and deal emails to users" />
-              <Toggle value={notif.adminAlerts} onChange={v => setNotif(n => ({ ...n, adminAlerts: v }))} label="Admin Order Alerts" desc="Get email alerts for new orders" />
-              <Toggle value={notif.lowStock} onChange={v => setNotif(n => ({ ...n, lowStock: v }))} label="Low Stock Alerts" desc="Alert admin when product stock is low" />
+              <Toggle value={notif.promo} onChange={v => setNotif(n => ({ ...n, promo: v }))} label="Promotional Emails" inactive desc="Send offer and deal emails to users" />
+              <Toggle value={notif.adminAlerts} onChange={v => setNotif(n => ({ ...n, adminAlerts: v }))} label="Admin Order Alerts" inactive desc="Get email alerts for new orders" />
+              <Toggle value={notif.lowStock} onChange={v => setNotif(n => ({ ...n, lowStock: v }))} label="Low Stock Alerts" inactive desc="Alert admin when product stock is low" />
             </div>
           )}
 
@@ -344,10 +357,10 @@ const AdminSettings: React.FC = () => {
           {activeTab === 'security' && (
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
               <h3 className="text-sm font-black text-[#111827] mb-5">Security Settings</h3>
-              <Toggle value={security.twoFactor} onChange={v => setSecurity(s => ({ ...s, twoFactor: v }))} label="Two-Factor Authentication" desc="Require 2FA for admin login" />
-              <Toggle value={security.loginLog} onChange={v => setSecurity(s => ({ ...s, loginLog: v }))} label="Login Activity Log" desc="Track all admin login events" />
-              <Toggle value={security.forceHttps} onChange={v => setSecurity(s => ({ ...s, forceHttps: v }))} label="Force HTTPS" desc="Redirect all HTTP traffic to HTTPS" />
-              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" desc="Auto logout after 30 min of inactivity" />
+              <Toggle value={security.twoFactor} onChange={v => setSecurity(s => ({ ...s, twoFactor: v }))} label="Two-Factor Authentication" inactive desc="Require 2FA for admin login" />
+              <Toggle value={security.loginLog} onChange={v => setSecurity(s => ({ ...s, loginLog: v }))} label="Login Activity Log" inactive desc="Track all admin login events" />
+              <Toggle value={security.forceHttps} onChange={v => setSecurity(s => ({ ...s, forceHttps: v }))} label="Force HTTPS" inactive desc="Redirect all HTTP traffic to HTTPS" />
+              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" inactive desc="Auto logout after 30 min of inactivity" />
               <p className="text-[11px] font-bold text-gray-400 mt-4">
                 Note: chillFi uses phone number + OTP for login — there is no password to change.
               </p>
@@ -357,7 +370,8 @@ const AdminSettings: React.FC = () => {
           {/* SEO */}
           {activeTab === 'seo' && (
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-              <h3 className="text-sm font-black text-[#111827] mb-5">SEO Configuration</h3>
+              <h3 className="text-sm font-black text-[#111827] mb-1">SEO Configuration<NotActive /></h3>
+              <p className="text-[11px] font-bold text-gray-400 mb-5">Saved for reference only — the website's page titles and meta tags don't read these values yet.</p>
               <div className="space-y-4">
                 <div>
                   <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">Meta Title</label>
@@ -404,7 +418,7 @@ const AdminSettings: React.FC = () => {
                 loadCredentials();
                 setCredEdit(e => { const c = { ...e }; delete c[key]; return c; });
               } catch (e: any) {
-                showToast(e.message || 'Failed to save');
+                showErrorDialog({ title: 'Couldn’t save', error: e });
               } finally {
                 setCredSaving(s => ({ ...s, [key]: false }));
               }
@@ -489,7 +503,7 @@ const AdminSettings: React.FC = () => {
           })()}
 
           {activeTab !== 'apikeys' && <div className="flex justify-end">
-            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors disabled:opacity-60">
+            <button onClick={handleSave} disabled={saving || loadFailed} className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors disabled:opacity-60">
               {saving ? <><Loader2 size={16} className="animate-spin" />Saving...</> : <><Save size={16} /> Save Changes</>}
             </button>
           </div>}

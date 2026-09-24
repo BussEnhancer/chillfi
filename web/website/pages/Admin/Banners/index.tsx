@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2, Image } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface Banner {
   id: string;
@@ -130,7 +131,7 @@ const AdminBannersPage: React.FC = () => {
     setLoading(true);
     apiGet<{ success: boolean; data: Banner[] }>('/admin/banners')
       .then(res => setBanners(res.data || []))
-      .catch(() => {})
+      .catch((e) => showErrorDialog({ title: "Couldn't load banners", error: e }))
       .finally(() => setLoading(false));
   };
 
@@ -153,7 +154,7 @@ const AdminBannersPage: React.FC = () => {
       closeModal();
       load();
     } catch (e: any) {
-      showToast(e.message || 'Error saving banner');
+      showErrorDialog({ title: 'Couldn’t save banner', error: e });
     } finally {
       setSaving(false);
     }
@@ -166,8 +167,8 @@ const AdminBannersPage: React.FC = () => {
       await apiDelete(`/admin/banners/${id}`);
       showToast('Banner deleted');
       load();
-    } catch {
-      showToast('Error deleting banner');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     } finally {
       setDeleting(null);
     }
@@ -178,8 +179,8 @@ const AdminBannersPage: React.FC = () => {
       await apiPut(`/admin/banners/${b.id}`, { is_active: !b.is_active });
       setBanners(prev => prev.map(x => x.id === b.id ? { ...x, is_active: !x.is_active } : x));
       showToast(b.is_active ? 'Banner deactivated' : 'Banner activated');
-    } catch {
-      showToast('Error toggling banner');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     }
   };
 

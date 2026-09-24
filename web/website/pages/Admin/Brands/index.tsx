@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2, Tag } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface ApiBrand {
   id: string;
@@ -131,8 +132,8 @@ const AdminBrands: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: { brands: ApiBrand[] } }>('/admin/brands');
       if (res.data?.brands) setBrands(res.data.brands.map(normalizeBrand));
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load brands', error: e });
     } finally {
       setLoading(false);
     }

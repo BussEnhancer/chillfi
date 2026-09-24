@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2, Truck } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface ShippingRule {
   id: string;
@@ -116,7 +117,7 @@ const AdminShippingRules: React.FC = () => {
     setLoading(true);
     apiGet<{ success: boolean; data: ShippingRule[] }>('/admin/shipping-rules')
       .then(res => setRules(res.data || []))
-      .catch(() => {})
+      .catch((e) => showErrorDialog({ title: "Couldn't load shipping rules", error: e }))
       .finally(() => setLoading(false));
   };
 
@@ -147,7 +148,7 @@ const AdminShippingRules: React.FC = () => {
       closeModal();
       load();
     } catch (e: any) {
-      showToast(e.message || 'Error saving rule');
+      showErrorDialog({ title: 'Couldn’t save rule', error: e });
     } finally {
       setSaving(false);
     }
@@ -160,8 +161,8 @@ const AdminShippingRules: React.FC = () => {
       await apiDelete(`/admin/shipping-rules/${id}`);
       showToast('Shipping rule deleted');
       load();
-    } catch {
-      showToast('Error deleting rule');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     } finally {
       setDeleting(null);
     }
@@ -172,8 +173,8 @@ const AdminShippingRules: React.FC = () => {
       await apiPut(`/admin/shipping-rules/${r.id}`, { is_active: !r.is_active });
       setRules(prev => prev.map(x => x.id === r.id ? { ...x, is_active: !x.is_active } : x));
       showToast(r.is_active ? 'Rule deactivated' : 'Rule activated');
-    } catch {
-      showToast('Error toggling rule');
+    } catch (e: any) {
+      showErrorDialog({ title: "Couldn't update", error: e });
     }
   };
 

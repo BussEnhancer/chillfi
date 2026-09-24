@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Trash2, Mail, MailOpen, X, Check, Loader2, Phone, Reply, Send, Info } from 'lucide-react';
 import { apiGet, apiPut, apiPost, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface ApiMessage {
   id: string;
@@ -55,8 +56,8 @@ const AdminMessages: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: { messages: ApiMessage[]; total: number } }>('/admin/messages?limit=200');
       setMessages(res.data?.messages || []);
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load coupons', error: e });
     } finally {
       setLoading(false);
     }
@@ -83,7 +84,7 @@ const AdminMessages: React.FC = () => {
       setMessages(prev => prev.filter(m => m.id !== deleting.id));
       showToast('Message deleted!');
     } catch (e: any) {
-      showToast(e.message || 'Failed to delete message');
+      showErrorDialog({ title: 'Couldn’t delete message', error: e });
     } finally {
       setDeleting(null);
     }
@@ -103,7 +104,7 @@ const AdminMessages: React.FC = () => {
       showToast('Reply saved');
       setReplying(null);
     } catch (e: any) {
-      showToast(e.message || 'Failed to save reply');
+      showErrorDialog({ title: 'Couldn’t save reply', error: e });
     } finally {
       setSendingReply(false);
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, Copy, Tag, ToggleLeft, ToggleRight, X, Check, Loader2 } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import { Coupon } from '../../../context/StoreContext';
 
 const types = ['Percentage', 'Flat', 'Free Shipping'];
@@ -133,8 +134,8 @@ const AdminCoupons: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: ApiCoupon[] }>('/admin/coupons');
       if (res.data) setCoupons(res.data.map(normalizeApiCoupon));
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load coupons', error: e });
     } finally {
       setLoading(false);
     }
@@ -157,8 +158,9 @@ const AdminCoupons: React.FC = () => {
     try {
       await apiPut(`/admin/coupons/${id}`, { is_active: newStatus });
       showToast('Coupon status updated!');
-    } catch {
+    } catch (e: any) {
       setCoupons(prev => prev.map(x => x.id === id ? { ...x, status: c.status } : x));
+      showErrorDialog({ title: 'Couldn’t update coupon', error: e });
     }
   };
 
@@ -187,7 +189,7 @@ const AdminCoupons: React.FC = () => {
       }
       setShowForm(false); setEditing(null);
     } catch (e: any) {
-      showToast(e.message || 'Failed to save coupon');
+      showErrorDialog({ title: 'Couldn’t save coupon', error: e });
     } finally {
       setSaving(false);
     }
@@ -200,7 +202,7 @@ const AdminCoupons: React.FC = () => {
       setCoupons(prev => prev.filter(c => c.id !== deleting.id));
       showToast('Coupon deleted!');
     } catch (e: any) {
-      showToast(e.message || 'Failed to delete coupon');
+      showErrorDialog({ title: 'Couldn’t delete coupon', error: e });
     } finally {
       setDeleting(null);
     }

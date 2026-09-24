@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, X, Check, Loader2 } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import { Category } from '../../../context/StoreContext';
 
 const iconOptions = ['📱', '💻', '🎧', '📺', '⌨️', '📷', '🎮', '⌚', '🖱️', '🖥️', '🔋', '📡', '🎵', '🖨️', '💾'];
@@ -109,8 +110,8 @@ const AdminCategories: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: { categories: ApiCategory[] } }>('/admin/categories');
       if (res.data?.categories) setCategories(res.data.categories.map(normalizeApiCat));
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load coupons', error: e });
     } finally {
       setLoading(false);
     }
@@ -146,7 +147,7 @@ const AdminCategories: React.FC = () => {
       }
       setShowForm(false); setEditing(null);
     } catch (e: any) {
-      showToast(e.message || 'Failed to save category');
+      showErrorDialog({ title: 'Couldn’t save category', error: e });
     } finally {
       setSaving(false);
     }
@@ -159,7 +160,7 @@ const AdminCategories: React.FC = () => {
       setCategories(prev => prev.filter(c => c.id !== deleting.id));
       showToast('Category deleted!');
     } catch (e: any) {
-      showToast(e.message || 'Failed to delete category');
+      showErrorDialog({ title: 'Couldn’t delete category', error: e });
     } finally {
       setDeleting(null);
     }

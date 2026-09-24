@@ -231,6 +231,31 @@ const getBanners = async (req, res, next) => {
 
 // ── Shipping Rules ───────────────────────────────────────────────────────────
 
+// GET /admin/alerts — actionable counts for the header bell (staff sees only what it can act on).
+const getAdminAlerts = async (req, res, next) => {
+  try {
+    const isAdmin = req.user.role === 'admin';
+    const q = await pool.query(`
+      SELECT
+        (SELECT COUNT(*) FROM orders WHERE status IN ('Pending','Confirmed','Processing')
+           AND (shipping_status IS NULL OR shipping_status = 'pending')
+           AND (payment_method = 'COD' OR payment_status = 'Paid'))::int AS to_ship,
+        (SELECT COUNT(*) FROM orders WHERE status NOT IN ('Cancelled','Delivered') AND shipping_status = 'failed')::int AS failed_shipments,
+        (SELECT COUNT(*) FROM refund_requests WHERE status IN ('Requested','Pending','Approved'))::int AS open_refunds,
+        (SELECT COUNT(*) FROM contact_messages WHERE is_read = FALSE)::int AS unread_messages,
+        (SELECT COUNT(*) FROM products WHERE status <> 'Inactive' AND stock <= 5)::int AS low_stock`);
+    const r = q.rows[0];
+    const items = [
+      { key: 'failed_shipments', count: r.failed_shipments, label: 'shipment(s) failed to create — retry needed', to: '/admin/orders', tone: 'red' },
+      { key: 'to_ship', count: r.to_ship, label: 'order(s) waiting to be shipped', to: '/admin/orders', tone: 'orange' },
+      ...(isAdmin ? [{ key: 'open_refunds', count: r.open_refunds, label: 'refund request(s) to review', to: '/admin/refunds', tone: 'orange' }] : []),
+      { key: 'unread_messages', count: r.unread_messages, label: 'unread customer message(s)', to: '/admin/messages', tone: 'blue' },
+      ...(isAdmin ? [{ key: 'low_stock', count: r.low_stock, label: 'product(s) at 5 or fewer in stock', to: '/admin/products', tone: 'gray' }] : []),
+    ].filter((i) => i.count > 0);
+    res.json({ success: true, data: { items, total: items.reduce((n, i) => n + i.count, 0) } });
+  } catch (err) { next(err); }
+};
+
 const getShippingRules = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM shipping_rules ORDER BY pincode_prefix');
@@ -238,16 +263,26 @@ const getShippingRules = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const validateShippingRule = (b) => {
+  const has = (k) => b[k] !== undefined && b[k] !== null && b[k] !== '';
+  if (b.pincode_prefix !== undefined && !/^[1-9]\d{0,5}$/.test(String(b.pincode_prefix))) return 'Pincode prefix must be 1–6 digits (not starting with 0)';
+  if (b.fee !== undefined && (!Number.isFinite(Number(b.fee)) || Number(b.fee) < 0)) return 'Shipping fee cannot be negative';
+  if (has('free_above') && (!Number.isFinite(Number(b.free_above)) || Number(b.free_above) < 0)) return 'Free-above amount cannot be negative';
+  if (has('estimated_days') && (!Number.isInteger(Number(b.estimated_days)) || Number(b.estimated_days) < 1 || Number(b.estimated_days) > 30)) return 'Estimated days must be between 1 and 30';
+  return null;
+};
 const createShippingRule = async (req, res, next) => {
   try {
     const { pincode_prefix, fee, free_above, cod_available = true, estimated_days = 5, is_active = true } = req.body;
     if (!pincode_prefix || fee === undefined) {
       return res.status(400).json({ success: false, message: 'pincode_prefix and fee are required' });
     }
+    const bad = validateShippingRule(req.body);
+    if (bad) return res.status(400).json({ success: false, message: bad });
     const result = await pool.query(
       `INSERT INTO shipping_rules (pincode_prefix, fee, free_above, cod_available, estimated_days, is_active)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [pincode_prefix, fee, free_above ?? null, cod_available, estimated_days, is_active]
+      [String(pincode_prefix), fee, free_above === '' ? null : free_above ?? null, cod_available, estimated_days || 5, is_active]
     );
     res.status(201).json({ success: true, message: 'Shipping rule created', data: result.rows[0] });
   } catch (err) { next(err); }
@@ -256,13 +291,16 @@ const createShippingRule = async (req, res, next) => {
 const updateShippingRule = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const bad = validateShippingRule(req.body);
+    if (bad) return res.status(400).json({ success: false, message: bad });
     const { pincode_prefix, fee, free_above, cod_available, estimated_days, is_active } = req.body;
+    const setFree = free_above !== undefined; // '' or null clears it
     const result = await pool.query(
       `UPDATE shipping_rules SET pincode_prefix=COALESCE($1,pincode_prefix), fee=COALESCE($2,fee),
-       free_above=COALESCE($3,free_above), cod_available=COALESCE($4,cod_available),
+       free_above=CASE WHEN $8::boolean THEN $3::numeric ELSE free_above END, cod_available=COALESCE($4,cod_available),
        estimated_days=COALESCE($5,estimated_days), is_active=COALESCE($6,is_active)
        WHERE id=$7 RETURNING *`,
-      [pincode_prefix, fee, free_above ?? null, cod_available, estimated_days, is_active, id]
+      [pincode_prefix ?? null, fee ?? null, setFree && free_above !== '' ? free_above : null, cod_available ?? null, estimated_days || null, is_active ?? null, id, setFree]
     );
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Rule not found' });
     res.json({ success: true, message: 'Shipping rule updated', data: result.rows[0] });
@@ -299,6 +337,7 @@ const updateBanner = async (req, res, next) => {
        is_active=COALESCE($6,is_active) WHERE id=$7 RETURNING *`,
       [title, subtitle, image_url, link, sort_order, is_active, id]
     );
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Banner not found' });
     res.json({ success: true, message: 'Banner updated', data: result.rows[0] });
   } catch (err) { next(err); }
 };
@@ -409,9 +448,36 @@ const getCoupons = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// Returns an error message or null. partial=true for updates (only validate provided fields).
+const COUPON_TYPES = ['Percentage', 'Flat', 'Free Shipping'];
+const validateCoupon = (b, partial = false) => {
+  const has = (k) => b[k] !== undefined && b[k] !== null && b[k] !== '';
+  if (!partial || b.code !== undefined) {
+    if (!/^[A-Za-z0-9_-]{3,30}$/.test(String(b.code || '').trim())) return 'Coupon code must be 3–30 letters, numbers, - or _';
+  }
+  if (!partial || b.type !== undefined) {
+    if (!COUPON_TYPES.includes(b.type)) return 'Discount type must be Percentage, Flat or Free Shipping';
+  }
+  if (!partial || b.value !== undefined) {
+    const v = Number(b.value ?? 0);
+    if (b.type !== 'Free Shipping' && (!Number.isFinite(v) || v <= 0)) return 'Discount value must be greater than 0';
+    if (b.type === 'Percentage' && v > 100) return 'A percentage discount cannot exceed 100%';
+  }
+  for (const k of ['min_order', 'max_discount']) {
+    if (has(k) && (!Number.isFinite(Number(b[k])) || Number(b[k]) < 0)) return `${k === 'min_order' ? 'Minimum order' : 'Max discount'} cannot be negative`;
+  }
+  const lim = has('usage_limit') ? b.usage_limit : b.total_uses;
+  if (lim !== undefined && lim !== null && lim !== '' && (!Number.isInteger(Number(lim)) || Number(lim) < 1)) return 'Usage limit must be a whole number of at least 1 (leave empty for unlimited)';
+  if (has('expires_at') && Number.isNaN(Date.parse(b.expires_at))) return 'Expiry date is invalid';
+  return null;
+};
+
 const createCoupon = async (req, res, next) => {
   try {
-    const { code, type, value, min_order = 0, max_discount = 0, total_uses, usage_limit, expires_at, is_active = true } = req.body;
+    const bad = validateCoupon(req.body);
+    if (bad) return res.status(400).json({ success: false, message: bad });
+    const { type, value, min_order = 0, max_discount = 0, total_uses, usage_limit, expires_at, is_active = true } = req.body;
+    const code = String(req.body.code).trim();
     const existing = await pool.query('SELECT id FROM coupons WHERE code=$1', [code.toUpperCase()]);
     if (existing.rows.length) return res.status(400).json({ success: false, message: 'Coupon code already exists' });
 
@@ -419,7 +485,7 @@ const createCoupon = async (req, res, next) => {
     const result = await pool.query(
       `INSERT INTO coupons (code, type, value, min_order, max_discount, usage_limit, expires_at, is_active)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [code.toUpperCase(), type, value, min_order, max_discount, usageLimit, expires_at || null, is_active]
+      [code.toUpperCase(), type, value ?? 0, min_order || 0, max_discount || 0, usageLimit, expires_at || null, is_active]
     );
     res.json({ success: true, message: 'Coupon created', data: result.rows[0] });
   } catch (err) { next(err); }
@@ -428,14 +494,22 @@ const createCoupon = async (req, res, next) => {
 const updateCoupon = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const cur = await pool.query('SELECT type FROM coupons WHERE id=$1', [id]);
+    if (!cur.rows.length) return res.status(404).json({ success: false, message: 'Coupon not found' });
+    const bad = validateCoupon({ ...req.body, type: req.body.type ?? cur.rows[0].type }, true);
+    if (bad) return res.status(400).json({ success: false, message: bad });
     const { code, type, value, min_order, max_discount, total_uses, usage_limit, expires_at, is_active } = req.body;
-    const usageLimit = usage_limit ?? total_uses ?? undefined;
+    const limKey = usage_limit !== undefined ? usage_limit : total_uses;
+    const setLimit = limKey !== undefined; const setExpiry = expires_at !== undefined;
     const result = await pool.query(
       `UPDATE coupons SET code=COALESCE($1,code), type=COALESCE($2,type), value=COALESCE($3,value),
        min_order=COALESCE($4,min_order), max_discount=COALESCE($5,max_discount),
-       usage_limit=COALESCE($6,usage_limit), expires_at=COALESCE($7,expires_at),
-       is_active=COALESCE($8,is_active) WHERE id=$9 RETURNING *`,
-      [code, type, value, min_order, max_discount, usageLimit, expires_at, is_active, id]
+       usage_limit=CASE WHEN $6::boolean THEN $7::int ELSE usage_limit END,
+       expires_at=CASE WHEN $8::boolean THEN $9::timestamptz ELSE expires_at END,
+       is_active=COALESCE($10,is_active) WHERE id=$11 RETURNING *`,
+      [code ? String(code).trim().toUpperCase() : null, type ?? null, value ?? null, min_order ?? null, max_discount ?? null,
+        setLimit, setLimit && limKey !== '' && limKey !== null ? Number(limKey) : null,
+        setExpiry, setExpiry && expires_at ? expires_at : null, is_active ?? null, id]
     );
     res.json({ success: true, message: 'Coupon updated', data: result.rows[0] });
   } catch (err) { next(err); }
@@ -604,7 +678,7 @@ const updateSettings = async (req, res, next) => {
 
     const result = await pool.query('SELECT key, value FROM store_settings');
     const data = {};
-    result.rows.forEach(row => { data[row.key] = row.value; });
+    result.rows.forEach(row => { if (!isCredentialKey(row.key)) data[row.key] = row.value; });
     res.json({ success: true, message: 'Settings updated', data });
   } catch (err) { next(err); }
 };
@@ -776,7 +850,8 @@ const deleteImage = async (req, res, next) => {
   try {
     const { public_id } = req.body;
     if (!public_id) return res.status(400).json({ success: false, message: 'public_id required' });
-    const { cloudinary } = require('../middleware/upload');
+    const { cloudinary, configureCloudinary } = require('../middleware/upload');
+    await configureCloudinary();
     await cloudinary.uploader.destroy(public_id);
     res.json({ success: true, message: 'Image deleted' });
   } catch (err) { next(err); }
@@ -827,6 +902,7 @@ const sendPushNotification = async (req, res, next) => {
 };
 
 module.exports = {
+  getAdminAlerts,
   getDashboardStats, getAnalytics,
   getUsers, updateUserStatus, updateUserRole,
   getBanners, createBanner, updateBanner, deleteBanner,

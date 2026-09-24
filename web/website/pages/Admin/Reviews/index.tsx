@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Trash2, Star, X, Check, Loader2, MessageSquareText, ShieldCheck, ShieldOff } from 'lucide-react';
 import { apiGet, apiDelete, apiPut } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface ApiReview {
   id: string;
@@ -52,8 +53,8 @@ const AdminReviews: React.FC = () => {
     try {
       const res = await apiGet<{ success: boolean; data: { reviews: ApiReview[]; total: number } }>('/admin/reviews?limit=200');
       setReviews(res.data?.reviews || []);
-    } catch {
-      // keep existing
+    } catch (e: any) {
+      showErrorDialog({ title: 'Couldn’t load coupons', error: e });
     } finally {
       setLoading(false);
     }
@@ -70,7 +71,7 @@ const AdminReviews: React.FC = () => {
       setReviews(prev => prev.filter(r => r.id !== deleting.id));
       showToast('Review deleted!');
     } catch (e: any) {
-      showToast(e.message || 'Failed to delete review');
+      showErrorDialog({ title: 'Couldn’t delete review', error: e });
     } finally {
       setDeleting(null);
     }
@@ -82,7 +83,7 @@ const AdminReviews: React.FC = () => {
       setReviews(prev => prev.map(x => x.id === r.id ? { ...x, is_verified: res.data.is_verified } : x));
       showToast(res.data.is_verified ? 'Marked as Verified' : 'Verification removed');
     } catch (e: any) {
-      showToast(e.message || 'Failed to update');
+      showErrorDialog({ title: 'Couldn’t update', error: e });
     }
   };
 

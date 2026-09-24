@@ -232,7 +232,7 @@ const firebaseVerify = async (req, res, next) => {
     if (!idToken) return res.status(400).json({ success: false, message: 'idToken required' });
 
     const fbApp = getFirebaseApp();
-    if (!fbApp) return res.status(503).json({ success: false, message: 'Firebase not configured on server' });
+    if (!fbApp) return res.status(503).json({ success: false, message: 'Phone sign-in is temporarily unavailable. Please try again later.' });
 
     const { getAuth } = require('firebase-admin/auth');
     const decoded = await getAuth(fbApp).verifyIdToken(idToken);

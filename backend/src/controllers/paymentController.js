@@ -76,7 +76,7 @@ const initiatePayment = async (req, res) => {
     });
   } catch (err) {
     console.error(`[payment] PhonePe ${cfg.env} initiate failed: ${err.response?.status || ''} ${err.response?.data?.code || err.message}`);
-    res.status(500).json({ success: false, message: 'Payment initiation failed' });
+    res.status(500).json({ success: false, message: 'We couldn\'t start the payment. Please try again in a moment.' });
   }
 };
 
@@ -156,7 +156,7 @@ const verifyPayment = async (req, res) => {
     if (pgStatus === 'SUCCESS') onOrderPaid(order_id, 'verify').catch(() => {});
     res.json({ success: true, data: { status: pgStatus } });
   } catch {
-    res.status(500).json({ success: false, message: 'Verification failed' });
+    res.status(500).json({ success: false, message: 'We couldn\'t confirm your payment yet. If money was deducted, your order will update once PhonePe confirms it. Please check My Orders shortly.' });
   }
 };
 
