@@ -523,6 +523,11 @@ const adminUpdateRefund = async (req, res) => {
   const { status, refund_amount, admin_notes } = req.body;
   const allowed = ['Requested', 'Approved', 'Rejected', 'Refunded'];
   if (!allowed.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status' });
+  const cur = await pool.query('SELECT status FROM refund_requests WHERE id = $1', [id]);
+  if (!cur.rows.length) return res.status(404).json({ success: false, message: 'Request not found' });
+  if (cur.rows[0].status === 'Refunded' && status !== 'Refunded') {
+    return res.status(400).json({ success: false, message: 'This request is already refunded and cannot be changed.' });
+  }
 
   const result = await pool.query(
     `UPDATE refund_requests SET status = $1, refund_amount = COALESCE($2, refund_amount),
@@ -534,6 +539,25 @@ const adminUpdateRefund = async (req, res) => {
 
   if (status === 'Refunded') {
     await pool.query(`UPDATE orders SET payment_status = 'Refunded', updated_at = NOW() WHERE id = $1`, [result.rows[0].order_id]);
+  }
+
+  // Tell the customer when their request moves (in-app + push).
+  if (status !== cur.rows[0].status) {
+    const rr = result.rows[0];
+    const o = (await pool.query('SELECT order_number, user_id FROM orders WHERE id = $1', [rr.order_id])).rows[0];
+    const text = {
+      Approved: `Your ${rr.type.toLowerCase()} request for order ${o?.order_number} has been approved.`,
+      Rejected: `Your ${rr.type.toLowerCase()} request for order ${o?.order_number} was not approved.${rr.admin_notes ? ` Note: ${rr.admin_notes}` : ''}`,
+      Refunded: `Your refund of ₹${Number(rr.refund_amount || 0).toLocaleString('en-IN')} for order ${o?.order_number} has been processed. It usually reaches you in 5–7 business days.`,
+    }[status];
+    if (o && text) {
+      notifyUser(o.user_id, {
+        title: status === 'Refunded' ? 'Refund processed' : `${rr.type} request ${status.toLowerCase()}`,
+        body: text,
+        data: { order_id: rr.order_id, order_number: o.order_number, refund_status: status },
+        dedupeKey: `refund:${rr.id}:${status}`,
+      }).catch(() => {});
+    }
   }
 
   res.json({ success: true, message: 'Request updated', data: result.rows[0] });

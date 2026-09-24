@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Plus, Search, Edit2, Trash2, Eye, ChevronLeft, ChevronRight, Star, X, Check, Package, Upload, Loader2 } from 'lucide-react';
-import { apiGet, apiPost, apiPut, apiDelete, uploadImage } from '../../../utils/api';
+import { apiGet, apiPost, apiPut, apiDelete, uploadImage, friendlyError } from '../../../utils/api';
 import { Product } from '../../../context/StoreContext';
 
 const statusStyle: Record<string, string> = { Active: 'bg-green-50 text-green-600', 'Out of Stock': 'bg-red-50 text-red-500', 'Low Stock': 'bg-amber-50 text-amber-600', Inactive: 'bg-gray-100 text-gray-500' };
@@ -47,11 +47,11 @@ const DeleteConfirm: React.FC<{ name: string; onConfirm: () => void; onCancel: (
       <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
         <Trash2 size={24} className="text-red-500" />
       </div>
-      <h3 className="text-lg font-black text-[#111827] mb-2">Delete Product?</h3>
-      <p className="text-sm font-bold text-gray-400 mb-6">Are you sure you want to delete <span className="text-[#111827]">"{name}"</span>? This action cannot be undone.</p>
+      <h3 className="text-lg font-black text-[#111827] mb-2">Deactivate Product?</h3>
+      <p className="text-sm font-bold text-gray-400 mb-6"><span className="text-[#111827]">"{name}"</span> will be hidden from the store. Past orders keep it, and you can make it Active again anytime.</p>
       <div className="flex gap-3">
         <button onClick={onCancel} className="flex-1 border-2 border-[#ECECEC] text-gray-600 py-2.5 rounded-xl font-black text-sm hover:border-gray-400">Cancel</button>
-        <button onClick={onConfirm} className="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-black text-sm hover:bg-red-600">Delete</button>
+        <button onClick={onConfirm} className="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-black text-sm hover:bg-red-600">Deactivate</button>
       </div>
     </div>
   </div>
@@ -218,10 +218,11 @@ const AdminProducts: React.FC = () => {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const res = await apiGet<{ success: boolean; data: { products: ApiProduct[] } }>('/products?limit=200&status=all');
+      // Admin list includes Inactive products (the public list hides them)
+      const res = await apiGet<{ success: boolean; data: { products: ApiProduct[] } }>('/admin/products?limit=1000&status=all');
       if (res.data?.products) setProducts(res.data.products.map(normalizeApiProduct));
-    } catch {
-      // keep existing products
+    } catch (e) {
+      showToast(friendlyError(e, "Couldn't load products"));
     } finally {
       setLoading(false);
     }
@@ -270,17 +271,17 @@ const AdminProducts: React.FC = () => {
 
       if (editing) {
         await apiPut(`/products/${editing.id}`, payload);
-        setProducts(prev => prev.map(x => x.id === editing.id ? { ...x, ...p, img: imageUrl } : x));
+        await loadProducts();
         showToast('Product updated successfully!');
       } else {
-        const res = await apiPost<{ success: boolean; data: ApiProduct }>('/products', payload);
-        const created = normalizeApiProduct(res.data);
-        setProducts(prev => [created, ...prev]);
+        await apiPost<{ success: boolean; data: { product: ApiProduct } }>('/products', payload);
+        await loadProducts(); // reload so brand/category names come from the server
+
         showToast('Product added successfully!');
       }
       setShowForm(false); setEditing(null);
     } catch (e: any) {
-      showToast(e.message || 'Failed to save product');
+      showToast(friendlyError(e, 'Failed to save product'));
     } finally {
       setSaving(false);
     }
@@ -290,10 +291,10 @@ const AdminProducts: React.FC = () => {
     if (!deleting) return;
     try {
       await apiDelete(`/products/${deleting.id}`);
-      setProducts(prev => prev.filter(x => x.id !== deleting.id));
-      showToast('Product deleted successfully!');
+      setProducts(prev => prev.map(x => x.id === deleting.id ? { ...x, status: 'Inactive' } : x));
+      showToast('Product deactivated — hidden from the store. Set it Active to restore.');
     } catch (e: any) {
-      showToast(e.message || 'Failed to delete product');
+      showToast(friendlyError(e, 'Failed to deactivate product'));
     } finally {
       setDeleting(null);
     }
@@ -414,7 +415,7 @@ const AdminProducts: React.FC = () => {
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => setViewing(p)} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-[#FFF3ED] hover:text-[#FF6B2C] transition-colors" title="View"><Eye size={13} /></button>
                         <button onClick={() => { setEditing(p); setShowForm(true); }} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-[#FFF3ED] hover:text-[#FF6B2C] transition-colors" title="Edit"><Edit2 size={13} /></button>
-                        <button onClick={() => setDeleting(p)} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors" title="Delete"><Trash2 size={13} /></button>
+                        <button onClick={() => setDeleting(p)} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors" title="Deactivate" aria-label="Deactivate product"><Trash2 size={13} /></button>
                       </div>
                     </td>
                   </tr>

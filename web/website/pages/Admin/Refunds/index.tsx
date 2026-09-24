@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Check, X, Loader2, RotateCcw, IndianRupee } from 'lucide-react';
-import { apiGet, apiPut } from '../../../utils/api';
+import { apiGet, apiPut, friendlyError } from '../../../utils/api';
 
 interface ApiRefundRequest {
   id: string;
@@ -48,10 +48,10 @@ const AdminRefunds: React.FC = () => {
   const load = async (status = filter) => {
     setLoading(true);
     try {
-      const res = await apiGet<{ success: boolean; data: { requests: ApiRefundRequest[] } }>(`/orders/admin/refunds${status !== 'all' ? `?status=${status}` : ''}`);
+      const res = await apiGet<{ success: boolean; data: { requests: ApiRefundRequest[] } }>(`/admin/refund-requests?limit=100${status !== 'all' ? `&status=${status}` : ''}`);
       setRequests(res.data?.requests || []);
-    } catch {
-      // keep existing
+    } catch (e) {
+      showToast(friendlyError(e, "Couldn't load refund requests"));
     } finally {
       setLoading(false);
     }
@@ -62,14 +62,14 @@ const AdminRefunds: React.FC = () => {
   const handleUpdate = async (r: ApiRefundRequest, status: ApiRefundRequest['status']) => {
     setUpdating(r.id);
     try {
-      const res = await apiPut<{ success: boolean; data: ApiRefundRequest }>(`/orders/admin/refunds/${r.id}`, {
+      const res = await apiPut<{ success: boolean; data: ApiRefundRequest }>(`/admin/refund-requests/${r.id}`, {
         status,
         admin_notes: notesDraft[r.id] ?? r.admin_notes,
       });
       setRequests(prev => prev.map(x => x.id === r.id ? { ...x, ...res.data } : x));
       showToast(`Request marked ${status}`);
     } catch (e: any) {
-      showToast(e.message || 'Failed to update request');
+      showToast(friendlyError(e, 'Failed to update request'));
     } finally {
       setUpdating(null);
     }

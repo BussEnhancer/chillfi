@@ -113,9 +113,9 @@
      "pre": "Guest (logged out)",
      "steps": "Admin enables maintenance_mode",
      "expected": "Customer pages show Maintenance; admin can still reach /login + /admin",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Maintenance on (local): /, /products, /cart show Maintenance; /admin still reachable; restored off",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/web01_maintenance.png",
      "defect": "",
      "retest": ""
     },
@@ -217,10 +217,10 @@
      "pre": "Guest (logged out)",
      "steps": "Admin promo banners active",
      "expected": "Shown with working links",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Promo banner shown, CTA → /offers (content issue logged: mentions non-existent code FREESHIP)",
+     "status": "PASS",
+     "evidence": "web-qa",
+     "defect": "WDEF-25",
      "retest": ""
     },
     {
@@ -1990,6 +1990,15 @@
    "root_cause": "return/catch without feedback",
    "fix": "Inline validation + friendly API error",
    "retest": "PASS"
+  },
+  {
+   "id": "WDEF-25",
+   "title": "Promo banner copy says 'Use code FREESHIP' but no such coupon exists (free delivery ≥₹499 is automatic)",
+   "severity": "Low",
+   "status": "Open",
+   "root_cause": "Admin-entered content",
+   "fix": "Edit the promo banner text in Admin → Promo Banners (content owner)",
+   "retest": ""
   }
  ],
  "blockers": []

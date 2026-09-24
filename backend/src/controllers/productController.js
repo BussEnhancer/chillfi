@@ -19,7 +19,9 @@ const getProducts = async (req, res) => {
 
   const offset = (page - 1) * limit;
   const values = [];
-  const conditions = [`p.status != 'Inactive'`];
+  // The admin list (/api/admin/products) must also show Inactive products so they can be re-activated.
+  const adminList = String(req.baseUrl || '').endsWith('/admin');
+  const conditions = adminList ? [] : [`p.status != 'Inactive'`];
 
   if (status && status !== 'all') {
     values.push(status);
@@ -332,13 +334,40 @@ const clearRecentlyViewed = async (req, res) => {
 
 // ── ADMIN CRUD ──────────────────────────────────────────────
 
+// Admin form sends brand/category by NAME; resolve to ids (brand is created if it doesn't exist yet).
+const resolveRefs = async (body) => {
+  const out = {};
+  if (body.category_id) out.category_id = body.category_id;
+  else if (body.category_name) {
+    const c = await pool.query('SELECT id FROM categories WHERE LOWER(name) = LOWER($1) LIMIT 1', [String(body.category_name).trim()]);
+    if (!c.rows.length) { const e = new Error(`Category "${body.category_name}" doesn't exist. Create it in Categories first.`); e.status = 400; throw e; }
+    out.category_id = c.rows[0].id;
+  }
+  if (body.brand_id) out.brand_id = body.brand_id;
+  else if (body.brand_name && String(body.brand_name).trim()) {
+    const name = String(body.brand_name).trim();
+    const b = await pool.query('SELECT id FROM brands WHERE LOWER(name) = LOWER($1) LIMIT 1', [name]);
+    out.brand_id = b.rows.length ? b.rows[0].id
+      : (await pool.query('INSERT INTO brands (name, is_active) VALUES ($1, TRUE) RETURNING id', [name])).rows[0].id;
+  }
+  return out;
+};
+
 // POST /api/admin/products
 const createProduct = async (req, res) => {
-  const { name, description, price, old_price, stock, brand_id, category_id,
+  const { name, description, price, old_price, stock,
     status = 'Active', is_featured = false, is_flash_sale = false,
-    flash_sale_ends_at, tags, images = [] } = req.body;
+    flash_sale_ends_at, tags } = req.body;
+  const images = req.body.images || (req.body.image ? [req.body.image] : []);
 
-  if (!name || !price) return res.status(400).json({ success: false, message: 'Name and price required' });
+  if (!name || !String(name).trim()) return res.status(400).json({ success: false, message: 'Product name is required' });
+  if (!(Number(price) > 0)) return res.status(400).json({ success: false, message: 'Selling price must be greater than 0' });
+  if (old_price != null && old_price !== '' && Number(old_price) > 0 && Number(old_price) < Number(price)) {
+    return res.status(400).json({ success: false, message: 'MRP cannot be lower than the selling price' });
+  }
+  if (stock != null && Number(stock) < 0) return res.status(400).json({ success: false, message: 'Stock cannot be negative' });
+  const { brand_id, category_id } = await resolveRefs(req.body);
+  if (!category_id) return res.status(400).json({ success: false, message: 'Please choose a category' });
 
   const result = await pool.query(`
     INSERT INTO products (name, description, price, old_price, stock, brand_id, category_id,
@@ -370,8 +399,15 @@ const createProduct = async (req, res) => {
 // PUT /api/admin/products/:id
 const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, old_price, stock, brand_id, category_id,
-    status, is_featured, is_flash_sale, flash_sale_ends_at, tags, images } = req.body;
+  const { name, description, price, old_price, stock,
+    status, is_featured, is_flash_sale, flash_sale_ends_at, tags } = req.body;
+  const images = req.body.images || (req.body.image ? [req.body.image] : undefined);
+  if (price != null && !(Number(price) > 0)) return res.status(400).json({ success: false, message: 'Selling price must be greater than 0' });
+  if (stock != null && Number(stock) < 0) return res.status(400).json({ success: false, message: 'Stock cannot be negative' });
+  if (status != null && !['Active', 'Inactive', 'Out of Stock', 'Low Stock'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status' });
+  }
+  const { brand_id, category_id } = await resolveRefs(req.body);
 
   const result = await pool.query(`
     UPDATE products SET
@@ -408,8 +444,9 @@ const updateProduct = async (req, res) => {
 // DELETE /api/admin/products/:id
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  await pool.query(`UPDATE products SET status = 'Inactive' WHERE id = $1`, [id]);
-  res.json({ success: true, message: 'Product deleted' });
+  // Soft delete: products referenced by past orders must keep existing. Re-activate by setting status Active.
+  await pool.query(`UPDATE products SET status = 'Inactive', updated_at = NOW() WHERE id = $1`, [id]);
+  res.json({ success: true, message: 'Product deactivated (hidden from the store). Set it Active again to restore.' });
 };
 
 module.exports = {
