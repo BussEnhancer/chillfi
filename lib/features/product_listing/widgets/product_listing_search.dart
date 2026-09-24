@@ -41,7 +41,6 @@ class ProductListingSearch extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(Icons.center_focus_weak_rounded, color: AppColors.greyText, size: 20.sp),
             SizedBox(width: 16.w),
           ],
         ),

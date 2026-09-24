@@ -3,7 +3,7 @@ import { ShoppingBag } from 'lucide-react';
 
 const PLP_HeroBanner: React.FC = () => {
   return (
-    <div className="bg-[#F8F7FC] rounded-[32px] p-8 md:p-12 mb-10 flex flex-col md:flex-row items-center justify-between border border-[#ECECEC] overflow-hidden group">
+    <div className="relative bg-[#F8F7FC] rounded-[32px] p-8 md:p-12 mb-10 flex flex-col md:flex-row items-center justify-between border border-[#ECECEC] overflow-hidden group">
       <div className="relative z-10 md:max-w-[50%] text-center md:text-left">
          <h2 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
             Power Up Your <span className="text-[#FF6B2C]">Tech</span>
@@ -37,7 +37,7 @@ const PLP_HeroBanner: React.FC = () => {
       </div>
 
       {/* Background Decor */}
-      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#FF6B2C]/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+      <div className="pointer-events-none absolute -bottom-10 -left-10 w-40 h-40 bg-[#FF6B2C]/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
     </div>
   );
 };

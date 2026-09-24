@@ -47,10 +47,10 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
         {imgs.length > 1 && (
           <>
-            <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-all opacity-0 group-hover:opacity-100">
+            <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100" aria-label="Image navigation">
               <ChevronLeft size={20} />
             </button>
-            <button onClick={next} className="absolute right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-all opacity-0 group-hover:opacity-100">
+            <button onClick={next} className="absolute right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100" aria-label="Image navigation">
               <ChevronRight size={20} />
             </button>
           </>

@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
@@ -10,6 +11,7 @@ import 'package:chillfi/features/product_details/widgets/product_gallery.dart';
 import 'package:chillfi/features/product_details/widgets/product_highlight_item.dart';
 import 'package:chillfi/features/product_details/widgets/product_offer_card.dart';
 import 'package:chillfi/features/product_details/widgets/similar_products_section.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -93,7 +95,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           if (pp.detailState == LoadState.loading || pp.selectedProduct == null) {
             return const SizedBox.shrink();
           }
-          return _buildBottomActionBar();
+          return _buildBottomActionBar(inStock: pp.selectedProduct!.inStock);
         },
       ),
       body: Consumer<ProductProvider>(
@@ -123,7 +125,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         children: [
                           if (product.hasDiscount) _buildBadge("-${product.discountPct}% OFF", AppColors.secondaryPurple),
                           if (product.hasDiscount) SizedBox(width: 8.w),
-                          if (product.isFeatured) _buildBadge("Best Seller", Colors.orange),
+                          if (product.isFeatured) _buildBadge("Featured", Colors.orange),
                         ],
                       ),
                       SizedBox(height: 16.h),
@@ -406,7 +408,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildBottomActionBar() {
+  Widget _buildBottomActionBar({bool inStock = true}) {
     final productId = widget.productId;
     final cart = context.read<CartProvider>();
     final cartCount = context.watch<CartProvider>().cartCount;
@@ -453,19 +455,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           SizedBox(width: 16.w),
+          if (!inStock)
+            Expanded(
+              child: Container(
+                height: 54.h,
+                decoration: BoxDecoration(color: const Color(0xFFF1F1F4), borderRadius: BorderRadius.circular(16.r)),
+                alignment: Alignment.center,
+                child: Text('Currently Out of Stock',
+                    style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: AppColors.greyText)),
+              ),
+            ),
+          if (inStock) ...[
           // Add to Cart
           Expanded(
             child: GestureDetector(
-              onTap: productId == null ? null : () async {
-                final messenger = ScaffoldMessenger.of(context);
-                final err = await cart.addToCart(productId);
-                if (!mounted) return;
-                messenger.showSnackBar(SnackBar(
-                  content: Text(err ?? 'Added to cart!'),
-                  backgroundColor: err == null ? Colors.green : Colors.red,
-                  duration: const Duration(seconds: 2),
-                ));
-              },
+              onTap: productId == null ? null : () => addToCartWithFeedback(context, productId),
               child: Container(
                 height: 54.h,
                 decoration: BoxDecoration(
@@ -483,13 +487,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             child: GestureDetector(
               onTap: productId == null ? null : () async {
                 final navigator = Navigator.of(context);
-                final messenger = ScaffoldMessenger.of(context);
                 final err = await cart.addToCart(productId);
                 if (!mounted) return;
                 if (err == null) {
                   navigator.push(MaterialPageRoute(builder: (_) => const CartScreen()));
                 } else {
-                  messenger.showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
+                  if (mounted) AppErrorDialog.show(context, message: err, title: "Couldn't add to cart");
                 }
               },
               child: Container(
@@ -511,6 +514,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ),
           ),
+          ],
         ],
       ),
     );

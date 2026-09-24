@@ -11,6 +11,8 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { Tag, Plus, CreditCard, Landmark, Wallet, Banknote, Smartphone, Loader2, MapPin, CheckCircle2 } from 'lucide-react';
 import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
+import { friendlyError } from '../../utils/api';
 
 interface Address {
   id: string;
@@ -129,7 +131,7 @@ const CheckoutPage: React.FC = () => {
       setCouponDiscount(res.data.discount);
       setCouponId(res.data.coupon_id);
     } catch (e: any) {
-      setCouponMsg(e.message || 'Invalid or expired coupon code');
+      setCouponMsg(friendlyError(e, 'Invalid or expired coupon code'));
       setCouponDiscount(0);
       setCouponId(null);
     } finally {
@@ -188,7 +190,7 @@ const CheckoutPage: React.FC = () => {
         window.location.href = payment_url;
       }
     } catch (e: any) {
-      setOrderError(e.message || 'Failed to place order. Please try again.');
+      showErrorDialog({ title: "Couldn't place your order", error: e, fallback: 'We couldn\'t place your order. Please try again.' });
       setPlacingOrder(false);
     }
   };
@@ -201,8 +203,8 @@ const CheckoutPage: React.FC = () => {
       <Container className="py-10">
         <CheckoutStepper />
 
-        <div className="flex flex-col lg:flex-row gap-12 mt-4">
-          <div className="flex-1 space-y-12">
+        <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 mt-4">
+          <div className="flex-1 min-w-0 space-y-12">
 
             {/* 1. Delivery Address */}
             <section>
@@ -223,7 +225,7 @@ const CheckoutPage: React.FC = () => {
               {showAddForm && (
                 <div className="bg-[#F8F7FC] rounded-2xl p-6 border border-[#ECECEC] mb-6 space-y-4">
                   <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider">New Address</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                       ['label', 'Label (Home/Work)'],
                       ['name', 'Full Name *'],
@@ -378,7 +380,7 @@ const CheckoutPage: React.FC = () => {
           </div>
 
           {/* Right: Order Summary */}
-          <div className="lg:w-[380px] shrink-0">
+          <div className="lg:w-[340px] xl:w-[380px] shrink-0">
             <div className="sticky top-32 bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
               <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-5 pb-4 border-b border-[#F8F7FC]">Order Summary</h3>
 

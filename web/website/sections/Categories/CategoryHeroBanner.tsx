@@ -3,7 +3,7 @@ import { ShoppingBag, Headphones, Watch } from 'lucide-react';
 
 const CategoryHeroBanner: React.FC = () => {
   return (
-    <div className="bg-[#F8F7FC] rounded-[32px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between overflow-hidden relative group border border-[#ECECEC]">
+    <div className="bg-[#F8F7FC] rounded-[32px] p-6 sm:p-10 xl:p-16 flex flex-col md:flex-row items-center justify-between overflow-hidden relative group border border-[#ECECEC]">
       <div className="relative z-10 md:max-w-[50%]">
          <h1 className="text-4xl md:text-5xl font-black text-[#111827] leading-[1.1] mb-6">
             Explore Our Top <br />
@@ -54,7 +54,7 @@ const CategoryHeroBanner: React.FC = () => {
       </div>
 
       {/* Decorative */}
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#FF6B2C]/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000"></div>
+      <div className="pointer-events-none absolute -top-20 -right-20 w-80 h-80 bg-[#FF6B2C]/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000"></div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, ThumbsUp, User, ChevronDown, ChevronUp, Loader2, Send } from 'lucide-react';
 import { apiGet, apiPost, getAccessToken } from '../../utils/api';
+import { friendlyError } from '../../utils/api';
 
 interface Review {
   id: string;
@@ -107,7 +108,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
       setShowForm(false);
       setReviewsLoaded(false); // force reload
     } catch (err: unknown) {
-      setSubmitErr(err instanceof Error ? err.message : 'Failed to submit');
+      setSubmitErr(friendlyError(err, 'Failed to submit your review. Please try again.'));
     } finally {
       setSubmitting(false);
     }

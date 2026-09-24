@@ -39,7 +39,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Badge text={discount} className="absolute top-4 left-4 z-10" />
       )}
 
-      <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+      <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 lg:translate-x-4 lg:group-hover:translate-x-0">
         <button onClick={handleWishlist} className={`w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center transition-colors ${inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
           <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
         </button>

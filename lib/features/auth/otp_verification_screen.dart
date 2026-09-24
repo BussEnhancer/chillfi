@@ -6,6 +6,7 @@ import 'package:chillfi/features/auth/location_permission_screen.dart';
 import 'package:chillfi/features/auth/reset_password_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -78,7 +79,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.message), backgroundColor: Colors.red),
+        SnackBar(content: Text(AppError.message(auth.message, fallback: 'Verification failed. Please try again.')), backgroundColor: Colors.red),
       );
     }
   }
@@ -364,7 +365,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                                                 onFailed: (error) {
                                                   if (!mounted) return;
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                                                    SnackBar(content: Text(AppError.message(error, fallback: "Couldn't resend OTP. Please try again.")), backgroundColor: Colors.red),
                                                   );
                                                 },
                                               );

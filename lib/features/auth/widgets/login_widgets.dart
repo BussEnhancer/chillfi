@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -71,7 +72,6 @@ class _PremiumPhoneInputState extends State<PremiumPhoneInput> {
                   color: AppColors.darkText,
                 ),
               ),
-              Icon(Icons.keyboard_arrow_down_rounded, size: 20.sp, color: AppColors.greyText),
             ],
           ),
           VerticalDivider(
@@ -85,6 +85,7 @@ class _PremiumPhoneInputState extends State<PremiumPhoneInput> {
             child: TextField(
               controller: widget.controller,
               keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
               style: GoogleFonts.poppins(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w500,

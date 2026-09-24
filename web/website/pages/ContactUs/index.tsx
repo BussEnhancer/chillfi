@@ -17,6 +17,7 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 
 import { Send, Headphones, Phone, MessageSquare, Mail, Loader2, CheckCircle2 } from 'lucide-react';
 import { apiPost } from '../../utils/api';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
 
 const ContactUsPage: React.FC = () => {
   const breadcrumbItems = [
@@ -53,7 +54,7 @@ const ContactUsPage: React.FC = () => {
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
       setAgreed(false);
     } catch (e: any) {
-      setError(e.message || 'Failed to send message. Please try again.');
+      showErrorDialog({ title: "Couldn't send your message", error: e, fallback: 'Failed to send message. Please try again.' });
     } finally {
       setSubmitting(false);
     }
@@ -165,7 +166,7 @@ const ContactUsPage: React.FC = () => {
           <div className="flex-1 space-y-12">
              <div className="bg-[#FFF8F5] rounded-[32px] border border-[#ECECEC] p-8 md:p-10">
                 <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8 border-b border-[#ECECEC] pb-4">Get in Touch</h3>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                    <ContactInfoCard
                      icon={<Headphones size={24} />}
                      title="24/7 Support"

@@ -1,6 +1,6 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/deals/widgets/deal_category_chip.dart';
@@ -169,7 +169,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
           onTap: () => _openProduct(p.id),
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
-          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+          onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
         )).toList(),
       ),
     );
@@ -195,7 +195,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
           onTap: () => _openProduct(p.id),
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
-          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+          onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
         )).toList(),
       ),
     );

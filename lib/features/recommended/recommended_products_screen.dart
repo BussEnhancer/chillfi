@@ -1,6 +1,6 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -202,7 +202,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
           onTap: () => _openProduct(p.id),
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
-          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+          onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
         )).toList(),
       ),
     );
@@ -229,7 +229,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
           onTap: () => _openProduct(p.id),
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
-          onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+          onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
         )).toList(),
       ),
     );

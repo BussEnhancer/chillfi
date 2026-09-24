@@ -16,6 +16,8 @@ import TrackingOrderSummary from '../../sections/Tracking/TrackingOrderSummary';
 import { apiGet, apiPost } from '../../utils/api';
 
 import { Headphones, Loader2, X } from 'lucide-react';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
+import { friendlyError } from '../../utils/api';
 
 interface ApiOrderItem {
   product_name: string;
@@ -121,7 +123,8 @@ const TrackingPage: React.FC = () => {
       setCancelReason('');
       loadOrder();
     } catch (e: any) {
-      setCancelError(e.message || 'Failed to cancel order');
+      setCancelError(friendlyError(e, 'Failed to cancel order'));
+      showErrorDialog({ title: "Couldn't cancel order", error: e, fallback: 'We couldn\'t cancel your order. Please try again.' });
     } finally {
       setCancelling(false);
     }
@@ -137,7 +140,8 @@ const TrackingPage: React.FC = () => {
       setRefundReason('');
       loadOrder();
     } catch (e: any) {
-      setRefundError(e.message || 'Failed to submit request');
+      setRefundError(friendlyError(e, 'Failed to submit request'));
+      showErrorDialog({ title: "Couldn't submit request", error: e, fallback: 'Failed to submit request. Please try again.' });
     } finally {
       setSubmittingRefund(false);
     }
@@ -173,7 +177,7 @@ const TrackingPage: React.FC = () => {
             <h1 className="text-3xl font-black text-[#111827] mb-1">Track Your Order</h1>
             <p className="text-sm font-bold text-gray-400">Order ID: <span className="text-[#111827]">#{order.order_number}</span> | Placed on {placedAt!.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} at {placedAt!.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Cancellable only before the courier picks it up (backend enforces this too) */}
             {order.status === 'Processing' && (
               <button onClick={() => setShowCancelModal(true)} className="flex items-center gap-2 border-2 border-red-500 text-red-500 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-red-500 hover:text-white transition-all">

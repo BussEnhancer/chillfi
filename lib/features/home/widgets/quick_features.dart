@@ -1,3 +1,4 @@
+import 'package:chillfi/core/services/remote_config_service.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/brands/brand_listing_screen.dart';
 import 'package:chillfi/features/categories/categories_screen.dart';
@@ -17,12 +18,16 @@ class QuickFeatureSection extends StatelessWidget {
         'icon': Icons.delivery_dining_rounded,
         'label': 'Fast\nDelivery',
         'color': AppColors.secondaryPurple,
-        'onTap': () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Free delivery on orders above ₹499!'),
-            duration: Duration(seconds: 2),
-          ),
-        ),
+        'onTap': () async {
+          final messenger = ScaffoldMessenger.of(context);
+          final cfg = await RemoteConfigService().fetch();
+          final text = cfg == null
+              ? 'Fast, tracked delivery across India.'
+              : cfg.freeShippingEnabled
+                  ? 'Free delivery on orders above ₹${cfg.freeShippingThreshold.toStringAsFixed(0)}!'
+                  : 'Fast, tracked delivery across India.';
+          messenger.showSnackBar(SnackBar(content: Text(text), duration: const Duration(seconds: 2)));
+        },
       },
       {
         'icon': Icons.percent_rounded,
@@ -65,6 +70,7 @@ class QuickFeatureSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: features
             .map(
               (f) => GestureDetector(

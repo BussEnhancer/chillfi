@@ -5,7 +5,9 @@ import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/features/auth/widgets/signup_widgets.dart';
 import 'package:flutter/gestures.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +27,6 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   bool _acceptedTerms = false;
   bool _isLoading = false;
   late final TapGestureRecognizer _termsTap;
@@ -67,13 +68,20 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     );
   }
 
+  void _fieldError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+  }
+
   Future<void> _onSignUp() async {
     final phone = _phoneController.text.trim();
-    if (phone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your phone number'), backgroundColor: Colors.red),
-      );
-      return;
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    if (name.isEmpty) return _fieldError('Please enter your full name');
+    if (name.length < 2) return _fieldError('Name must be at least 2 characters');
+    if (phone.isEmpty) return _fieldError('Please enter your phone number');
+    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(phone)) return _fieldError('Enter a valid 10-digit mobile number');
+    if (email.isNotEmpty && !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$').hasMatch(email)) {
+      return _fieldError('Enter a valid email address');
     }
     if (!_acceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +90,6 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
       return;
     }
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     final signupName = _nameController.text.trim();
     final signupEmail = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
     setState(() => _isLoading = true);
@@ -103,7 +110,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
       },
       onFailed: (error) {
         try { setState(() => _isLoading = false); } catch (_) {}
-        messenger.showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+        if (mounted) AppErrorDialog.show(context, message: error, title: "Couldn't send OTP");
       },
     );
   }
@@ -114,7 +121,6 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     _termsTap.dispose();
     _privacyTap.dispose();
     super.dispose();
@@ -307,14 +313,6 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                     prefixIcon: Icons.mail_outline_rounded,
                                     isOptional: true,
                                     controller: _emailController,
-                                  ),
-                                  SizedBox(height: 12.h),
-                                  PremiumAuthField(
-                                    label: 'Password',
-                                    hintText: 'Create a strong password',
-                                    prefixIcon: Icons.lock_outline_rounded,
-                                    isPassword: true,
-                                    controller: _passwordController,
                                   ),
                                   SizedBox(height: 16.h),
                                   Row(
@@ -509,12 +507,12 @@ class PremiumPhoneInputWrapper extends StatelessWidget {
                         color: AppColors.black,
                       ),
                     ),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 16.sp, color: AppColors.greyText),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: TextField(
                         controller: controller,
                         keyboardType: TextInputType.phone,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
                         style: GoogleFonts.poppins(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,

@@ -36,6 +36,7 @@ const PAGE_SIZE = 20;
 
 const ProductListingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const category = searchParams.get('category') || '';
   const brand = searchParams.get('brand') || '';
   const q = searchParams.get('q') || '';
@@ -133,9 +134,11 @@ const ProductListingPage: React.FC = () => {
           minPrice={minPrice}
           maxPrice={maxPrice}
           onPriceChange={setPriceRange}
+          mobileOpen={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <PLP_HeroBanner />
 
           {/* Sort bar */}
@@ -149,6 +152,12 @@ const ProductListingPage: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setFiltersOpen(true)}
+                className="lg:hidden flex items-center gap-2 border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-black text-[#111827] hover:border-[#FF6B2C]"
+              >
+                Filters{(category || brand || minPrice !== undefined || maxPrice !== undefined) ? ' •' : ''}
+              </button>
               <span className="text-sm font-bold text-gray-500">Sort:</span>
               <div className="relative">
                 <select

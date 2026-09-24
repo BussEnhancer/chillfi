@@ -1,4 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/home/widgets/category_section.dart';
@@ -33,6 +35,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       final p = context.read<ProductProvider>();
       if (p.homeState == LoadState.idle) p.loadHome();
       context.read<WishlistProvider>().fetchUnreadCount(); // bell badge (returns 0 for guests)
+      // "Deliver to" header shows the customer's default address
+      final cart = context.read<CartProvider>();
+      cart.loadActiveCoupons(); // home offer card shows a real coupon
+      if (context.read<AuthProvider>().isAuthenticated) {
+        if (cart.selectedAddress == null) cart.loadAddresses();
+        cart.loadCart(); // header cart badge
+      }
     });
   }
 

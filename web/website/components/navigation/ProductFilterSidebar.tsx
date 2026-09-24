@@ -18,12 +18,15 @@ interface ProductFilterSidebarProps {
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min: number, max: number) => void;
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
 const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   selectedCategory, onCategoryChange,
   selectedBrand, onBrandChange,
   minPrice, maxPrice, onPriceChange,
+  mobileOpen = false, onClose,
 }) => {
   const [brands, setBrands] = useState<ApiBrand[]>([]);
   const [brandSearch, setBrandSearch] = useState('');
@@ -38,9 +41,8 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   const filteredBrands = brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase()));
   const visibleBrands = showAllBrands ? filteredBrands : filteredBrands.slice(0, 7);
 
-  return (
-    <aside className="w-[320px] shrink-0 hidden lg:block">
-      <div className="bg-white rounded-[20px] shadow-sm border border-[#ECECEC] p-6 sticky top-32 overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-hide">
+  const panel = (
+      <>
         <CategoryTree selected={selectedCategory} onSelect={onCategoryChange} />
 
         <div className="border-t border-[#ECECEC] pt-8">
@@ -93,8 +95,33 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             )}
           </div>
         </div>
-      </div>
-    </aside>
+      </>
+  );
+
+  return (
+    <>
+      <aside className="w-[320px] shrink-0 hidden lg:block">
+        <div className="bg-white rounded-[20px] shadow-sm border border-[#ECECEC] p-6 sticky top-32 overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-hide">
+          {panel}
+        </div>
+      </aside>
+      {/* Phones & tablets: same filters in a slide-in drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-[60] flex" role="dialog" aria-modal="true" aria-label="Filters">
+          <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+          <div className="relative ml-auto h-full w-[88%] max-w-[360px] bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#ECECEC]">
+              <h3 className="text-base font-black text-[#111827]">Filters</h3>
+              <button onClick={onClose} className="w-10 h-10 rounded-xl bg-[#F8F7FC] flex items-center justify-center" aria-label="Close filters">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">{panel}</div>
+            <div className="p-4 border-t border-[#ECECEC]">
+              <button onClick={onClose} className="w-full bg-[#FF6B2C] text-white py-3 rounded-xl font-black text-sm">Show results</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

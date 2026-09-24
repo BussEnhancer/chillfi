@@ -8,6 +8,7 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import { MapPin, Plus, Loader2, Pencil, Trash2, Star } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../utils/api';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
 
 interface Address {
   id: string;
@@ -68,7 +69,7 @@ const SavedAddressesPage: React.FC = () => {
       setEditingId(null);
       load();
     } catch (e: any) {
-      setError(e.message || 'Failed to save address');
+      showErrorDialog({ title: "Couldn't save address", error: e, fallback: 'Failed to save address. Please try again.' });
     } finally {
       setSaving(false);
     }
@@ -115,7 +116,7 @@ const SavedAddressesPage: React.FC = () => {
               <div className="bg-[#F8F7FC] rounded-2xl p-6 border border-[#ECECEC] mb-8 space-y-4">
                 <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider">{editingId ? 'Edit Address' : 'New Address'}</h3>
                 {error && <div className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold">{error}</div>}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {([
                     ['label', 'Label (Home/Work)'],
                     ['name', 'Full Name *'],

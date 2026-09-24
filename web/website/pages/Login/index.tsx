@@ -11,6 +11,7 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { ChevronRight, Smartphone, ArrowLeft, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
 import { apiPost } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
+import { friendlyError } from '../../utils/api';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBOmbn0_LwNQhX_bitzh2Djae7NVPpFqro',
@@ -126,7 +127,7 @@ const LoginPage: React.FC = () => {
       loginUser(res.data.accessToken, res.data.refreshToken);
       navigate(from, { replace: true });
     } catch (e: any) {
-      setError(firebaseErrorMsg(e.code) ?? (e.message || 'Verification failed. Try again.'));
+      setError(firebaseErrorMsg(e.code) ?? friendlyError(e, 'Verification failed. Try again.'));
     } finally {
       setLoading(false);
     }

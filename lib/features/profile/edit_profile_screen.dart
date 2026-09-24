@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -62,7 +63,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated!'), backgroundColor: Colors.green));
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update profile'), backgroundColor: Colors.red));
+      AppErrorDialog.show(context, message: "We couldn't save your profile. Please try again.", title: "Couldn't save changes");
     }
   }
 

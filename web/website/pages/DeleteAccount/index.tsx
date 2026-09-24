@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldOff, Phone, KeyRound, Trash2, CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
 import { api } from '../../utils/api';
+import { friendlyError } from '../../utils/api';
 
 type Step = 'phone' | 'otp' | 'confirm' | 'done';
 
@@ -18,7 +19,7 @@ const DeleteAccountPage: React.FC = () => {
       await api('/auth/send-otp', 'POST', { phone, purpose: 'login' });
       setStep('otp');
     } catch (e: any) {
-      setError(e.message || 'Failed to send OTP. Please try again.');
+      setError(friendlyError(e, 'Failed to send OTP. Please try again.'));
     } finally { setLoading(false); }
   };
 
@@ -34,7 +35,7 @@ const DeleteAccountPage: React.FC = () => {
       await api('/profile/request-delete', 'POST', { phone, otp });
       setStep('done');
     } catch (e: any) {
-      setError(e.message || 'Deletion failed. OTP may have expired — please start over.');
+      setError(friendlyError(e, 'Deletion failed. OTP may have expired — please start over.'));
       setStep('phone');
       setOtp('');
     } finally { setLoading(false); }

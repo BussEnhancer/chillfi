@@ -72,7 +72,7 @@ const SearchPage: React.FC = () => {
       <Container className="py-10">
         {/* Search input */}
         <form onSubmit={handleSubmit} className="flex gap-3 max-w-2xl mb-10">
-          <div className="flex-1 flex items-center gap-3 bg-gray-50 border border-[#ECECEC] rounded-2xl px-5 py-3.5 focus-within:border-[#FF6B2C] transition-all">
+          <div className="flex-1 min-w-0 flex items-center gap-3 bg-gray-50 border border-[#ECECEC] rounded-2xl px-4 sm:px-5 py-3.5 focus-within:border-[#FF6B2C] transition-all">
             <Search size={18} className="text-gray-400 shrink-0" />
             <input
               type="text"
@@ -85,7 +85,7 @@ const SearchPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="bg-[#FF6B2C] text-white px-8 py-3.5 rounded-2xl font-black shadow-lg shadow-[#FF6B2C]/20 hover:scale-105 active:scale-95 transition-all"
+            className="shrink-0 bg-[#FF6B2C] text-white px-5 sm:px-8 py-3.5 rounded-2xl font-black shadow-lg shadow-[#FF6B2C]/20 hover:scale-105 active:scale-95 transition-all"
           >
             Search
           </button>

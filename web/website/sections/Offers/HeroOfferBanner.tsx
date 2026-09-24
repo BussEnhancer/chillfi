@@ -5,7 +5,7 @@ const HeroOfferBanner: React.FC = () => {
   return (
     <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[32px] p-8 md:p-12 mb-10 text-white relative overflow-hidden group border border-[#FF6B2C]/20">
       {/* Background Decor */}
-      <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+      <div className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
       <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-amber-400/20 rounded-full blur-2xl"></div>
 
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">

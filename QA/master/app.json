@@ -1,0 +1,3292 @@
+{
+ "title": "ChillFi Mobile App — Master QA Testing Report",
+ "filename": "ChillFi_Mobile_App_Master_QA.pdf",
+ "subtitle": "Every reachable screen of the Flutter app (lib/), in user-journey order, derived from the actual implementation.",
+ "scope": "Android app (debug build against local backend + Delhivery staging; release build against https://chillfi.in/api).",
+ "environment": "Pixel 9 emulator 1080×2400 · backend local :5000 · Delhivery STAGING · PhonePe dev/UAT",
+ "sections": [
+  {
+   "id": "APP-01",
+   "name": "Splash Screen",
+   "location": "features/intro/splash_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-01-01",
+     "element": "Logo & branding",
+     "pre": "Fresh install / guest",
+     "steps": "Launch app",
+     "expected": "ChillFi logo, wave background and 3 badges (Trusted Quality, Fast Delivery, Best Deals) render centred without overflow",
+     "actual": "Splash shows the 3 badges (Trusted Quality, Fast Delivery, Best Deals); routes onward",
+     "status": "PASS",
+     "evidence": "uiautomator dump on fresh install",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-02",
+     "element": "Remote config fetch",
+     "pre": "Fresh install / guest",
+     "steps": "Launch with backend up",
+     "expected": "GET /app-config called; app continues after ~3s",
+     "actual": "GET /api/app-config 200 on each launch",
+     "status": "PASS",
+     "evidence": "backend log",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-03",
+     "element": "Maintenance routing",
+     "pre": "Fresh install / guest",
+     "steps": "Admin enables maintenance_mode; relaunch",
+     "expected": "App routes to Maintenance screen with admin message",
+     "actual": "maintenance_mode on → Maintenance screen with admin message",
+     "status": "PASS",
+     "evidence": "dump: 'QA: planned maintenance test'",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-04",
+     "element": "Force update routing",
+     "pre": "Fresh install / guest",
+     "steps": "Admin sets force_update_enabled + min_app_version above installed version; relaunch",
+     "expected": "App routes to Force Update screen; current version must NOT be blocked when min version ≤ installed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-05",
+     "element": "Logged-in routing",
+     "pre": "Fresh install / guest",
+     "steps": "Launch with valid session",
+     "expected": "Goes straight to Home",
+     "actual": "Valid session → Home",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-06",
+     "element": "First-launch routing",
+     "pre": "Fresh install / guest",
+     "steps": "Fresh install",
+     "expected": "Goes to Onboarding One",
+     "actual": "Fresh install → Onboarding One",
+     "status": "PASS",
+     "evidence": "uiautomator dump after splash",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-07",
+     "element": "Returning guest routing",
+     "pre": "Fresh install / guest",
+     "steps": "Onboarding already seen, logged out",
+     "expected": "Goes to Welcome screen",
+     "actual": "Relaunch after onboarding → Welcome",
+     "status": "PASS",
+     "evidence": "dump after kill+launch",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-01-08",
+     "element": "Offline launch",
+     "pre": "Fresh install / guest",
+     "steps": "Launch with network off",
+     "expected": "App does not hang on splash; shows usable state / message",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-02",
+   "name": "Maintenance Screen",
+   "location": "core/widgets/maintenance_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-02-01",
+     "element": "Content",
+     "pre": "maintenance_mode on",
+     "steps": "Open via maintenance mode",
+     "expected": "\"We're Under Maintenance\" + server message shown",
+     "actual": "Shows admin maintenance message; fake 'May 18, 2025' downtime card removed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_maint.png",
+     "defect": "ADEF-05",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-02-02",
+     "element": "\"Notify Me When It's Back\" button",
+     "pre": "maintenance_mode on",
+     "steps": "Tap",
+     "expected": "Button performs an action (feedback) — not a dead control",
+     "actual": "Removed: no notify backend existed; replaced by working Check Again",
+     "status": "NOT APPLICABLE",
+     "evidence": "maintenance_screen.dart",
+     "defect": "ADEF-05",
+     "retest": ""
+    },
+    {
+     "id": "APP-02-03",
+     "element": "\"Go to Home\"/retry button",
+     "pre": "maintenance_mode on",
+     "steps": "Tap after admin disables maintenance",
+     "expected": "User can leave the screen / retry without reinstalling",
+     "actual": "Check Again shows 'Checking…'; while on → stays; after admin disables → proceeds to Home",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_maint_still.png + dump Home",
+     "defect": "ADEF-05",
+     "retest": "Retested"
+    }
+   ]
+  },
+  {
+   "id": "APP-03",
+   "name": "Force Update Screen",
+   "location": "core/widgets/force_update_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-03-01",
+     "element": "Content",
+     "pre": "force update active",
+     "steps": "Open via force update",
+     "expected": "\"Update Required\" + server message",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-03-02",
+     "element": "\"Update Now\"",
+     "pre": "force update active",
+     "steps": "Tap",
+     "expected": "Opens Play Store listing for the app",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-03-03",
+     "element": "Version comparison uses real build version",
+     "pre": "force update active",
+     "steps": "Compare AppConfig.appVersion with pubspec version",
+     "expected": "App reports its real installed version (1.0.2) so users on the latest build are never blocked",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-04",
+   "name": "Onboarding One",
+   "location": "features/onboarding/onboarding_screen_one.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-04-01",
+     "element": "Illustration, headings, badges",
+     "pre": "Fresh install / guest",
+     "steps": "Open screen",
+     "expected": "All text/images render, no clipping on 1080×2400",
+     "actual": "Illustration, headings, badges render; badge no longer overlaps Skip",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_onb1_retest.png",
+     "defect": "ADEF-01",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-04-02",
+     "element": "\"Skip\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap Skip",
+     "expected": "Marks onboarding seen; goes to Welcome",
+     "actual": "Skip tappable → Welcome; no overlap",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_onb1_retest.png",
+     "defect": "ADEF-01",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-04-03",
+     "element": "\"Next\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap Next",
+     "expected": "Goes to Onboarding Two",
+     "actual": "Next → Onboarding Two",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-05",
+   "name": "Onboarding Two",
+   "location": "features/onboarding/onboarding_screen_two.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-05-01",
+     "element": "Illustration, headings, badges",
+     "pre": "Fresh install / guest",
+     "steps": "Open screen",
+     "expected": "All text/images render, no clipping on 1080×2400",
+     "actual": "Mock phone UI, badges, headings render",
+     "status": "PASS",
+     "evidence": "screenshot",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-05-02",
+     "element": "\"Skip\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap Skip",
+     "expected": "Marks onboarding seen; goes to Welcome",
+     "actual": "Skip → Welcome",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-05-03",
+     "element": "\"Next\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap Next",
+     "expected": "Goes to Onboarding Three",
+     "actual": "Next → Onboarding Three",
+     "status": "PASS",
+     "evidence": "screenshot",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-06",
+   "name": "Onboarding Three",
+   "location": "features/onboarding/onboarding_screen_three.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-06-01",
+     "element": "Illustration, headings, badges",
+     "pre": "Fresh install / guest",
+     "steps": "Open screen",
+     "expected": "All content renders",
+     "actual": "Tracking mock UI, badges render",
+     "status": "PASS",
+     "evidence": "screenshot",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-06-02",
+     "element": "\"Skip\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Goes to Welcome",
+     "actual": "Skip → Welcome",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-06-03",
+     "element": "\"Get Started\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Marks onboarding seen; goes to Welcome; relaunch skips onboarding",
+     "actual": "Get Started → Welcome; relaunch goes to Welcome (flag persisted)",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-07",
+   "name": "Welcome Screen",
+   "location": "features/auth/welcome_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-07-01",
+     "element": "Branding & feature cards",
+     "pre": "Fresh install / guest",
+     "steps": "Open",
+     "expected": "Logo, \"Welcome to CHILLFI\", 3 feature cards render",
+     "actual": "Logo, 'Welcome to CHILLFI', 3 feature cards",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-07-02",
+     "element": "\"Get Started\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Opens Login",
+     "actual": "→ Login",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-07-03",
+     "element": "\"Login / Signup\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Opens Login",
+     "actual": "→ Login",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-07-04",
+     "element": "\"Continue as Guest\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Opens Home as guest",
+     "actual": "→ Home as guest (banners, categories, bottom nav)",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-08",
+   "name": "Login Screen",
+   "location": "features/auth/login_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-08-01",
+     "element": "Header, logo, texts",
+     "pre": "Fresh install / guest",
+     "steps": "Open",
+     "expected": "\"Welcome Back!\" and subtitle render",
+     "actual": "Header, logo, texts render; invisible placeholder logo removed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_login_retest.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-08-02",
+     "element": "Language selector",
+     "pre": "Fresh install / guest",
+     "steps": "Tap \"English ▾\"",
+     "expected": "Either works or is not presented as interactive (no dead control)",
+     "actual": "Removed fake selector (app is English-only)",
+     "status": "NOT APPLICABLE",
+     "evidence": "qa-tools/results/app_login_retest.png",
+     "defect": "ADEF-02",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-08-03",
+     "element": "Phone input",
+     "pre": "Fresh install / guest",
+     "steps": "Type digits",
+     "expected": "+91 prefix, numeric keyboard, max 10 digits",
+     "actual": "Letters stripped, capped at 10 digits ('98765abc432109876' → 9876543210)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-02",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-08-04",
+     "element": "Phone validation",
+     "pre": "Fresh install / guest",
+     "steps": "Tap Send OTP with 9 digits / letters",
+     "expected": "Error \"Enter a valid 10-digit mobile number\"",
+     "actual": "'1234567890' rejected: 'Enter a valid 10-digit mobile number' (must start 6-9)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_login_invalid.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-08-05",
+     "element": "Send OTP",
+     "pre": "Fresh install / guest",
+     "steps": "Valid number, tap Send OTP",
+     "expected": "Firebase OTP sent; navigates to OTP screen (requires real phone/Firebase test number)",
+     "actual": "Needs real SMS OTP via Firebase",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-08-06",
+     "element": "\"Forgot Password?\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Opens Forgot Password",
+     "actual": "Removed: OTP-only login has no password",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-08-07",
+     "element": "\"Sign Up\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Opens Sign Up",
+     "actual": "→ Sign Up screen",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-08-08",
+     "element": "Back button",
+     "pre": "Fresh install / guest",
+     "steps": "Tap back (incl. after logout)",
+     "expected": "Never leaves a blank screen",
+     "actual": "Back from Login returns to Welcome (logout case re-tested later)",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-09",
+   "name": "Sign Up Screen",
+   "location": "features/auth/signup_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-09-01",
+     "element": "Form fields",
+     "pre": "Fresh install / guest",
+     "steps": "Open",
+     "expected": "Full name, mobile, email, password, terms checkbox render",
+     "actual": "Full name, mobile, email, password, terms checkbox render",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-09-02",
+     "element": "Phone validation",
+     "pre": "Fresh install / guest",
+     "steps": "Submit with invalid phone",
+     "expected": "Rejected with clear message (10-digit rule)",
+     "actual": "5123456789 → 'Enter a valid 10-digit mobile number'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/su2.png",
+     "defect": "ADEF-04",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-09-03",
+     "element": "Email validation",
+     "pre": "Fresh install / guest",
+     "steps": "Enter invalid email",
+     "expected": "Rejected or ignored gracefully",
+     "actual": "bad@email → 'Enter a valid email address'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/su3.png",
+     "defect": "ADEF-04",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-09-04",
+     "element": "Terms required",
+     "pre": "Fresh install / guest",
+     "steps": "Submit without ticking terms",
+     "expected": "Blocked with message",
+     "actual": "Without terms → 'Please accept Terms & Conditions'",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-09-05",
+     "element": "Terms / Privacy links",
+     "pre": "Fresh install / guest",
+     "steps": "Tap each",
+     "expected": "Opens readable terms/privacy content",
+     "actual": "Terms & Conditions dialog opens with Close",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-09-06",
+     "element": "Password field",
+     "pre": "Fresh install / guest",
+     "steps": "Enter password",
+     "expected": "Password is either used by the flow or not shown (no dead field)",
+     "actual": "Password field removed (was collected and discarded)",
+     "status": "NOT APPLICABLE",
+     "evidence": "qa-tools/results/su3.png",
+     "defect": "ADEF-03",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-09-07",
+     "element": "Sign Up",
+     "pre": "Fresh install / guest",
+     "steps": "Valid form",
+     "expected": "Firebase OTP → OTP screen (needs real phone)",
+     "actual": "Needs real Firebase OTP",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-09-08",
+     "element": "\"Login\" link",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Returns to Login",
+     "actual": "'Login' link present and returns to Login",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-10",
+   "name": "OTP Verification Screen",
+   "location": "features/auth/otp_verification_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-10-01",
+     "element": "Phone display & edit",
+     "pre": "OTP sent",
+     "steps": "Open",
+     "expected": "Shows the number entered; edit returns to previous screen",
+     "actual": "Number shown; ✎ returns",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-10-02",
+     "element": "6-box OTP input",
+     "pre": "OTP sent",
+     "steps": "Type/paste 6 digits",
+     "expected": "Auto-advances, auto-verifies",
+     "actual": "Needs real Firebase OTP",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-10-03",
+     "element": "Countdown & resend",
+     "pre": "OTP sent",
+     "steps": "Wait 60s",
+     "expected": "Resend enabled after countdown",
+     "actual": "Countdown 'OTP will expire in 00:15' and 'Resend in 15s' shown",
+     "status": "PASS",
+     "evidence": "dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-10-04",
+     "element": "Wrong OTP",
+     "pre": "OTP sent",
+     "steps": "Enter wrong OTP",
+     "expected": "Clear error, stays on screen",
+     "actual": "Needs real Firebase OTP",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-10-05",
+     "element": "Correct OTP",
+     "pre": "OTP sent",
+     "steps": "Enter right OTP",
+     "expected": "POST /auth/firebase-verify → session saved → Location permission screen",
+     "actual": "Needs real Firebase OTP",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-11",
+   "name": "Forgot / Reset Password",
+   "location": "features/auth/forgot_password_screen.dart, reset_password_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-11-01",
+     "element": "Forgot: validation",
+     "pre": "Fresh install / guest",
+     "steps": "Submit invalid number",
+     "expected": "Error shown",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-02",
+     "element": "Forgot: \"Send Reset Link\"",
+     "pre": "Fresh install / guest",
+     "steps": "Valid registered number",
+     "expected": "POST /auth/forgot-password → OTP screen",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-03",
+     "element": "Forgot: \"Reset via Email\"",
+     "pre": "Fresh install / guest",
+     "steps": "Tap",
+     "expected": "Performs a real action or is not offered (no fake flow)",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-04",
+     "element": "Reset: password rules",
+     "pre": "Fresh install / guest",
+     "steps": "Enter <6 chars",
+     "expected": "Rejected",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-05",
+     "element": "Reset: confirm must match",
+     "pre": "Fresh install / guest",
+     "steps": "Enter mismatched confirm",
+     "expected": "Rejected with message",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-06",
+     "element": "Reset: strength meter",
+     "pre": "Fresh install / guest",
+     "steps": "Type weak/strong passwords",
+     "expected": "Indicator reflects actual strength",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    },
+    {
+     "id": "APP-11-07",
+     "element": "Reset: submit",
+     "pre": "Fresh install / guest",
+     "steps": "Valid",
+     "expected": "POST /auth/reset-password → Login",
+     "actual": "Flow unreachable: only entry point (Login 'Forgot Password?') removed; OTP-only auth",
+     "status": "NOT APPLICABLE",
+     "evidence": "login_screen.dart",
+     "defect": "ADEF-03",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-12",
+   "name": "Location & Notification Permission Screens",
+   "location": "features/auth/location_permission_screen.dart, notification_permission_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-12-01",
+     "element": "Location: content",
+     "pre": "Just logged in",
+     "steps": "Open",
+     "expected": "Benefits list renders",
+     "actual": "Screens appear only after a real OTP login",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-12-02",
+     "element": "Location: \"Allow\" buttons",
+     "pre": "Just logged in",
+     "steps": "Tap",
+     "expected": "OS permission prompt appears (or honest skip), then continues",
+     "actual": "Screens appear only after a real OTP login",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-12-03",
+     "element": "Location: \"Not Now\"",
+     "pre": "Just logged in",
+     "steps": "Tap",
+     "expected": "Continues without permission",
+     "actual": "Screens appear only after a real OTP login",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-12-04",
+     "element": "Notification: \"Allow Notifications\"",
+     "pre": "Just logged in",
+     "steps": "Tap",
+     "expected": "OS notification permission requested (Android 13+), then Home",
+     "actual": "Screens appear only after a real OTP login",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    },
+    {
+     "id": "APP-12-05",
+     "element": "Notification: \"Not Now\"",
+     "pre": "Just logged in",
+     "steps": "Tap",
+     "expected": "Continues to Home",
+     "actual": "Screens appear only after a real OTP login",
+     "status": "BLOCKED",
+     "evidence": "",
+     "defect": "BLK-01",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-13",
+   "name": "Home Dashboard",
+   "location": "features/home/home_dashboard_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-13-01",
+     "element": "Header: delivery address",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Home",
+     "expected": "Shows selected/default address label + pincode (not stuck on \"Select Address\")",
+     "actual": "Logged in: 'Home - 110001' (default address); guest: 'Set location'; tap opens picker/login; no overflow",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_home_auth.png, qa-tools/results/app_home_guest.png",
+     "defect": "ADEF-06",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-13-02",
+     "element": "Header: notification bell + unread badge",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Have unread notifications",
+     "expected": "Badge shows unread count; tap opens Notifications inbox",
+     "actual": "Bell opens Notifications inbox with real order notifications",
+     "status": "PASS",
+     "evidence": "adbui dump: Notifications / Order cancelled…",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-03",
+     "element": "Header: cart icon + badge",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Items in cart",
+     "expected": "Badge = cart count; tap opens Cart",
+     "actual": "Badge = API item_count (5); tap opens Cart '5 Items'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_home_auth.png",
+     "defect": "ADEF-13",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-13-04",
+     "element": "Search bar",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Opens Search screen",
+     "actual": "Opens Search with Trending Searches",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-05",
+     "element": "Mic (voice search)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap mic, speak",
+     "expected": "Recognised query is searched (result not discarded)",
+     "actual": "Mic (48dp target) opens Voice Search; permission denied → clear guidance; no overflow",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_voice_denied.png",
+     "defect": "ADEF-14",
+     "retest": "Retested (speech itself not testable on emulator without audio)"
+    },
+    {
+     "id": "APP-13-06",
+     "element": "Hero banners",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Admin has active banners",
+     "expected": "Banners from /home show image/title/subtitle; carousel works",
+     "actual": "5 admin banners from /home render with title/subtitle/image; swipe works",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_home_auth.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-07",
+     "element": "Hero banner tap",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap a banner with a link",
+     "expected": "Navigates to the banner target (not always all-products)",
+     "actual": "Banner links honoured: /products→All Products, /offers→Offers, /product/<id>→Galaxy S24 FE details",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "ADEF-15",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-13-08",
+     "element": "Quick features",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each of 6 tiles",
+     "expected": "Each navigates/acts as labelled",
+     "actual": "Fast Delivery→live threshold msg; Best Deals→Offers; 100% Original→msg; Top Brands→All Brands; 24x7→Help & Support; Categories→Categories tab; labels aligned",
+     "status": "PASS",
+     "evidence": "adbui dumps; qa-tools/results/app_cat_tile.png",
+     "defect": "ADEF-16",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-13-09",
+     "element": "Offer cards: greeting",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Logged in",
+     "expected": "\"Hey, {name}!\"",
+     "actual": "'Hey, DLV-TEST!' greeting",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_coupon_copy.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-10",
+     "element": "Offer cards: coupon copy",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap Code: CHILL10",
+     "expected": "Copies a coupon that actually exists and works at checkout",
+     "actual": "Shows best real active coupon (TEST20, 20% > ₹500); copy → clipboard + snackbar",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_coupon_copy.png",
+     "defect": "ADEF-17",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-13-11",
+     "element": "Categories row",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap a category",
+     "expected": "Opens listing filtered by that category",
+     "actual": "Smartphones → listing filtered (7 products); View All → Categories",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-12",
+     "element": "Discover: New / Trending / For You",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each",
+     "expected": "Opens the matching screen with data",
+     "actual": "New Arrivals / Trending / For You open their screens",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-13",
+     "element": "Deal of the Day",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Flash-sale products exist",
+     "expected": "Cards show real data; Add adds to cart with feedback",
+     "actual": "Deal cards real; View All → Flash Deals; Add → '<name> added to cart'",
+     "status": "PASS",
+     "evidence": "/tmp → qa-tools/results/app_deal_add.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-14",
+     "element": "Pull to refresh",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Pull down",
+     "expected": "Home reloads",
+     "actual": "RefreshIndicator shown on pull; reloads /home",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_pull.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-13-15",
+     "element": "Bottom nav",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each tab",
+     "expected": "Correct screen opens; correct tab highlighted",
+     "actual": "Categories/Wishlist/Account tabs switch; Orders opens as full page with back arrow",
+     "status": "PASS",
+     "evidence": "adbui dumps; qa-tools/results/app_orders_tab.png",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-14",
+   "name": "Search & Voice Search",
+   "location": "features/search/*",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-14-01",
+     "element": "Trending & suggestions",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open, type 2+ letters",
+     "expected": "Suggestions appear from API",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-14-02",
+     "element": "Search results",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Submit \"boat\"",
+     "expected": "Results list with image, name, price, discount",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-14-03",
+     "element": "Result tap",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap a result",
+     "expected": "Opens Product Details",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-14-04",
+     "element": "No results",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Search \"zzzzqq\"",
+     "expected": "\"No results found\" empty state",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-14-05",
+     "element": "Clear / back",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap ✕ / back",
+     "expected": "Clears query / returns",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-14-06",
+     "element": "Voice search screen",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open mic",
+     "expected": "Mic permission requested; recognised text used; popular chips work",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-15",
+   "name": "Categories (Tab)",
+   "location": "features/categories/categories_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-15-01",
+     "element": "Sidebar & grid",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open tab",
+     "expected": "Categories from API render in sidebar and grid",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-15-02",
+     "element": "Category tap",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap one",
+     "expected": "Opens listing filtered by category",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-15-03",
+     "element": "Error/empty state",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Backend down / no categories",
+     "expected": "Shows message + retry, not an endless spinner",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-16",
+   "name": "Product Listing",
+   "location": "features/product_listing/*",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-16-01",
+     "element": "Header",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open from a category",
+     "expected": "Title = category name; search/cart icons work",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-02",
+     "element": "In-page search box",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Type + submit",
+     "expected": "Filters the listing (not a dead input)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-03",
+     "element": "Brand chips",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap a brand",
+     "expected": "List filtered to that brand",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-04",
+     "element": "Sort",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Choose each option",
+     "expected": "List reorders correctly",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-05",
+     "element": "Filter button",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Provides a real filter (or is removed)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-06",
+     "element": "Grid/List toggle",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Layout switches",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-07",
+     "element": "Product card",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Opens details",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-08",
+     "element": "Wishlist heart",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Toggles wishlist (server) with visible state",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-09",
+     "element": "Add to cart",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap Add",
+     "expected": "Item added with visible feedback",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-10",
+     "element": "Infinite scroll",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Scroll to end with >1 page",
+     "expected": "Next page loads with same filters",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-16-11",
+     "element": "Empty state",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Category with no products",
+     "expected": "\"No products found\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-17",
+   "name": "Product Details",
+   "location": "features/product_details/product_details_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-17-01",
+     "element": "Load",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open a product",
+     "expected": "Name, images, price, MRP, % off, description, highlights from API",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-02",
+     "element": "Gallery",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Swipe / tap image",
+     "expected": "Real product images; full-screen gallery shows the same product",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-03",
+     "element": "Wishlist",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap heart",
+     "expected": "Toggles, persists after reopen",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-04",
+     "element": "Share",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap share icon",
+     "expected": "Share sheet opens (or icon removed)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-05",
+     "element": "Rating row",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Opens Reviews",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-06",
+     "element": "Offer cards (EMI/Bank/Exchange)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "View",
+     "expected": "Reflect real offers or are clearly informational",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-07",
+     "element": "Stock display",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Product with stock N",
+     "expected": "Shows availability; out-of-stock disables add",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-08",
+     "element": "Similar products",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Scroll",
+     "expected": "Same-category products; tap opens them",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-09",
+     "element": "Add to Cart",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "POST /cart/add, \"Added to cart!\", cart badge updates",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-10",
+     "element": "Buy Now",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Adds and opens Cart",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-11",
+     "element": "Recently viewed tracking",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open product",
+     "expected": "POST /products/:id/recently-viewed recorded",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-17-12",
+     "element": "Not found",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open deleted product id",
+     "expected": "\"Product not found\" state",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-18",
+   "name": "Product Reviews",
+   "location": "features/product_details/product_reviews_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-18-01",
+     "element": "Summary & list",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Stats and reviews from API; empty state if none",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-02",
+     "element": "Filter chips",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap a star filter",
+     "expected": "List filtered (or chips removed)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-03",
+     "element": "Sort \"Most Helpful\"",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Sorts (or not shown as control)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-04",
+     "element": "Write a review validation",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Submit without stars / body",
+     "expected": "Validation messages",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-05",
+     "element": "Submit review",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Valid review",
+     "expected": "POST succeeds; appears in list; product rating updates",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-06",
+     "element": "Helpful thumbs",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Works or not presented as control",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-18-07",
+     "element": "Bottom \"Add to Cart\"",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Adds product to cart",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-19",
+   "name": "Cart",
+   "location": "features/cart/cart_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-19-01",
+     "element": "Items load",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Open cart",
+     "expected": "GET /cart items with image, name, price",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-02",
+     "element": "Address strip",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Has addresses",
+     "expected": "Shows default address; Change opens checkout",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-03",
+     "element": "Quantity +/−",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Tap + and −",
+     "expected": "Qty updates server-side; + capped at stock; − at 1 removes",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-04",
+     "element": "Remove item",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Tap delete",
+     "expected": "Item removed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-05",
+     "element": "Apply coupon",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Open Apply Coupon, apply valid code",
+     "expected": "Discount shown; totals recalc",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-06",
+     "element": "Price details",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Compare with backend /cart summary",
+     "expected": "Subtotal, discount, delivery (₹49 under threshold / FREE), GST, total correct",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-07",
+     "element": "Empty cart",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Remove all",
+     "expected": "Empty state + Shop Now",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-19-08",
+     "element": "Checkout",
+     "pre": "Logged in as DLV-TEST customer; backend reachable; 1+ items in cart",
+     "steps": "Tap Checkout",
+     "expected": "Opens Checkout",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-20",
+   "name": "Apply Coupon",
+   "location": "features/cart/apply_coupon_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-20-01",
+     "element": "Available coupons",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Active coupons from GET /cart/coupons",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-20-02",
+     "element": "Invalid code",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Enter \"NOPE\"",
+     "expected": "Inline error",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-20-03",
+     "element": "Valid code",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Apply existing coupon",
+     "expected": "Returns to cart with discount",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-20-04",
+     "element": "Min order not met",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Apply coupon above cart value",
+     "expected": "Clear error",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-21",
+   "name": "Checkout",
+   "location": "features/checkout/checkout_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-21-01",
+     "element": "Address list",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Saved addresses; tap selects",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-02",
+     "element": "Add address validation",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Save with empty/invalid phone/pincode",
+     "expected": "Field errors shown; nothing saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-03",
+     "element": "Add address",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Valid address",
+     "expected": "Saved and selected",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-04",
+     "element": "Edit address",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Edit, save",
+     "expected": "Updated",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-05",
+     "element": "Delete address",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap delete",
+     "expected": "Asks confirmation, then deletes",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-06",
+     "element": "Order summary",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Compare with cart",
+     "expected": "Same totals as Cart (incl. coupon/GST)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-21-07",
+     "element": "Proceed to Payment",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "With address selected",
+     "expected": "Opens Payment",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-22",
+   "name": "Payment Method",
+   "location": "features/payment/payment_method_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-22-01",
+     "element": "Options",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "COD and PhonePe/UPI shown with totals",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-22-02",
+     "element": "Place COD order",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Select COD, place",
+     "expected": "Order created; OrderSuccess; Delhivery shipment attempted",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-22-03",
+     "element": "PhonePe order (test)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Select PhonePe, Pay",
+     "expected": "Order created; payment page opens; verification leads to success",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-22-04",
+     "element": "Payment initiation failure",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Force initiate failure",
+     "expected": "Order cancelled, cart restored, message shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-23",
+   "name": "PhonePe Payment",
+   "location": "features/payment/phonepe_payment_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-23-01",
+     "element": "\"I've Completed Payment\"",
+     "pre": "PhonePe order started",
+     "steps": "Tap after test payment",
+     "expected": "Verifies → OrderSuccess",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-23-02",
+     "element": "Auto-verify on resume",
+     "pre": "PhonePe order started",
+     "steps": "Return to app",
+     "expected": "Verification runs automatically",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-23-03",
+     "element": "\"Reopen PhonePe\"",
+     "pre": "PhonePe order started",
+     "steps": "Tap",
+     "expected": "Opens payment URL again",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-23-04",
+     "element": "Failed payment",
+     "pre": "PhonePe order started",
+     "steps": "Verification fails",
+     "expected": "OrderFailed with reason; retry path works",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-24",
+   "name": "Order Success / Failed",
+   "location": "features/orders/order_success_screen.dart, order_failed_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-24-01",
+     "element": "Success details",
+     "pre": "Order just placed",
+     "steps": "After order",
+     "expected": "Order number, total, payment, status correct",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-24-02",
+     "element": "\"View My Orders\"",
+     "pre": "Order just placed",
+     "steps": "Tap",
+     "expected": "Opens My Orders with the new order on top",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-24-03",
+     "element": "\"Continue Shopping\"",
+     "pre": "Order just placed",
+     "steps": "Tap",
+     "expected": "Back to Home",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-24-04",
+     "element": "Failed: reason & retry",
+     "pre": "Order just placed",
+     "steps": "After failed payment",
+     "expected": "Reason shown; Try Again lets the user pay again for that order or re-order",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-25",
+   "name": "My Orders (Tab)",
+   "location": "features/orders/my_orders_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-25-01",
+     "element": "List",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Orders tab",
+     "expected": "Orders newest first with status pill, items, total, date",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-25-02",
+     "element": "Status tabs",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each tab",
+     "expected": "Filtered correctly",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-25-03",
+     "element": "Order tap",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap card",
+     "expected": "Opens Order Details",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-25-04",
+     "element": "Back button on tab",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open via bottom nav, press back",
+     "expected": "Never leaves a blank screen",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-25-05",
+     "element": "Bottom navigation present",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open via bottom nav",
+     "expected": "Bottom nav visible like other tabs",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-25-06",
+     "element": "Pull to refresh / empty",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Pull; new user",
+     "expected": "Refreshes; \"No orders yet\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-26",
+   "name": "Order Details",
+   "location": "features/orders/order_details_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-26-01",
+     "element": "Details",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open an order",
+     "expected": "Number, status, payment, date, AWB, shipment label, items, totals",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-26-02",
+     "element": "Track Order",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Order with AWB",
+     "expected": "Opens tracking timeline",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-26-03",
+     "element": "Cancel (Processing only)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Processing order",
+     "expected": "Cancel button shown; not for Shipped/Delivered",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-26-04",
+     "element": "Refund/Return request",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Delivered/Cancelled order",
+     "expected": "Sheet validates reason; POST succeeds; status pill shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-26-05",
+     "element": "Auto-refresh on resume",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Status changes while app backgrounded",
+     "expected": "Screen shows new status on return",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-26-06",
+     "element": "Error state",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Invalid order id / network error",
+     "expected": "Error message (not endless spinner)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-27",
+   "name": "Cancel Order",
+   "location": "features/orders/cancel_order_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-27-01",
+     "element": "Order card",
+     "pre": "Processing order",
+     "steps": "Open",
+     "expected": "Shows THIS order's id/date/amount",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-27-02",
+     "element": "Reason required",
+     "pre": "Processing order",
+     "steps": "Submit without choosing",
+     "expected": "A reason is always sent (default selection matches state)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-27-03",
+     "element": "Cancel",
+     "pre": "Processing order",
+     "steps": "Choose reason, confirm",
+     "expected": "Order Cancelled; Delhivery shipment cancelled; stock restored",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-27-04",
+     "element": "Support / Track / Contact buttons",
+     "pre": "Processing order",
+     "steps": "Tap each",
+     "expected": "Navigate somewhere useful (not dead)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-28",
+   "name": "Tracking Timeline",
+   "location": "features/orders/delhivery_tracking_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-28-01",
+     "element": "Header",
+     "pre": "Order with AWB",
+     "steps": "Open",
+     "expected": "Delhivery branding, AWB (copyable), status",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-28-02",
+     "element": "Live scans",
+     "pre": "Order with AWB",
+     "steps": "Order with scans",
+     "expected": "Real Delhivery scans with location/time",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-28-03",
+     "element": "No scans yet",
+     "pre": "Order with AWB",
+     "steps": "Fresh shipment",
+     "expected": "Honest \"Order placed\" row, no invented dates",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-28-04",
+     "element": "Refresh",
+     "pre": "Order with AWB",
+     "steps": "Tap Refresh",
+     "expected": "Reloads tracking",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-28-05",
+     "element": "Error",
+     "pre": "Order with AWB",
+     "steps": "Backend down",
+     "expected": "Error + Retry",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-29",
+   "name": "Wishlist (Tab)",
+   "location": "features/wishlist/wishlist_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-29-01",
+     "element": "List",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Saved products with price, stock",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-29-02",
+     "element": "Remove",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap ✕",
+     "expected": "Removed server-side",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-29-03",
+     "element": "Clear All",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Confirms, then clears",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-29-04",
+     "element": "Add to Cart",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Added with feedback",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-29-05",
+     "element": "Empty state",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "No items",
+     "expected": "Empty message",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-30",
+   "name": "My Profile (Tab)",
+   "location": "features/profile/my_profile_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-30-01",
+     "element": "Header",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Name, email, phone from API",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-30-02",
+     "element": "Bag icon",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap",
+     "expected": "Badge and destination consistent",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-30-03",
+     "element": "Menu items",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap Edit Profile, My Orders, Wishlist, My Reviews, Notifications, Settings",
+     "expected": "Each opens its screen",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-30-04",
+     "element": "Saved Addresses entry",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Look for addresses",
+     "expected": "User can manage saved addresses from profile",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-30-05",
+     "element": "Guest view",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open as guest",
+     "expected": "Prompts login instead of fake profile/logout",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-30-06",
+     "element": "Logout",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Confirm logout",
+     "expected": "Session cleared; Login shown; back does not return to account",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-31",
+   "name": "Edit Profile",
+   "location": "features/profile/edit_profile_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-31-01",
+     "element": "Load",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Current name/email; phone read-only",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-31-02",
+     "element": "Email validation",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Invalid email",
+     "expected": "Rejected with message",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-31-03",
+     "element": "Save",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Change name",
+     "expected": "PUT /profile; \"Profile updated!\"; reflected on web too",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-31-04",
+     "element": "Avatar upload",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Pick image",
+     "expected": "Uploaded and shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-32",
+   "name": "My Reviews",
+   "location": "features/profile/my_reviews_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-32-01",
+     "element": "List / empty",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Loading then reviews or empty state",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-32-02",
+     "element": "Delete review",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Delete one",
+     "expected": "Confirm → removed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-33",
+   "name": "Notifications Inbox",
+   "location": "features/profile/notifications_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-33-01",
+     "element": "List",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open from bell",
+     "expected": "Notifications newest first with icons",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-33-02",
+     "element": "Order notification tap",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap one",
+     "expected": "Opens that order",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-33-03",
+     "element": "Unread count clears",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open inbox, return",
+     "expected": "Bell badge resets",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-33-04",
+     "element": "Push notification",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Order status changes (Delhivery event)",
+     "expected": "Push received on device, deduplicated",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-34",
+   "name": "Notification Settings",
+   "location": "features/profile/notification_settings_screen.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-34-01",
+     "element": "Load toggles",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Current preferences loaded",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-34-02",
+     "element": "Toggle persists",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Toggle, reopen",
+     "expected": "Saved via PUT",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-34-03",
+     "element": "Order updates off",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Disable order updates",
+     "expected": "Order pushes stop (in-app record kept)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-35",
+   "name": "Settings, Help & Support, About, Privacy",
+   "location": "features/profile/*",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-35-01",
+     "element": "Settings links",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each of 5",
+     "expected": "Each opens its screen",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-02",
+     "element": "Help: category tiles",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each",
+     "expected": "Sensible destination (no odd pop)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-03",
+     "element": "Help: call / WhatsApp / email",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each",
+     "expected": "Opens dialer (with +91) / WhatsApp / mail with real contact",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-04",
+     "element": "Help: dead items",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap search, My Tickets, View All, Connect",
+     "expected": "No dead controls",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-05",
+     "element": "About: links & version",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open About",
+     "expected": "Links work; version shows real app version",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-06",
+     "element": "Privacy policy",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open",
+     "expected": "Complete policy content; index items navigate",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-35-07",
+     "element": "Terms & Conditions",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Find from About/Settings",
+     "expected": "Terms screen reachable",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-36",
+   "name": "Discovery Screens (Brands, Offers, Flash, New, Trending, Recommended)",
+   "location": "features/brands, offers, deals, new_arrivals, trending, recommended",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-36-01",
+     "element": "Brands list & search",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Top Brands",
+     "expected": "Brands from API; search filters; tap opens brand products",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-36-02",
+     "element": "Offers products",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Best Deals",
+     "expected": "Discounted products listed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-36-03",
+     "element": "Flash deals",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open Deal of the Day → View All",
+     "expected": "Flash-sale products; chips filter",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-36-04",
+     "element": "New / Trending / Recommended",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open each",
+     "expected": "Products from respective API",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-36-05",
+     "element": "Chips & \"View All\" & CTA banners",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap each",
+     "expected": "Each works or is not interactive (no dead controls)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-36-06",
+     "element": "Bottom nav highlight",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Open each screen",
+     "expected": "Correct tab highlighted",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-37",
+   "name": "Unreachable / Orphan Screens",
+   "location": "address/*, recently_viewed, sub_categories, empty_cart, cod_confirmation, push/offer notifications, terms, no_internet",
+   "notes": "Screens that exist in code but nothing navigates to them.",
+   "cases": [
+    {
+     "id": "APP-37-01",
+     "element": "Saved Addresses reachable",
+     "pre": "-",
+     "steps": "From profile",
+     "expected": "Reachable, list/add/edit/delete/default work",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-37-02",
+     "element": "Recently Viewed reachable",
+     "pre": "-",
+     "steps": "From profile",
+     "expected": "Reachable, shows real history",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-37-03",
+     "element": "No-internet handling",
+     "pre": "-",
+     "steps": "Turn network off mid-use",
+     "expected": "User gets a clear offline message / retry",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-37-04",
+     "element": "Dead orphan screens",
+     "pre": "-",
+     "steps": "Code review",
+     "expected": "Unused dummy screens (SubCategories, COD confirmation, EmptyCart) not reachable by users",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-38",
+   "name": "Delhivery — App Order Lifecycle",
+   "location": "app + backend + Delhivery staging",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-38-01",
+     "element": "Order → Delhivery shipment",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Place prepaid order in app",
+     "expected": "Real staging AWB stored; \"Shipment created\" shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-02",
+     "element": "Pickup booked",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "After shipment",
+     "expected": "Pickup request exists for the warehouse",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-03",
+     "element": "In transit",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Delhivery In Transit event",
+     "expected": "App shows Shipped / In transit; push received",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-04",
+     "element": "Out for delivery",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Dispatched event",
+     "expected": "App shows Out for delivery; push",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-05",
+     "element": "Delivered",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Delivered event",
+     "expected": "App shows Delivered; COD marked Paid; push",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-06",
+     "element": "Cancel before pickup",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Cancel in app",
+     "expected": "Delhivery shipment cancelled",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-38-07",
+     "element": "App ⇄ Web ⇄ Admin agree",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Compare same order everywhere",
+     "expected": "Identical status/AWB/history",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-39",
+   "name": "Regression & Non-functional",
+   "location": "whole app",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-39-01",
+     "element": "Session persistence",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Kill and relaunch app",
+     "expected": "Still logged in",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-39-02",
+     "element": "Token refresh / expiry",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Expired access token",
+     "expected": "Refreshed silently or sent to login cleanly",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-39-03",
+     "element": "Android back behaviour",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Press back across screens",
+     "expected": "No blank screens, no loops",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-39-04",
+     "element": "Release build",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Install signed release APK",
+     "expected": "Launches, talks to https://chillfi.in/api, no debug hooks",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-39-05",
+     "element": "Layout on 1080×2400",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Visit key screens",
+     "expected": "No yellow/black overflow stripes",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "APP-40",
+   "name": "Error Handling & Universal Error Dialog",
+   "location": "core/widgets/app_error_dialog.dart, cart_feedback.dart, api_service.dart",
+   "notes": "",
+   "cases": [
+    {
+     "id": "APP-40-01",
+     "element": "Offline: Add to Cart (product details)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Disable network, tap Add to Cart",
+     "expected": "Universal dialog \"No internet connection\"; no raw error",
+     "actual": "Dialog 'No internet connection' shown; no raw text",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_err_offline_addcart.png",
+     "defect": "ADEF-09",
+     "retest": "Retested build after fix"
+    },
+    {
+     "id": "APP-40-02",
+     "element": "Offline: Buy Now",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Disable network, tap Buy Now",
+     "expected": "Universal dialog; stays on screen",
+     "actual": "Dialog shown, stays on product screen",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_err_offline_buynow.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-03",
+     "element": "Offline: listing card cart button",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Disable network, tap card cart icon",
+     "expected": "Universal dialog (previously silent)",
+     "actual": "Dialog shown (was silent before fix)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_err_offline_listing.png",
+     "defect": "ADEF-07",
+     "retest": "Retested"
+    },
+    {
+     "id": "APP-40-04",
+     "element": "Dialog dismiss",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap OK",
+     "expected": "Dialog closes; screen usable",
+     "actual": "OK closes dialog; Add to Cart/Buy Now visible again",
+     "status": "PASS",
+     "evidence": "adbui has 'Add to Cart' 'Buy Now' = ALL PRESENT",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-05",
+     "element": "Online add feedback",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Tap card cart icon online",
+     "expected": "Green \"<product> added to cart\"; badge increments",
+     "actual": "Green 'Apple AirPods Pro (2nd Gen) added to cart'; badge 2→4",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_added_crop.png",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-06",
+     "element": "Similar product add failure",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Fail add from similar products",
+     "expected": "Error dialog, not a false \"Added to cart\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-07",
+     "element": "5xx from backend",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Backend returns 500 with internal text",
+     "expected": "Friendly server message + errorRef; no SQL/stack text",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-08",
+     "element": "OTP send failure (Firebase)",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Invalid number / quota",
+     "expected": "Friendly mapped text, never raw Firebase message",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-09",
+     "element": "Order placement failure",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Fail /orders",
+     "expected": "Dialog \"Couldn't place your order\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-10",
+     "element": "Cancel order failure",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Fail cancel",
+     "expected": "Dialog \"Couldn't cancel order\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-11",
+     "element": "Profile save failure",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Fail update",
+     "expected": "Dialog \"Couldn't save changes\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "APP-40-12",
+     "element": "Voice search error",
+     "pre": "Logged in as DLV-TEST customer; backend reachable",
+     "steps": "Speech error",
+     "expected": "Friendly status text, no \"Error: <code>\"",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  }
+ ],
+ "defects": [
+  {
+   "id": "ADEF-07",
+   "title": "Add-to-cart from listing/offers/deals/trending/new-arrivals/recommended gives no feedback; failures silent",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "onAddToCart callbacks ignored the provider result",
+   "fix": "Shared addToCartWithFeedback(): green snackbar on success, AppErrorDialog on failure; wired into 6 screens + details/wishlist/deals/recently-viewed",
+   "retest": "PASS APP-40-03/05"
+  },
+  {
+   "id": "ADEF-08",
+   "title": "Similar products card says 'Added to cart' even when the add fails",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Result of addToCart discarded",
+   "fix": "Uses addToCartWithFeedback",
+   "retest": "Code fixed; runtime retest pending"
+  },
+  {
+   "id": "ADEF-09",
+   "title": "Raw technical/Firebase/Dio text could reach users in snackbars",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Screens printed e.message / server message verbatim",
+   "fix": "AppError mapper + Dio interceptor friendly message + AppErrorDialog; firebaseFriendly() code map; voice error text",
+   "retest": "PASS APP-40-01/02"
+  },
+  {
+   "id": "ADEF-01",
+   "title": "Onboarding One: Skip covered by hero layer and unusable",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Skip Positioned painted before hero Stack layers",
+   "fix": "Skip moved last in Stack; Fast Delivery badge moved down so they don't overlap",
+   "retest": "PASS: Skip → Welcome; screenshot qa-tools/results/app_onb1_retest.png"
+  },
+  {
+   "id": "ADEF-02",
+   "title": "Login: dead language selector; phone field accepts letters and >10 digits",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Decorative widgets; no input formatters",
+   "fix": "Selector and fake +91 dropdown arrows removed; digitsOnly + 10-digit limit on Login & Sign Up; 6-9 start rule",
+   "retest": "PASS APP-08-03/04"
+  },
+  {
+   "id": "ADEF-03",
+   "title": "Leftover password UI in OTP-only app (Forgot Password link, reset flow, Sign Up password field that was discarded)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Old email/password auth remnants",
+   "fix": "Removed Forgot Password entry and Sign Up password field; reset screens now unreachable (orphans)",
+   "retest": "Verified: no password field reachable"
+  },
+  {
+   "id": "ADEF-04",
+   "title": "Sign Up doesn't validate name/phone/email",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Only emptiness of phone checked",
+   "fix": "Name ≥2 chars, Indian mobile regex, email regex when provided",
+   "retest": "PASS APP-09-02/03"
+  },
+  {
+   "id": "ADEF-05",
+   "title": "Maintenance: dead buttons, hardcoded 'May 18, 2025' downtime",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Static mock UI",
+   "fix": "Removed fake card/buttons; Check Again re-reads /app-config and resumes app",
+   "retest": "PASS APP-02-01/03"
+  },
+  {
+   "id": "ADEF-06",
+   "title": "Home header never shows delivery address",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Addresses only loaded inside cart flow",
+   "fix": "Home loads addresses for logged-in users; header tappable; flexible with ellipsis",
+   "retest": "PASS APP-13-01"
+  },
+  {
+   "id": "ADEF-10",
+   "title": "Home header overflowed with longer address label (RIGHT OVERFLOWED stripe)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Fixed-width Row without Flexible",
+   "fix": "Flexible + ellipsis",
+   "retest": "PASS: no overflow guest/auth"
+  },
+  {
+   "id": "ADEF-11",
+   "title": "White logo on white background invisible (Home header, Maintenance, Login placeholder)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "logo.png is white-only",
+   "fix": "New assets/images/logo_color.png (orange, transparent); login placeholder removed",
+   "retest": "PASS screenshots"
+  },
+  {
+   "id": "ADEF-12",
+   "title": "Address picker footer hardcoded 'Deliver to 226010', fake '24-48 hours', dead 'Change Pincode'",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Mock widget",
+   "fix": "DeliveryInfoCard shows selected city/pincode; dead button removed",
+   "retest": "PASS: 110001 → 999999 follows selection"
+  },
+  {
+   "id": "ADEF-13",
+   "title": "Home cart badge missing until Cart visited",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Home never loaded cart summary",
+   "fix": "Home init loads cart for logged-in users",
+   "retest": "PASS APP-13-03"
+  },
+  {
+   "id": "ADEF-14",
+   "title": "Voice search: tiny mic target on Home, RIGHT OVERFLOW on voice screen, invisible logo, unclear denied-permission state",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "22sp tap target; fixed-width Row; white logo; generic status",
+   "fix": "48dp target; flexible waves + max-width status; colour logo; clear permission message",
+   "retest": "PASS APP-13-05"
+  },
+  {
+   "id": "ADEF-15",
+   "title": "Home banners ignore admin link (always open all products)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Hardcoded navigation",
+   "fix": "openAppLink() router for /product, /offers, /categories, /products?category=, external URLs",
+   "retest": "PASS APP-13-07"
+  },
+  {
+   "id": "ADEF-16",
+   "title": "Home tiles misaligned; Fast Delivery tile hardcoded ₹499; dead QR scanner icons on Home and listing search",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Row centre alignment; hardcoded copy; decorative icons",
+   "fix": "Top alignment; threshold from /app-config; QR icons removed",
+   "retest": "PASS APP-13-08"
+  },
+  {
+   "id": "ADEF-17",
+   "title": "Home advertises coupon CHILL10 which does not exist",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Hardcoded promo copy",
+   "fix": "Offer card shows best real active coupon from /cart/coupons, falls back to Today's Deals",
+   "retest": "PASS APP-13-10"
+  },
+  {
+   "id": "ADEF-18",
+   "title": "Fake ratings/review counts (e.g. 4.3 / 52,000 reviews with 0 real reviews) shown on app & website",
+   "severity": "High",
+   "status": "Fixed (local DB)",
+   "root_cause": "seed.sql inserted fabricated rating/review_count",
+   "fix": "Seed zeroed; scripts/recalc-ratings.js recomputes from reviews (applied locally; production needs approval)",
+   "retest": "Local: 9 products corrected"
+  },
+  {
+   "id": "ADEF-19",
+   "title": "Category counts ≠ listing (Audio 8 vs 7); Low Stock products hidden from listings; OOS products not marked",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Listing default status='Active'; carousels Active-only; no OOS UI",
+   "fix": "Listing shows all non-inactive; carousels Active+Low Stock; OOS overlay + disabled purchase on card and details",
+   "retest": "PASS: Audio 8=8; OOS card/details screenshots"
+  },
+  {
+   "id": "ADEF-20",
+   "title": "'Best Seller' badge shown for any admin-featured product",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Badge tied to is_featured",
+   "fix": "Renamed to 'Featured'",
+   "retest": "Code fixed"
+  }
+ ],
+ "blockers": [
+  {
+   "id": "BLK-01",
+   "title": "Real phone OTP login (Firebase)",
+   "why": "OTP is delivered by SMS to a real phone; Claude cannot receive it. Blocks OTP success + post-login permission screens.",
+   "manual_action": "Firebase Console → Authentication → Sign-in method → Phone → 'Phone numbers for testing' → add e.g. +91 9000000001 with code 123456 → tell Claude 'Done'",
+   "resume": "APP-08-05, APP-10-02/04/05, APP-11-02/04, APP-12-*"
+  }
+ ]
+}

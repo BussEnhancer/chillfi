@@ -47,7 +47,7 @@ const CategoriesPage: React.FC = () => {
       <Container className="flex gap-10 py-10">
         <CategorySidebar />
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <CategoryHeroBanner />
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">

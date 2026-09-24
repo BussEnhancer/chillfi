@@ -1,9 +1,9 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
-import 'package:chillfi/features/auth/forgot_password_screen.dart';
 import 'package:chillfi/features/auth/otp_verification_screen.dart';
 import 'package:chillfi/features/auth/signup_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -101,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20.sp),
                             ),
                           ),
-                          const LanguageSelector(),
                         ],
                       ),
                     ),
@@ -229,22 +228,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           PremiumPhoneInput(controller: _phoneController),
 
                           SizedBox(height: 16.h),
-
-                          // Forgot Password
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordScreen())),
-                              child: Text(
-                                'Forgot Password?',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.secondaryPurple,
-                                ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -258,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         if (_isSending) return;
                         final auth = context.read<AuthProvider>();
                         final phone = _phoneController.text.trim();
-                        if (phone.length != 10) {
+                        if (!RegExp(r'^[6-9]\d{9}$').hasMatch(phone)) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Enter a valid 10-digit mobile number')),
                           );
@@ -266,7 +249,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         }
                         auth.setPhone(phone);
                         final navigator = Navigator.of(context);
-                        final messenger = ScaffoldMessenger.of(context);
                         setState(() => _isSending = true);
                         auth.verifyPhoneFirebase(
                           phone,
@@ -282,7 +264,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           },
                           onFailed: (error) {
                             try { setState(() => _isSending = false); } catch (_) {}
-                            messenger.showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+                            if (mounted) AppErrorDialog.show(context, message: error, title: "Couldn't send OTP");
                           },
                         );
                       },
@@ -320,18 +302,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ],
                     ),
 
-                    const Spacer(flex: 2),
-
-                    // Bottom Image Graphic
-                    Center(
-                      child: Image.asset(
-                        'assets/images/logo.png', // Using small logo as placeholder for the graphic in image
-                        height: 50.h,
-                        opacity: const AlwaysStoppedAnimation(0.2),
-                      ),
-                    ),
-
-                    const Spacer(flex: 3),
+                    const Spacer(flex: 5),
 
                     // Footer
                     Row(

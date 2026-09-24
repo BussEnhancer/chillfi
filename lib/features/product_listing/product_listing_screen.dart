@@ -1,5 +1,5 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/features/categories/widgets/feature_highlights.dart';
@@ -251,7 +251,8 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                             imageUrl: p.primaryImage,
                                             isWishlisted: wishlist.isWishlisted(p.id),
                                             onWishlistToggle: () => wishlist.toggleWishlist(p.id),
-                                            onAddToCart: () => context.read<CartProvider>().addToCart(p.id),
+                                            onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
+                                            inStock: p.inStock,
                                           );
                                         },
                                       ),

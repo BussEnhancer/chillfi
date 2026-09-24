@@ -61,14 +61,14 @@ const MyAccountPage: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-10">
           <AccountSidebar />
 
-          <div className="flex-1 space-y-8">
+          <div className="flex-1 min-w-0 space-y-8">
             <ProfileOverviewCard
               name={profile?.name}
               phone={profile?.phone}
               email={profile?.email}
             />
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-4 xl:gap-6">
               <Link to="/account/orders">
                 <QuickActionCard icon={<ShoppingBag size={24} />} title="My Orders" desc="View all orders" />
               </Link>
@@ -90,7 +90,7 @@ const MyAccountPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col xl:flex-row gap-8">
-              <div className="flex-1 space-y-8">
+              <div className="flex-1 min-w-0 space-y-8">
                 <RecentOrdersCard />
                 <ReferEarnCard />
               </div>

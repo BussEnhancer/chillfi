@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/orders/order_success_screen.dart';
 import 'package:chillfi/features/payment/phonepe_payment_screen.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,7 +65,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted) AppErrorDialog.show(context, message: msg, title: "Couldn't place your order");
   }
 
   @override

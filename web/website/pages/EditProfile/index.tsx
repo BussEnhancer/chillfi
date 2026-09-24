@@ -8,6 +8,7 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import { Loader2, CheckCircle2, User, Mail, Phone } from 'lucide-react';
 import { apiGet, apiPut } from '../../utils/api';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
 
 interface ApiProfile {
   id: string;
@@ -44,7 +45,7 @@ const EditProfilePage: React.FC = () => {
       await apiPut('/profile', { name: form.name, email: form.email || null });
       setSaved(true);
     } catch (e: any) {
-      setError(e.message || 'Failed to update profile');
+      showErrorDialog({ title: "Couldn't save your profile", error: e, fallback: "We couldn't save your profile. Please try again." });
     } finally {
       setSaving(false);
     }

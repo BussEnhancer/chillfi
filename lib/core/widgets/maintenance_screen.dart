@@ -1,15 +1,46 @@
+import 'package:chillfi/core/services/remote_config_service.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/widgets/maintenance_widgets.dart';
+import 'package:chillfi/features/intro/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MaintenanceScreen extends StatelessWidget {
+class MaintenanceScreen extends StatefulWidget {
   final String? message;
 
   const MaintenanceScreen({super.key, this.message});
 
   @override
+  State<MaintenanceScreen> createState() => _MaintenanceScreenState();
+}
+
+class _MaintenanceScreenState extends State<MaintenanceScreen> {
+  bool _checking = false;
+
+  /// Re-reads the live maintenance flag; continues into the app once maintenance is over.
+  Future<void> _checkAgain() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    final config = await RemoteConfigService().fetch();
+    if (!mounted) return;
+    setState(() => _checking = false);
+    if (config == null) {
+      AppErrorDialog.show(context, message: AppError.noInternet);
+      return;
+    }
+    if (!config.maintenanceMode) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SplashScreen()));
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("We're still working on it. Please check again in a little while."),
+    ));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final message = widget.message;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -27,7 +58,7 @@ class MaintenanceScreen extends StatelessWidget {
                     Column(
                       children: [
                         Image.asset(
-                          'assets/images/logo.png',
+                          'assets/images/logo_color.png',
                           height: 40.h,
                           fit: BoxFit.contain,
                         ),
@@ -83,9 +114,6 @@ class MaintenanceScreen extends StatelessWidget {
                     ),
 
                     SizedBox(height: 40.h),
-                    const DowntimeInfoCard(),
-                    
-                    SizedBox(height: 40.h),
                     
                     // Thank You Section
                     Column(
@@ -107,64 +135,45 @@ class MaintenanceScreen extends StatelessWidget {
 
                     SizedBox(height: 40.h),
 
-                    // Action Buttons
-                    Container(
-                      width: double.infinity,
-                      height: 62.h,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF6C2BFF), Color(0xFF8B5CFF)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    // Action Button
+                    GestureDetector(
+                      onTap: _checkAgain,
+                      child: Container(
+                        width: double.infinity,
+                        height: 62.h,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF6C2BFF), Color(0xFF8B5CFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(18.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6C2BFF).withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(18.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6C2BFF).withValues(alpha: 0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.notifications_active_outlined, color: Colors.white, size: 22.sp),
-                          SizedBox(width: 12.w),
-                          Text(
-                            "Notify Me When It’s Back",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_checking)
+                              SizedBox(width: 22.sp, height: 22.sp, child: const CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
+                            else
+                              Icon(Icons.refresh_rounded, color: Colors.white, size: 22.sp),
+                            SizedBox(width: 12.w),
+                            Text(
+                              _checking ? 'Checking…' : 'Check Again',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Container(
-                      width: double.infinity,
-                      height: 62.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18.r),
-                        border: Border.all(color: const Color(0xFF6C2BFF), width: 1.5),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.home_outlined, color: const Color(0xFF6C2BFF), size: 22.sp),
-                          SizedBox(width: 12.w),
-                          Text(
-                            "Go to Home",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF6C2BFF),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 60.h),

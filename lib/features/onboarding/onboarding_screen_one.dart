@@ -62,40 +62,6 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
             child: const DottedPattern(rows: 6, cols: 5),
           ),
 
-          // 2. TOP SKIP BUTTON
-          Positioned(
-            top: 55.h,
-            right: 24.w,
-            child: TextButton(
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('has_seen_onboarding', true);
-                if (!context.mounted) return;
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-                );
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.greyText,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'Skip',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(width: 2.w),
-                  Icon(Icons.chevron_right_rounded, size: 20.sp),
-                ],
-              ),
-            ),
-          ),
-
           // 3. MAIN CONTENT
           SafeArea(
             child: Column(
@@ -174,7 +140,7 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
                         ),
                       ),
                       Positioned(
-                        top: 40.h,
+                        top: 78.h,
                         right: 45.w,
                         child: const FeatureBadge(
                           icon: Icons.local_shipping_outlined,
@@ -306,6 +272,41 @@ class _OnboardingScreenOneState extends State<OnboardingScreenOne> with SingleTi
               ),
             ),
           ),
+
+          // TOP SKIP BUTTON — painted last so the hero/content layers cannot cover it
+          Positioned(
+            top: 55.h,
+            right: 24.w,
+            child: TextButton(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('has_seen_onboarding', true);
+                if (!context.mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.greyText,
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Skip',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(width: 2.w),
+                  Icon(Icons.chevron_right_rounded, size: 20.sp),
+                ],
+              ),
+            ),
+          ),
+
         ],
       ),
     );

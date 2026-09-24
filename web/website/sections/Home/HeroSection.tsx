@@ -77,10 +77,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ banners }) => {
 
             {slides && slides.length > 1 && (
               <>
-                <button onClick={prev} className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20 z-20">
+                <button onClick={prev} className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20 z-20">
                   <ChevronLeft size={24} />
                 </button>
-                <button onClick={next} className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20 z-20">
+                <button onClick={next} className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20 z-20">
                   <ChevronRight size={24} />
                 </button>
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
@@ -101,8 +101,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ banners }) => {
     <section className="py-8">
       <Container>
         <div className="relative h-[500px] rounded-[32px] overflow-hidden bg-gradient-to-br from-[#FF6B2C] to-[#A166FF] flex items-center px-12 md:px-20">
-          <div className="absolute top-10 right-1/4 w-32 h-32 bg-white opacity-10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-10 left-1/4 w-40 h-40 bg-[#FF6B2C] opacity-20 rounded-full blur-3xl" />
+          <div className="pointer-events-none absolute top-10 right-1/4 w-32 h-32 bg-white opacity-10 rounded-full blur-3xl animate-pulse" />
+          <div className="pointer-events-none absolute bottom-10 left-1/4 w-40 h-40 bg-[#FF6B2C] opacity-20 rounded-full blur-3xl" />
 
           <div className="relative z-10 max-w-[550px] text-white">
             <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/20">
@@ -134,10 +134,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ banners }) => {
             </div>
           </div>
 
-          <button onClick={prev} className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20">
+          <button onClick={prev} className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20">
             <ChevronLeft size={24} />
           </button>
-          <button onClick={next} className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20">
+          <button onClick={next} className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white hover:bg-white hover:text-[#FF6B2C] transition-all border border-white/20">
             <ChevronRight size={24} />
           </button>
 

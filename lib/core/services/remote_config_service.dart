@@ -6,6 +6,8 @@ class AppRemoteConfig {
   final bool forceUpdateEnabled;
   final String minAppVersion;
   final String forceUpdateMessage;
+  final bool freeShippingEnabled;
+  final double freeShippingThreshold;
 
   AppRemoteConfig({
     required this.maintenanceMode,
@@ -13,6 +15,8 @@ class AppRemoteConfig {
     required this.forceUpdateEnabled,
     required this.minAppVersion,
     required this.forceUpdateMessage,
+    this.freeShippingEnabled = true,
+    this.freeShippingThreshold = 499,
   });
 
   factory AppRemoteConfig.fromJson(Map<String, dynamic> json) => AppRemoteConfig(
@@ -21,6 +25,8 @@ class AppRemoteConfig {
         forceUpdateEnabled: json['force_update_enabled'] == true,
         minAppVersion: json['min_app_version'] ?? '1.0.0',
         forceUpdateMessage: json['force_update_message'] ?? '',
+        freeShippingEnabled: json['free_shipping_enabled'] != false,
+        freeShippingThreshold: (json['free_shipping_threshold'] as num?)?.toDouble() ?? 499,
       );
 }
 

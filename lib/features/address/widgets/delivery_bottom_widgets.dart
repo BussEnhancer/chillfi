@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class DeliveryInfoCard extends StatelessWidget {
-  const DeliveryInfoCard({super.key});
+  final String? city;
+  final String? pincode;
+  const DeliveryInfoCard({super.key, this.city, this.pincode});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,9 @@ class DeliveryInfoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Deliver to 226010",
+                  pincode == null ? 'No address selected' : 'Deliver to ${city ?? ''} - $pincode',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -35,28 +39,12 @@ class DeliveryInfoCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Delivery in 24 - 48 hours",
+                  pincode == null ? 'Select an address above' : 'Tap another address above to change',
                   style: GoogleFonts.poppins(
                     fontSize: 10.sp,
                     color: AppColors.greyText,
                   ),
                 ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () {},
-            child: Row(
-              children: [
-                Text(
-                  "Change Pincode",
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.secondaryPurple,
-                  ),
-                ),
-                Icon(Icons.chevron_right_rounded, color: AppColors.secondaryPurple, size: 18.sp),
               ],
             ),
           ),

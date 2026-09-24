@@ -18,7 +18,7 @@ const getHomeData = async (req, res) => {
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image,
         p.flash_sale_ends_at
       FROM products p
-      WHERE p.status = 'Active' AND p.is_flash_sale = TRUE
+      WHERE p.status IN ('Active', 'Low Stock') AND p.is_flash_sale = TRUE
         AND (p.flash_sale_ends_at IS NULL OR p.flash_sale_ends_at > NOW())
       ORDER BY discount_pct DESC LIMIT 6
     `),
@@ -28,7 +28,7 @@ const getHomeData = async (req, res) => {
         b.name as brand_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-      WHERE p.status = 'Active'
+      WHERE p.status IN ('Active', 'Low Stock')
       ORDER BY p.review_count DESC, p.rating DESC LIMIT 8
     `),
 
@@ -37,7 +37,7 @@ const getHomeData = async (req, res) => {
         b.name as brand_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-      WHERE p.status = 'Active' AND p.is_featured = TRUE
+      WHERE p.status IN ('Active', 'Low Stock') AND p.is_featured = TRUE
       ORDER BY p.rating DESC LIMIT 6
     `),
 

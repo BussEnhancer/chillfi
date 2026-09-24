@@ -1,6 +1,6 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/features/deals/flash_deals_screen.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
@@ -138,16 +138,7 @@ class _DealCard extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final err = await context.read<CartProvider>().addToCart(product.id);
-                  messenger.showSnackBar(SnackBar(
-                    content: Text(err ?? '${product.name} added to cart!'),
-                    backgroundColor: err == null ? Colors.green.shade600 : Colors.red.shade600,
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                  ));
-                },
+                onTap: () => addToCartWithFeedback(context, product.id, productName: product.name),
                 child: Column(
                   children: [
                     Container(

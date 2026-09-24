@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config.dart';
+import '../widgets/app_error_dialog.dart';
 
 class ApiService {
   static const String _baseUrl = AppConfig.baseUrl;
@@ -37,9 +38,23 @@ class ApiService {
             return handler.resolve(response);
           }
         }
-        return handler.next(error);
+        return handler.next(_withFriendlyMessage(error));
       },
     ));
+  }
+
+  /// Every failed request carries a customer-safe `message` (offline, timeout, server error,
+  /// or the backend's own user-facing text), so callers reading data['message'] never show raw errors.
+  DioException _withFriendlyMessage(DioException e) {
+    final friendly = AppError.fromDio(e);
+    final original = e.response?.data;
+    final data = original is Map ? Map<String, dynamic>.from(original) : <String, dynamic>{};
+    data['success'] = false;
+    data['message'] = friendly;
+    final resp = e.response != null
+        ? Response(requestOptions: e.requestOptions, statusCode: e.response!.statusCode, headers: e.response!.headers, data: data)
+        : Response(requestOptions: e.requestOptions, statusCode: 0, data: data);
+    return e.copyWith(response: resp);
   }
 
   Future<bool> _refreshToken() async {

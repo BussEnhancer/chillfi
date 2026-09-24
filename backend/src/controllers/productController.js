@@ -11,7 +11,7 @@ const toImageUrl = (image) => {
 // GET /api/products
 const getProducts = async (req, res) => {
   const {
-    category, brand, search, status = 'Active',
+    category, brand, search, status,
     sort = 'created_at', order = 'DESC',
     page = 1, limit = 20,
     min_price, max_price,
@@ -104,7 +104,7 @@ const getTrending = async (req, res) => {
     SELECT p.*, b.name as brand_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE p.status = 'Active'
+    WHERE p.status IN ('Active', 'Low Stock')
     ORDER BY p.review_count DESC, p.rating DESC
     LIMIT $1
   `, [limit]);
@@ -118,7 +118,7 @@ const getNewArrivals = async (req, res) => {
     SELECT p.*, b.name as brand_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE p.status = 'Active'
+    WHERE p.status IN ('Active', 'Low Stock')
     ORDER BY p.created_at DESC
     LIMIT $1
   `, [limit]);
@@ -133,7 +133,7 @@ const getFlashSale = async (req, res) => {
       ROUND(((p.old_price - p.price) / p.old_price * 100)) as discount_pct,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE p.status = 'Active' AND p.is_flash_sale = TRUE
+    WHERE p.status IN ('Active', 'Low Stock') AND p.is_flash_sale = TRUE
       AND (p.flash_sale_ends_at IS NULL OR p.flash_sale_ends_at > NOW())
     ORDER BY discount_pct DESC
     LIMIT $1
@@ -148,7 +148,7 @@ const getFeatured = async (req, res) => {
     SELECT p.*, b.name as brand_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE p.status = 'Active' AND p.is_featured = TRUE
+    WHERE p.status IN ('Active', 'Low Stock') AND p.is_featured = TRUE
     ORDER BY p.rating DESC
     LIMIT $1
   `, [limit]);
@@ -168,7 +168,7 @@ const getRecommended = async (req, res) => {
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p
       LEFT JOIN brands b ON p.brand_id = b.id
-      WHERE p.status = 'Active'
+      WHERE p.status IN ('Active', 'Low Stock')
         AND p.category_id IN (
           SELECT DISTINCT pr.category_id FROM recently_viewed rv
           JOIN products pr ON rv.product_id = pr.id
@@ -184,7 +184,7 @@ const getRecommended = async (req, res) => {
         SELECT p.*, b.name as brand_name,
           (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
         FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-        WHERE p.status = 'Active'
+        WHERE p.status IN ('Active', 'Low Stock')
         ORDER BY p.rating DESC, p.review_count DESC
         LIMIT $1
       `, [limit]);
@@ -194,7 +194,7 @@ const getRecommended = async (req, res) => {
       SELECT p.*, b.name as brand_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
-      WHERE p.status = 'Active'
+      WHERE p.status IN ('Active', 'Low Stock')
       ORDER BY p.rating DESC, p.review_count DESC
       LIMIT $1
     `, [limit]);

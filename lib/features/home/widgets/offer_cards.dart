@@ -1,5 +1,8 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/features/offers/offers_products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -98,91 +101,92 @@ class OfferCardsSection extends StatelessWidget {
             ),
           ),
           SizedBox(width: 15.w),
-          // Exclusive Offer Card
-          Expanded(
-            child: Container(
-              height: 120.h,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF5F0),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppColors.primaryOrange.withValues(alpha: 0.1)),
-              ),
-              child: Stack(
+          // Exclusive Offer Card — driven by the best real active coupon
+          Expanded(child: Consumer<CartProvider>(builder: (context, cart, _) => _couponCard(context, cart.activeCoupons))),
+        ],
+      ),
+    );
+  }
+
+  Widget _couponCard(BuildContext context, List<CouponModel> coupons) {
+    CouponModel? best;
+    for (final c in coupons) {
+      if (best == null || (c.type == best.type ? c.value > best.value : c.type == 'Percentage')) best = c;
+    }
+    final String headline;
+    final String sub;
+    if (best == null) {
+      headline = "Today's Deals";
+      sub = 'Big savings on top brands';
+    } else {
+      headline = best.type == 'Percentage' ? 'Extra ${best.value.toStringAsFixed(0)}% OFF' : '₹${best.value.toStringAsFixed(0)} OFF';
+      sub = best.minOrder > 0 ? 'On orders above ₹${best.minOrder.toStringAsFixed(0)}' : 'On any order';
+    }
+    final code = best?.code;
+    return GestureDetector(
+      onTap: code == null ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OffersProductsScreen())) : null,
+      child: Container(
+        height: 120.h,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF5F0),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: AppColors.primaryOrange.withValues(alpha: 0.1)),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: 10.w,
+              top: 20.h,
+              child: Icon(Icons.confirmation_num_rounded, size: 60.sp, color: AppColors.primaryOrange.withValues(alpha: 0.2)),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Positioned(
-                    right: 10.w,
-                    top: 20.h,
-                    child: Icon(Icons.confirmation_num_rounded, size: 60.sp, color: AppColors.primaryOrange.withValues(alpha: 0.2)),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Exclusive Offer',
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryOrange,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'Extra 10% OFF',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.darkText,
-                          ),
-                        ),
-                        Text(
-                          'On all prepaid orders',
-                          style: GoogleFonts.poppins(
-                            fontSize: 9.sp,
-                            color: AppColors.greyText,
-                          ),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(const ClipboardData(text: 'CHILL10'));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Coupon code CHILL10 copied!'), duration: Duration(seconds: 2)),
-                            );
-                          },
-                          child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryOrange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(color: AppColors.primaryOrange.withValues(alpha: 0.2), style: BorderStyle.solid),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Code: CHILL10',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 9.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primaryOrange,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Icon(Icons.copy_rounded, size: 10.sp, color: AppColors.primaryOrange),
-                            ],
-                          ),
-                          ),
-                        ),
-                      ],
+                  Text('Exclusive Offer',
+                      style: GoogleFonts.poppins(fontSize: 11.sp, fontWeight: FontWeight.w600, color: AppColors.primaryOrange)),
+                  SizedBox(height: 4.h),
+                  Text(headline,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+                  Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 9.sp, color: AppColors.greyText)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      if (code == null) {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OffersProductsScreen()));
+                        return;
+                      }
+                      Clipboard.setData(ClipboardData(text: code));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Coupon code $code copied!'), duration: const Duration(seconds: 2)),
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryOrange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: AppColors.primaryOrange.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(code == null ? 'View deals' : 'Code: $code',
+                              style: GoogleFonts.poppins(fontSize: 9.sp, fontWeight: FontWeight.w700, color: AppColors.primaryOrange)),
+                          SizedBox(width: 4.w),
+                          Icon(code == null ? Icons.chevron_right_rounded : Icons.copy_rounded, size: 10.sp, color: AppColors.primaryOrange),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

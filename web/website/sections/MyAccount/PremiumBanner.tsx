@@ -3,9 +3,9 @@ import { Crown, Gift, ChevronRight } from 'lucide-react';
 
 const PremiumBanner: React.FC = () => {
   return (
-    <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group h-full flex flex-col justify-between">
+    <div className="bg-gradient-to-br from-[#FF6B2C] to-[#8B5CFF] rounded-[24px] p-8 text-white relative overflow-hidden group flex flex-col justify-between">
       {/* Background Decor */}
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+      <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-4">

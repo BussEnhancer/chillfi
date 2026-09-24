@@ -33,12 +33,12 @@ const Header: React.FC = () => {
         </Link>
 
         {/* Search — hidden on mobile */}
-        <div className="hidden md:flex flex-1">
+        <div className="hidden md:flex flex-1 min-w-0">
           <SearchBar />
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-4 lg:gap-6 shrink-0">
           <Link to="/account/wishlist" className="flex flex-col items-center gap-1 group">
             <div className="relative">
               <Heart size={24} className="group-hover:text-[#FF6B2C] transition-colors" />
@@ -59,11 +59,11 @@ const Header: React.FC = () => {
             <span className="text-[11px] font-semibold uppercase tracking-wider">Cart</span>
           </Link>
 
-          <Link to={isLoggedIn ? '/account' : '/login'} className="flex items-center gap-3 group pl-2">
+          <Link to={isLoggedIn ? '/account' : '/login'} aria-label="Account" className="flex items-center gap-3 group pl-2">
             <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition-colors">
               <User size={20} />
             </div>
-            <div className="flex flex-col">
+            <div className="hidden lg:flex flex-col">
               <span className="text-[10px] text-gray-500 font-medium">{isLoggedIn ? 'Welcome back' : 'Hello, Sign in'}</span>
               <span className="text-sm font-bold flex items-center gap-1">Account <ChevronDown size={14} /></span>
             </div>

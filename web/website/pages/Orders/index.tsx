@@ -14,6 +14,7 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { Truck, RotateCcw, FileText, HelpCircle, ChevronLeft, ChevronRight, Loader2, PackageOpen } from 'lucide-react';
 import { apiGet } from '../../utils/api';
 import { OrderStatus } from '../../components/order/OrderStatusBadge';
+import { friendlyError } from '../../utils/api';
 
 interface ApiOrderItem {
   product_name: string;
@@ -62,7 +63,7 @@ const OrdersPage: React.FC = () => {
       setOrders(res.data.orders || []);
       setTotal(res.data.total || 0);
     } catch (e: any) {
-      setError(e.message || 'Failed to load orders');
+      setError(friendlyError(e, 'Failed to load orders'));
     } finally {
       setLoading(false);
     }
@@ -93,6 +94,13 @@ const OrdersPage: React.FC = () => {
     : orders;
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  // Compact pagination: first, last, current ±1, with ellipses (never one button per page).
+  const pageWindow = (cur: number, last: number): (number | string)[] => {
+    const set = new Set([1, last, cur - 1, cur, cur + 1].filter(n => n >= 1 && n <= last));
+    const nums = [...set].sort((a, b) => a - b); const out: (number | string)[] = [];
+    nums.forEach((n, i) => { if (i && n - nums[i - 1] > 1) out.push(`gap${n}`); out.push(n); });
+    return out;
+  };
 
   const toCardProps = (o: ApiOrder) => {
     const d = new Date(o.created_at);
@@ -182,11 +190,11 @@ const OrdersPage: React.FC = () => {
             )}
 
             {totalPages > 1 && !loading && (
-              <div className="mt-12 flex items-center justify-between">
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p className="text-xs font-bold text-gray-400">
                   Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total} orders
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     disabled={page === 1}
                     onClick={() => setPage(p => p - 1)}
@@ -194,7 +202,8 @@ const OrdersPage: React.FC = () => {
                   >
                     <ChevronLeft size={20} />
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  {pageWindow(page, totalPages).map(p => (
+                    typeof p === 'string' ? <span key={p} className="w-6 text-center text-gray-400 font-black">…</span> :
                     <button
                       key={p}
                       onClick={() => setPage(p)}

@@ -18,6 +18,7 @@ class ProductListingCard extends StatelessWidget {
   final bool isWishlisted;
   final VoidCallback? onWishlistToggle;
   final VoidCallback? onAddToCart;
+  final bool inStock;
 
   const ProductListingCard({
     super.key,
@@ -34,6 +35,7 @@ class ProductListingCard extends StatelessWidget {
     this.isWishlisted = false,
     this.onWishlistToggle,
     this.onAddToCart,
+    this.inStock = true,
   });
 
   @override
@@ -90,6 +92,21 @@ class ProductListingCard extends StatelessWidget {
                         : Center(child: Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey[300])),
                   ),
                 ),
+                if (!inStock)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(color: AppColors.darkText, borderRadius: BorderRadius.circular(20.r)),
+                        child: Text('Out of Stock', style: GoogleFonts.poppins(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+                      ),
+                    ),
+                  ),
                 // Discount Badge
                 Positioned(
                   top: 8.h,
@@ -193,12 +210,13 @@ class ProductListingCard extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: onAddToCart,
+                        behavior: HitTestBehavior.opaque,
+                        onTap: inStock ? onAddToCart : null,
                         child: Container(
                           width: 28.r,
                           height: 28.r,
                           decoration: BoxDecoration(
-                            color: AppColors.secondaryPurple,
+                            color: inStock ? AppColors.secondaryPurple : AppColors.greyText.withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),

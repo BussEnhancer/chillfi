@@ -13,6 +13,7 @@ import WishlistPromo from '../../sections/Wishlist/WishlistPromo';
 import { Share2, ShoppingBag, Heart, Loader2, Trash2 } from 'lucide-react';
 import { apiGet, apiDelete } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
+import { friendlyError } from '../../utils/api';
 
 interface ApiWishlistItem {
   id: string;
@@ -44,7 +45,7 @@ const WishlistPage: React.FC = () => {
       const res = await apiGet<{ success: boolean; data: ApiWishlistItem[] }>('/wishlist');
       setItems(res.data || []);
     } catch (e: any) {
-      setError(e.message || 'Failed to load wishlist');
+      setError(friendlyError(e, 'Failed to load wishlist'));
     } finally {
       setLoading(false);
     }

@@ -286,7 +286,11 @@ const cancelOrder = async (req, res) => {
   try {
     await shipments.cancelShipmentForOrder(result.rows[0], { by: 'customer' });
   } catch (err) {
-    return res.status(err.status || 500).json({ success: false, message: err.message });
+    // 409 = already picked up (message is customer-friendly). Anything else is a courier/API failure:
+    // log it, but show the customer a clear message instead of the technical cause.
+    if (err.status === 409) return res.status(409).json({ success: false, message: err.message });
+    console.error(`[order] cancel failed order=${id}: ${err.message}`);
+    return res.status(502).json({ success: false, message: "We couldn't cancel your order right now. Please try again in a few minutes or contact support." });
   }
 
   const client = await pool.connect();

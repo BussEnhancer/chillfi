@@ -54,7 +54,7 @@ const SupportHero: React.FC = () => {
       </div>
 
       {/* Background Decor */}
-      <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+      <div className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 bg-white/50 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
     </div>
   );
 };

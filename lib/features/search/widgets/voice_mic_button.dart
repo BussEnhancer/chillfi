@@ -36,17 +36,30 @@ class _VoiceMicButtonState extends State<VoiceMicButton>
         if (!mounted) return;
         setState(() {
           _isListening = false;
-          _status = 'Error: ${e.errorMsg}';
+          _status = e.errorMsg.contains('no_match') || e.errorMsg.contains('speech_timeout') ? "Didn't catch that. Tap the mic and try again." : 'Voice search is unavailable right now. Please type instead.';
         });
       },
     );
-    if (mounted) setState(() => _available = available);
+    if (mounted) {
+      setState(() {
+        _available = available;
+        if (!available) _status = _unavailableMsg;
+      });
+    }
   }
+
+  static const _unavailableMsg = 'Allow microphone access to use voice search, or type your search instead.';
 
   Future<void> _toggleListening() async {
     if (!_available) {
-      setState(() => _status = 'Speech recognition not available');
-      return;
+      // Permission may have been granted since (e.g. from Settings) — try again once.
+      final ok = await _speech.initialize();
+      if (!mounted) return;
+      if (!ok) {
+        setState(() => _status = _unavailableMsg);
+        return;
+      }
+      setState(() => _available = true);
     }
     if (_isListening) {
       await _speech.stop();
@@ -128,7 +141,9 @@ class _VoiceMicButtonState extends State<VoiceMicButton>
           ),
         ),
         SizedBox(height: 12.h),
-        Text(
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 170.w),
+          child: Text(
           _status,
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -136,6 +151,7 @@ class _VoiceMicButtonState extends State<VoiceMicButton>
             color: _isListening ? Colors.red : AppColors.greyText,
             fontWeight: FontWeight.w500,
           ),
+        ),
         ),
       ],
     );

@@ -211,7 +211,7 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const DeliveryInfoCard(),
+            DeliveryInfoCard(city: _selected?.city, pincode: _selected?.pincode),
             SizedBox(height: 16.h),
             _buildDeliverHereButton(),
             const SecureDeliveryCard(),

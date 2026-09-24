@@ -85,7 +85,7 @@ class _VoiceSearchScreenState extends State<VoiceSearchScreen> {
 
                         // Logo & Tagline
                         Image.asset(
-                          'assets/images/logo.png',
+                          'assets/images/logo_color.png',
                           height: 60.h,
                           errorBuilder: (context, error, stackTrace) => Column(
                             children: [
@@ -152,11 +152,11 @@ class _VoiceSearchScreenState extends State<VoiceSearchScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const VoiceWaveWidget(),
-                            SizedBox(width: 30.w),
+                            const Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: VoiceWaveWidget())),
+                            SizedBox(width: 16.w),
                             VoiceMicButton(onResult: _onVoiceResult),
-                            SizedBox(width: 30.w),
-                            const VoiceWaveWidget(),
+                            SizedBox(width: 16.w),
+                            const Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: VoiceWaveWidget())),
                           ],
                         ),
 

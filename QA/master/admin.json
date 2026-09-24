@@ -1,0 +1,1263 @@
+{
+ "title": "ChillFi Admin Panel — Master QA Testing Report",
+ "filename": "ChillFi_Admin_Panel_Master_QA.pdf",
+ "subtitle": "Every /admin page in sidebar order, derived from the actual implementation, incl. admin → app/website propagation.",
+ "scope": "Admin panel (React /admin/*) and the backend admin APIs it uses.",
+ "environment": "Local :5200 → backend :5000 · Chrome · Delhivery STAGING",
+ "sections": [
+  {
+   "id": "ADM-01",
+   "name": "Access Control & Layout",
+   "location": "components/auth/AdminRoute.tsx, components/admin/*",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-01-01",
+     "element": "Guest blocked",
+     "pre": "-",
+     "steps": "Open /admin logged out",
+     "expected": "Redirect to login",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-02",
+     "element": "Customer blocked",
+     "pre": "-",
+     "steps": "Open /admin as customer",
+     "expected": "Access denied; API returns 403",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-03",
+     "element": "Support staff scope",
+     "pre": "-",
+     "steps": "Login as support_staff",
+     "expected": "Only Orders/Reviews/Messages; admin-only actions hidden",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-04",
+     "element": "Role cache",
+     "pre": "-",
+     "steps": "Logout admin, login customer in same tab",
+     "expected": "Customer does not inherit admin UI",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-05",
+     "element": "Sidebar navigation",
+     "pre": "-",
+     "steps": "Click every item",
+     "expected": "Each page loads",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-06",
+     "element": "Header search",
+     "pre": "-",
+     "steps": "Search twice from Products page",
+     "expected": "Filters each time",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-07",
+     "element": "Header bell",
+     "pre": "-",
+     "steps": "Click",
+     "expected": "Real notifications or not presented as feature",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-08",
+     "element": "Logout",
+     "pre": "-",
+     "steps": "Click",
+     "expected": "Session cleared",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-01-09",
+     "element": "Maintenance lockout",
+     "pre": "-",
+     "steps": "Maintenance on, admin logged out",
+     "expected": "Admin can still log in",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-02",
+   "name": "Dashboard",
+   "location": "pages/Admin/Dashboard",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-02-01",
+     "element": "Stat cards",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "Revenue (paid), orders, products, users match DB",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-02-02",
+     "element": "Revenue chart",
+     "pre": "Logged in as admin",
+     "steps": "View",
+     "expected": "Real monthly data (no mock bars)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-02-03",
+     "element": "Top products / Recent orders",
+     "pre": "Logged in as admin",
+     "steps": "View",
+     "expected": "Real data; View All links work",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-02-04",
+     "element": "API failure",
+     "pre": "Logged in as admin",
+     "steps": "Backend error",
+     "expected": "Error shown, not silent mock data",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-03",
+   "name": "Products",
+   "location": "pages/Admin/Products",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-03-01",
+     "element": "List & stats",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "All products incl. inactive/out-of-stock; stat chips correct",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-02",
+     "element": "Search & category filter",
+     "pre": "Logged in as admin",
+     "steps": "Use",
+     "expected": "Filters",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-03",
+     "element": "Add product",
+     "pre": "Logged in as admin",
+     "steps": "Fill form incl. brand, category, image; save",
+     "expected": "Created with brand+category saved; page does not crash",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-04",
+     "element": "Add validation",
+     "pre": "Logged in as admin",
+     "steps": "Save without price / name",
+     "expected": "Clear errors",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-05",
+     "element": "Edit product",
+     "pre": "Logged in as admin",
+     "steps": "Change name/price/brand/category",
+     "expected": "Saved and shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-06",
+     "element": "Inline stock edit",
+     "pre": "Logged in as admin",
+     "steps": "Change stock",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-07",
+     "element": "Inline status",
+     "pre": "Logged in as admin",
+     "steps": "Set Inactive / Out of Stock / Active",
+     "expected": "Saved; product still visible in admin; can be re-activated",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-08",
+     "element": "Featured / Flash sale toggles",
+     "pre": "Logged in as admin",
+     "steps": "Toggle",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-09",
+     "element": "Image upload",
+     "pre": "Logged in as admin",
+     "steps": "Upload image",
+     "expected": "Stored (Cloudinary) and shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-10",
+     "element": "Delete",
+     "pre": "Logged in as admin",
+     "steps": "Delete product",
+     "expected": "Confirm; soft-deleted; restorable or clearly removed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-11",
+     "element": "Propagation: price/name/image → app & website",
+     "pre": "Logged in as admin",
+     "steps": "Edit then check storefronts",
+     "expected": "Both storefronts show the change",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-03-12",
+     "element": "Propagation: status → storefront",
+     "pre": "Logged in as admin",
+     "steps": "Set Low Stock / Out of Stock",
+     "expected": "Storefront behaviour correct (low stock still sellable; out of stock not purchasable)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-04",
+   "name": "Orders",
+   "location": "pages/Admin/Orders",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-04-01",
+     "element": "List, tabs, search",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "Orders with real qty, customer, amount, payment, status, AWB, shipping stage",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-02",
+     "element": "Export CSV",
+     "pre": "Logged in as admin",
+     "steps": "Click",
+     "expected": "CSV downloads with rows",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-03",
+     "element": "Order detail modal",
+     "pre": "Logged in as admin",
+     "steps": "Open order",
+     "expected": "Items, customer, address, payment, Delhivery section",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-04",
+     "element": "Status update",
+     "pre": "Logged in as admin",
+     "steps": "Change status",
+     "expected": "Saved; customer notified; invalid backward moves prevented",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-05",
+     "element": "Create / Retry shipment",
+     "pre": "Logged in as admin",
+     "steps": "Processing COD/Paid order",
+     "expected": "AWB created on Delhivery staging",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-06",
+     "element": "Live track + Sync",
+     "pre": "Logged in as admin",
+     "steps": "Open tracking",
+     "expected": "Real scans; Sync pulls latest",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-07",
+     "element": "Print label",
+     "pre": "Logged in as admin",
+     "steps": "Click",
+     "expected": "Delhivery label PDF opens",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-08",
+     "element": "Cancel → Delhivery",
+     "pre": "Logged in as admin",
+     "steps": "Set Cancelled",
+     "expected": "Shipment cancelled at Delhivery",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-04-09",
+     "element": "Staff restrictions",
+     "pre": "Logged in as admin",
+     "steps": "As support staff",
+     "expected": "Status/ship buttons hidden",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-05",
+   "name": "Refunds",
+   "location": "pages/Admin/Refunds",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-05-01",
+     "element": "List loads",
+     "pre": "Logged in as admin",
+     "steps": "Open /admin/refunds",
+     "expected": "Customer refund/return requests listed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-05-02",
+     "element": "Filters",
+     "pre": "Logged in as admin",
+     "steps": "Use status chips",
+     "expected": "Filters",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-05-03",
+     "element": "Approve / Reject",
+     "pre": "Logged in as admin",
+     "steps": "Act on a request",
+     "expected": "Saved; customer sees new status in app & web",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-05-04",
+     "element": "Mark Refunded",
+     "pre": "Logged in as admin",
+     "steps": "Approved request",
+     "expected": "Order payment_status Refunded",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-06",
+   "name": "Users",
+   "location": "pages/Admin/Users",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-06-01",
+     "element": "List & stats & search",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "Users with orders/spend; search works",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-06-02",
+     "element": "Block / Unblock",
+     "pre": "Logged in as admin",
+     "steps": "Block test user",
+     "expected": "User session rejected on app & web; unblock restores",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-06-03",
+     "element": "Role toggle support staff",
+     "pre": "Logged in as admin",
+     "steps": "Toggle",
+     "expected": "Role saved; access changes",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-06-04",
+     "element": "Remove",
+     "pre": "Logged in as admin",
+     "steps": "Click remove",
+     "expected": "Honest behaviour (no fake delete)",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-06-05",
+     "element": "Self-protection",
+     "pre": "Logged in as admin",
+     "steps": "Try to block own admin account",
+     "expected": "Prevented",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-07",
+   "name": "Categories",
+   "location": "pages/Admin/Categories",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-07-01",
+     "element": "List incl. inactive",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "Active and inactive shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-07-02",
+     "element": "Create / Edit",
+     "pre": "Logged in as admin",
+     "steps": "Save",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-07-03",
+     "element": "Deactivate & reactivate",
+     "pre": "Logged in as admin",
+     "steps": "Toggle off then on",
+     "expected": "Can be re-enabled",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-07-04",
+     "element": "Delete",
+     "pre": "Logged in as admin",
+     "steps": "Delete",
+     "expected": "Confirm; removed from storefront",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-07-05",
+     "element": "Propagation",
+     "pre": "Logged in as admin",
+     "steps": "Rename / deactivate",
+     "expected": "App & website category lists update",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-08",
+   "name": "Brands",
+   "location": "pages/Admin/Brands",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-08-01",
+     "element": "List incl. inactive",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "All brands",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-08-02",
+     "element": "Create / Edit / logo",
+     "pre": "Logged in as admin",
+     "steps": "Save",
+     "expected": "Saved; duplicate name gives clear error",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-08-03",
+     "element": "Deactivate & reactivate",
+     "pre": "Logged in as admin",
+     "steps": "Toggle",
+     "expected": "Can be re-enabled",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-08-04",
+     "element": "Delete",
+     "pre": "Logged in as admin",
+     "steps": "Delete",
+     "expected": "Removed; products keep working",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-08-05",
+     "element": "Propagation",
+     "pre": "Logged in as admin",
+     "steps": "Change",
+     "expected": "App brands screen & website update",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-09",
+   "name": "Reviews",
+   "location": "pages/Admin/Reviews",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-09-01",
+     "element": "List & rating filter",
+     "pre": "Logged in as admin",
+     "steps": "Open",
+     "expected": "Reviews listed; filter works",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-09-02",
+     "element": "Verify toggle",
+     "pre": "Logged in as admin",
+     "steps": "Toggle",
+     "expected": "Saved; verified badge on website",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-09-03",
+     "element": "Delete",
+     "pre": "Logged in as admin",
+     "steps": "Delete",
+     "expected": "Removed; product rating recalculated on app & web",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-10",
+   "name": "Messages",
+   "location": "pages/Admin/Messages",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-10-01",
+     "element": "List from Contact form",
+     "pre": "Logged in as admin",
+     "steps": "Submit contact form on website",
+     "expected": "Message appears",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-10-02",
+     "element": "Read toggle / filter",
+     "pre": "Logged in as admin",
+     "steps": "Use",
+     "expected": "Works",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-10-03",
+     "element": "Reply",
+     "pre": "Logged in as admin",
+     "steps": "Send reply",
+     "expected": "Stored; honest note if email delivery not configured",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-10-04",
+     "element": "Delete",
+     "pre": "Logged in as admin",
+     "steps": "Delete",
+     "expected": "Removed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-11",
+   "name": "Notifications (Push)",
+   "location": "pages/Admin/Notifications",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-11-01",
+     "element": "Validation",
+     "pre": "Logged in as admin",
+     "steps": "Empty title/body",
+     "expected": "Send disabled",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-11-02",
+     "element": "Send to one user",
+     "pre": "Logged in as admin",
+     "steps": "Search user, send",
+     "expected": "In-app notification + push received on device",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-11-03",
+     "element": "Broadcast",
+     "pre": "Logged in as admin",
+     "steps": "Send to all",
+     "expected": "All customers get in-app notification; counts shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-12",
+   "name": "Analytics",
+   "location": "pages/Admin/Analytics",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-12-01",
+     "element": "Period tabs",
+     "pre": "Logged in as admin",
+     "steps": "Switch 7/30/90/365",
+     "expected": "Data changes",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-12-02",
+     "element": "KPIs consistent with dashboard",
+     "pre": "Logged in as admin",
+     "steps": "Compare revenue",
+     "expected": "Same definition of revenue",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-12-03",
+     "element": "Placeholder panels",
+     "pre": "Logged in as admin",
+     "steps": "View",
+     "expected": "No fake panels presented as data",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-13",
+   "name": "Banners, Promo Banners, Testimonials",
+   "location": "pages/Admin/Banners, PromoBanners, Testimonials",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-13-01",
+     "element": "Banner CRUD",
+     "pre": "Logged in as admin",
+     "steps": "Create/edit/toggle/delete",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-13-02",
+     "element": "Banner → app & website home",
+     "pre": "Logged in as admin",
+     "steps": "Activate a banner",
+     "expected": "Shows on both home screens with working link",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-13-03",
+     "element": "Promo banner CRUD + upload",
+     "pre": "Logged in as admin",
+     "steps": "Create with image",
+     "expected": "Saved; shows on website home",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-13-04",
+     "element": "Promo banners in app",
+     "pre": "Logged in as admin",
+     "steps": "Check app home",
+     "expected": "Shown or documented as website-only",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-13-05",
+     "element": "Testimonials CRUD + avatar",
+     "pre": "Logged in as admin",
+     "steps": "Create",
+     "expected": "Shows on website home",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-14",
+   "name": "Coupons",
+   "location": "pages/Admin/Coupons",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-14-01",
+     "element": "Create / edit / toggle / delete",
+     "pre": "Logged in as admin",
+     "steps": "Use",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-14-02",
+     "element": "Validation",
+     "pre": "Logged in as admin",
+     "steps": "Percentage >100, value ≤0",
+     "expected": "Rejected",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-14-03",
+     "element": "Coupon at checkout (app & web)",
+     "pre": "Logged in as admin",
+     "steps": "Apply new coupon",
+     "expected": "Discount applied correctly",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-14-04",
+     "element": "Expiry / min order / usage limit enforced at order",
+     "pre": "Logged in as admin",
+     "steps": "Expired or under-min coupon",
+     "expected": "Rejected at order creation too",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-14-05",
+     "element": "Clear expiry/limit",
+     "pre": "Logged in as admin",
+     "steps": "Remove expiry",
+     "expected": "Saved as no-expiry",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-15",
+   "name": "Shipping Rules",
+   "location": "pages/Admin/ShippingRules",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-15-01",
+     "element": "CRUD",
+     "pre": "Logged in as admin",
+     "steps": "Create prefix rule",
+     "expected": "Saved",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-15-02",
+     "element": "Fee applied at checkout",
+     "pre": "Logged in as admin",
+     "steps": "Order to matching pincode",
+     "expected": "App & website charge the rule fee",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-15-03",
+     "element": "COD / ETA fields",
+     "pre": "Logged in as admin",
+     "steps": "Set COD off for prefix",
+     "expected": "Honoured at checkout or not offered",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-16",
+   "name": "Settings",
+   "location": "pages/Admin/Settings",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-16-01",
+     "element": "Store info fields",
+     "pre": "Logged in as admin",
+     "steps": "Change store email/phone",
+     "expected": "Used by storefront or clearly marked",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-02",
+     "element": "GST rate",
+     "pre": "Logged in as admin",
+     "steps": "Change 18→12",
+     "expected": "Cart/checkout tax updates on app & web; restore",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-03",
+     "element": "Free-shipping threshold & fee",
+     "pre": "Logged in as admin",
+     "steps": "Change",
+     "expected": "Checkout fee updates on app & web; restore",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-04",
+     "element": "Maintenance mode",
+     "pre": "Logged in as admin",
+     "steps": "Enable/disable",
+     "expected": "App splash + website gate respond",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-05",
+     "element": "Force update / min version",
+     "pre": "Logged in as admin",
+     "steps": "Set min = current version",
+     "expected": "Current app not blocked; higher min blocks",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-06",
+     "element": "Order notification toggles",
+     "pre": "Logged in as admin",
+     "steps": "Disable shipped notifications",
+     "expected": "Pushes suppressed",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-07",
+     "element": "Feature/payment/security/SEO toggles",
+     "pre": "Logged in as admin",
+     "steps": "Toggle",
+     "expected": "Honoured or clearly marked not active",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-08",
+     "element": "API Keys: secrets masked",
+     "pre": "Logged in as admin",
+     "steps": "View credentials",
+     "expected": "Only last 4 chars; never full secret",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-09",
+     "element": "API Keys: Delhivery panel",
+     "pre": "Logged in as admin",
+     "steps": "Test connection / Sync / Request pickup",
+     "expected": "Works against staging",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-16-10",
+     "element": "API Keys: env switch confirmation",
+     "pre": "Logged in as admin",
+     "steps": "Choose production",
+     "expected": "Confirmation dialog shown",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  },
+  {
+   "id": "ADM-17",
+   "name": "Delhivery — Admin Operations",
+   "location": "Orders + Settings",
+   "notes": "",
+   "cases": [
+    {
+     "id": "ADM-17-01",
+     "element": "Order shows shipment state",
+     "pre": "Logged in as admin",
+     "steps": "Open shipped order",
+     "expected": "AWB, stage, env, history",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-17-02",
+     "element": "Failed shipment visible + retry",
+     "pre": "Logged in as admin",
+     "steps": "Shipment rejected",
+     "expected": "Reason shown; retry works",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-17-03",
+     "element": "Delivered reflected",
+     "pre": "Logged in as admin",
+     "steps": "After Delivered event",
+     "expected": "Admin shows Delivered, payment Paid",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    },
+    {
+     "id": "ADM-17-04",
+     "element": "No operational dead end",
+     "pre": "Logged in as admin",
+     "steps": "Walk order from placed to delivered",
+     "expected": "Every step actionable from admin",
+     "actual": "",
+     "status": "NOT TESTED",
+     "evidence": "",
+     "defect": "",
+     "retest": ""
+    }
+   ]
+  }
+ ],
+ "defects": [],
+ "blockers": []
+}

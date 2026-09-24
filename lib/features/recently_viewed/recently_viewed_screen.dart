@@ -1,6 +1,6 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
@@ -13,7 +13,6 @@ import 'package:chillfi/features/recently_viewed/widgets/view_all_cta_card.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class RecentlyViewedScreen extends StatefulWidget {
   const RecentlyViewedScreen({super.key});
@@ -61,11 +60,7 @@ class _RecentlyViewedScreenState extends State<RecentlyViewedScreen> {
   }
 
   Future<void> _addToCart(String productId) async {
-    await context.read<CartProvider>().addToCart(productId);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Added to cart'), duration: Duration(seconds: 1)),
-    );
+    await addToCartWithFeedback(context, productId);
   }
 
   void _openProduct(String productId) {

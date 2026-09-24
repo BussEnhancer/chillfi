@@ -53,24 +53,24 @@ const CartPage: React.FC = () => {
                 </div>
                 <div className="divide-y divide-[#F8F7FC]">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center gap-5 p-5 hover:bg-[#FFF8F5]/50 transition-colors">
+                    <div key={item.id} className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-5 p-4 sm:p-5 hover:bg-[#FFF8F5]/50 transition-colors">
                       <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#F8F7FC] border border-[#ECECEC] shrink-0">
                         <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-[#111827] truncate">{item.name}</p>
+                      <div className="flex-1 min-w-[140px]">
+                        <p className="text-sm font-black text-[#111827] line-clamp-2 sm:truncate">{item.name}</p>
                         <p className="text-xs font-bold text-gray-400 mb-2">{item.brand} • {item.category}</p>
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-black text-[#FF6B2C]">₹{item.price.toLocaleString()}</span>
                           {item.oldPrice > item.price && <span className="text-xs text-gray-400 line-through">₹{item.oldPrice.toLocaleString()}</span>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0 ml-[92px] sm:ml-0">
                         <button onClick={() => updateCartQty(item.id, item.qty - 1)} className="w-8 h-8 rounded-lg border border-[#ECECEC] flex items-center justify-center text-gray-500 hover:border-[#FF6B2C] hover:text-[#FF6B2C]"><Minus size={14} /></button>
                         <span className="w-8 text-center text-sm font-black">{item.qty}</span>
                         <button onClick={() => updateCartQty(item.id, item.qty + 1)} className="w-8 h-8 rounded-lg border border-[#ECECEC] flex items-center justify-center text-gray-500 hover:border-[#FF6B2C] hover:text-[#FF6B2C]"><Plus size={14} /></button>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="text-right shrink-0 ml-auto sm:ml-0">
                         <p className="text-base font-black text-[#111827]">₹{(item.price * item.qty).toLocaleString()}</p>
                         <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600 mt-1"><Trash2 size={14} /></button>
                       </div>

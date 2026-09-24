@@ -75,6 +75,27 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
   };
 
   return (
+    <>
+    {/* Phones & tablets: account menu as a horizontal strip (the sidebar is desktop-only) */}
+    <nav className="lg:hidden -mx-4 px-4 mb-6 overflow-x-auto scrollbar-hide" aria-label="Account menu">
+      <div className="flex gap-2 w-max">
+        {menuItems.filter(i => !i.comingSoon).map(item => {
+          const isActive = item.id === activeId;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleClick(item)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap border transition-colors ${
+                isActive ? 'bg-[#FF6B2C] text-white border-[#FF6B2C]' :
+                item.danger ? 'text-red-500 border-red-100 bg-white' : 'text-gray-600 border-[#ECECEC] bg-white'
+              }`}
+            >
+              <span className="[&>svg]:w-4 [&>svg]:h-4">{item.icon}</span>{item.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
     <aside className="w-[280px] shrink-0 hidden lg:block">
       <div className="bg-white rounded-[24px] border border-[#ECECEC] p-4 sticky top-32 overflow-hidden shadow-sm max-h-[calc(100vh-160px)] overflow-y-auto scrollbar-hide">
         <div className="space-y-1">
@@ -89,6 +110,7 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
         </div>
       </div>
     </aside>
+    </>
   );
 };
 

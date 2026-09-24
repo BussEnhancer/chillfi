@@ -1,7 +1,7 @@
+import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/wishlist_model.dart';
-import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
@@ -181,16 +181,7 @@ class _WishlistCard extends StatelessWidget {
                       width: double.infinity,
                       height: 36.h,
                       child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final cart = context.read<CartProvider>();
-                          final err = await cart.addToCart(item.productId);
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(err ?? 'Added to cart!'),
-                            backgroundColor: err == null ? Colors.green : Colors.red,
-                            duration: const Duration(seconds: 2),
-                          ));
-                        },
+                        onPressed: () => addToCartWithFeedback(context, item.productId),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.secondaryPurple,
                           foregroundColor: Colors.white,

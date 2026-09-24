@@ -59,7 +59,7 @@ const AuthHeroSection: React.FC = () => {
           <div className="absolute top-20 right-10 w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center text-[#FF6B2C] animate-bounce">
             <ShieldCheck size={24} />
           </div>
-          <div className="absolute bottom-20 left-0 w-32 h-32 bg-[#FF6B2C]/10 rounded-full blur-3xl"></div>
+          <div className="pointer-events-none absolute bottom-20 left-0 w-32 h-32 bg-[#FF6B2C]/10 rounded-full blur-3xl"></div>
           <div className="absolute top-1/2 left-0 w-20 h-20 bg-[#FF6B2C] rounded-2xl flex items-center justify-center text-white shadow-2xl -rotate-12">
             <Gift size={40} />
           </div>
@@ -67,7 +67,7 @@ const AuthHeroSection: React.FC = () => {
       </div>
 
       {/* Decorative Circles */}
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#FF6B2C]/5 rounded-full blur-3xl"></div>
+      <div className="pointer-events-none absolute -top-20 -right-20 w-80 h-80 bg-[#FF6B2C]/5 rounded-full blur-3xl"></div>
     </div>
   );
 };

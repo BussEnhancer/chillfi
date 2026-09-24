@@ -1,6 +1,7 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/orders/widgets/cancel_order_widgets.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,7 +35,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
     if (!mounted) return;
     setState(() => _cancelling = false);
     if (err != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err), backgroundColor: Colors.red));
+      AppErrorDialog.show(context, message: err, title: "Couldn't cancel order");
     } else {
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order cancelled'), backgroundColor: Colors.green));

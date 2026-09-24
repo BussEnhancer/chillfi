@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { apiGet } from '../utils/api'
 import MaintenancePage from '../pages/Maintenance/index'
+import { ErrorDialogHost } from '../components/feedback/ErrorDialog'
 
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 import AdminRoute from '../components/auth/AdminRoute'
@@ -71,6 +72,8 @@ function App() {
   }
 
   return (
+    <>
+    <ErrorDialogHost />
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -123,6 +126,7 @@ function App() {
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </>
   )
 }
 

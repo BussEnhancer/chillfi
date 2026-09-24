@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'api_service.dart';
@@ -77,13 +78,13 @@ class AuthService {
       FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91$phone',
         verificationCompleted: verificationCompleted ?? (_) {},
-        verificationFailed: (e) => onFailed(e.message ?? 'Verification failed'),
+        verificationFailed: (e) => onFailed(firebaseFriendly(e.code)),
         codeSent: codeSent,
         codeAutoRetrievalTimeout: (_) {},
         timeout: const Duration(seconds: 60),
       );
     } catch (e) {
-      onFailed(e.toString());
+      onFailed("We couldn't send the OTP right now. Please try again.");
     }
   }
 
@@ -118,10 +119,10 @@ class AuthService {
           ? 'Incorrect OTP. Please try again.'
           : e.code == 'session-expired'
           ? 'OTP expired. Please request a new one.'
-          : e.message ?? 'Verification failed';
+          : firebaseFriendly(e.code);
       return AuthResult(success: false, message: msg);
     } on DioException catch (e) {
-      return AuthResult(success: false, message: e.response?.data['message'] ?? 'Verification failed');
+      return AuthResult(success: false, message: AppError.fromDio(e, fallback: 'Verification failed. Please try again.'));
     }
   }
 
@@ -170,4 +171,26 @@ class AuthService {
   }
 
   Future<bool> isLoggedIn() => _api.isLoggedIn();
+}
+
+/// Maps Firebase Auth error codes to customer-friendly text (never raw Firebase messages).
+String firebaseFriendly(String code) {
+  switch (code) {
+    case 'invalid-phone-number':
+      return 'Please enter a valid 10-digit mobile number.';
+    case 'too-many-requests':
+    case 'quota-exceeded':
+      return 'Too many attempts. Please wait a while and try again.';
+    case 'network-request-failed':
+      return AppError.noInternet;
+    case 'invalid-verification-code':
+      return 'Incorrect OTP. Please try again.';
+    case 'session-expired':
+    case 'code-expired':
+      return 'OTP expired. Please request a new one.';
+    case 'user-disabled':
+      return 'This account has been disabled. Please contact support.';
+    default:
+      return "We couldn't verify your number right now. Please try again.";
+  }
 }
