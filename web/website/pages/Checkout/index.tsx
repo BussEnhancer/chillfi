@@ -57,6 +57,7 @@ const CheckoutPage: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAddr, setNewAddr] = useState({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: '' });
   const [savingAddr, setSavingAddr] = useState(false);
+  const [addrError, setAddrError] = useState('');
 
   const [cartSummary, setCartSummary] = useState<{ delivery_fee: number; tax_amount: number } | null>(null);
   const [summaryFailed, setSummaryFailed] = useState(false);
@@ -158,7 +159,12 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handleSaveAddress = async () => {
-    if (!newAddr.name || !newAddr.phone || !newAddr.line1 || !newAddr.city || !newAddr.state || !newAddr.pincode) return;
+    if (!newAddr.name || !newAddr.phone || !newAddr.line1 || !newAddr.city || !newAddr.state || !newAddr.pincode) {
+      setAddrError('Please fill in name, mobile number, address, city, state and pincode.'); return;
+    }
+    if (!/^[6-9]\d{9}$/.test(newAddr.phone.trim())) { setAddrError('Please enter a valid 10-digit mobile number.'); return; }
+    if (!/^[1-9]\d{5}$/.test(newAddr.pincode.trim())) { setAddrError('Please enter a valid 6-digit pincode.'); return; }
+    setAddrError('');
     setSavingAddr(true);
     try {
       const res = await apiPost<{ success: boolean; data: { address: Address } }>('/addresses', newAddr);
@@ -167,7 +173,9 @@ const CheckoutPage: React.FC = () => {
       setSelectedAddressId(created.id);
       setShowAddForm(false);
       setNewAddr({ label: 'Home', name: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: '' });
-    } catch {}
+    } catch (e) {
+      setAddrError(friendlyError(e, "We couldn't save this address. Please try again."));
+    }
     setSavingAddr(false);
   };
 
@@ -263,6 +271,7 @@ const CheckoutPage: React.FC = () => {
                       />
                     ))}
                   </div>
+                  {addrError && <p className="text-xs font-bold text-red-500 mb-3">{addrError}</p>}
                   <div className="flex gap-3">
                     <button
                       onClick={handleSaveAddress}
