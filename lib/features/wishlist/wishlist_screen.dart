@@ -182,7 +182,7 @@ class _WishlistCard extends StatelessWidget {
 
                   // Stock status
                   Text(
-                    item.inStock ? 'In Stock' : 'Out of Stock',
+                    item.unavailable ? 'No longer available' : item.inStock ? 'In Stock' : 'Out of Stock',
                     style: GoogleFonts.poppins(fontSize: 11.sp, color: item.inStock ? Colors.green : Colors.red, fontWeight: FontWeight.w500),
                   ),
                   SizedBox(height: 10.h),

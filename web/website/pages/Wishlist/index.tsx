@@ -77,10 +77,11 @@ const WishlistPage: React.FC = () => {
   };
 
   const handleMoveAllToCart = () => {
-    items.filter(i => i.status !== 'Out of Stock').forEach(item => handleMoveToCart(item));
+    items.filter(i => stockLabel(i) === 'In Stock' || stockLabel(i) === 'Low Stock').forEach(item => handleMoveToCart(item));
   };
 
-  const stockLabel = (item: ApiWishlistItem): 'In Stock' | 'Low Stock' | 'Out of Stock' => {
+  const stockLabel = (item: ApiWishlistItem): 'In Stock' | 'Low Stock' | 'Out of Stock' | 'No longer available' => {
+    if (item.status === 'Inactive') return 'No longer available';
     if (item.status === 'Out of Stock' || item.stock === 0) return 'Out of Stock';
     if (item.stock <= 5) return 'Low Stock';
     return 'In Stock';
@@ -159,7 +160,7 @@ const WishlistPage: React.FC = () => {
                       <div className="flex flex-col gap-2 shrink-0">
                         <button
                           onClick={() => handleMoveToCart(item)}
-                          disabled={item.stock === 0 || item.status === 'Out of Stock'}
+                          disabled={stockLabel(item) === 'Out of Stock' || stockLabel(item) === 'No longer available'}
                           className="flex items-center gap-2 bg-[#FF6B2C] text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-[#E05520] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <ShoppingBag size={14} />

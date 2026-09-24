@@ -2017,6 +2017,15 @@
    "root_cause": "Required serviceable===true",
    "fix": "Disable whenever cod===false; reason-specific badge",
    "retest": "Probe verified"
+  },
+  {
+   "id": "WDEF-28",
+   "title": "Wishlist showed deactivated products as In Stock with Add to Cart",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Status ignored",
+   "fix": "'No longer available' + disabled",
+   "retest": "Screenshot"
   }
  ],
  "blockers": []

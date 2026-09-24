@@ -1417,11 +1417,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open deleted product id",
      "expected": "\"Product not found\" state",
-     "actual": "No in-app path to a deleted product id; state changed to AppErrorState with retry (code)",
-     "status": "NOT TESTED",
-     "evidence": "product_details_screen.dart",
-     "defect": "",
-     "retest": ""
+     "actual": "Deactivated product from wishlist → 'Product unavailable / no longer available' (no misleading connection text, no retry); wishlist shows 'No longer available' without Add to Cart",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_product_unavailable.png, app_wishlist_unavailable.png",
+     "defect": "ADEF-52",
+     "retest": "Retested"
     }
    ]
   },
@@ -3539,6 +3539,24 @@
    "root_cause": "Inside scroll view",
    "fix": "Pinned above footer",
    "retest": "Visible without scroll"
+  },
+  {
+   "id": "ADEF-51",
+   "title": "Cart API accepted negative/zero/fractional/huge quantities — negative line lowered order total and increased stock (pay ₹1,000 for a ₹5,000 item)",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "No quantity validation in cart add/update or order pre-check",
+   "fix": "Integer ≥1 and ≤ stock in add/update; order refuses non-positive quantities",
+   "retest": "API probe: -3/0/1.5/abc/100000 rejected; local DB has no bad rows (prod check pending owner approval)"
+  },
+  {
+   "id": "ADEF-52",
+   "title": "Deactivated products still opened and could be added to cart from wishlist/old links; wishlist said 'In Stock'; product error blamed the connection; repeated identical search showed stale results",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "GET /products/:id and cart/add ignored Inactive; client didn't distinguish 404",
+   "fix": "404 'no longer available', cart refuses Inactive, app/web unavailable states, search always refetches",
+   "retest": "Emulator + website verified"
   }
  ],
  "blockers": [

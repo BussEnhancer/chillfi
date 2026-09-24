@@ -134,9 +134,10 @@ class AppErrorDialog {
 /// Inline error/empty state for screens whose data failed to load (instead of an endless spinner).
 class AppErrorState extends StatelessWidget {
   final String? message;
+  final String? title;
   final bool offline;
   final VoidCallback? onRetry;
-  const AppErrorState({super.key, this.message, this.offline = true, this.onRetry});
+  const AppErrorState({super.key, this.message, this.title, this.offline = true, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +153,7 @@ class AppErrorState extends StatelessWidget {
             child: Icon(offline ? Icons.wifi_off_rounded : Icons.error_outline_rounded, color: const Color(0xFFFF6B2C), size: 32.sp),
           ),
           SizedBox(height: 14.h),
-          Text(offline ? "Can't load right now" : 'Something went wrong',
+          Text(title ?? (offline ? "Can't load right now" : 'Something went wrong'),
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
           SizedBox(height: 6.h),

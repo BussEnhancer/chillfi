@@ -56,6 +56,10 @@ const createOrder = async (req, res) => {
 
   // Fast pre-check (not authoritative — re-checked under lock inside the transaction below)
   for (const item of items.rows) {
+    // Defence in depth: a non-positive quantity would lower the total and *increase* stock.
+    if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+      return res.status(400).json({ success: false, message: `Please update the quantity of "${item.name}" in your cart.` });
+    }
     if (item.status === 'Inactive' || item.status === 'Out of Stock') {
       return res.status(400).json({ success: false, message: `"${item.name}" is no longer available. Please remove it from your cart.` });
     }

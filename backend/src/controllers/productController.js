@@ -96,6 +96,10 @@ const getProduct = async (req, res) => {
   `, [id]);
 
   if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
+  // Deactivated products stay in past orders but can't be opened/bought from old links, wishlists or notifications.
+  if (result.rows[0].status === 'Inactive') {
+    return res.status(404).json({ success: false, message: 'This product is no longer available.' });
+  }
   res.json({ success: true, data: { product: result.rows[0] } });
 };
 

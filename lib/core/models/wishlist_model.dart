@@ -6,6 +6,7 @@ class WishlistItemModel {
   final double? oldPrice;
   final double? rating;
   final int stock;
+  final String? status;
   final String? image;
 
   WishlistItemModel({
@@ -16,6 +17,7 @@ class WishlistItemModel {
     this.oldPrice,
     this.rating,
     this.stock = 0,
+    this.status,
     this.image,
   });
 
@@ -27,10 +29,13 @@ class WishlistItemModel {
         oldPrice: j['old_price'] != null ? double.tryParse(j['old_price'].toString()) : null,
         rating: j['rating'] != null ? double.tryParse(j['rating'].toString()) : null,
         stock: j['stock'] ?? 0,
+        status: j['status']?.toString(),
         image: j['image'],
       );
 
-  bool get inStock => stock > 0;
+  /// Deactivated by the store — can't be opened or bought any more.
+  bool get unavailable => status == 'Inactive';
+  bool get inStock => !unavailable && stock > 0 && status != 'Out of Stock';
 
   int get discountPct =>
       oldPrice != null && oldPrice! > price ? ((oldPrice! - price) / oldPrice! * 100).round() : 0;

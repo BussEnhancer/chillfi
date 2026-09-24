@@ -107,11 +107,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           final product = pp.selectedProduct;
           if (product == null) {
             return Center(
-              child: AppErrorState(
-                offline: false,
-                message: "This product couldn't be loaded. It may no longer be available, or your connection may be down.",
-                onRetry: widget.productId == null ? null : () => pp.loadProduct(widget.productId!),
-              ),
+              child: pp.detailGone
+                  ? AppErrorState(
+                      offline: false,
+                      title: 'Product unavailable',
+                      message: 'This product is no longer available. It may have been discontinued.',
+                    )
+                  : AppErrorState(
+                      offline: pp.detailError == AppError.noInternet,
+                      message: pp.detailError ?? "This product couldn't be loaded. Please try again.",
+                      onRetry: widget.productId == null ? null : () => pp.loadProduct(widget.productId!),
+                    ),
             );
           }
           final savings = product.oldPrice != null ? (product.oldPrice! - product.price) : 0.0;

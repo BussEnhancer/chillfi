@@ -1,3 +1,5 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../services/product_service.dart';
@@ -44,7 +46,6 @@ class ProductProvider extends ChangeNotifier {
   List<String> _suggestions = [];
   List<String> _trendingSearches = [];
   LoadState _searchState = LoadState.idle;
-  String _lastQuery = '';
 
   // Categories
   List<CategoryModel> _categories = [];
@@ -122,19 +123,30 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set when the product failed to load: [detailGone] = removed/deactivated (404), else [detailError] is a friendly reason.
+  bool detailGone = false;
+  String? detailError;
+
   Future<void> loadProduct(String id) async {
     _detailState = LoadState.loading;
+    detailGone = false;
+    detailError = null;
     notifyListeners();
-    _selectedProduct = await _service.getProduct(id);
-    _detailState = _selectedProduct != null ? LoadState.loaded : LoadState.error;
+    try {
+      _selectedProduct = await _service.getProduct(id);
+      _detailState = LoadState.loaded;
+    } catch (e) {
+      _selectedProduct = null;
+      _detailState = LoadState.error;
+      detailGone = e is DioException && e.response?.statusCode == 404;
+      detailError = AppError.message(e, fallback: "This product couldn't be loaded. Please try again.");
+    }
     notifyListeners();
-    // Log recently viewed
-    _service.logRecentlyViewed(id);
+    if (_selectedProduct != null) _service.logRecentlyViewed(id);
   }
 
   Future<void> searchProducts(String query) async {
-    if (query == _lastQuery && _searchResults.isNotEmpty) return;
-    _lastQuery = query;
+    // Always re-fetch: prices/availability may have changed since the last identical search.
     _searchState = LoadState.loading;
     notifyListeners();
 
@@ -175,7 +187,6 @@ class ProductProvider extends ChangeNotifier {
   void clearSearch() {
     _searchResults = [];
     _suggestions = [];
-    _lastQuery = '';
     _searchState = LoadState.idle;
     notifyListeners();
   }

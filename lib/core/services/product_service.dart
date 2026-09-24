@@ -36,11 +36,10 @@ class ProductService {
     );
   }
 
-  Future<ProductModel?> getProduct(String id) async {
-    try {
-      final res = await _api.get('/products/$id');
-      return ProductModel.fromJson(res.data['data']['product']);
-    } catch (_) { return null; }
+  /// Throws [DioException] on failure so callers can tell "gone" (404) from "offline".
+  Future<ProductModel> getProduct(String id) async {
+    final res = await _api.get('/products/$id');
+    return ProductModel.fromJson(res.data['data']['product']);
   }
 
   Future<List<ProductModel>> getTrending({int limit = 10}) =>
