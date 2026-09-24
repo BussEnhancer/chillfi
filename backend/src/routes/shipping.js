@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const crypto = require('crypto');
 const { getSetting, setSetting } = require('../utils/settings');
-const { normalizeShipment } = require('../utils/delhivery');
+const rateLimit = require('express-rate-limit');
+const { normalizeShipment, pincodeServiceability } = require('../utils/delhivery');
 const { applyCourierUpdate } = require('../services/shipmentService');
 
 const safeEqual = (a, b) => {
@@ -58,6 +59,15 @@ router.post('/delhivery/webhook', async (req, res) => {
   }
   setSetting('DELHIVERY_WEBHOOK_LAST_RECEIVED', new Date().toISOString()).catch(() => {});
   res.json({ success: true, results });
+});
+
+// GET /api/shipping/pincode/:pin — public serviceability check used by checkout (app + website).
+// Own limiter because /api/shipping/* is excluded from the global limiter (webhook traffic).
+const pinLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'Too many pincode checks. Please wait a minute and try again.' } });
+router.get('/pincode/:pin', pinLimiter, async (req, res) => {
+  const r = await pincodeServiceability(req.params.pin);
+  res.json({ success: true, data: r });
 });
 
 module.exports = router;

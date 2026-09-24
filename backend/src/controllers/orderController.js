@@ -1,3 +1,4 @@
+const { pincodeServiceability } = require('../utils/delhivery');
 const pool = require('../db/pool');
 const { getShippingFee } = require('../utils/shipping');
 const { getGstAmount } = require('../utils/tax');
@@ -27,6 +28,15 @@ const createOrder = async (req, res) => {
   // Verify address belongs to user
   const addr = await pool.query('SELECT id, pincode FROM addresses WHERE id = $1 AND user_id = $2', [address_id, req.user.id]);
   if (!addr.rows.length) return res.status(400).json({ success: false, message: 'Invalid address' });
+
+  // Delivery serviceability (only block when Delhivery definitively says no; unknown never blocks).
+  const svc = await pincodeServiceability(addr.rows[0].pincode);
+  if (svc.serviceable === false) {
+    return res.status(400).json({ success: false, message: `Sorry, we can't deliver to pincode ${addr.rows[0].pincode} yet. Please choose another address.` });
+  }
+  if (String(payment_method).toUpperCase() === 'COD' && svc.serviceable === true && svc.cod === false) {
+    return res.status(400).json({ success: false, message: 'Pay on Delivery isn\'t available for this pincode. Please pay online.' });
+  }
 
   // Get cart items
   const cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1', [req.user.id]);

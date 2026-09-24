@@ -118,6 +118,28 @@ const checkPincode = async (pincode) => {
   };
 };
 
+// Cached serviceability for checkout. Returns { serviceable: true|false|null, cod } —
+// null means "unknown" (Delhivery not configured / API error): callers must NOT block on null.
+const _pinCache = new Map();
+const PIN_TTL_MS = 6 * 60 * 60 * 1000;
+const pincodeServiceability = async (pincode) => {
+  const pin = String(pincode || '').trim();
+  if (!/^[1-9]\d{5}$/.test(pin)) return { serviceable: false, cod: false, pincode: pin, reason: 'invalid' };
+  const hit = _pinCache.get(pin);
+  if (hit && Date.now() - hit.at < PIN_TTL_MS) return hit.value;
+  let value;
+  try {
+    if (!(await isConfigured())) return { serviceable: null, cod: null, pincode: pin };
+    const r = await checkPincode(pin);
+    value = { serviceable: r.serviceable, cod: r.serviceable ? !!r.cod : false, pincode: pin, city: r.city || null };
+  } catch (err) {
+    console.warn(`[delhivery] pincode check failed pin=${pin}: ${err.message}`);
+    return { serviceable: null, cod: null, pincode: pin };
+  }
+  _pinCache.set(pin, { at: Date.now(), value });
+  return value;
+};
+
 // ── Order creation / manifestation ──────────────────────────────────────────
 const formatOrderDate = (d) => {
   const dt = new Date(d || Date.now());
@@ -333,6 +355,7 @@ const testConnection = async (pincode = '110001') => {
 };
 
 module.exports = {
+  pincodeServiceability,
   DelhiveryError, getEnv, getConfig, isConfigured, configProblems,
   checkPincode, createShipment, findWaybillByOrderRef,
   trackShipment, trackWaybills, normalizeShipment, parseDlvTime,

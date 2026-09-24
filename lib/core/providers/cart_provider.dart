@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/cart_model.dart';
+import '../services/api_service.dart';
 import '../services/cart_service.dart';
 
 enum CartLoadState { idle, loading, loaded, error }
@@ -127,6 +128,7 @@ class CartProvider extends ChangeNotifier {
     addresses = await _addressService.getAddresses();
     if (selectedAddress == null && addresses.isNotEmpty) {
       selectedAddress = addresses.firstWhere((a) => a.isDefault, orElse: () => addresses.first);
+      checkServiceability();
     }
     addressState = CartLoadState.loaded;
     notifyListeners();
@@ -134,6 +136,29 @@ class CartProvider extends ChangeNotifier {
 
   void selectAddress(AddressModel address) {
     selectedAddress = address;
+    notifyListeners();
+    checkServiceability();
+  }
+
+  /// Delhivery serviceability of the selected address. null = unknown (never blocks checkout).
+  bool? pincodeServiceable;
+  bool? codAvailable;
+  Future<void> checkServiceability() async {
+    final pin = selectedAddress?.pincode;
+    pincodeServiceable = null;
+    codAvailable = null;
+    notifyListeners();
+    if (pin == null) return;
+    try {
+      final res = await ApiService().get('/shipping/pincode/$pin');
+      final d = res.data['data'] as Map?;
+      if (selectedAddress?.pincode != pin) return; // user switched address meanwhile
+      pincodeServiceable = d?['serviceable'] as bool?;
+      codAvailable = d?['cod'] as bool?;
+    } catch (_) {
+      pincodeServiceable = null;
+      codAvailable = null;
+    }
     notifyListeners();
   }
 

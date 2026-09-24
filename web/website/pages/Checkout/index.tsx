@@ -59,6 +59,10 @@ const CheckoutPage: React.FC = () => {
   const [savingAddr, setSavingAddr] = useState(false);
 
   const [cartSummary, setCartSummary] = useState<{ delivery_fee: number; tax_amount: number } | null>(null);
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [summaryRetry, setSummaryRetry] = useState(0);
+  // Delhivery serviceability of the selected address (null = unknown → never blocks)
+  const [svc, setSvc] = useState<{ serviceable: boolean | null; cod: boolean | null } | null>(null);
 
   const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price) * i.qty, 0);
   const deliveryFee = cartSummary?.delivery_fee ?? (cartTotal > 499 ? 0 : 49);
@@ -112,12 +116,26 @@ const CheckoutPage: React.FC = () => {
         const res = await apiGet<{ success: boolean; data: { summary: { delivery_fee: number; tax_amount: number } } }>(
           `/cart${pincode ? `?pincode=${pincode}` : ''}`
         );
-        if (cartSyncSeq.current === mySeq) setCartSummary(res.data.summary);
+        if (cartSyncSeq.current === mySeq) { setCartSummary(res.data.summary); setSummaryFailed(false); }
       } catch {
-        if (cartSyncSeq.current === mySeq) setCartSummary(null);
+        if (cartSyncSeq.current === mySeq) { setCartSummary(null); setSummaryFailed(true); }
       }
     });
-  }, [selectedAddressId, addresses, cart]);
+  }, [selectedAddressId, addresses, cart, summaryRetry]);
+
+  // Check whether Delhivery delivers to the selected pincode (and whether COD is offered there).
+  useEffect(() => {
+    const pin = addresses.find(a => a.id === selectedAddressId)?.pincode;
+    if (!pin) { setSvc(null); return; }
+    let live = true;
+    apiGet<{ data: { serviceable: boolean | null; cod: boolean | null } }>(`/shipping/pincode/${pin}`)
+      .then(r => { if (live) setSvc(r.data); })
+      .catch(() => { if (live) setSvc(null); });
+    return () => { live = false; };
+  }, [selectedAddressId, addresses]);
+  const notServiceable = svc?.serviceable === false;
+  const codUnavailable = svc?.serviceable === true && svc.cod === false;
+  useEffect(() => { if (codUnavailable && payment === 'COD') setPayment('UPI'); }, [codUnavailable]);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -297,6 +315,11 @@ const CheckoutPage: React.FC = () => {
                   ))}
                 </div>
               )}
+              {notServiceable && (
+                <p className="mt-4 text-sm font-bold text-red-500">
+                  Sorry, we can't deliver to pincode {addresses.find(a => a.id === selectedAddressId)?.pincode} yet. Please choose or add another address.
+                </p>
+              )}
             </section>
 
             {/* 2. Delivery Options */}
@@ -326,12 +349,17 @@ const CheckoutPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {PAYMENT_OPTIONS.map(opt => (
-                  <button key={opt.value} onClick={() => setPayment(opt.value)} className="text-left">
+                  <button
+                    key={opt.value}
+                    onClick={() => setPayment(opt.value)}
+                    disabled={opt.value === 'COD' && codUnavailable}
+                    className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <PaymentMethodCard
                       label={opt.label}
                       icon={opt.icon}
                       isSelected={payment === opt.value}
-                      badge={opt.badge}
+                      badge={opt.value === 'COD' && codUnavailable ? 'Not available for this pincode' : opt.badge}
                     />
                   </button>
                 ))}
@@ -433,12 +461,16 @@ const CheckoutPage: React.FC = () => {
               )}
 
               <button
-                onClick={handlePlaceOrder}
-                disabled={placingOrder || cart.length === 0 || !selectedAddressId || !cartSummary}
+                onClick={summaryFailed ? () => setSummaryRetry(n => n + 1) : handlePlaceOrder}
+                disabled={placingOrder || cart.length === 0 || !selectedAddressId || notServiceable || (!cartSummary && !summaryFailed)}
                 className="w-full bg-gradient-to-r from-[#FF6B2C] to-[#E05520] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 disabled:scale-100"
               >
                 {placingOrder ? (
                   <><Loader2 size={18} className="animate-spin" />Placing Order...</>
+                ) : notServiceable ? (
+                  <>Can't deliver to this pincode</>
+                ) : summaryFailed ? (
+                  <>Couldn't calculate total — tap to retry</>
                 ) : !cartSummary ? (
                   <><Loader2 size={18} className="animate-spin" />Calculating total...</>
                 ) : (

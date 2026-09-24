@@ -43,7 +43,7 @@ const ShippingPolicyPage: React.FC = () => {
 
             <div className="mt-10">
               <PrivacySection title="1. Delivery Coverage">
-                <p>We currently ship to most serviceable pincodes across India through our logistics partners (including Delhivery and Shiprocket). Serviceability for your exact pincode is checked automatically at checkout — if we can't deliver to your address, you'll see this before placing the order.</p>
+                <p>We currently ship to most serviceable pincodes across India through our logistics partner Delhivery. Serviceability for your exact pincode is checked automatically at checkout — if we can't deliver to your address, you'll see this before placing the order.</p>
               </PrivacySection>
 
               <PrivacySection title="2. Processing Time">

@@ -34,6 +34,7 @@ const notifs = async () => (await cust.get('/profile/notifications?limit=100')).
 
 // TEST_PREPAID=1: accounts without COD enabled (e.g. a fresh Delhivery staging account) —
 // place every order as prepaid and pay it via the dev-mode test payment (no real money).
+// The dev payment only exists when the backend runs with NODE_ENV=development AND PAYMENT_DEV_AUTOPAY=true.
 const placeOrder = async (method = 'COD') => {
   if (process.env.TEST_PREPAID && method === 'COD') {
     const o = await placeOrderRaw('PhonePe');
@@ -218,10 +219,12 @@ const placeOrderRaw = async (method) => {
     const badId = badAddr.data?.data?.id || badAddr.data?.data?.address?.id;
     if (badId) {
       await cust.delete('/cart/clear'); await cust.post('/cart/add', { product_id: process.env.PRODUCT_ID, quantity: 1 });
-      const bo = (await cust.post('/orders', { address_id: badId, payment_method: 'COD', notes: 'DLV-TEST bad pincode' })).data?.data?.order;
-      const bs = await waitFor(async () => { const q = await getOrder(bo.id); return q?.shipping_status === 'failed' ? q : null; });
-      check('non-serviceable pincode → failed with reason, order kept', !!bs && /serviceable/i.test(bs.shipment_error || ''), JSON.stringify(bs && bs.shipment_error));
-      await cust.post(`/orders/${bo.id}/cancel`, { reason: 'DLV-TEST cleanup' });
+      // Since the checkout serviceability check, an undeliverable pincode is refused BEFORE an order exists.
+      const br = await cust.post('/orders', { address_id: badId, payment_method: 'COD', notes: 'DLV-TEST bad pincode' });
+      check('non-serviceable pincode → order refused up-front (no paid/undeliverable order)', br.status === 400 && /can't deliver/i.test(br.data?.message || ''), JSON.stringify(br.data));
+      const svc = await cust.get('/shipping/pincode/999999');
+      check('serviceability endpoint reports 999999 not serviceable', svc.data?.data?.serviceable === false, JSON.stringify(svc.data));
+      await cust.delete(`/addresses/${badId}`); // don't pile up test addresses
     } else console.log('  (skipped bad-pincode case: address create failed)', JSON.stringify(badAddr.data));
 
     // polling fallback: change status in simulator WITHOUT webhook, then sync

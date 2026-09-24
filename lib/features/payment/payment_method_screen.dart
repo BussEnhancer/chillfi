@@ -71,6 +71,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(builder: (context, cart, _) {
+      if (cart.codAvailable == false && _selected == 'COD') {
+        // COD isn't offered for this pincode → default to online payment
+        WidgetsBinding.instance.addPostFrameCallback((_) { if (mounted) setState(() => _selected = 'PhonePe'); });
+      }
       final s = cart.summary;
       return Scaffold(
         backgroundColor: const Color(0xFFF5F5F5),
@@ -93,13 +97,16 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   Text('Select Payment Method', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
                   SizedBox(height: 12.h),
 
-                  _PaymentOption(
-                    value: 'COD',
-                    selected: _selected,
-                    icon: Icons.money_rounded,
-                    title: 'Cash on Delivery',
-                    subtitle: 'Pay when your order arrives',
-                    onTap: () => setState(() => _selected = 'COD'),
+                  Opacity(
+                    opacity: cart.codAvailable == false ? 0.45 : 1,
+                    child: _PaymentOption(
+                      value: 'COD',
+                      selected: _selected,
+                      icon: Icons.money_rounded,
+                      title: 'Cash on Delivery',
+                      subtitle: cart.codAvailable == false ? 'Not available for this pincode' : 'Pay when your order arrives',
+                      onTap: cart.codAvailable == false ? () {} : () => setState(() => _selected = 'COD'),
+                    ),
                   ),
                   SizedBox(height: 10.h),
                   _PaymentOption(

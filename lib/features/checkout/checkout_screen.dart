@@ -276,7 +276,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     width: double.infinity,
                     height: 54.h,
                     child: ElevatedButton(
-                      onPressed: cart.selectedAddress == null
+                      onPressed: cart.selectedAddress == null || cart.pincodeServiceable == false
                           ? null
                           : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodScreen())),
                       style: ElevatedButton.styleFrom(
@@ -286,7 +286,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                       ),
                       child: Text(
-                        cart.selectedAddress == null ? 'Select Delivery Address' : 'Proceed to Payment',
+                        cart.selectedAddress == null
+                            ? 'Select Delivery Address'
+                            : cart.pincodeServiceable == false
+                                ? "Can't deliver to this pincode"
+                                : 'Proceed to Payment',
                         style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),

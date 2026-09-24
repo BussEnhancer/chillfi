@@ -3494,6 +3494,15 @@
    "root_cause": "",
    "fix": "Buttons wired; card only when paid online; 5–7 days",
    "retest": "Code"
+  },
+  {
+   "id": "ADEF-46",
+   "title": "App checkout accepted undeliverable pincodes; COD offered where unavailable",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "No serviceability check",
+   "fix": "Provider checkServiceability; Proceed blocked; COD disabled + auto-switch to PhonePe",
+   "retest": "PASS: 999999 blocked, 110001 ok"
   }
  ],
  "blockers": [

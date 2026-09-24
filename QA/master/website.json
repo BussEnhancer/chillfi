@@ -277,9 +277,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of / at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -417,9 +417,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of /products at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -473,9 +473,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of /search at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -613,9 +613,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of /product/:id at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -705,9 +705,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of /categories, /offers at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -889,9 +889,9 @@
      "pre": "Logged in as DLV-TEST customer; item in cart",
      "steps": "Automated audit of /cart at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -933,11 +933,11 @@
      "pre": "Logged in as DLV-TEST customer; item in cart",
      "steps": "Address with non-serviceable pincode",
      "expected": "Customer told before paying (per Shipping Policy)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "999999 → 'Sorry, we can't deliver…' + button disabled; 110001 enabled; API refuses order; COD disabled where Delhivery has no COD (policy promise now true)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/web09_unserviceable.png",
+     "defect": "WDEF-20",
+     "retest": "Retested"
     },
     {
      "id": "WEB-09-04",
@@ -1017,11 +1017,11 @@
      "pre": "Logged in as DLV-TEST customer; item in cart",
      "steps": "/cart fails",
      "expected": "Error message instead of endless \"Calculating\"",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Summary failure → 'Couldn't calculate total — tap to retry' (was endless spinner)",
+     "status": "PASS",
+     "evidence": "Checkout",
+     "defect": "WDEF-20",
+     "retest": "Code"
     },
     {
      "id": "WEB-09-11",
@@ -1029,9 +1029,9 @@
      "pre": "Logged in as DLV-TEST customer; item in cart",
      "steps": "Automated audit of /checkout at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1097,9 +1097,9 @@
      "pre": "Logged in as DLV-TEST customer",
      "steps": "Automated audit of /order-success, /order-failed at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1189,9 +1189,9 @@
      "pre": "Logged in as DLV-TEST customer",
      "steps": "Automated audit of /account at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1281,9 +1281,9 @@
      "pre": "Logged in as DLV-TEST customer",
      "steps": "Automated audit of /account/orders at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1385,9 +1385,9 @@
      "pre": "Logged in as DLV-TEST customer; order with AWB",
      "steps": "Automated audit of /account/orders/:id/track at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1477,9 +1477,9 @@
      "pre": "Logged in as DLV-TEST customer",
      "steps": "Automated audit of account sub-pages at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1581,9 +1581,9 @@
      "pre": "Guest (logged out)",
      "steps": "Automated audit of static pages at 320–430, 600–1100, 1280–1920 px + visual check at 375/768",
      "expected": "No horizontal scroll, no clipped/overlapping controls, readable text, usable touch targets at every width",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Post-change regression: 510/510 page×viewport (320–1920 + intermediates) no overflow/JS errors; tap audit 2733 elements 0 blocked",
+     "status": "PASS",
+     "evidence": "qa-tools/results/responsive-1790277067419.json",
      "defect": "",
      "retest": ""
     }
@@ -1945,6 +1945,15 @@
    "root_cause": "Client-side page filter; hardcoded dash",
    "fix": "Server search param; real delivered/expected dates; removed/renamed",
    "retest": "PASS"
+  },
+  {
+   "id": "WDEF-20",
+   "title": "Shipping Policy promised pincode serviceability check at checkout — none existed (orders to undeliverable pincodes accepted, COD offered where unavailable); summary failure = endless spinner; policy named unused 'Shiprocket'",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Missing feature",
+   "fix": "GET /api/shipping/pincode/:pin (cached, rate-limited, Delhivery); web + app checkout block/disable COD; createOrder guard (only definitive 'no' blocks); retry state; policy text",
+   "retest": "PASS web+API+app"
   }
  ],
  "blockers": []
