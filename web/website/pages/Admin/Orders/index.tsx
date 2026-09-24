@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Search, Eye, ChevronLeft, ChevronRight, Download, X, Check, MapPin, Loader2, Truck, Navigation, RefreshCw, AlertTriangle } from 'lucide-react';
 import { apiGet, apiPut, apiPost } from '../../../utils/api';
+import { useAdminRole } from '../../../utils/useAdminRole';
 import { Order } from '../../../context/StoreContext';
 
 const statusStyle: Record<string, string> = {
@@ -168,6 +169,9 @@ const OrderDetailModal: React.FC<{
 }> = ({ order, onClose, onStatusChange, onShip, onTrack }) => {
   const [status, setStatus] = useState(order.status);
   const [saving, setSaving] = useState(false);
+  const { isSupportStaff } = useAdminRole();
+  // Support staff can view/track but not change orders; Delivered/Cancelled are final (server enforces too).
+  const canEditStatus = !isSupportStaff && !['Cancelled', 'Delivered'].includes(order.status);
   const [shipping, setShipping] = useState(false);
 
   const steps = ['Processing', 'Shipped', 'Delivered'];
@@ -255,7 +259,7 @@ const OrderDetailModal: React.FC<{
                   {order.payment !== 'COD' && order.paymentStatus !== 'Paid' ? 'Waiting for payment before shipping' : 'No shipment created yet'}
                 </p>
                 {/* 'creating' stays clickable: the backend refuses while a claim is fresh and reclaims a stale one */}
-                {order.status === 'Processing' && (order.payment === 'COD' || order.paymentStatus === 'Paid') && (
+                {!isSupportStaff && order.status === 'Processing' && (order.payment === 'COD' || order.paymentStatus === 'Paid') && (
                   <button
                     onClick={handleShip}
                     disabled={shipping}
@@ -301,7 +305,7 @@ const OrderDetailModal: React.FC<{
             </div>
           </div>
 
-          <div className="border border-[#ECECEC] rounded-2xl p-4">
+          {canEditStatus ? <div className="border border-[#ECECEC] rounded-2xl p-4">
             <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-3">Update Order Status</p>
             <div className="flex gap-2 flex-wrap">
               {allStatuses.map(s => (
@@ -310,18 +314,22 @@ const OrderDetailModal: React.FC<{
                 >{s}</button>
               ))}
             </div>
-          </div>
+          </div> : (
+            <p className="text-xs font-bold text-gray-400">
+              {isSupportStaff ? 'Only admins can change order status.' : `This order is ${order.status.toLowerCase()} — its status is final. Use Refunds for returns/refunds.`}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-3 px-6 py-4 border-t border-[#F8F7FC] shrink-0">
           <button onClick={onClose} disabled={saving} className="flex-1 border-2 border-[#ECECEC] text-gray-600 py-2.5 rounded-xl font-black text-sm">Cancel</button>
-          <button
+          {canEditStatus && <button
             onClick={handleSave}
             disabled={saving || status === order.status}
             className="flex-1 bg-[#FF6B2C] text-white py-2.5 rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {saving ? <><Loader2 size={14} className="animate-spin" />Saving...</> : 'Save Changes'}
-          </button>
+          </button>}
         </div>
       </div>
     </div>
