@@ -59,7 +59,7 @@ class CustomBottomNavBar extends StatelessWidget {
             nextScreen = const CategoriesScreen();
             break;
           case 2:
-            nextScreen = const MyOrdersScreen();
+            nextScreen = const MyOrdersScreen(asTab: true);
             break;
           case 3:
             nextScreen = const WishlistScreen();
@@ -71,13 +71,16 @@ class CustomBottomNavBar extends StatelessWidget {
             return;
         }
 
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, anim1, anim2) => nextScreen,
-            transitionDuration: Duration.zero,
-          ),
+        // Keep Home at the base of the stack: every other tab sits on top of it, so Back from a tab
+        // returns Home (instead of exiting the app or popping to a blank screen).
+        final navigator = Navigator.of(context);
+        navigator.pushAndRemoveUntil(
+          PageRouteBuilder(pageBuilder: (_, _, _) => const HomeDashboardScreen(), transitionDuration: Duration.zero),
+          (_) => false,
         );
+        if (index != 0) {
+          navigator.push(PageRouteBuilder(pageBuilder: (_, _, _) => nextScreen, transitionDuration: Duration.zero));
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

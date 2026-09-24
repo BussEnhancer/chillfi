@@ -67,10 +67,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Request Refund / Return', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+              Text(order.status == 'Cancelled' ? 'Request Refund' : 'Request Refund / Return', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
               SizedBox(height: 16.h),
               Row(
-                children: ['Refund', 'Return', 'Exchange'].map((t) {
+                children: (order.status == 'Cancelled' ? ['Refund'] : ['Refund', 'Return', 'Exchange']).map((t) {
                   final selected = type == t;
                   return Expanded(
                     child: Padding(
@@ -304,7 +304,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                     ],
 
                     // Refund / Return request
-                    if (order.status == 'Delivered' || order.status == 'Cancelled') ...[
+                    // Cancelled orders only need a refund when money was actually taken online.
+                    if (order.status == 'Delivered' ||
+                        (order.status == 'Cancelled' && (order.paymentStatus == 'Paid' || order.refundRequest != null))) ...[
                       SizedBox(height: 20.h),
                       if (order.refundRequest != null && order.refundRequest!.status != 'Rejected')
                         Container(
@@ -334,7 +336,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                               side: BorderSide(color: AppColors.secondaryPurple.withValues(alpha: 0.4)),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                             ),
-                            child: Text('Request Refund / Return', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.secondaryPurple)),
+                            child: Text(order.status == 'Cancelled' ? 'Request Refund' : 'Request Refund / Return', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.secondaryPurple)),
                           ),
                         ),
                     ],

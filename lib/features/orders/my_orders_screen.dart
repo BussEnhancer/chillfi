@@ -1,3 +1,4 @@
+import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -8,7 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class MyOrdersScreen extends StatefulWidget {
-  const MyOrdersScreen({super.key});
+  /// true when opened from the bottom navigation (shows the nav bar like the other tabs)
+  final bool asTab;
+  const MyOrdersScreen({super.key, this.asTab = false});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -56,7 +59,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.maybePop(context),
           icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
         ),
         title: Column(
@@ -112,6 +115,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
           ),
         );
       }),
+      bottomNavigationBar: widget.asTab ? const CustomBottomNavBar(selectedIndex: 2) : null,
     );
   }
 }

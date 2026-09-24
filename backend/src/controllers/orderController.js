@@ -261,10 +261,18 @@ const requestRefund = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid request type' });
   }
 
-  const order = await pool.query('SELECT id, status, total FROM orders WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+  const order = await pool.query('SELECT id, status, total, payment_status FROM orders WHERE id = $1 AND user_id = $2', [id, req.user.id]);
   if (!order.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
   if (!['Delivered', 'Cancelled'].includes(order.rows[0].status)) {
     return res.status(400).json({ success: false, message: 'Refund/return can only be requested for delivered or cancelled orders' });
+  }
+  if (order.rows[0].status === 'Cancelled') {
+    if (order.rows[0].payment_status !== 'Paid') {
+      return res.status(400).json({ success: false, message: 'Nothing was charged for this order, so no refund is needed.' });
+    }
+    if (type !== 'Refund') {
+      return res.status(400).json({ success: false, message: 'Cancelled orders can only be refunded.' });
+    }
   }
 
   const existing = await pool.query(
@@ -281,6 +289,18 @@ const requestRefund = async (req, res) => {
     [id, req.user.id, type, reason.trim(), order.rows[0].total]
   );
   res.status(201).json({ success: true, message: 'Request submitted', data: result.rows[0] });
+};
+
+// A cancelled order that was already paid online must be refunded — open the refund request automatically
+// (idempotent) so it shows up in Admin → Refunds instead of relying on the customer to ask.
+const openAutoRefund = async (db, order, reason) => {
+  if (order.payment_status !== 'Paid' || order.payment_method === 'COD') return;
+  await db.query(
+    `INSERT INTO refund_requests (order_id, user_id, type, reason, refund_amount)
+     SELECT $1, $2, 'Refund', $3, $4
+     WHERE NOT EXISTS (SELECT 1 FROM refund_requests WHERE order_id = $1 AND status IN ('Requested','Approved','Refunded'))`,
+    [order.id, order.user_id, reason, order.total]
+  );
 };
 
 // POST /api/orders/:id/cancel
@@ -328,6 +348,7 @@ const cancelOrder = async (req, res) => {
     for (const item of items.rows) {
       await client.query('UPDATE products SET stock = stock + $1 WHERE id = $2', [item.quantity, item.product_id]);
     }
+    await openAutoRefund(client, result.rows[0], `Order cancelled by customer${reason ? `: ${reason}` : ''}`);
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
@@ -410,6 +431,11 @@ const adminUpdateStatus = async (req, res) => {
   if (!current.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
   const before = current.rows[0];
 
+  // Terminal states cannot be reopened (returns/refunds go through Admin → Refunds).
+  if (status !== before.status && ['Cancelled', 'Delivered'].includes(before.status)) {
+    return res.status(400).json({ success: false, message: `A ${before.status.toLowerCase()} order can't be changed to ${status}.` });
+  }
+
   if (status === 'Cancelled' && before.status !== 'Cancelled') {
     try {
       await shipments.cancelShipmentForOrder(before, { by: 'admin' });
@@ -426,6 +452,15 @@ const adminUpdateStatus = async (req, res) => {
     WHERE id = $3 RETURNING *
   `, [status, tracking_id || null, id]);
   const order = result.rows[0];
+
+  if (status === 'Cancelled' && before.status !== 'Cancelled') {
+    // Put the stock back and open a refund for prepaid orders (same as a customer cancellation).
+    const items = await pool.query('SELECT product_id, quantity FROM order_items WHERE order_id = $1', [id]);
+    for (const item of items.rows) {
+      await pool.query('UPDATE products SET stock = stock + $1 WHERE id = $2', [item.quantity, item.product_id]);
+    }
+    await openAutoRefund(pool, before, 'Order cancelled by store');
+  }
 
   if (status !== before.status) {
     console.log(`[order] admin ${req.user.id} set ${order.order_number} ${before.status} → ${status}`);

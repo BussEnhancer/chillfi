@@ -1949,9 +1949,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open Orders tab",
      "expected": "Orders newest first with status pill, items, total, date",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Newest first with status, items, total, date",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_orders.png",
      "defect": "",
      "retest": ""
     },
@@ -1961,9 +1961,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap each tab",
      "expected": "Filtered correctly",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Processing/Delivered/Cancelled filter correctly; Shipped empty → 'No orders yet'",
+     "status": "PASS",
+     "evidence": "adbui dumps",
      "defect": "",
      "retest": ""
     },
@@ -1973,9 +1973,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap card",
      "expected": "Opens Order Details",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Card opens Order Details",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1985,11 +1985,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open via bottom nav, press back",
      "expected": "Never leaves a blank screen",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Back arrow and system Back return Home (was: blank screen / app exit)",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "ADEF-32",
+     "retest": "Retested"
     },
     {
      "id": "APP-25-05",
@@ -1997,11 +1997,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open via bottom nav",
      "expected": "Bottom nav visible like other tabs",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Bottom nav visible on Orders tab",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-32",
+     "retest": "Retested"
     },
     {
      "id": "APP-25-06",
@@ -2009,9 +2009,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Pull; new user",
      "expected": "Refreshes; \"No orders yet\"",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Empty tab shows 'No orders yet'",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     }
@@ -2029,9 +2029,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open an order",
      "expected": "Number, status, payment, date, AWB, shipment label, items, totals",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Number, status, payment + status, date, AWB, shipment stage, items, totals",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_order_details.png",
      "defect": "",
      "retest": ""
     },
@@ -2041,9 +2041,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Order with AWB",
      "expected": "Opens tracking timeline",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Track Order → Delhivery staging scans (Manifested, Kirtinagar_PC)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_tracking.png",
      "defect": "",
      "retest": ""
     },
@@ -2053,9 +2053,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open Processing order",
      "expected": "Cancel button shown; not for Shipped/Delivered",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Cancel shown for Processing; not for Delivered/Cancelled",
+     "status": "PASS",
+     "evidence": "adbui dumps",
      "defect": "",
      "retest": ""
     },
@@ -2065,11 +2065,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Delivered/Cancelled order",
      "expected": "Sheet validates reason; POST succeeds; status pill shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Refund sheet (Refund only for cancelled; submit disabled until reason); POST ok → 'Refund Requested'; unpaid cancelled orders have no refund option (app+API)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_refund_status.png",
+     "defect": "ADEF-33",
+     "retest": "Retested"
     },
     {
      "id": "APP-26-05",
@@ -2077,9 +2077,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Status changes while app backgrounded",
      "expected": "Screen shows new status on return",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Refresh-on-resume implemented and verified in Delhivery phase",
+     "status": "PASS",
+     "evidence": "order_details_screen.dart",
      "defect": "",
      "retest": ""
     },
@@ -2089,9 +2089,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Invalid order id / network error",
      "expected": "Error message (not endless spinner)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Offline: shows cached order data, no endless spinner",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_details_offline.png",
      "defect": "",
      "retest": ""
     }
@@ -2109,9 +2109,9 @@
      "pre": "Processing order",
      "steps": "Open",
      "expected": "Shows THIS order's id/date/amount",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Shows this order's id, date, amount, item",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_cancel.png",
      "defect": "",
      "retest": ""
     },
@@ -2121,9 +2121,9 @@
      "pre": "Processing order",
      "steps": "Submit without choosing",
      "expected": "A reason is always sent (default selection matches state)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Default reason pre-selected and sent",
+     "status": "PASS",
+     "evidence": "cancel_order_screen.dart ReasonRadioList",
      "defect": "",
      "retest": ""
     },
@@ -2133,11 +2133,11 @@
      "pre": "Processing order",
      "steps": "Choose reason, confirm",
      "expected": "Order Cancelled; Delhivery shipment cancelled; stock restored",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "CF7218488191 Cancelled; Delhivery staging shipment cancelled; stock 422→423; paid orders now auto-open a refund",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_cancel_done.png + API",
+     "defect": "ADEF-33",
+     "retest": "Retested"
     },
     {
      "id": "APP-27-04",
@@ -2145,11 +2145,11 @@
      "pre": "Processing order",
      "steps": "Tap each",
      "expected": "Navigate somewhere useful (not dead)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Support → Help & Support (was dead)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-34",
+     "retest": "Retested"
     }
    ]
   },
@@ -2165,9 +2165,9 @@
      "pre": "Order with AWB",
      "steps": "Open",
      "expected": "Delhivery branding, AWB (copyable), status",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delhivery header, AWB copy to clipboard, status; title no longer truncated",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_awb_copy.png",
      "defect": "",
      "retest": ""
     },
@@ -2177,9 +2177,9 @@
      "pre": "Order with AWB",
      "steps": "Order with scans",
      "expected": "Real Delhivery scans with location/time",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Real scans with location/time",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_track_delivered.png",
      "defect": "",
      "retest": ""
     },
@@ -2189,9 +2189,9 @@
      "pre": "Order with AWB",
      "steps": "Fresh shipment",
      "expected": "Honest \"Order placed\" row, no invented dates",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Orders without AWB show no tracking/fake dates",
+     "status": "PASS",
+     "evidence": "adbui dump CF4381183615",
      "defect": "",
      "retest": ""
     },
@@ -2201,9 +2201,9 @@
      "pre": "Order with AWB",
      "steps": "Tap Refresh",
      "expected": "Reloads tracking",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Refresh reloads",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2213,9 +2213,9 @@
      "pre": "Order with AWB",
      "steps": "Backend down",
      "expected": "Error + Retry",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Offline → friendly error + Try Again",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_tracking_offline.png",
      "defect": "",
      "retest": ""
     }
@@ -3368,6 +3368,33 @@
    "root_cause": "Cancellation notification fires for system cancels",
    "fix": "Suppress customer notification for payment-initiation auto-cancel",
    "retest": ""
+  },
+  {
+   "id": "ADEF-32",
+   "title": "Bottom nav replaced the whole stack: Orders back arrow → blank screen; system Back on any tab exits app; Orders tab had no bottom nav",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "pushReplacement for tabs",
+   "fix": "Home kept at base, tabs pushed on top; Orders asTab shows nav; maybePop",
+   "retest": "PASS APP-25-04/05"
+  },
+  {
+   "id": "ADEF-33",
+   "title": "Cancelling a PAID order (customer or admin) created no refund; admin cancel didn't restore stock; admin could reopen Cancelled/Delivered orders; refund/return offered for unpaid cancelled orders",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "Missing money/stock handling on cancel",
+   "fix": "openAutoRefund on paid cancellations; admin cancel restores stock; terminal-state guard; refund rules in app + API",
+   "retest": "PASS: CF6508596040 → Refund Requested ₹1178.82"
+  },
+  {
+   "id": "ADEF-34",
+   "title": "Cancel screen Support button dead; tracking title truncated",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "No handler",
+   "fix": "Support → Help & Support; title 'Track Order'",
+   "retest": "PASS"
   }
  ],
  "blockers": [

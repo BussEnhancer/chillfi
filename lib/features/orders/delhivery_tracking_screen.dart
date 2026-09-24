@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/services/api_service.dart';
 import 'package:chillfi/features/orders/widgets/tracking_widgets.dart';
@@ -110,10 +111,11 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
       if (body['success'] == true && body['data'] != null) {
         setState(() { _data = _TrackingData.fromJson(body['data'] as Map<String, dynamic>); });
       } else {
-        setState(() { _error = body['message']?.toString() ?? 'Failed to load tracking'; });
+        setState(() { _error = AppError.message(body['message']?.toString(), fallback: "We couldn't load tracking right now. Please try again."); });
       }
     } catch (e) {
-      setState(() { _error = 'Could not fetch tracking data'; });
+      if (!mounted) return;
+      setState(() { _error = AppError.message(e, fallback: "We couldn't load tracking right now. Please try again."); });
     } finally {
       setState(() { _loading = false; });
     }
@@ -157,7 +159,7 @@ class _DelhiveryTrackingTimelineScreenState extends State<DelhiveryTrackingTimel
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Tracking Timeline",
+              "Track Order",
               style: GoogleFonts.poppins(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w700,

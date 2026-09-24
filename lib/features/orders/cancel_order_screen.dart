@@ -1,3 +1,4 @@
+import 'package:chillfi/features/profile/help_support_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/orders/widgets/cancel_order_widgets.dart';
@@ -85,19 +86,17 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
           ],
         ),
         actions: [
-          Row(
-            children: [
-              Icon(Icons.headset_mic_outlined, color: AppColors.secondaryPurple, size: 18.sp),
-              SizedBox(width: 6.w),
-              Text(
-                "Support",
-                style: GoogleFonts.poppins(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.secondaryPurple,
-                ),
+          TextButton.icon(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+            icon: Icon(Icons.headset_mic_outlined, color: AppColors.secondaryPurple, size: 18.sp),
+            label: Text(
+              "Support",
+              style: GoogleFonts.poppins(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.secondaryPurple,
               ),
-            ],
+            ),
           ),
           SizedBox(width: 20.w),
         ],
