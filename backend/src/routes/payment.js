@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const { authenticate } = require('../middleware/auth');
-const { initiatePayment, verifyPayment, confirmCOD, webhook, paymentCallback, devSuccess } = require('../controllers/paymentController');
+const { initiatePayment, verifyPayment, confirmCOD, webhook, paymentCallback, devSuccess, DEV_AUTOPAY } = require('../controllers/paymentController');
 
 router.post('/webhook', webhook);
 router.get('/callback', paymentCallback);
-if (process.env.NODE_ENV !== 'production') {
+if (DEV_AUTOPAY) {
   router.get('/dev-success', devSuccess);
 }
 router.use(authenticate);

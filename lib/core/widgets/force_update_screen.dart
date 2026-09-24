@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,9 +42,16 @@ class ForceUpdateScreen extends StatelessWidget {
                   height: 56.h,
                   child: ElevatedButton(
                     onPressed: () async {
-                      const url = 'https://play.google.com/store/apps/details?id=com.chillfi.app';
-                      final uri = Uri.parse(url);
-                      if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      if (Platform.isIOS) {
+                        // No App Store id is configured in the project yet — guide the user instead of a dead link.
+                        AppErrorDialog.show(context, title: 'Update ChillFi', message: 'Please open the App Store and update ChillFi to continue.');
+                        return;
+                      }
+                      final uri = Uri.parse('https://play.google.com/store/apps/details?id=com.ecom.chillfi');
+                      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) => false);
+                      if (!ok && context.mounted) {
+                        AppErrorDialog.show(context, title: "Couldn't open the store", message: 'Please update ChillFi from the Google Play Store / App Store.');
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.secondaryPurple,

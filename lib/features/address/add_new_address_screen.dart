@@ -1,3 +1,5 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/core/utils/address_validation.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -60,13 +62,12 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
   }
 
   Future<void> _handleSave() async {
-    if (_nameC.text.trim().isEmpty ||
-        _phoneC.text.trim().isEmpty ||
-        _line1C.text.trim().isEmpty ||
-        _cityC.text.trim().isEmpty ||
-        _stateC.text.trim().isEmpty ||
-        _pinC.text.trim().isEmpty) {
-      setState(() => _error = 'Please fill all required fields');
+    final invalid = validateAddressFields(
+      name: _nameC.text, phone: _phoneC.text, line1: _line1C.text,
+      city: _cityC.text, state: _stateC.text, pincode: _pinC.text,
+    );
+    if (invalid != null) {
+      setState(() => _error = invalid);
       return;
     }
     setState(() { _saving = true; _error = null; });
@@ -89,7 +90,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
     if (err == null) {
       Navigator.pop(context, true);
     } else {
-      setState(() => _error = err);
+      setState(() => _error = AppError.message(err, fallback: "We couldn't save this address. Please try again."));
     }
   }
 
@@ -193,6 +194,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                           isRequired: true,
                           controller: _phoneC,
                           keyboardType: TextInputType.phone,
+                          inputFormatters: phoneInputFormatters,
                         ),
                       ),
                     ],
@@ -222,6 +224,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                         hint: "Enter 6 digit pincode",
                         isRequired: true,
                         controller: _pinC,
+                        inputFormatters: pincodeInputFormatters,
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 16.h),

@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/core/utils/address_validation.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -40,6 +43,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final stateC = TextEditingController(text: existing?.state);
     final pinC = TextEditingController(text: existing?.pincode);
     String label = existing?.label ?? 'Home';
+    String? formError;
+    bool saving = false;
 
     showModalBottomSheet(
       context: ctx,
@@ -74,7 +79,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 SizedBox(height: 16.h),
                 _field(nameC, 'Full Name'),
-                _field(phoneC, 'Phone Number', keyboardType: TextInputType.phone),
+                _field(phoneC, 'Mobile Number (10 digits)', keyboardType: TextInputType.phone, formatters: phoneInputFormatters),
                 _field(line1C, 'Address Line 1'),
                 _field(line2C, 'Address Line 2 (Optional)'),
                 Row(children: [
@@ -82,13 +87,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   SizedBox(width: 12.w),
                   Expanded(child: _field(stateC, 'State')),
                 ]),
-                _field(pinC, 'Pincode', keyboardType: TextInputType.number),
+                _field(pinC, 'Pincode (6 digits)', keyboardType: TextInputType.number, formatters: pincodeInputFormatters),
+                if (formError != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: Text(formError!, style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.red.shade600, fontWeight: FontWeight.w500)),
+                  ),
                 SizedBox(height: 8.h),
                 SizedBox(
                   width: double.infinity,
                   height: 52.h,
                   child: ElevatedButton(
-                    onPressed: () async {
+                    onPressed: saving ? null : () async {
+                      final invalid = validateAddressFields(
+                        name: nameC.text, phone: phoneC.text, line1: line1C.text,
+                        city: cityC.text, state: stateC.text, pincode: pinC.text,
+                      );
+                      if (invalid != null) {
+                        setS(() => formError = invalid);
+                        return;
+                      }
+                      setS(() { formError = null; saving = true; });
                       final cart = context.read<CartProvider>();
                       final body = {
                         'label': label,
@@ -101,14 +120,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         'pincode': pinC.text.trim(),
                       };
                       final err = await cart.saveAddress(body, existingId: existing?.id);
-                      if (err == null && ctx2.mounted) Navigator.pop(ctx2);
+                      if (!ctx2.mounted) return;
+                      if (err == null) {
+                        Navigator.pop(ctx2);
+                      } else {
+                        setS(() { saving = false; formError = AppError.message(err, fallback: "We couldn't save this address. Please try again."); });
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.secondaryPurple,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                     ),
-                    child: Text('Save Address', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+                    child: Text(saving ? 'Saving…' : 'Save Address', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700)),
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -120,12 +144,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Widget _field(TextEditingController c, String hint, {TextInputType? keyboardType}) {
+  Widget _field(TextEditingController c, String hint, {TextInputType? keyboardType, List<TextInputFormatter>? formatters}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: TextField(
         controller: c,
         keyboardType: keyboardType,
+        inputFormatters: formatters,
         style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.darkText),
         decoration: InputDecoration(
           hintText: hint,
@@ -175,7 +200,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           isSelected: cart.selectedAddress?.id == addr.id,
                           onSelect: () => cart.selectAddress(addr),
                           onEdit: () => _editAddress(addr),
-                          onDelete: () => cart.deleteAddress(addr.id),
+                          onDelete: () async {
+                            final ok = await showDialog<bool>(
+                              context: context,
+                              builder: (dctx) => AlertDialog(
+                                title: const Text('Delete address?'),
+                                content: Text('Remove the "${addr.label}" address for ${addr.name}?'),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(dctx, false), child: const Text('Cancel')),
+                                  TextButton(onPressed: () => Navigator.pop(dctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                                ],
+                              ),
+                            );
+                            if (ok == true) cart.deleteAddress(addr.id);
+                          },
                         )),
 
                   SizedBox(height: 20.h),

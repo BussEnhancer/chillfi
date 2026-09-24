@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -122,6 +123,7 @@ class CustomAddressField extends StatelessWidget {
   final Widget? suffix;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomAddressField({
     super.key,
@@ -131,6 +133,7 @@ class CustomAddressField extends StatelessWidget {
     this.suffix,
     this.controller,
     this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -176,6 +179,7 @@ class CustomAddressField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: GoogleFonts.poppins(

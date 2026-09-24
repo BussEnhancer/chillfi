@@ -1,6 +1,10 @@
 const crypto = require('crypto');
 const axios = require('axios');
 const pool = require('../db/pool');
+
+// Local-only payment simulation. Requires BOTH NODE_ENV=development AND PAYMENT_DEV_AUTOPAY=true, so a
+// missing/unknown NODE_ENV (e.g. a staging box) can never mark orders as paid without PhonePe confirming.
+const DEV_AUTOPAY = process.env.NODE_ENV === 'development' && process.env.PAYMENT_DEV_AUTOPAY === 'true';
 const { onOrderPaid } = require('../services/shipmentService');
 const phonepe = require('../utils/phonepe');
 
@@ -41,7 +45,7 @@ const initiatePayment = async (req, res) => {
   );
 
   // Development mode: return mock payment URL
-  if (process.env.NODE_ENV === 'development') {
+  if (DEV_AUTOPAY) {
     return res.json({
       success: true,
       data: {
@@ -102,7 +106,7 @@ const verifyPayment = async (req, res) => {
   }
 
   // Dev shortcut
-  if (process.env.NODE_ENV === 'development') {
+  if (DEV_AUTOPAY) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -239,7 +243,7 @@ const paymentCallback = async (req, res) => {
     const orderId = pmtRow.rows[0]?.order_id;
 
     // Dev shortcut
-    if (process.env.NODE_ENV !== 'production') {
+    if (DEV_AUTOPAY) {
       if (orderId) {
         await pool.query(`UPDATE payments SET status = 'SUCCESS' WHERE merchant_txn_id = $1`, [merchantTransactionId]);
         await pool.query(`UPDATE orders SET payment_status = 'Paid' WHERE id = $1`, [orderId]);
@@ -299,4 +303,5 @@ const devSuccess = async (req, res) => {
   res.send('<h2>✅ Dev Payment Success! Go back to the app.</h2>');
 };
 
-module.exports = { initiatePayment, verifyPayment, confirmCOD, webhook, paymentCallback, devSuccess };
+module.exports = {
+  DEV_AUTOPAY, initiatePayment, verifyPayment, confirmCOD, webhook, paymentCallback, devSuccess };

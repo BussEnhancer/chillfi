@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/services/api_service.dart';
@@ -44,9 +45,23 @@ class _PhonePePaymentScreenState extends State<PhonePePaymentScreen> with Widget
   }
 
   Future<void> _launchPayment() async {
-    final uri = Uri.parse(widget.paymentUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final uri = Uri.tryParse(widget.paymentUrl);
+    var opened = false;
+    if (uri != null) {
+      try {
+        // Launch directly: canLaunchUrl() is unreliable under Android 11+ package visibility.
+        opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {
+        opened = false;
+      }
+    }
+    if (!opened && mounted) {
+      AppErrorDialog.show(
+        context,
+        title: "Couldn't open PhonePe",
+        message: "We couldn't open the payment page. Please check your connection and try again.",
+        onRetry: _launchPayment,
+      );
     }
   }
 

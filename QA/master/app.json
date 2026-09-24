@@ -1689,9 +1689,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Saved addresses; tap selects",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Saved addresses listed; tap selects (radio)",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1701,11 +1701,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Save with empty/invalid phone/pincode",
      "expected": "Field errors shown; nothing saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Empty → 'Please enter the full name…'; phone 12345 → 'valid 10-digit mobile'; letters stripped, max 10/6 digits; backend rejects too",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_addr_empty.png + curl",
+     "defect": "ADEF-28",
+     "retest": "Retested"
     },
     {
      "id": "APP-21-03",
@@ -1713,9 +1713,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Valid address",
      "expected": "Saved and selected",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Valid address saved (+91 98765-43210 normalised to 9876543210)",
+     "status": "PASS",
+     "evidence": "curl /addresses",
      "defect": "",
      "retest": ""
     },
@@ -1725,9 +1725,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Edit, save",
      "expected": "Updated",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Invalid legacy address blocked on save; corrected to 9876500000 / 110002 and saved",
+     "status": "PASS",
+     "evidence": "curl /addresses",
      "defect": "",
      "retest": ""
     },
@@ -1737,11 +1737,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap delete",
      "expected": "Asks confirmation, then deletes",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Delete now asks 'Delete address?' (Cancel/Delete); previously deleted instantly",
+     "status": "PASS",
+     "evidence": "checkout_screen.dart",
+     "defect": "ADEF-28",
+     "retest": "Code fixed; runtime retest pending"
     },
     {
      "id": "APP-21-06",
@@ -1749,9 +1749,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Compare with cart",
      "expected": "Same totals as Cart (incl. coupon/GST)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Checkout/Payment totals equal cart (₹1,179 = ₹2,990 − ₹1,991 + ₹180 GST)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_payment.png",
      "defect": "",
      "retest": ""
     },
@@ -1761,9 +1761,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "With address selected",
      "expected": "Opens Payment",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Proceed to Payment opens Payment",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     }
@@ -1781,9 +1781,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "COD and PhonePe/UPI shown with totals",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "COD and PhonePe/UPI with totals",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_payment.png",
      "defect": "",
      "retest": ""
     },
@@ -1793,9 +1793,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Select COD, place",
      "expected": "Order created; OrderSuccess; Delhivery shipment attempted",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "COD order CF4381183615 created → Order Placed; Delhivery shipment attempted (staging: COD not serviceable → shipping_status failed)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_order_success_cod.png + API",
      "defect": "",
      "retest": ""
     },
@@ -1805,9 +1805,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Select PhonePe, Pay",
      "expected": "Order created; payment page opens; verification leads to success",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Order + payment URL flow works; real UAT verification needs PhonePe UAT credentials locally",
+     "status": "BLOCKED",
+     "evidence": "BLK-02",
      "defect": "",
      "retest": ""
     },
@@ -1817,9 +1817,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Force initiate failure",
      "expected": "Order cancelled, cart restored, message shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Initiate failure → dialog 'Couldn't place your order… cart restored', order Cancelled, cart restored (1)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_pay_init_fail.png",
      "defect": "",
      "retest": ""
     }
@@ -1837,9 +1837,9 @@
      "pre": "PhonePe order started",
      "steps": "Tap after test payment",
      "expected": "Verifies → OrderSuccess",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Needs real UAT payment (credentials)",
+     "status": "BLOCKED",
+     "evidence": "BLK-02",
      "defect": "",
      "retest": ""
     },
@@ -1849,9 +1849,9 @@
      "pre": "PhonePe order started",
      "steps": "Return to app",
      "expected": "Verification runs automatically",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Verification runs automatically on resume (observed on return from browser)",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1861,11 +1861,11 @@
      "pre": "PhonePe order started",
      "steps": "Tap",
      "expected": "Opens payment URL again",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Payment page now opens in browser (was silently not opening on Android 11+)",
+     "status": "PASS",
+     "evidence": "Chrome opened",
+     "defect": "ADEF-29",
+     "retest": "Retested"
     },
     {
      "id": "APP-23-04",
@@ -1873,9 +1873,9 @@
      "pre": "PhonePe order started",
      "steps": "Verification fails",
      "expected": "OrderFailed with reason; retry path works",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Needs UAT payment state (credentials)",
+     "status": "BLOCKED",
+     "evidence": "BLK-02",
      "defect": "",
      "retest": ""
     }
@@ -1893,9 +1893,9 @@
      "pre": "Order just placed",
      "steps": "After order",
      "expected": "Order number, total, payment, status correct",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Order number, ₹1179, COD, Processing",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_order_success_cod.png",
      "defect": "",
      "retest": ""
     },
@@ -1905,9 +1905,9 @@
      "pre": "Order just placed",
      "steps": "Tap",
      "expected": "Opens My Orders with the new order on top",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "View My Orders → new order on top; back → Home",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1929,9 +1929,9 @@
      "pre": "Order just placed",
      "steps": "After failed payment",
      "expected": "Reason shown; Try Again lets the user pay again for that order or re-order",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Needs failed UAT payment (credentials)",
+     "status": "BLOCKED",
+     "evidence": "BLK-02",
      "defect": "",
      "retest": ""
     }
@@ -3332,6 +3332,42 @@
    "root_cause": "Coupon rules only enforced in apply-coupon; client total trusted",
    "fix": "createOrder re-validates coupon (exists, expiry, min order, per-user use), clamps discount, rejects unavailable items; apply-coupon uses server cart value",
    "retest": "PASS: API bypass attempts rejected"
+  },
+  {
+   "id": "ADEF-28",
+   "title": "Addresses accepted invalid phone/pincode (e.g. 12345 / 11000) in app and API; no validation feedback; delete without confirmation",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "No field validation anywhere",
+   "fix": "Backend validateAddress (create/update, phone normalised); shared app validator + digit filters + inline error; delete confirmation",
+   "retest": "PASS APP-21-02/03/04"
+  },
+  {
+   "id": "ADEF-29",
+   "title": "PhonePe payment page never opened on Android 11+ (canLaunchUrl blocked by package visibility) while app claimed it did; Force-update 'Update' button same bug and pointed to wrong Play Store id (com.chillfi.app)",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "Missing <queries>; canLaunchUrl gate; wrong package id",
+   "fix": "Manifest <queries> for https/http/upi/market/tel/mailto; launch directly with error dialog + retry; store link → com.ecom.chillfi; iOS guidance",
+   "retest": "PASS: payment page opens"
+  },
+  {
+   "id": "ADEF-30",
+   "title": "SECURITY: payment 'dev shortcuts' mark orders Paid without PhonePe when NODE_ENV≠production (incl. unauthenticated /payment/callback and /dev-success) — any non-prod or misconfigured server gives free orders",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "NODE_ENV-based bypass",
+   "fix": "Single DEV_AUTOPAY flag requiring NODE_ENV=development AND PAYMENT_DEV_AUTOPAY=true; production verified NODE_ENV=production (safe)",
+   "retest": "Local verify now calls PhonePe; prod unaffected"
+  },
+  {
+   "id": "ADEF-31",
+   "title": "Auto-cancel after failed payment initiation sends 'Order cancelled' push for an order the customer never saw",
+   "severity": "Low",
+   "status": "Open",
+   "root_cause": "Cancellation notification fires for system cancels",
+   "fix": "Suppress customer notification for payment-initiation auto-cancel",
+   "retest": ""
   }
  ],
  "blockers": [
@@ -3341,6 +3377,13 @@
    "why": "OTP is delivered by SMS to a real phone; Claude cannot receive it. Blocks OTP success + post-login permission screens.",
    "manual_action": "Firebase Console → Authentication → Sign-in method → Phone → 'Phone numbers for testing' → add e.g. +91 9000000001 with code 123456 → tell Claude 'Done'",
    "resume": "APP-08-05, APP-10-02/04/05, APP-11-02/04, APP-12-*"
+  },
+  {
+   "id": "BLK-02",
+   "title": "PhonePe UAT verification locally",
+   "why": "Local backend has placeholder PhonePe credentials, so UAT payments can't be completed/verified locally (the old dev shortcut hid this)",
+   "manual_action": "Add your PhonePe UAT (sandbox) Merchant ID + Salt Key in LOCAL Admin → Settings → API Keys → Payment (env: UAT). Do not use production keys.",
+   "resume": "Resume APP-22-03, APP-23-01/04, APP-24-04"
   }
  ]
 }
