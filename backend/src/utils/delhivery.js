@@ -269,11 +269,14 @@ const requestPickup = async ({ date, time, count }) => {
     });
   } catch (err) {
     // Delhivery answers an already-open request with a 4xx body carrying pr_exist
-    if (err.status && err.status < 500 && /pr_exist|already/i.test(err.message)) return { ok: true, existing: true, message: err.message };
+    if (err.status && err.status < 500 && /pr_exist|already (exists|in progress)/i.test(err.message)) return { ok: true, existing: true, message: err.message };
     throw err;
   }
   if (data?.pickup_id && data?.success !== false) return { ok: true, existing: false, pickup_id: data.pickup_id, date: data.pickup_date || date, time: data.pickup_time || time };
   if (data?.pr_exist) return { ok: true, existing: true, pickup_id: data.pickup_id || null, message: data?.data?.message || data?.error?.message };
+  // Live staging also answers "Pickup request creation is already in progress for this client warehouse"
+  const text = JSON.stringify(data || {});
+  if (/already (exists|in progress)|pickup request .* already/i.test(text)) return { ok: true, existing: true, pickup_id: data?.pickup_id || null, message: text.slice(0, 200) };
   throw new DelhiveryError(`Pickup request failed: ${data?.error?.message || data?.pickup_location || data?.error || JSON.stringify(data).slice(0, 200)}`, { code: 'REJECTED' });
 };
 

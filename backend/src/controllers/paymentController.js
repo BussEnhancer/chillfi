@@ -146,12 +146,13 @@ const confirmCOD = async (req, res) => {
   const { order_id } = req.body;
   if (!order_id) return res.status(400).json({ success: false, message: 'order_id required' });
 
-  await pool.query(
-    `UPDATE orders SET payment_method = 'COD', payment_status = 'Pending', status = 'Processing' WHERE id = $1 AND user_id = $2`,
-    [order_id, req.user.id]
-  );
-
-  res.json({ success: true, message: 'COD order confirmed' });
+  // Confirmation only — never converts a prepaid/paid order to COD or revives a cancelled/shipped one.
+  const r = await pool.query('SELECT payment_method, status FROM orders WHERE id = $1 AND user_id = $2', [order_id, req.user.id]);
+  if (!r.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
+  if (r.rows[0].payment_method !== 'COD') {
+    return res.status(400).json({ success: false, message: 'This order was not placed as Cash on Delivery' });
+  }
+  res.json({ success: true, message: 'COD order confirmed', data: { status: r.rows[0].status } });
 };
 
 // POST /api/payment/webhook  (PhonePe server → server callback)

@@ -32,7 +32,18 @@ const getOrder = async (id) => (await cust.get(`/orders/${id}`)).data?.data?.ord
 const waitFor = async (fn, ms = 15000) => { const end = Date.now() + ms; while (Date.now() < end) { const v = await fn(); if (v) return v; await sleep(500); } return null; };
 const notifs = async () => (await cust.get('/profile/notifications?limit=100')).data?.data || [];
 
+// TEST_PREPAID=1: accounts without COD enabled (e.g. a fresh Delhivery staging account) —
+// place every order as prepaid and pay it via the dev-mode test payment (no real money).
 const placeOrder = async (method = 'COD') => {
+  if (process.env.TEST_PREPAID && method === 'COD') {
+    const o = await placeOrderRaw('PhonePe');
+    const init = await cust.post('/payment/initiate', { order_id: o.id, amount: o.total });
+    await cust.post('/payment/verify', { order_id: o.id, merchant_txn_id: init.data?.data?.merchant_txn_id });
+    return o;
+  }
+  return placeOrderRaw(method);
+};
+const placeOrderRaw = async (method) => {
   await cust.delete('/cart/clear');
   const add = await cust.post('/cart/add', { product_id: process.env.PRODUCT_ID, quantity: 1 });
   if (!add.data?.success) throw new Error(`cart add failed: ${JSON.stringify(add.data)}`);
@@ -49,7 +60,7 @@ const placeOrder = async (method = 'COD') => {
   // ── A. COD order → auto shipment ───────────────────────────────────────
   console.log('\n[A] COD order auto-ships');
   const o = await placeOrder('COD');
-  await cust.post('/payment/cod-confirm', { order_id: o.id });
+  if (!process.env.TEST_PREPAID) await cust.post('/payment/cod-confirm', { order_id: o.id });
   const shipped = await waitFor(async () => { const x = await getOrder(o.id); return x?.tracking_id ? x : null; });
   check('AWB assigned automatically', !!shipped?.tracking_id, JSON.stringify(shipped && { s: shipped.shipping_status, e: shipped.shipment_error }));
   if (!shipped) return summary();
@@ -179,6 +190,8 @@ const placeOrder = async (method = 'COD') => {
   const init = await cust.post('/payment/initiate', { order_id: p.id, amount: p.total });
   const v = await cust.post('/payment/verify', { order_id: p.id, merchant_txn_id: init.data?.data?.merchant_txn_id });
   check('test payment verified (dev mode, no real money)', v.data?.data?.status === 'SUCCESS', JSON.stringify(v.data));
+  const cc2 = await cust.post('/payment/cod-confirm', { order_id: p.id });
+  check('cod-confirm cannot downgrade a paid prepaid order', cc2.status === 400 && (await getOrder(p.id)).payment_status === 'Paid');
   const ps = await waitFor(async () => { const q = await getOrder(p.id); return q?.tracking_id ? q : null; });
   check('paid prepaid order auto-ships', !!ps?.tracking_id);
 
