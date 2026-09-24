@@ -34,6 +34,23 @@ class CartProvider extends ChangeNotifier {
 
   int get cartCount => items.fold(0, (sum, item) => sum + item.quantity);
 
+  /// Drops everything that belongs to the signed-in user (called on logout).
+  void reset() {
+    items = [];
+    summary = CartSummary();
+    cartState = CartLoadState.idle;
+    appliedCouponCode = null;
+    couponDiscount = 0;
+    couponMessage = null;
+    addresses = [];
+    selectedAddress = null;
+    addressState = CartLoadState.idle;
+    orders = [];
+    currentOrder = null;
+    orderState = CartLoadState.idle;
+    notifyListeners();
+  }
+
   Future<void> loadCart() async {
     cartState = CartLoadState.loading;
     notifyListeners();

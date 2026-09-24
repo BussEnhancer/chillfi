@@ -1864,6 +1864,24 @@
    "root_cause": "Mock design content",
    "fix": "Removed bank offers/tabs/premium; hero honest with working Shop Now; sidebar links to real listings; coupon wording fixed",
    "retest": "Screenshot qa-tools/results/web_offers_1440.png"
+  },
+  {
+   "id": "WDEF-11",
+   "title": "Website claims '24/7 support' in 9 places while contact hours are 9 AM–9 PM",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Copy updated",
+   "retest": "tsc OK"
+  },
+  {
+   "id": "WDEF-12",
+   "title": "Contact details inconsistent/placeholder: website +91 98765 43210 & '123 Green Park Society, Indiranagar, Bengaluru' vs app +91 90562 24993",
+   "severity": "High",
+   "status": "Open",
+   "root_cause": "Template content",
+   "fix": "Needs the real business phone/email/address from owner",
+   "retest": ""
   }
  ],
  "blockers": []

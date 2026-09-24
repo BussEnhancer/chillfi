@@ -8,7 +8,7 @@ const SupportHelpCard: React.FC = () => {
         <div className="flex-1 text-center md:text-left">
            <h2 className="text-2xl font-black text-[#111827] mb-2 uppercase tracking-tight">Still Need Help?</h2>
            <p className="text-sm font-bold text-gray-400 mb-8 leading-relaxed max-w-[400px] mx-auto md:mx-0">
-             Our support team is here for you 24/7. Reach out and we'll get back to you as soon as possible.
+             Our support team is here for you every day, 9 AM – 9 PM. Reach out and we'll get back to you as soon as possible.
            </p>
            <button className="bg-[#FF6B2C] text-white px-10 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mx-auto md:mx-0">
               Contact Support

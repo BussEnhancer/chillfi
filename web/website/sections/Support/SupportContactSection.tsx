@@ -16,7 +16,7 @@ const SupportContactSection: React.FC = () => {
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <SupportContactCard
                 icon={<MessageSquare size={24} />}
-                title="24/7 Live Support"
+                title="Live Support (9 AM – 9 PM)"
                 desc="Chat with our support team anytime"
                 buttonText="Chat Now"
               />

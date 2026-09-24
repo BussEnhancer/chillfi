@@ -290,7 +290,7 @@ class TrustIndicatorCard extends StatelessWidget {
         children: [
           _buildItem(Icons.verified_user_outlined, "100% Secure Payments", "Your data is protected"),
           _buildItem(Icons.lock_outline_rounded, "Secure Encryption", "256-bit SSL encryption"),
-          _buildItem(Icons.headset_mic_outlined, "24x7 Support", "We're here to help you"),
+          _buildItem(Icons.headset_mic_outlined, "Daily Support", "9 AM – 9 PM, every day"),
         ],
       ),
     );

@@ -2,6 +2,19 @@ const pool = require('../db/pool');
 const { getSetting } = require('./settings');
 const { sendPushToTokens } = require('./firebase');
 
+// Maps an order notification to the customer's per-stage toggle (Notification Settings in the app).
+// Cancellations and failed-delivery alerts are always sent: they need the customer's attention.
+const STAGE_PREF = {
+  manifested: 'orderProcessing', pickup_pending: 'orderProcessing', picked_up: 'orderProcessing',
+  in_transit: 'shippingUpdates', at_destination_hub: 'shippingUpdates', shipped: 'shippingUpdates',
+  out_for_delivery: 'outForDelivery', delivered: 'delivered',
+};
+const userPrefKeyFor = (data = {}, dedupeKey = '') => {
+  if (data.shipping_status && STAGE_PREF[data.shipping_status]) return STAGE_PREF[data.shipping_status];
+  if (/:placed$/.test(dedupeKey || '')) return 'orderConfirmation';
+  return null;
+};
+
 /**
  * Records an in-app notification and (if enabled) sends an FCM push.
  * dedupeKey makes this idempotent: a retried courier webhook for the same event
@@ -25,7 +38,10 @@ const notifyUser = async (userId, { title, body, type = 'order', data = {}, dedu
     let push = { attempted: false };
     const adminEnabled = storeSettingKey ? (await getSetting(storeSettingKey)) !== 'false' : true;
     const prefs = await pool.query('SELECT notification_preferences FROM users WHERE id = $1', [userId]);
-    const userEnabled = prefs.rows[0]?.notification_preferences?.orderUpdates !== false;
+    const userPrefs = prefs.rows[0]?.notification_preferences || {};
+    const prefKey = userPrefKeyFor(data, dedupeKey);
+    // orderUpdates is the legacy master switch; per-stage keys come from the app's Notification Settings.
+    const userEnabled = userPrefs.orderUpdates !== false && (!prefKey || userPrefs[prefKey] !== false);
 
     if (adminEnabled && userEnabled) {
       const tokens = (await pool.query('SELECT token FROM fcm_tokens WHERE user_id = $1', [userId])).rows.map((r) => r.token);

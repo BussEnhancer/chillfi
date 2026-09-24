@@ -214,7 +214,7 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                         right: 15.w,
                         child: const FeatureBadge(
                           icon: Icons.headset_mic_outlined,
-                          title: '24x7 Customer\nSupport',
+                          title: 'Daily Customer\nSupport',
                           iconColor: AppColors.secondaryPurple,
                         ),
                       ),
@@ -258,7 +258,7 @@ class _OnboardingScreenThreeState extends State<OnboardingScreenThree> with Tick
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        'Real-time tracking, secure payments and 24x7 support — we’ve got you covered.',
+                        'Real-time tracking, secure payments and daily customer support — we’ve got you covered.',
                         style: GoogleFonts.poppins(
                           fontSize: 14.sp,
                           color: AppColors.greyText,

@@ -1,3 +1,5 @@
+import 'package:chillfi/core/config.dart';
+import 'package:chillfi/features/profile/terms_and_conditions_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/profile/privacy_policy_screen.dart';
 import 'package:chillfi/features/profile/widgets/about_us_widgets.dart';
@@ -83,31 +85,24 @@ class AboutUsScreen extends StatelessWidget {
             SizedBox(height: 24.h),
             const JourneySection(),
             SizedBox(height: 32.h),
-            const StatisticsMetricRow(),
-            SizedBox(height: 32.h),
             CompanyLinksCard(
-              onCompanyInfo: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Company information page is coming soon.')),
-              ),
-              onPolicies: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Policies & Terms page is coming soon.')),
-              ),
-              onTerms: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Terms & Conditions page is coming soon.')),
-              ),
+              onTerms: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsAndConditionsScreen())),
               onPrivacy: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen())),
             ),
             SizedBox(height: 24.h),
             const ThankYouBanner(),
             SizedBox(height: 32.h),
             Center(
-              child: Text(
-                "Version 2.5.0",
+              child: FutureBuilder<String>(
+                future: AppConfig.installedVersion(),
+                builder: (context, snap) => Text(
+                snap.hasData ? "Version ${snap.data}" : "",
                 style: GoogleFonts.poppins(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
                   color: AppColors.greyText,
                 ),
+              ),
               ),
             ),
             SizedBox(height: 40.h),

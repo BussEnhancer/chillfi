@@ -137,7 +137,7 @@ const CartPage: React.FC = () => {
             { icon: <Truck size={24} />, title: 'Free Delivery', desc: 'On orders above ₹499' },
             { icon: <RotateCcw size={24} />, title: 'Easy Returns', desc: 'Within 7 days' },
             { icon: <ShieldCheck size={24} />, title: 'Secure Payments', desc: '100% secure payments' },
-            { icon: <Headphones size={24} />, title: '24/7 Support', desc: "We're here to help" },
+            { icon: <Headphones size={24} />, title: 'Daily Support', desc: "We're here to help" },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center text-center group cursor-default">
               <div className="w-14 h-14 bg-[#F8F7FC] rounded-2xl flex items-center justify-center text-[#FF6B2C] mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>

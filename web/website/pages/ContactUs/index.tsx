@@ -169,7 +169,7 @@ const ContactUsPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                    <ContactInfoCard
                      icon={<Headphones size={24} />}
-                     title="24/7 Support"
+                     title="Daily Support"
                      desc="We're always here"
                      detail="support@chillfi.com"
                    />

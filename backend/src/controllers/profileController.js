@@ -16,7 +16,21 @@ const getProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const { id: userId } = req.user;
-    const { name, email, avatar_url } = req.body;
+    const { avatar_url } = req.body;
+    const name = typeof req.body.name === 'string' ? req.body.name.trim() : req.body.name;
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : req.body.email;
+    if (name !== undefined && name !== null && name.length < 2) {
+      return res.status(400).json({ success: false, message: 'Please enter your full name (at least 2 characters).' });
+    }
+    if (email) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
+      }
+      const taken = await pool.query('SELECT 1 FROM users WHERE LOWER(email) = $1 AND id <> $2', [email, userId]);
+      if (taken.rows.length) {
+        return res.status(409).json({ success: false, message: 'This email is already used by another account.' });
+      }
+    }
     const result = await pool.query(
       `UPDATE users SET name=COALESCE($1,name), email=COALESCE($2,email),
        avatar_url=COALESCE($3,avatar_url), updated_at=NOW()

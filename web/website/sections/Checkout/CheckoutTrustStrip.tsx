@@ -19,7 +19,7 @@ const features = [
   },
   {
     icon: <Headphones size={28} />,
-    title: '24/7 Customer Support',
+    title: 'Daily Customer Support',
     desc: "We're here to help you"
   }
 ];

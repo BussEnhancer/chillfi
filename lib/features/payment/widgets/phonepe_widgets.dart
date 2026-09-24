@@ -430,7 +430,7 @@ class PhonePeTrustIndicators extends StatelessWidget {
         children: [
           _buildItem(Icons.verified_user_rounded, "100% Secure Payments", "PCI DSS Certified"),
           _buildItem(Icons.lock_rounded, "Bank Level Security", "256-bit SSL Encryption"),
-          _buildItem(Icons.headset_mic_rounded, "24x7 Support", "We're here to help you"),
+          _buildItem(Icons.headset_mic_rounded, "Daily Support", "9 AM – 9 PM, every day"),
         ],
       ),
     );

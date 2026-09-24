@@ -52,9 +52,21 @@ class _WishlistScreenState extends State<WishlistScreen> {
                     ),
                     if (wishlist.items.isNotEmpty)
                       TextButton(
-                        onPressed: () {
-                          for (final item in wishlist.items) {
-                            wishlist.removeItem(item.id);
+                        onPressed: () async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (dctx) => AlertDialog(
+                              title: const Text('Clear wishlist?'),
+                              content: Text('Remove all ${wishlist.items.length} saved items?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(dctx, false), child: const Text('Cancel')),
+                                TextButton(onPressed: () => Navigator.pop(dctx, true), child: const Text('Clear All', style: TextStyle(color: Colors.red))),
+                              ],
+                            ),
+                          );
+                          if (ok != true) return;
+                          for (final item in List.of(wishlist.items)) {
+                            await wishlist.removeItem(item.id);
                           }
                         },
                         child: Text('Clear All', style: GoogleFonts.poppins(fontSize: 13.sp, color: Colors.red.shade400, fontWeight: FontWeight.w600)),

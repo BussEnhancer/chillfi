@@ -44,7 +44,7 @@ const SupportHero: React.FC = () => {
               </div>
               {/* Badge */}
               <div className="absolute -top-4 -right-4 bg-amber-400 text-white px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg rotate-12">
-                 24/7 Support
+                 Daily Support
               </div>
            </div>
            {/* Decorative floating dots/shapes */}

@@ -51,6 +51,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _save() async {
+    final name = _nameC.text.trim();
+    final email = _emailC.text.trim();
+    String? invalid;
+    if (name.length < 2) invalid = 'Please enter your full name (at least 2 characters).';
+    if (email.isNotEmpty && !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$').hasMatch(email)) invalid = 'Please enter a valid email address.';
+    if (invalid != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(invalid), backgroundColor: Colors.red));
+      return;
+    }
     setState(() => _saving = true);
     final wp = context.read<WishlistProvider>();
     final ok = await wp.updateProfile(

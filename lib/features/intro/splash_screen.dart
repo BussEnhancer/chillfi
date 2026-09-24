@@ -43,9 +43,11 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
+    final installed = await AppConfig.installedVersion();
+    if (!mounted) return;
     if (config != null &&
         config.forceUpdateEnabled &&
-        RemoteConfigService.isBelowMinimum(AppConfig.appVersion, config.minAppVersion)) {
+        RemoteConfigService.isBelowMinimum(installed, config.minAppVersion)) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => ForceUpdateScreen(message: config.forceUpdateMessage)),

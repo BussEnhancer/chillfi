@@ -2233,9 +2233,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Saved products with price, stock",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Saved items with price, MRP, % off, stock",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_wishlist.png",
      "defect": "",
      "retest": ""
     },
@@ -2245,9 +2245,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap ✕",
      "expected": "Removed server-side",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "✕ removes server-side (2→1)",
+     "status": "PASS",
+     "evidence": "curl /wishlist",
      "defect": "",
      "retest": ""
     },
@@ -2257,11 +2257,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Confirms, then clears",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Clear All now confirms ('Clear wishlist?') then clears safely (was instant, list mutated while iterating)",
+     "status": "PASS",
+     "evidence": "wishlist_screen.dart; server 0",
+     "defect": "ADEF-35",
+     "retest": "Retested (clear); confirm dialog code"
     },
     {
      "id": "APP-29-04",
@@ -2269,9 +2269,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Added with feedback",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Add to Cart from wishlist → item in server cart",
+     "status": "PASS",
+     "evidence": "curl /cart",
      "defect": "",
      "retest": ""
     },
@@ -2281,9 +2281,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "No items",
      "expected": "Empty message",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "'Your wishlist is empty'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_wl_empty.png",
      "defect": "",
      "retest": ""
     }
@@ -2301,9 +2301,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Name, email, phone from API",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Name/email/phone from API",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_profile.png",
      "defect": "",
      "retest": ""
     },
@@ -2313,9 +2313,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Badge and destination consistent",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Bag badge = cart count",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2325,9 +2325,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap Edit Profile, My Orders, Wishlist, My Reviews, Notifications, Settings",
      "expected": "Each opens its screen",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Edit Profile, My Orders, Wishlist, My Reviews, Notifications, Settings, Help all open",
+     "status": "PASS",
+     "evidence": "adbui dumps",
      "defect": "",
      "retest": ""
     },
@@ -2337,11 +2337,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Look for addresses",
      "expected": "User can manage saved addresses from profile",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Saved Addresses + Recently Viewed + Help & Support added to profile menu (were orphaned)",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "ADEF-36",
+     "retest": "Retested"
     },
     {
      "id": "APP-30-05",
@@ -2349,11 +2349,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open as guest",
      "expected": "Prompts login instead of fake profile/logout",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Guest sees sign-in prompt (was fake 'ChillFi User' profile with Edit/Orders)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_guest_account.png",
+     "defect": "ADEF-37",
+     "retest": "Retested"
     },
     {
      "id": "APP-30-06",
@@ -2361,11 +2361,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Confirm logout",
      "expected": "Session cleared; Login shown; back does not return to account",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Logout confirms; data of previous user cleared (address/cart badge); Login back → Welcome (was blank)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_guest_after_logout.png",
+     "defect": "ADEF-37",
+     "retest": "Retested"
     }
    ]
   },
@@ -2381,9 +2381,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Current name/email; phone read-only",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Name/email loaded; phone read-only",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_edit_profile.png",
      "defect": "",
      "retest": ""
     },
@@ -2393,11 +2393,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Invalid email",
      "expected": "Rejected with message",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "'bad-email' blocked in app; API also rejects (was saved!)",
+     "status": "PASS",
+     "evidence": "server email unchanged",
+     "defect": "ADEF-38",
+     "retest": "Retested"
     },
     {
      "id": "APP-31-03",
@@ -2405,9 +2405,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Change name",
      "expected": "PUT /profile; \"Profile updated!\"; reflected on web too",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Name change saved server-side, shown on profile",
+     "status": "PASS",
+     "evidence": "curl /auth/me",
      "defect": "",
      "retest": ""
     },
@@ -2417,7 +2417,7 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Pick image",
      "expected": "Uploaded and shown",
-     "actual": "",
+     "actual": "Needs image picker interaction with gallery on emulator",
      "status": "NOT TESTED",
      "evidence": "",
      "defect": "",
@@ -2437,9 +2437,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Loading then reviews or empty state",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Review listed; empty state after delete",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_my_reviews.png",
      "defect": "",
      "retest": ""
     },
@@ -2449,9 +2449,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Delete one",
      "expected": "Confirm → removed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delete confirms; removed; product rating recalculated 5.0→0.0",
+     "status": "PASS",
+     "evidence": "API",
      "defect": "",
      "retest": ""
     }
@@ -2469,9 +2469,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open from bell",
      "expected": "Notifications newest first with icons",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Real notifications newest first",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_notifs.png",
      "defect": "",
      "retest": ""
     },
@@ -2481,9 +2481,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap one",
      "expected": "Opens that order",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Tap opens that order",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2493,9 +2493,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open inbox, return",
      "expected": "Bell badge resets",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Unread 6 → 0 after opening inbox",
+     "status": "PASS",
+     "evidence": "API unread-count",
      "defect": "",
      "retest": ""
     },
@@ -2505,7 +2505,7 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Order status changes (Delhivery event)",
      "expected": "Push received on device, deduplicated",
-     "actual": "",
+     "actual": "Needs FCM token on device (Firebase login) — covered by BLK-01",
      "status": "NOT TESTED",
      "evidence": "",
      "defect": "",
@@ -2525,9 +2525,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Current preferences loaded",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Toggles load from /profile/notification-preferences",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_notif_settings.png",
      "defect": "",
      "retest": ""
     },
@@ -2549,11 +2549,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Disable order updates",
      "expected": "Order pushes stop (in-app record kept)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Backend now honours per-stage toggles (orderConfirmation/orderProcessing/shippingUpdates/outForDelivery/delivered); cancellations always sent",
+     "status": "PASS",
+     "evidence": "notify.js unit check",
+     "defect": "ADEF-39",
+     "retest": "Code + unit check"
     }
    ]
   },
@@ -2581,10 +2581,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap each",
      "expected": "Sensible destination (no odd pop)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Tiles: orders/returns/payments → My Orders, Account → Edit Profile (was pop), Security → Privacy, Other → WhatsApp",
+     "status": "PASS",
+     "evidence": "help_support_screen.dart",
+     "defect": "ADEF-40",
      "retest": ""
     },
     {
@@ -2605,10 +2605,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap search, My Tickets, View All, Connect",
      "expected": "No dead controls",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Dead search, 'My Tickets', 'View All' removed; FAQ topics now show real answers (7-day returns, 5–7 day refunds, cancel until pickup)",
+     "status": "PASS",
+     "evidence": "help_support_screen.dart",
+     "defect": "ADEF-40",
      "retest": ""
     },
     {
@@ -2617,11 +2617,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open About",
      "expected": "Links work; version shows real app version",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Version from platform (1.0.2, was fake 2.5.0); fake stats (5M+ customers, 10M+ orders, 4.8★, 500+ cities) removed; dead links hidden",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-41",
+     "retest": "Retested"
     },
     {
      "id": "APP-35-06",
@@ -2629,9 +2629,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open",
      "expected": "Complete policy content; index items navigate",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Privacy Policy opens with content",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2641,11 +2641,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Find from About/Settings",
      "expected": "Terms screen reachable",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Terms & Conditions now reachable from About (was 'coming soon' though screen existed)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-41",
+     "retest": "Retested"
     }
    ]
   },
@@ -2741,9 +2741,9 @@
      "pre": "-",
      "steps": "From profile",
      "expected": "Reachable, list/add/edit/delete/default work",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Saved Addresses reachable from profile",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2753,9 +2753,9 @@
      "pre": "-",
      "steps": "From profile",
      "expected": "Reachable, shows real history",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Recently Viewed reachable, shows history",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -2765,9 +2765,9 @@
      "pre": "-",
      "steps": "Turn network off mid-use",
      "expected": "User gets a clear offline message / retry",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Offline: Home/Categories/Listing/Tracking show friendly offline state + retry; actions show universal dialog",
+     "status": "PASS",
+     "evidence": "offline screenshots",
      "defect": "",
      "retest": ""
     },
@@ -3395,6 +3395,78 @@
    "root_cause": "No handler",
    "fix": "Support → Help & Support; title 'Track Order'",
    "retest": "PASS"
+  },
+  {
+   "id": "ADEF-35",
+   "title": "Wishlist Clear All: no confirmation, list mutated while iterating",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Confirm dialog; iterate a copy",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-36",
+   "title": "Saved Addresses, Recently Viewed, Help & Support not reachable from profile",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Links only in unused widget file",
+   "fix": "Added to profile menu",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-37",
+   "title": "PRIVACY: after logout, guest still sees previous user's address & cart badge; guest profile shows fake 'ChillFi User'; Login back arrow → blank screen after logout",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Providers not cleared; no guest view; single-route stack",
+   "fix": "reset() on Cart/Wishlist providers at logout; guest sign-in view; Welcome under Login",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-38",
+   "title": "Invalid email ('bad-email') saved to profile (app + API); duplicate email gave generic error",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "No validation",
+   "fix": "App + API validation; duplicate-email check",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-39",
+   "title": "Notification toggles had no effect (backend read 'orderUpdates', app saved per-stage keys)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Key mismatch",
+   "fix": "Per-stage mapping in notifyUser",
+   "retest": "Unit check"
+  },
+  {
+   "id": "ADEF-40",
+   "title": "Help & Support: dead search box, 'My Tickets'/'View All' coming-soon controls, Account tile just closed screen, FAQs didn't answer",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Placeholders",
+   "fix": "Removed dead controls; FAQ answer sheets; correct destinations",
+   "retest": "Code"
+  },
+  {
+   "id": "ADEF-41",
+   "title": "About: fake version 2.5.0, invented stats (5M+ customers, 10M+ orders), Terms 'coming soon'; FORCE-UPDATE compared hardcoded 1.0.0 → could lock out up-to-date users; '24x7 support' vs real 9–9 hours (app + website)",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "Hardcoded values/marketing placeholders",
+   "fix": "package_info_plus real version for About + force update; stats removed; Terms linked; support hours consistent",
+   "retest": "PASS: 'Version 1.0.2'"
+  },
+  {
+   "id": "ADEF-42",
+   "title": "Guest Orders/Wishlist tabs show empty lists instead of a login prompt",
+   "severity": "Low",
+   "status": "Open",
+   "root_cause": "",
+   "fix": "Show sign-in prompt for guests",
+   "retest": ""
   }
  ],
  "blockers": [

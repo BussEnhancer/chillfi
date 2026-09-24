@@ -54,7 +54,7 @@ class QuickFeatureSection extends StatelessWidget {
       },
       {
         'icon': Icons.headset_mic_rounded,
-        'label': '24x7\nSupport',
+        'label': 'Daily\nSupport',
         'color': AppColors.secondaryPurple,
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
       },

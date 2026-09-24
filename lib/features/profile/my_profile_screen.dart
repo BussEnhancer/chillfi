@@ -1,3 +1,4 @@
+import 'package:chillfi/features/auth/welcome_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -9,6 +10,9 @@ import 'package:chillfi/features/profile/edit_profile_screen.dart';
 import 'package:chillfi/features/profile/my_reviews_screen.dart';
 import 'package:chillfi/features/profile/notification_settings_screen.dart';
 import 'package:chillfi/features/profile/settings_screen.dart';
+import 'package:chillfi/features/profile/help_support_screen.dart';
+import 'package:chillfi/features/address/saved_addresses_screen.dart';
+import 'package:chillfi/features/recently_viewed/recently_viewed_screen.dart';
 import 'package:chillfi/features/wishlist/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,6 +38,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   void _logout() async {
     final navigator = Navigator.of(context);
     final auth = context.read<AuthProvider>();
+    final cart = context.read<CartProvider>();
+    final wishlist = context.read<WishlistProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -54,12 +60,61 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
     if (confirmed != true) return;
     await auth.logout();
+    cart.reset();
+    wishlist.reset();
     if (!mounted) return;
-    navigator.pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+    // Welcome at the base, Login on top: Back from Login lands somewhere useful (never a blank screen).
+    navigator.pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const WelcomeScreen()), (r) => false);
+    navigator.push(MaterialPageRoute(builder: (_) => const LoginScreen()));
+  }
+
+  /// Guests get a sign-in prompt plus the pages that don't need an account (no fake profile / logout).
+  Widget _guestView(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(20.r),
+          children: [
+            SizedBox(height: 30.h),
+            Icon(Icons.account_circle_outlined, size: 80.sp, color: AppColors.secondaryPurple),
+            SizedBox(height: 12.h),
+            Text('Welcome to CHILLFI', textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+            SizedBox(height: 6.h),
+            Text('Log in to see your orders, wishlist, addresses and more.', textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
+            SizedBox(height: 24.h),
+            SizedBox(
+              height: 52.h,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondaryPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                ),
+                child: Text('Login / Sign Up', style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+              ),
+            ),
+            SizedBox(height: 24.h),
+            _Section(
+              title: 'More',
+              tiles: [
+                _ProfileTile(icon: Icons.headset_mic_outlined, label: 'Help & Support', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen()))),
+                _ProfileTile(icon: Icons.settings_outlined, label: 'Settings', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()))),
+              ],
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 4),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!context.watch<AuthProvider>().isAuthenticated) return _guestView(context);
     return Consumer<WishlistProvider>(builder: (context, wp, _) {
       final user = wp.profile ?? context.watch<AuthProvider>().user;
       final cartCount = context.watch<CartProvider>().cartCount;
@@ -168,6 +223,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     _ProfileTile(icon: Icons.receipt_long_outlined, label: 'My Orders', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen()))),
                     _ProfileTile(icon: Icons.favorite_border_rounded, label: 'Wishlist', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistScreen()))),
                     _ProfileTile(icon: Icons.star_border_rounded, label: 'My Reviews', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyReviewsScreen()))),
+                    _ProfileTile(icon: Icons.location_on_outlined, label: 'Saved Addresses', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedAddressesScreen()))),
+                    _ProfileTile(icon: Icons.history_rounded, label: 'Recently Viewed', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecentlyViewedScreen()))),
                   ],
                 ),
                 SizedBox(height: 12.h),
@@ -177,6 +234,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   tiles: [
                     _ProfileTile(icon: Icons.notifications_none_rounded, label: 'Notifications', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()))),
                     _ProfileTile(icon: Icons.settings_outlined, label: 'Settings', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()))),
+                    _ProfileTile(icon: Icons.headset_mic_outlined, label: 'Help & Support', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen()))),
                   ],
                 ),
                 SizedBox(height: 20.h),

@@ -1,3 +1,4 @@
+import 'package:chillfi/features/auth/welcome_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/features/auth/otp_verification_screen.dart';
@@ -91,7 +92,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              } else {
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WelcomeScreen()));
+                              }
+                            },
                             child: Container(
                               padding: EdgeInsets.all(10.r),
                               decoration: BoxDecoration(

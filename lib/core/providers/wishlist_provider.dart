@@ -54,6 +54,19 @@ class WishlistProvider extends ChangeNotifier {
   List<NotificationModel> notifications = [];
   int unreadNotificationCount = 0;
 
+  /// Drops everything that belongs to the signed-in user (called on logout).
+  void reset() {
+    items = [];
+    _wishlistedProductIds = {};
+    wishlistState = WishlistState.idle;
+    profile = null;
+    profileState = WishlistState.idle;
+    myReviews = [];
+    notifications = [];
+    unreadNotificationCount = 0;
+    notifyListeners();
+  }
+
   Future<void> loadProfile() async {
     profileState = WishlistState.loading;
     notifyListeners();

@@ -21,7 +21,7 @@ const AboutHero: React.FC = () => {
             </p>
             <p>
               Our mission is to create a trusted online shopping experience with hassle-free service,
-              secure payments and 24/7 support.
+              secure payments and friendly daily support.
             </p>
           </div>
 

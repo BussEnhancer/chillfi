@@ -158,7 +158,7 @@ class AboutFeaturesGrid extends StatelessWidget {
         _buildFeatureItem(Icons.verified_user_outlined, "Trusted Products", "100% genuine quality"),
         _buildFeatureItem(Icons.local_shipping_outlined, "Fast Delivery", "Quick and reliable"),
         _buildFeatureItem(Icons.local_offer_outlined, "Best Prices", "Competitive and exciting"),
-        _buildFeatureItem(Icons.headset_mic_outlined, "24/7 Support", "Here to help, always"),
+        _buildFeatureItem(Icons.headset_mic_outlined, "Daily Support", "9 AM – 9 PM, every day"),
       ],
     );
   }
@@ -299,13 +299,16 @@ class CompanyLinksCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildLinkRow(Icons.business_outlined, "Company Information", onCompanyInfo),
-          _divider(),
-          _buildLinkRow(Icons.verified_user_outlined, "Policies & Terms", onPolicies),
-          _divider(),
-          _buildLinkRow(Icons.description_outlined, "Terms & Conditions", onTerms),
-          _divider(),
-          _buildLinkRow(Icons.lock_outline_rounded, "Privacy Policy", onPrivacy),
+          // Rows without a destination are hidden rather than shown as dead links.
+          for (final (i, row) in [
+            (Icons.business_outlined, "Company Information", onCompanyInfo),
+            (Icons.verified_user_outlined, "Policies & Terms", onPolicies),
+            (Icons.description_outlined, "Terms & Conditions", onTerms),
+            (Icons.lock_outline_rounded, "Privacy Policy", onPrivacy),
+          ].where((r) => r.$3 != null).indexed) ...[
+            if (i > 0) _divider(),
+            _buildLinkRow(row.$1, row.$2, row.$3),
+          ],
         ],
       ),
     );

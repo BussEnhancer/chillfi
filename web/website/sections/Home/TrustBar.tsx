@@ -20,7 +20,7 @@ const features = [
   },
   {
     icon: <Headphones size={32} className="text-[#FF6B2C]" />,
-    title: '24/7 Support',
+    title: 'Daily Support',
     desc: "We're here to help",
   },
 ];

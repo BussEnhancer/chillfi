@@ -1,3 +1,4 @@
+import 'package:chillfi/features/profile/edit_profile_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/orders/my_orders_screen.dart';
@@ -10,6 +11,42 @@ import 'package:url_launcher/url_launcher.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
+
+  void _showAnswer(BuildContext context, String q, String a) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24.r))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 24.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(q, style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+            SizedBox(height: 10.h),
+            Text(a, style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText, height: 1.5)),
+            SizedBox(height: 20.h),
+            SizedBox(
+              width: double.infinity,
+              height: 50.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondaryPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                ),
+                child: Text('Go to My Orders', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,38 +98,6 @@ class HelpSupportScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 20.w, top: 12.h, bottom: 12.h),
-            child: GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Support tickets are coming soon. Please use Call/WhatsApp/Email for now.')),
-              ),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.secondaryPurple),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Row(
-                  children: [
-                    Icon(Icons.confirmation_number_outlined, color: AppColors.secondaryPurple, size: 18.sp),
-                    SizedBox(width: 4.w),
-                    Text(
-                      "My Tickets",
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondaryPurple,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -101,8 +106,6 @@ class HelpSupportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20.h),
-            const SupportSearchBar(),
-            SizedBox(height: 24.h),
             const QuickHelpBanner(),
             
             SizedBox(height: 32.h),
@@ -149,7 +152,7 @@ class HelpSupportScreen extends StatelessWidget {
                   title: "Account & Profile",
                   subtitle: "Update your profile or details",
                   iconColor: Colors.indigo,
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())),
                 ),
                 HelpCategoryCard(
                   icon: Icons.security_rounded,
@@ -180,19 +183,6 @@ class HelpSupportScreen extends StatelessWidget {
                     color: AppColors.darkText,
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('More help topics are coming soon.')),
-                  ),
-                  child: Text(
-                    "View All",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.secondaryPurple,
-                    ),
-                  ),
-                ),
               ],
             ),
             SizedBox(height: 16.h),
@@ -207,22 +197,22 @@ class HelpSupportScreen extends StatelessWidget {
                 children: [
                   PopularTopicItem(
                     title: "How do I track my order?",
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen())),
+                    onTap: () => _showAnswer(context, "How do I track my order?", "Open Account → My Orders, tap your order and choose Track Order. Once your parcel is handed to Delhivery you'll see live scans there, and we also send you notifications at every step."),
                   ),
                   const Divider(height: 1),
                   PopularTopicItem(
                     title: "How do I return or replace an item?",
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen())),
+                    onTap: () => _showAnswer(context, "How do I return or replace an item?", "Most products can be returned within 7 days of delivery. Open the delivered order in My Orders and tap Request Refund / Return, choose the type and tell us the reason. Our team will review it and update the status on the same screen."),
                   ),
                   const Divider(height: 1),
                   PopularTopicItem(
                     title: "When will I get my refund?",
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen())),
+                    onTap: () => _showAnswer(context, "When will I get my refund?", "For online payments, refunds are processed after your cancellation or return is approved and usually reach you in 5–7 business days, depending on your bank. You can see the refund status on the order's details screen."),
                   ),
                   const Divider(height: 1),
                   PopularTopicItem(
                     title: "How to cancel my order?",
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen())),
+                    onTap: () => _showAnswer(context, "How to cancel my order?", "Open the order in My Orders and tap Cancel Order. Orders can be cancelled until the courier picks them up. If you paid online, a refund is started automatically."),
                   ),
                 ],
               ),

@@ -21,7 +21,7 @@ const TopBar: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <Headphones size={14} className="text-[#FF6B2C]" />
-            <span>24/7 Customer Support</span>
+            <span>Support 9 AM – 9 PM, every day</span>
           </div>
         </div>
         <div title="Coming soon" className="flex items-center gap-2 opacity-60 cursor-not-allowed">
