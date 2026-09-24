@@ -59,8 +59,25 @@ const configProblems = (cfg) => {
 
 const isConfigured = async () => configProblems(await getConfig()).length === 0;
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 // Wraps axios so failures become DelhiveryError without leaking the token.
-const request = async (cfg, { method = 'get', path, params, data, headers = {} }) => {
+// Delhivery throttles bursts with 429 "Throttled, wait N seconds" — honour it and retry (max 3).
+const request = async (cfg, opts, attempt = 1) => {
+  try {
+    return await requestOnce(cfg, opts);
+  } catch (err) {
+    if (err.status === 429 && attempt <= 3) {
+      const secs = Math.min(parseInt((err.message.match(/wait (\d+) second/i) || [])[1], 10) || 5, 30);
+      console.warn(`[delhivery] throttled on ${opts.path}; retrying in ${secs}s (attempt ${attempt}/3)`);
+      await sleep(secs * 1000);
+      return request(cfg, opts, attempt + 1);
+    }
+    throw err;
+  }
+};
+
+const requestOnce = async (cfg, { method = 'get', path, params, data, headers = {} }) => {
   if (!cfg.token) throw new DelhiveryError(`Delhivery ${cfg.env} token not configured`, { code: 'NOT_CONFIGURED' });
   try {
     const res = await axios({
@@ -232,10 +249,23 @@ const normalizeShipment = (s) => {
 };
 
 // Accepts up to 50 waybills per call (documented pull API limit: 750 req / 5 min / IP).
-const trackWaybills = async (waybills) => {
-  const cfg = await getConfig();
+// Observed on real staging: if several waybills in a batch are unknown to Delhivery, the WHOLE
+// batch comes back as {Success:false, Error:"Data does not exists..."} — valid ones included.
+// So on a whole-batch miss we split and retry, isolating unknown AWBs instead of dropping good ones.
+const trackWaybills = async (waybills, cfgIn) => {
+  const cfg = cfgIn || (await getConfig());
   const data = await request(cfg, { path: '/api/v1/packages/json/', params: { waybill: waybills.join(','), verbose: 1 } });
-  return (data?.ShipmentData || []).map((x) => normalizeShipment(x.Shipment)).filter(Boolean);
+  if (Array.isArray(data?.ShipmentData)) {
+    return data.ShipmentData.map((x) => normalizeShipment(x.Shipment)).filter(Boolean);
+  }
+  if (waybills.length > 1) {
+    const mid = Math.ceil(waybills.length / 2);
+    const left = await trackWaybills(waybills.slice(0, mid), cfg);
+    await sleep(400); // stay under Delhivery's burst throttle
+    return [...left, ...(await trackWaybills(waybills.slice(mid), cfg))];
+  }
+  console.warn(`[delhivery] waybill ${waybills[0]} unknown to Delhivery ${cfg.env}`);
+  return [];
 };
 
 const trackShipment = async (waybill) => (await trackWaybills([waybill]))[0] || null;

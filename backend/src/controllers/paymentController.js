@@ -6,10 +6,16 @@ const phonepe = require('../utils/phonepe');
 
 // POST /api/payment/initiate  (PhonePe)
 const initiatePayment = async (req, res) => {
-  const { order_id, amount } = req.body;
-  if (!order_id || !amount) {
-    return res.status(400).json({ success: false, message: 'order_id and amount required' });
-  }
+  const { order_id } = req.body;
+  if (!order_id) return res.status(400).json({ success: false, message: 'order_id required' });
+
+  // The amount always comes from the order record — never from the client (the app sends only
+  // order_id, and a client-supplied amount could be tampered with).
+  const ord = await pool.query('SELECT total, payment_status, status FROM orders WHERE id = $1 AND user_id = $2', [order_id, req.user.id]);
+  if (!ord.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
+  if (ord.rows[0].payment_status === 'Paid') return res.status(400).json({ success: false, message: 'Order is already paid' });
+  if (ord.rows[0].status === 'Cancelled') return res.status(400).json({ success: false, message: 'Order is cancelled' });
+  const amount = parseFloat(ord.rows[0].total);
 
   const cfg = await phonepe.getConfig();
   const merchantTxnId = `CF_${order_id.replace(/-/g, '').slice(0, 10)}_${Date.now()}`;
@@ -72,10 +78,9 @@ const initiatePayment = async (req, res) => {
 
 // POST /api/payment/verify
 const verifyPayment = async (req, res) => {
-  const { merchant_txn_id, order_id } = req.body;
-  if (!merchant_txn_id || !order_id) {
-    return res.status(400).json({ success: false, message: 'Transaction ID and order ID required' });
-  }
+  const { order_id } = req.body;
+  let { merchant_txn_id } = req.body;
+  if (!order_id) return res.status(400).json({ success: false, message: 'order ID required' });
 
   // Verify the order belongs to the requesting user
   const orderCheck = await pool.query(
@@ -84,6 +89,16 @@ const verifyPayment = async (req, res) => {
   );
   if (!orderCheck.rows.length) {
     return res.status(403).json({ success: false, message: 'Order not found' });
+  }
+
+  // The mobile app sends only order_id — use this order's latest payment attempt.
+  if (!merchant_txn_id) {
+    const last = await pool.query('SELECT merchant_txn_id FROM payments WHERE order_id = $1 ORDER BY created_at DESC LIMIT 1', [order_id]);
+    merchant_txn_id = last.rows[0]?.merchant_txn_id;
+    if (!merchant_txn_id) return res.status(400).json({ success: false, message: 'No payment was started for this order' });
+  } else {
+    const own = await pool.query('SELECT 1 FROM payments WHERE merchant_txn_id = $1 AND order_id = $2', [merchant_txn_id, order_id]);
+    if (!own.rows.length) return res.status(400).json({ success: false, message: 'Transaction does not belong to this order' });
   }
 
   // Dev shortcut
