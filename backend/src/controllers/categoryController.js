@@ -2,12 +2,14 @@ const pool = require('../db/pool');
 
 // GET /api/categories
 const getCategories = async (req, res) => {
+  // Admin list (/api/admin/categories) must include inactive categories so they can be re-enabled.
+  const adminList = String(req.baseUrl || '').endsWith('/admin');
   const result = await pool.query(`
     SELECT c.*,
       COUNT(DISTINCT p.id) as product_count
     FROM categories c
     LEFT JOIN products p ON p.category_id = c.id AND p.status != 'Inactive'
-    WHERE c.parent_id IS NULL AND c.is_active = TRUE
+    WHERE c.parent_id IS NULL ${adminList ? '' : 'AND c.is_active = TRUE'}
     GROUP BY c.id
     ORDER BY c.sort_order ASC, c.name ASC
   `);

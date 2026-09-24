@@ -2,11 +2,12 @@ const pool = require('../db/pool');
 
 // GET /api/brands
 const getBrands = async (req, res) => {
+  const adminList = String(req.baseUrl || '').endsWith('/admin'); // admin sees inactive brands too
   const result = await pool.query(`
     SELECT b.*, COUNT(DISTINCT p.id) as product_count
     FROM brands b
     LEFT JOIN products p ON p.brand_id = b.id AND p.status != 'Inactive'
-    WHERE b.is_active = TRUE
+    ${adminList ? '' : 'WHERE b.is_active = TRUE'}
     GROUP BY b.id
     ORDER BY product_count DESC
   `);

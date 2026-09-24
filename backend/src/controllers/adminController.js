@@ -103,7 +103,7 @@ const getAnalytics = async (req, res, next) => {
     const { period = '30' } = req.query;
     const days = Math.max(1, Math.min(365, parseInt(period) || 30));
 
-    const [sales, topCats, conversionData, userGrowth] = await Promise.all([
+    const [sales, topCats, conversionData, userGrowth, regions] = await Promise.all([
       pool.query(`
         SELECT DATE(created_at) AS date, COUNT(*) AS orders,
                COALESCE(SUM(total) FILTER (WHERE ${PAID_KEPT}),0) AS revenue
@@ -131,6 +131,13 @@ const getAnalytics = async (req, res, next) => {
           AND created_at >= NOW() - ($1 * INTERVAL '1 day')
         GROUP BY DATE(created_at) ORDER BY date
       `, [days]),
+      pool.query(`
+        SELECT COALESCE(NULLIF(TRIM(a.state), ''), 'Unknown') AS region, COUNT(*) AS orders,
+               COALESCE(SUM(o.total) FILTER (WHERE o.payment_status='Paid' AND o.status <> 'Cancelled'),0) AS revenue
+        FROM orders o LEFT JOIN addresses a ON a.id = o.address_id
+        WHERE o.created_at >= NOW() - ($1 * INTERVAL '1 day') AND o.status <> 'Cancelled'
+        GROUP BY 1 ORDER BY revenue DESC, orders DESC LIMIT 6
+      `, [days]),
     ]);
 
     res.json({
@@ -140,6 +147,7 @@ const getAnalytics = async (req, res, next) => {
         top_categories: topCats.rows,
         unique_buyers: parseInt(conversionData.rows[0]?.buyers || 0),
         user_growth: userGrowth.rows,
+        top_regions: regions.rows,
       },
     });
   } catch (err) { next(err); }

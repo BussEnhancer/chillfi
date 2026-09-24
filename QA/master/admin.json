@@ -581,11 +581,11 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "Active and inactive shown",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Admin list includes inactive (was hidden → couldn't re-enable)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm07_categories.png",
+     "defect": "ADEF-A7",
+     "retest": "Retested"
     },
     {
      "id": "ADM-07-02",
@@ -593,9 +593,9 @@
      "pre": "Logged in as admin",
      "steps": "Save",
      "expected": "Saved",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Create/edit saved",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -605,10 +605,10 @@
      "pre": "Logged in as admin",
      "steps": "Toggle off then on",
      "expected": "Can be re-enabled",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Deactivate → hidden; reactivate → back on store",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
+     "defect": "ADEF-A7",
      "retest": ""
     },
     {
@@ -617,9 +617,9 @@
      "pre": "Logged in as admin",
      "steps": "Delete",
      "expected": "Confirm; removed from storefront",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delete (soft) removes from storefront",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -629,9 +629,9 @@
      "pre": "Logged in as admin",
      "steps": "Rename / deactivate",
      "expected": "App & website category lists update",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Rename propagates to /categories (app + web)",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     }
@@ -649,10 +649,10 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "All brands",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Inactive brands listed in admin",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
+     "defect": "ADEF-A7",
      "retest": ""
     },
     {
@@ -661,9 +661,9 @@
      "pre": "Logged in as admin",
      "steps": "Save",
      "expected": "Saved; duplicate name gives clear error",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Duplicate name → 'This already exists.'",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -673,10 +673,10 @@
      "pre": "Logged in as admin",
      "steps": "Toggle",
      "expected": "Can be re-enabled",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Deactivate/reactivate works",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
+     "defect": "ADEF-A7",
      "retest": ""
     },
     {
@@ -697,9 +697,9 @@
      "pre": "Logged in as admin",
      "steps": "Change",
      "expected": "App brands screen & website update",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Storefront /brands reflects changes",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     }
@@ -717,9 +717,9 @@
      "pre": "Logged in as admin",
      "steps": "Open",
      "expected": "Reviews listed; filter works",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Reviews listed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm09_reviews.png",
      "defect": "",
      "retest": ""
     },
@@ -729,9 +729,9 @@
      "pre": "Logged in as admin",
      "steps": "Toggle",
      "expected": "Saved; verified badge on website",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Verify toggle; website/app show Verified Purchase only when is_verified",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -741,9 +741,9 @@
      "pre": "Logged in as admin",
      "steps": "Delete",
      "expected": "Removed; product rating recalculated on app & web",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delete → product rating recalculated (4.0/1 → 0.0/0)",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     }
@@ -761,9 +761,9 @@
      "pre": "Logged in as admin",
      "steps": "Submit contact form on website",
      "expected": "Message appears",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Contact form message appears",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm10_messages.png",
      "defect": "",
      "retest": ""
     },
@@ -773,9 +773,9 @@
      "pre": "Logged in as admin",
      "steps": "Use",
      "expected": "Works",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Read toggle",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -785,9 +785,9 @@
      "pre": "Logged in as admin",
      "steps": "Send reply",
      "expected": "Stored; honest note if email delivery not configured",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Reply saved; UI states email delivery isn't configured (honest)",
+     "status": "PASS",
+     "evidence": "Messages page",
      "defect": "",
      "retest": ""
     },
@@ -797,9 +797,9 @@
      "pre": "Logged in as admin",
      "steps": "Delete",
      "expected": "Removed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Delete",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     }
@@ -817,9 +817,9 @@
      "pre": "Logged in as admin",
      "steps": "Empty title/body",
      "expected": "Send disabled",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Send disabled when empty",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm11_notify.png",
      "defect": "",
      "retest": ""
     },
@@ -829,9 +829,9 @@
      "pre": "Logged in as admin",
      "steps": "Search user, send",
      "expected": "In-app notification + push received on device",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Send to one → in-app notification received (push needs device FCM token: BLK-01)",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
      "defect": "",
      "retest": ""
     },
@@ -861,9 +861,9 @@
      "pre": "Logged in as admin",
      "steps": "Switch 7/30/90/365",
      "expected": "Data changes",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Period tabs change data (7d vs 365d)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm12_analytics.png",
      "defect": "",
      "retest": ""
     },
@@ -873,11 +873,11 @@
      "pre": "Logged in as admin",
      "steps": "Compare revenue",
      "expected": "Same definition of revenue",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Analytics revenue = dashboard revenue (was: analytics counted unpaid/cancelled)",
+     "status": "PASS",
+     "evidence": "web-qa adminD",
+     "defect": "ADEF-A2",
+     "retest": "Retested"
     },
     {
      "id": "ADM-12-03",
@@ -885,11 +885,11 @@
      "pre": "Logged in as admin",
      "steps": "View",
      "expected": "No fake panels presented as data",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Top Regions now real (by delivery state); error banner on load failure",
+     "status": "PASS",
+     "evidence": "Analytics",
+     "defect": "ADEF-A8",
+     "retest": "Code + API"
     }
    ]
   },
@@ -1312,6 +1312,24 @@
    "root_cause": "",
    "fix": "Removed; self-protection; validation",
    "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A7",
+   "title": "Deactivated categories/brands disappeared from admin forever (admin list reused public active-only query)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Admin list includes inactive",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-A8",
+   "title": "Analytics: placeholder 'Top Regions'; load errors silently showed empty page",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "Real top regions; error banner",
+   "retest": "API verified"
   }
  ],
  "blockers": []

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { TrendingUp, Users, ShoppingCart, Package, ArrowUpRight, Loader2, MapPin } from 'lucide-react';
-import { apiGet } from '../../../utils/api';
+import { apiGet, friendlyError } from '../../../utils/api';
 
 interface SalesPoint { date: string; orders: string; revenue: string; }
 interface TopCategory { category: string; items_sold: string; revenue: string; }
@@ -10,6 +10,7 @@ interface AnalyticsData {
   top_categories: TopCategory[];
   unique_buyers: number;
   user_growth: { date: string; new_users: string }[];
+  top_regions?: { region: string; orders: string | number; revenue: string | number }[];
 }
 
 const CHART_COLORS = ['#FF6B2C', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CFF'];
@@ -24,13 +25,14 @@ const periods = [
 const AdminAnalytics: React.FC = () => {
   const [period, setPeriod] = useState(periods[0]);
   const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loadError, setLoadError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     apiGet<{ success: boolean; data: AnalyticsData }>(`/admin/analytics?period=${period.days}`)
-      .then(res => setData(res.data))
-      .catch(() => setData(null))
+      .then(res => { setData(res.data); setLoadError(''); })
+      .catch((e) => { setData(null); setLoadError(friendlyError(e, "Couldn't load analytics")); })
       .finally(() => setLoading(false));
   }, [period]);
 
@@ -46,6 +48,7 @@ const AdminAnalytics: React.FC = () => {
   if (loading && !data) {
     return (
       <AdminLayout title="Analytics" subtitle="Sales performance and insights">
+      {loadError && <div className="mb-6 bg-red-50 border border-red-100 text-red-600 text-sm font-bold rounded-2xl px-5 py-4">{loadError}</div>}
         <div className="flex items-center gap-3 text-gray-400 py-20 justify-center">
           <Loader2 size={24} className="animate-spin text-[#FF6B2C]" />
           <span className="text-sm font-bold">Loading analytics...</span>
@@ -169,15 +172,26 @@ const AdminAnalytics: React.FC = () => {
         </div>
       </div>
 
-      {/* Regional breakdown not tracked yet */}
+      {/* Orders/revenue by delivery state (revenue = paid & not cancelled, same as dashboard) */}
       <div className="bg-white rounded-2xl p-6 border border-[#ECECEC] shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-black text-[#111827]">Top Regions</h3>
         </div>
-        <div className="py-10 text-center text-gray-400">
-          <MapPin size={28} className="mx-auto mb-3 text-gray-200" />
-          <p className="text-sm font-bold">Regional order breakdown isn't tracked yet.</p>
-        </div>
+        {(data?.top_regions || []).length === 0 ? (
+          <div className="py-10 text-center text-gray-400">
+            <MapPin size={28} className="mx-auto mb-3 text-gray-200" />
+            <p className="text-sm font-bold">No orders in this period.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 mt-3">
+            {(data?.top_regions || []).map((r) => (
+              <div key={r.region} className="flex items-center justify-between text-sm font-bold">
+                <span className="text-[#111827]">{r.region}</span>
+                <span className="text-gray-500">{Number(r.orders)} orders • ₹{Number(r.revenue).toLocaleString('en-IN')}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
