@@ -29,11 +29,15 @@ const AdminAnalytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Ignore responses for a period the admin has already switched away from (a slow 7-day
+    // response must not overwrite the 1-year numbers).
+    let current = true;
     setLoading(true);
     apiGet<{ success: boolean; data: AnalyticsData }>(`/admin/analytics?period=${period.days}`)
-      .then(res => { setData(res.data); setLoadError(''); })
-      .catch((e) => { setData(null); setLoadError(friendlyError(e, "Couldn't load analytics")); })
-      .finally(() => setLoading(false));
+      .then(res => { if (current) { setData(res.data); setLoadError(''); } })
+      .catch((e) => { if (current) { setData(null); setLoadError(friendlyError(e, "Couldn't load analytics")); } })
+      .finally(() => { if (current) setLoading(false); });
+    return () => { current = false; };
   }, [period]);
 
   const sales = data?.sales_over_time || [];

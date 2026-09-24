@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Check, X, Loader2, RotateCcw, IndianRupee } from 'lucide-react';
 import { apiGet, apiPut, friendlyError } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 
 interface ApiRefundRequest {
   id: string;
@@ -45,15 +46,17 @@ const AdminRefunds: React.FC = () => {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
+  const loadSeq = useRef(0);
   const load = async (status = filter) => {
+    const seq = ++loadSeq.current; // only the latest filter's response may update the list
     setLoading(true);
     try {
       const res = await apiGet<{ success: boolean; data: { requests: ApiRefundRequest[] } }>(`/admin/refund-requests?limit=100${status !== 'all' ? `&status=${status}` : ''}`);
-      setRequests(res.data?.requests || []);
+      if (seq === loadSeq.current) setRequests(res.data?.requests || []);
     } catch (e) {
-      showToast(friendlyError(e, "Couldn't load refund requests"));
+      if (seq === loadSeq.current) showErrorDialog({ title: "Couldn't load refund requests", error: e });
     } finally {
-      setLoading(false);
+      if (seq === loadSeq.current) setLoading(false);
     }
   };
 

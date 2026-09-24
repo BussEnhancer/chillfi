@@ -1465,6 +1465,24 @@
    "root_cause": "Silent catches",
    "fix": "Universal error dialog across 11 admin pages",
    "retest": "ADM-01-09 PASS"
+  },
+  {
+   "id": "ADEF-A20",
+   "title": "Analytics/Refunds: a slower earlier response could overwrite the newly selected period/filter (e.g. 1 Year showed 7-day zeros)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "No stale-response guard",
+   "fix": "Ignore superseded responses; errors via dialog",
+   "retest": "ADM-12-01/03 PASS, adminC 16/16"
+  },
+  {
+   "id": "ADEF-A21",
+   "title": "A QA test product from an interrupted run was left Active on the (local) storefront",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Test cleanup",
+   "fix": "Deactivated; suites now self-seed and clean up",
+   "retest": "public QA products: none"
   }
  ],
  "blockers": [
