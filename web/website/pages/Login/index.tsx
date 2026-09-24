@@ -346,9 +346,9 @@ const LoginPage: React.FC = () => {
               <div className="mt-auto pt-6">
                 <p className="text-[11px] font-bold text-gray-400 text-center leading-relaxed">
                   By continuing, you agree to our{' '}
-                  <a href="/terms" className="text-[#FF6B2C] hover:underline font-black uppercase">Terms & Conditions</a>
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#FF6B2C] hover:underline font-black uppercase">Terms & Conditions</a>
                   {' '}and{' '}
-                  <a href="/privacy-policy" className="text-[#FF6B2C] hover:underline font-black uppercase">Privacy Policy</a>
+                  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#FF6B2C] hover:underline font-black uppercase">Privacy Policy</a>
                 </p>
               </div>
             </div>

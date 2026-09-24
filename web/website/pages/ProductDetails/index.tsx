@@ -18,6 +18,7 @@ import Badge from '../../components/common/Badge';
 import { Star, Loader2, PackageOpen } from 'lucide-react';
 import { apiGet, apiPost } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
+import { showErrorDialog } from '../../components/feedback/ErrorDialog';
 
 interface ApiProduct {
   id: string;
@@ -40,7 +41,7 @@ interface ApiProduct {
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { isLoggedIn } = useStore();
+  const { isLoggedIn, refreshWishlist } = useStore();
 
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,7 +81,10 @@ const ProductDetailsPage: React.FC = () => {
         '/wishlist/toggle', { product_id: id }
       );
       setWishlisted(res.data.wishlisted);
-    } catch {}
+      refreshWishlist(); // keep header badge / cards in sync
+    } catch (e) {
+      showErrorDialog({ title: "Couldn't update wishlist", error: e, fallback: 'Please try again.' });
+    }
   };
 
   const images = product?.images?.map(i => i.url) || [];

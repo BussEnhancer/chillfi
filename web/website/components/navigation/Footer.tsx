@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
            <p className="text-xs">
-              © 2025 chillFi. All rights reserved.
+              © {new Date().getFullYear()} chillFi. All rights reserved.
            </p>
            <div className="flex items-center gap-3">
               {/* Visa */}

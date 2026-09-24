@@ -144,7 +144,7 @@ const ContactUsPage: React.FC = () => {
                      onChange={e => setAgreed(e.target.checked)}
                      label={
                        <span>
-                         I agree to the <a href="/privacy-policy" className="text-[#FF6B2C] hover:underline">Privacy Policy</a> and <a href="/terms" className="text-[#FF6B2C] hover:underline">Terms & Conditions</a>
+                         I agree to the <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#FF6B2C] hover:underline">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#FF6B2C] hover:underline">Terms & Conditions</a>
                        </span>
                      }
                    />

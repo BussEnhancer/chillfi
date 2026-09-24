@@ -171,6 +171,7 @@ interface StoreContextType {
   wishlist: WishlistItem[];
   toggleWishlist: (product: Product) => void;
   isInWishlist: (id: string) => boolean;
+  refreshWishlist: () => void;
 
   // Coupon validation
   applyCoupon: (code: string, cartTotal: number) => { discount: number; msg: string; ok: boolean };
@@ -203,7 +204,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     clearTokens();
     setIsLoggedIn(false);
-  }, []);
+    // Don't leave the previous user's cart / wishlist in this browser.
+    setCart([]);
+    setWishlist([]);
+  }, [setCart, setWishlist]);
 
   // Normalize API product → local Product shape
   const normalizeProduct = (p: Record<string, unknown>): Product => ({
@@ -347,6 +351,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const isInWishlist = useCallback((id: string) => wishlist.some(i => i.id === id), [wishlist]);
 
+  // Logged-in wishlist lives on the server (shared with the app) — mirror it locally for badges/cards.
+  const refreshWishlist = useCallback(() => {
+    if (!getAccessToken()) return;
+    apiGet<{ success: boolean; data: Record<string, unknown>[] }>('/wishlist')
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        setWishlist(list.map((w) => ({
+          id: String(w.product_id), name: String(w.name ?? ''), img: String(w.image ?? ''),
+          price: Number(w.price ?? 0), oldPrice: Number(w.old_price ?? w.price ?? 0),
+          brand: String(w.brand_name ?? ''), category: String(w.category_name ?? ''),
+          rating: Number(w.rating ?? 0), reviews: Number(w.review_count ?? 0), stock: Number(w.stock ?? 0),
+        })));
+      })
+      .catch(() => {});
+  }, [setWishlist]);
+  useEffect(() => { if (isLoggedIn) refreshWishlist(); }, [isLoggedIn, refreshWishlist]);
+
   const applyCoupon = useCallback((code: string, total: number) => {
     const c = coupons.find(x => x.code === code.toUpperCase() && x.status);
     if (!c) return { discount: 0, msg: 'Invalid or expired coupon code', ok: false };
@@ -366,7 +387,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       apiLoading, refreshFromAPI,
       isLoggedIn, loginUser, logoutUser,
       cart, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal, cartCount,
-      wishlist, toggleWishlist, isInWishlist,
+      wishlist, toggleWishlist, isInWishlist, refreshWishlist,
       applyCoupon,
     }}>
       {children}

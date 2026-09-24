@@ -223,7 +223,7 @@ const DeleteAccountPage: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-[#ECECEC] bg-white px-6 py-4 text-center">
         <p className="text-xs font-bold text-gray-400">
-          © 2024 ChillFi · <a href="/privacy-policy" className="hover:text-[#FF6B2C]">Privacy Policy</a> · <a href="/terms" className="hover:text-[#FF6B2C]">Terms</a>
+          © {new Date().getFullYear()} ChillFi · <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-[#FF6B2C]">Privacy Policy</a> · <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-[#FF6B2C]">Terms</a>
         </p>
       </footer>
     </div>

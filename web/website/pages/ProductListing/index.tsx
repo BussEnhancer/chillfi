@@ -9,7 +9,7 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import ProductFilterSidebar from '../../components/navigation/ProductFilterSidebar';
 import PLP_HeroBanner from '../../sections/ProductListing/PLP_HeroBanner';
 import ProductCardPLP from '../../components/product/ProductCardPLP';
-import { apiGet } from '../../utils/api';
+import { apiGet, friendlyError } from '../../utils/api';
 import { ChevronDown, Loader2, PackageOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ApiProduct {
@@ -48,6 +48,8 @@ const ProductListingPage: React.FC = () => {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   const setParam = (key: string, value: string) => {
     const p = new URLSearchParams(searchParams);
@@ -97,12 +99,14 @@ const ProductListingPage: React.FC = () => {
       );
       setProducts(res.data.products || []);
       setTotal(res.data.total || 0);
-    } catch {
+      setLoadError('');
+    } catch (e) {
       setProducts([]);
+      setLoadError(friendlyError(e, "We couldn't load products right now. Please try again."));
     } finally {
       setLoading(false);
     }
-  }, [category, brand, q, sort, page, minPrice, maxPrice]);
+  }, [category, brand, q, sort, page, minPrice, maxPrice, reloadKey]);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
@@ -217,6 +221,13 @@ const ProductListingPage: React.FC = () => {
             <div className="flex items-center justify-center py-32">
               <Loader2 size={36} className="animate-spin text-[#FF6B2C]" />
             </div>
+          ) : loadError ? (
+            <div className="py-32 text-center">
+              <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
+              <h3 className="text-xl font-black text-[#111827] mb-2">Can't load products right now</h3>
+              <p className="text-sm font-bold text-gray-400 mb-6">{loadError}</p>
+              <button onClick={() => setReloadKey(k => k + 1)} className="bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-[#E05520]">Try again</button>
+            </div>
           ) : products.length === 0 ? (
             <div className="py-32 text-center">
               <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
@@ -249,6 +260,7 @@ const ProductListingPage: React.FC = () => {
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
+                aria-label="Previous page"
                 className="w-10 h-10 rounded-xl border border-[#ECECEC] flex items-center justify-center hover:border-[#FF6B2C] hover:text-[#FF6B2C] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronLeft size={18} />
@@ -267,6 +279,7 @@ const ProductListingPage: React.FC = () => {
               })}
               <button
                 onClick={() => setPage(page + 1)}
+                aria-label="Next page"
                 disabled={page >= totalPages}
                 className="w-10 h-10 rounded-xl border border-[#ECECEC] flex items-center justify-center hover:border-[#FF6B2C] hover:text-[#FF6B2C] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
