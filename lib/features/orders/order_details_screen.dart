@@ -43,7 +43,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
   Future<void> _cancelOrder(OrderModel order) async {
     final cancelled = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => CancelOrderScreen(orderId: widget.orderId)),
+      MaterialPageRoute(builder: (_) => CancelOrderScreen(orderId: widget.orderId, isPaid: order.paymentStatus == 'Paid' && order.paymentMethod != 'COD')),
     );
     if (cancelled == true && mounted) {
       context.read<CartProvider>().loadOrder(widget.orderId);

@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 
 class CancelOrderScreen extends StatefulWidget {
   final String orderId;
-  const CancelOrderScreen({super.key, required this.orderId});
+  /// true when money was taken online → a refund will follow the cancellation
+  final bool isPaid;
+  const CancelOrderScreen({super.key, required this.orderId, this.isPaid = false});
 
   @override
   State<CancelOrderScreen> createState() => _CancelOrderScreenState();
@@ -131,9 +133,12 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                 SizedBox(height: 24.h),
                 AdditionalCommentsBox(controller: _commentsController),
                 SizedBox(height: 16.h),
-                const RefundInfoCard(),
+                if (widget.isPaid) const RefundInfoCard(),
                 SizedBox(height: 16.h),
-                const CancellationHelpCard(),
+                CancellationHelpCard(
+                  onTrack: () => Navigator.pop(context),
+                  onSupport: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen())),
+                ),
                 SizedBox(height: 160.h), // Space for sticky CTA
               ],
             ),

@@ -416,9 +416,9 @@ class RefundInfoCard extends StatelessWidget {
                   text: TextSpan(
                     style: GoogleFonts.poppins(fontSize: 11.sp, color: Colors.green[700], height: 1.5),
                     children: [
-                      const TextSpan(text: "If your order is cancelled now, your refund will be processed to the original payment method within "),
+                      const TextSpan(text: "You paid online, so a refund is started automatically when you cancel. It usually reaches your original payment method in "),
                       TextSpan(
-                        text: "3-5 business days.",
+                        text: "5–7 business days",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
                       ),
                     ],
@@ -434,7 +434,9 @@ class RefundInfoCard extends StatelessWidget {
 }
 
 class CancellationHelpCard extends StatelessWidget {
-  const CancellationHelpCard({super.key});
+  final VoidCallback? onTrack;
+  final VoidCallback? onSupport;
+  const CancellationHelpCard({super.key, this.onTrack, this.onSupport});
 
   @override
   Widget build(BuildContext context) {
@@ -481,11 +483,11 @@ class CancellationHelpCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _buildHelpBtn(Icons.local_shipping_outlined, "Track Order"),
+                child: GestureDetector(onTap: onTrack, child: _buildHelpBtn(Icons.local_shipping_outlined, "Back to Order")),
               ),
               SizedBox(width: 12.w),
               Expanded(
-                child: _buildHelpBtn(Icons.headset_mic_outlined, "Contact Support"),
+                child: GestureDetector(onTap: onSupport, child: _buildHelpBtn(Icons.headset_mic_outlined, "Contact Support")),
               ),
             ],
           ),
