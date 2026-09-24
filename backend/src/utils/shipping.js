@@ -23,8 +23,12 @@ const checkoutServiceability = async (pincode) => {
     pool.query(`SELECT value FROM store_settings WHERE key = 'cod_enabled'`),
   ]);
   // Store-wide switch (Admin → Settings → Shipping → COD Available) or a pincode rule can turn COD off.
-  const codBlocked = codSetting.rows[0]?.value === 'false' || r?.cod_available === false;
-  return { ...svc, cod: codBlocked ? false : svc.cod, eta_days: r?.estimated_days ?? null, cod_blocked: codBlocked };
+  const storeOff = codSetting.rows[0]?.value === 'false';
+  const codBlocked = storeOff || r?.cod_available === false;
+  const cod = codBlocked ? false : svc.cod;
+  // cod_reason tells the checkout why COD is off: 'store' (switched off store-wide) or 'pincode' (rule/courier).
+  const cod_reason = cod === false ? (storeOff ? 'store' : 'pincode') : null;
+  return { ...svc, cod, cod_reason, eta_days: r?.estimated_days ?? null, cod_blocked: codBlocked };
 };
 
 const getShippingFee = async (pincode, subtotal) => {

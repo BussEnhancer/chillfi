@@ -35,7 +35,9 @@ const createOrder = async (req, res) => {
     return res.status(400).json({ success: false, message: `Sorry, we can't deliver to pincode ${addr.rows[0].pincode} yet. Please choose another address.` });
   }
   if (String(payment_method).toUpperCase() === 'COD' && (svc.cod_blocked || (svc.serviceable === true && svc.cod === false))) {
-    return res.status(400).json({ success: false, message: 'Pay on Delivery isn\'t available for this pincode. Please pay online.' });
+    return res.status(400).json({ success: false, message: svc.cod_reason === 'store'
+      ? 'Pay on Delivery is currently unavailable. Please pay online.'
+      : 'Pay on Delivery isn\'t available for this pincode. Please pay online.' });
   }
 
   // Get cart items

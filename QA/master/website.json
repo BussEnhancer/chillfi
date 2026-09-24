@@ -2008,6 +2008,15 @@
    "root_cause": "Static styling/text",
    "fix": "Colour by status, 'Not completed' for Failed; real item count",
    "retest": "Probe screenshot"
+  },
+  {
+   "id": "WDEF-27",
+   "title": "Checkout allowed COD when COD was off store-wide but courier serviceability unknown (order then refused)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Required serviceable===true",
+   "fix": "Disable whenever cod===false; reason-specific badge",
+   "retest": "Probe verified"
   }
  ],
  "blockers": []

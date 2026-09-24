@@ -30,12 +30,19 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
       return;
     }
     if (!config.maintenanceMode) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SplashScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const SplashScreen()),
+      );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("We're still working on it. Please check again in a little while."),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "We're still working on it. Please check again in a little while.",
+        ),
+      ),
+    );
   }
 
   @override
@@ -53,7 +60,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                 child: Column(
                   children: [
                     SizedBox(height: 40.h),
-                    
+
                     // Brand Section
                     Column(
                       children: [
@@ -104,7 +111,8 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                     ),
                     SizedBox(height: 16.h),
                     Text(
-                      message ?? "We’re making some improvements to serve you better. We’ll be back soon! 💜",
+                      message ??
+                          "We’re making some improvements to serve you better. We’ll be back soon! 💜",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 18.sp,
@@ -114,11 +122,15 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                     ),
 
                     SizedBox(height: 40.h),
-                    
+
                     // Thank You Section
                     Column(
                       children: [
-                        Icon(Icons.favorite_outline_rounded, color: const Color(0xFF6C2BFF), size: 28.sp),
+                        Icon(
+                          Icons.favorite_outline_rounded,
+                          color: const Color(0xFF6C2BFF),
+                          size: 28.sp,
+                        ),
                         SizedBox(height: 12.h),
                         Text(
                           "Thank you for your patience.\nWe appreciate your support!",
@@ -135,49 +147,63 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
 
                     SizedBox(height: 40.h),
 
-                    // Action Button
-                    GestureDetector(
-                      onTap: _checkAgain,
-                      child: Container(
-                        width: double.infinity,
-                        height: 62.h,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6C2BFF), Color(0xFF8B5CFF)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                    SizedBox(height: 24.h),
+                  ],
+                ),
+              ),
+            ),
+            // Pinned so it is always visible, whatever the screen height.
+            Padding(
+              padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 12.h),
+              child: GestureDetector(
+                onTap: _checkAgain,
+                child: Container(
+                  width: double.infinity,
+                  height: 62.h,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6C2BFF), Color(0xFF8B5CFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6C2BFF).withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_checking)
+                        SizedBox(
+                          width: 22.sp,
+                          height: 22.sp,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: Colors.white,
                           ),
-                          borderRadius: BorderRadius.circular(18.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF6C2BFF).withValues(alpha: 0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                        )
+                      else
+                        Icon(
+                          Icons.refresh_rounded,
+                          color: Colors.white,
+                          size: 22.sp,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_checking)
-                              SizedBox(width: 22.sp, height: 22.sp, child: const CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
-                            else
-                              Icon(Icons.refresh_rounded, color: Colors.white, size: 22.sp),
-                            SizedBox(width: 12.w),
-                            Text(
-                              _checking ? 'Checking…' : 'Check Again',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                      SizedBox(width: 12.w),
+                      Text(
+                        _checking ? 'Checking…' : 'Check Again',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
-                    SizedBox(height: 60.h),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

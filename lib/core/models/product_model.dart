@@ -93,7 +93,7 @@ class ProductModel {
                 .where((e) => e.isNotEmpty)
                 .toList() ?? [],
         primaryImage: _parsePrimaryImage(json),
-        createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+        createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'])?.toLocal() : null,
       );
 
   int get discountPct => (oldPrice != null && oldPrice! > price)

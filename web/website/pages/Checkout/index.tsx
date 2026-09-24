@@ -63,7 +63,7 @@ const CheckoutPage: React.FC = () => {
   const [summaryFailed, setSummaryFailed] = useState(false);
   const [summaryRetry, setSummaryRetry] = useState(0);
   // Delhivery serviceability of the selected address (null = unknown → never blocks)
-  const [svc, setSvc] = useState<{ serviceable: boolean | null; cod: boolean | null } | null>(null);
+  const [svc, setSvc] = useState<{ serviceable: boolean | null; cod: boolean | null; cod_reason?: 'store' | 'pincode' | null } | null>(null);
 
   const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price) * i.qty, 0);
   const deliveryFee = cartSummary?.delivery_fee ?? (cartTotal > 499 ? 0 : 49);
@@ -129,13 +129,14 @@ const CheckoutPage: React.FC = () => {
     const pin = addresses.find(a => a.id === selectedAddressId)?.pincode;
     if (!pin) { setSvc(null); return; }
     let live = true;
-    apiGet<{ data: { serviceable: boolean | null; cod: boolean | null } }>(`/shipping/pincode/${pin}`)
+    apiGet<{ data: { serviceable: boolean | null; cod: boolean | null; cod_reason?: 'store' | 'pincode' | null } }>(`/shipping/pincode/${pin}`)
       .then(r => { if (live) setSvc(r.data); })
       .catch(() => { if (live) setSvc(null); });
     return () => { live = false; };
   }, [selectedAddressId, addresses]);
   const notServiceable = svc?.serviceable === false;
-  const codUnavailable = svc?.serviceable === true && svc.cod === false;
+  // COD off for this pincode (rule/courier) or store-wide (Admin → Settings) — the reason decides the wording.
+  const codUnavailable = svc?.cod === false;
   useEffect(() => { if (codUnavailable && payment === 'COD') setPayment('UPI'); }, [codUnavailable]);
 
   const handleApplyCoupon = async () => {
@@ -368,7 +369,7 @@ const CheckoutPage: React.FC = () => {
                       label={opt.label}
                       icon={opt.icon}
                       isSelected={payment === opt.value}
-                      badge={opt.value === 'COD' && codUnavailable ? 'Not available for this pincode' : opt.badge}
+                      badge={opt.value === 'COD' && codUnavailable ? (svc?.cod_reason === 'store' ? 'Currently unavailable' : 'Not available for this pincode') : opt.badge}
                     />
                   </button>
                 ))}

@@ -143,10 +143,12 @@ class CartProvider extends ChangeNotifier {
   /// Delhivery serviceability of the selected address. null = unknown (never blocks checkout).
   bool? pincodeServiceable;
   bool? codAvailable;
+  String? codUnavailableReason; // 'store' | 'pincode' | null
   Future<void> checkServiceability() async {
     final pin = selectedAddress?.pincode;
     pincodeServiceable = null;
     codAvailable = null;
+    codUnavailableReason = null;
     notifyListeners();
     if (pin == null) return;
     try {
@@ -155,6 +157,7 @@ class CartProvider extends ChangeNotifier {
       if (selectedAddress?.pincode != pin) return; // user switched address meanwhile
       pincodeServiceable = d?['serviceable'] as bool?;
       codAvailable = d?['cod'] as bool?;
+      codUnavailableReason = d?['cod_reason'] as String?;
     } catch (_) {
       pincodeServiceable = null;
       codAvailable = null;

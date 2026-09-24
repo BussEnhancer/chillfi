@@ -158,7 +158,7 @@ class OrderModel {
         trackingId: j['tracking_id'],
         shipmentProvider: j['shipment_provider']?.toString() ?? 'delhivery',
         shippingStatus: j['shipping_status']?.toString(),
-        createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(j['created_at'] ?? '')?.toLocal() ?? DateTime.now(),
         items: (j['items'] as List? ?? []).map((e) => OrderItemModel.fromJson(e)).toList(),
         refundRequest: j['refund_request'] != null ? RefundRequestModel.fromJson(j['refund_request']) : null,
       );

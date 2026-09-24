@@ -25,7 +25,7 @@ class _TrackingScan {
         location: j['location']?.toString() ?? '',
         instructions: j['instructions']?.toString() ?? '',
         status: j['status']?.toString() ?? '',
-        time: j['time'] != null ? DateTime.tryParse(j['time'].toString()) : null,
+        time: j['time'] != null ? DateTime.tryParse(j['time'].toString())?.toLocal() : null,
       );
 }
 
@@ -58,7 +58,7 @@ class _TrackingData {
               ? DateFormat('d MMM yyyy').format(DateTime.parse(j['expected_delivery'].toString()).toLocal())
               : j['expected_delivery'].toString())
           : null,
-      lastUpdate: j['last_update'] != null ? DateTime.tryParse(j['last_update'].toString()) : null,
+      lastUpdate: j['last_update'] != null ? DateTime.tryParse(j['last_update'].toString())?.toLocal() : null,
       scans: scans,
     );
   }

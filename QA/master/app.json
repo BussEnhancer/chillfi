@@ -2869,11 +2869,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Compare same order everywhere",
      "expected": "Identical status/AWB/history",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Admin→App live: banner create, coupon delete (offer card), price change ₹1777, product deactivate (No results), COD master switch on/off (payment screen live), maintenance on/off + message; website COD state matches",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_sync_home.png, app_sync_price.png, app_sync_deactivated.png, app_sync_cod_store_off.png, app_maintenance_pinned.png, web/web09_cod_store_off.png",
+     "defect": "ADEF-49",
+     "retest": "Retested"
     }
    ]
   },
@@ -3503,6 +3503,42 @@
    "root_cause": "No serviceability check",
    "fix": "Provider checkServiceability; Proceed blocked; COD disabled + auto-switch to PhonePe",
    "retest": "PASS: 999999 blocked, 110001 ok"
+  },
+  {
+   "id": "ADEF-47",
+   "title": "Home welcome card showed a fake 'CHILLFI Cash' balance (hardcoded 0) and 'earn rewards'",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Placeholder feature",
+   "fix": "Card now opens My Orders (signed in) or Sign in (guest)",
+   "retest": "Emulator verified"
+  },
+  {
+   "id": "ADEF-48",
+   "title": "Order/wishlist/tracking dates shown in UTC — orders placed 00:00–05:30 IST showed the previous day",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "DateTime parsed without toLocal()",
+   "fix": "toLocal() in models + tracking",
+   "retest": "Orders list shows 25/9 for 25 Sep IST orders"
+  },
+  {
+   "id": "ADEF-49",
+   "title": "COD availability not refreshed on payment screen; store-wide COD off said 'Not available for this pincode'",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Checked only on address change; no reason",
+   "fix": "Re-check on payment open; backend cod_reason; wording",
+   "retest": "Toggle on/off verified live"
+  },
+  {
+   "id": "ADEF-50",
+   "title": "Maintenance 'Check Again' button below the fold on standard phones",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Inside scroll view",
+   "fix": "Pinned above footer",
+   "retest": "Visible without scroll"
   }
  ],
  "blockers": [

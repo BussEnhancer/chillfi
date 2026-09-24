@@ -19,6 +19,15 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   String _selected = 'COD';
   bool _placing = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Re-check on every visit so COD reflects the latest admin switch / pincode rule.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<CartProvider>().checkServiceability();
+    });
+  }
+
   Future<void> _proceed() async {
     setState(() => _placing = true);
     final cart = context.read<CartProvider>();
@@ -104,7 +113,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       selected: _selected,
                       icon: Icons.money_rounded,
                       title: 'Cash on Delivery',
-                      subtitle: cart.codAvailable == false ? 'Not available for this pincode' : 'Pay when your order arrives',
+                      subtitle: cart.codAvailable == false
+                          ? (cart.codUnavailableReason == 'store' ? 'Currently unavailable' : 'Not available for this pincode')
+                          : 'Pay when your order arrives',
                       onTap: cart.codAvailable == false ? () {} : () => setState(() => _selected = 'COD'),
                     ),
                   ),

@@ -2,7 +2,9 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/features/auth/login_screen.dart';
 import 'package:chillfi/features/offers/offers_products_screen.dart';
+import 'package:chillfi/features/orders/my_orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,12 +24,12 @@ class OfferCardsSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
       child: Row(
         children: [
-          // Welcome Cashback Card
+          // Welcome card — real shortcut: track orders (signed in) or sign in (guest)
           Expanded(
             child: GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('CHILLFI Cash is coming soon! Stay tuned.')),
-              ),
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => isGuest ? const LoginScreen() : const MyOrdersScreen(),
+              )),
               child: Container(
               height: 120.h,
               decoration: BoxDecoration(
@@ -46,7 +48,7 @@ class OfferCardsSection extends StatelessWidget {
                   Positioned(
                     right: -10.w,
                     bottom: -10.h,
-                    child: Icon(Icons.stars_rounded, size: 80.sp, color: Colors.white.withValues(alpha: 0.1)),
+                    child: Icon(isGuest ? Icons.person_rounded : Icons.inventory_2_rounded, size: 80.sp, color: Colors.white.withValues(alpha: 0.1)),
                   ),
                   Padding(
                     padding: EdgeInsets.all(16.r),
@@ -62,7 +64,7 @@ class OfferCardsSection extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          isGuest ? 'Sign in to earn rewards' : 'Welcome back',
+                          isGuest ? 'Sign in for faster checkout' : 'Welcome back',
                           style: GoogleFonts.poppins(
                             fontSize: 10.sp,
                             color: Colors.white.withValues(alpha: 0.8),
@@ -71,12 +73,12 @@ class OfferCardsSection extends StatelessWidget {
                         const Spacer(),
                         Row(
                           children: [
-                            Icon(Icons.monetization_on_rounded, color: Colors.amber, size: 20.sp),
-                            SizedBox(width: 4.w),
+                            Icon(isGuest ? Icons.login_rounded : Icons.local_shipping_rounded, color: Colors.amber, size: 20.sp),
+                            SizedBox(width: 6.w),
                             Text(
-                              isGuest ? '0' : '0',
+                              isGuest ? 'Sign in' : 'My Orders',
                               style: GoogleFonts.poppins(
-                                fontSize: 16.sp,
+                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
@@ -86,7 +88,7 @@ class OfferCardsSection extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          'CHILLFI Cash',
+                          isGuest ? 'Orders, wishlist & addresses' : 'Track & manage orders',
                           style: GoogleFonts.poppins(
                             fontSize: 9.sp,
                             color: Colors.white.withValues(alpha: 0.8),

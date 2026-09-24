@@ -59,7 +59,7 @@ class ReviewModel {
         id: j['id'],
         rating: double.tryParse(j['rating'].toString()) ?? 0,
         comment: j['body'] ?? j['comment'],
-        createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(j['created_at'] ?? '')?.toLocal() ?? DateTime.now(),
         productId: j['product_id'],
         productName: j['product_name'],
         productImage: j['product_image'],
@@ -94,7 +94,7 @@ class NotificationModel {
         body: j['body'] ?? '',
         isRead: j['is_read'] ?? false,
         type: j['type'],
-        createdAt: DateTime.tryParse(j['created_at'] ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(j['created_at'] ?? '')?.toLocal() ?? DateTime.now(),
         orderId: (j['data'] is Map) ? j['data']['order_id']?.toString() : null,
         shippingStatus: (j['data'] is Map) ? j['data']['shipping_status']?.toString() : null,
       );
