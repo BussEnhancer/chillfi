@@ -51,7 +51,7 @@ class ExplanationBanner extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "We recommend items based on your activity, preferences and similar customers.",
+                  "We pick items from the categories you've been browsing, so the more you explore, the better they get.",
                   style: GoogleFonts.poppins(
                     fontSize: 10.sp,
                     color: AppColors.greyText,

@@ -53,11 +53,11 @@
      "pre": "Fresh install / guest",
      "steps": "Admin sets force_update_enabled + min_app_version above installed version; relaunch",
      "expected": "App routes to Force Update screen; current version must NOT be blocked when min version ≤ installed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "min_app_version 1.0.2 → not blocked; 1.0.3 → Update Required",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_force_update.png",
+     "defect": "ADEF-41",
+     "retest": "Retested"
     },
     {
      "id": "APP-01-05",
@@ -101,9 +101,9 @@
      "pre": "Fresh install / guest",
      "steps": "Launch with network off",
      "expected": "App does not hang on splash; shows usable state / message",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Offline launch → Home with 'Can't load right now' + Try again (no hang)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_offline_home.png",
      "defect": "",
      "retest": ""
     }
@@ -165,9 +165,9 @@
      "pre": "force update active",
      "steps": "Open via force update",
      "expected": "\"Update Required\" + server message",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "'Update Required' + server message",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_force_update.png",
      "defect": "",
      "retest": ""
     },
@@ -177,9 +177,9 @@
      "pre": "force update active",
      "steps": "Tap",
      "expected": "Opens Play Store listing for the app",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Update Now → Play Store (com.ecom.chillfi)",
+     "status": "PASS",
+     "evidence": "adbui dump Play Store",
      "defect": "",
      "retest": ""
     },
@@ -189,9 +189,9 @@
      "pre": "force update active",
      "steps": "Compare AppConfig.appVersion with pubspec version",
      "expected": "App reports its real installed version (1.0.2) so users on the latest build are never blocked",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "App reads installed version 1.0.2 from platform",
+     "status": "PASS",
+     "evidence": "About 'Version 1.0.2' + force-update test",
      "defect": "",
      "retest": ""
     }
@@ -2537,9 +2537,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Toggle, reopen",
      "expected": "Saved via PUT",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Toggle Delivered off → server false; reopen shows off; restored true",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_notif_toggle.png",
      "defect": "",
      "retest": ""
     },
@@ -2569,9 +2569,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap each of 5",
      "expected": "Each opens its screen",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "All 5 settings entries open their screens",
+     "status": "PASS",
+     "evidence": "adbui dumps",
      "defect": "",
      "retest": ""
     },
@@ -2593,11 +2593,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap each",
      "expected": "Opens dialer (with +91) / WhatsApp / mail with real contact",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Call → dialer +91 90562 24993; WhatsApp → wa.me; Email → mailto; dead 'Connect FB & Instagram' removed (tel had no +)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_call.png",
+     "defect": "ADEF-43",
+     "retest": "Retested"
     },
     {
      "id": "APP-35-04",
@@ -2661,11 +2661,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open Top Brands",
      "expected": "Brands from API; search filters; tap opens brand products",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "7 brands from API; search 'sam' → Samsung; tap → 'Samsung' listing (6); fake Popular/Electronics chips removed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_brands.png",
+     "defect": "ADEF-44",
+     "retest": "Retested"
     },
     {
      "id": "APP-36-02",
@@ -2673,10 +2673,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open Best Deals",
      "expected": "Discounted products listed",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Discounted featured products; fake bank/EMI/exchange benefits + bank banner removed",
+     "status": "PASS",
+     "evidence": "offers_products_screen.dart",
+     "defect": "ADEF-44",
      "retest": ""
     },
     {
@@ -2685,11 +2685,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open Deal of the Day → View All",
      "expected": "Flash-sale products; chips filter",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Flash deals; chips = real categories (Audio filter works); fake static countdown & notify card removed",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_flash.png",
+     "defect": "ADEF-44",
+     "retest": "Retested"
     },
     {
      "id": "APP-36-04",
@@ -2697,11 +2697,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open each",
      "expected": "Products from respective API",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "New/Trending/Recommended load from APIs with real category chips (Wearables filter works)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_trending_chip.png",
+     "defect": "ADEF-44",
+     "retest": "Retested"
     },
     {
      "id": "APP-36-05",
@@ -2709,11 +2709,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap each",
      "expected": "Each works or is not interactive (no dead controls)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Dead 'View All >' labels, fake notify banners and hardcoded category row removed; Trending 'Shop Now' → Under ₹1,000 listing",
+     "status": "PASS",
+     "evidence": "adbui dumps",
+     "defect": "ADEF-44",
+     "retest": "Retested"
     },
     {
      "id": "APP-36-06",
@@ -2721,11 +2721,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open each screen",
      "expected": "Correct tab highlighted",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Discovery screens highlight Home (was Orders); Home tab returns home",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_trending_chip.png",
+     "defect": "ADEF-44",
+     "retest": "Retested"
     }
    ]
   },
@@ -3467,6 +3467,24 @@
    "root_cause": "",
    "fix": "Show sign-in prompt for guests",
    "retest": ""
+  },
+  {
+   "id": "ADEF-43",
+   "title": "Help contact: tel link without +91 country code, dead 'Connect FB & Instagram'",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "",
+   "fix": "tel:+91…, error dialog fallback, Connect removed",
+   "retest": "PASS"
+  },
+  {
+   "id": "ADEF-44",
+   "title": "Discovery screens (Brands/Offers/Flash/New/Trending/Recommended): hardcoded fake category chips (Fashion/Beauty/Home) that didn't filter, fake countdown '02d 45h', fake bank/EMI/exchange offers, fake 'Notify me', dead 'View All'/'Shop Now', wrong nav tab highlighted, listing header count mismatch (22 vs 20)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Mock template content; curated APIs lacked category_name",
+   "fix": "Chips from real categories + filtering; fakes removed; CTA wired; Home highlighted; category_name added to curated/home APIs; totals from server",
+   "retest": "PASS"
   }
  ],
  "blockers": [

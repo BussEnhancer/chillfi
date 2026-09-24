@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/features/profile/edit_profile_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -46,6 +47,13 @@ class HelpSupportScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _open(BuildContext context, Uri uri) async {
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) => false);
+    if (!ok && context.mounted) {
+      AppErrorDialog.show(context, title: "Couldn't open that app", message: 'Please call or email us at support@chillfi.com.');
+    }
   }
 
   @override
@@ -250,7 +258,7 @@ class HelpSupportScreen extends StatelessWidget {
                           value: "+91 90562 24993",
                           time: "9 AM – 9 PM",
                           color: Colors.purple,
-                          onTap: () => launchUrl(Uri.parse('tel:919056224993')),
+                          onTap: () => _open(context, Uri.parse('tel:+919056224993')),
                         ),
                       ),
                       Expanded(
@@ -260,7 +268,7 @@ class HelpSupportScreen extends StatelessWidget {
                           value: "+91 90562 24993",
                           time: "9 AM – 9 PM",
                           color: Colors.green,
-                          onTap: () => launchUrl(Uri.parse('https://wa.me/919056224993'), mode: LaunchMode.externalApplication),
+                          onTap: () => _open(context, Uri.parse('https://wa.me/919056224993')),
                         ),
                       ),
                       Expanded(
@@ -270,16 +278,7 @@ class HelpSupportScreen extends StatelessWidget {
                           value: "support@chillfi.com",
                           time: "Response in 24h",
                           color: Colors.blue,
-                          onTap: () => launchUrl(Uri.parse('mailto:support@chillfi.com')),
-                        ),
-                      ),
-                      Expanded(
-                        child: ContactChannelCard(
-                          icon: Icons.public_rounded,
-                          label: "Connect",
-                          value: "FB & Instagram",
-                          time: "We're active",
-                          color: Colors.pink,
+                          onTap: () => _open(context, Uri.parse('mailto:support@chillfi.com')),
                         ),
                       ),
                     ],

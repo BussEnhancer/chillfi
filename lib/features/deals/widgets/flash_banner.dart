@@ -1,5 +1,4 @@
 import 'package:chillfi/core/app_colors.dart';
-import 'package:chillfi/features/deals/widgets/countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -79,7 +78,6 @@ class FlashBanner extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      const CountdownTimer(),
                     ],
                   ),
                 ),

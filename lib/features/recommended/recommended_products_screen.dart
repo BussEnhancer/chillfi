@@ -46,14 +46,16 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
   }
 
-  final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All Recommendations', 'icon': Icons.stars_rounded},
-    {'label': 'Mobiles', 'icon': Icons.smartphone_rounded},
-    {'label': 'Electronics', 'icon': Icons.laptop_rounded},
-    {'label': 'Fashion', 'icon': Icons.checkroom_rounded},
-    {'label': 'Home', 'icon': Icons.home_rounded},
-    {'label': 'Beauty', 'icon': Icons.face_rounded},
-  ];
+  // Chips = the real categories present in this list (no invented categories).
+  List<Map<String, dynamic>> get _filterChips => [
+        {'label': 'All', 'icon': Icons.grid_view_rounded},
+        ...{for (final p in _recommended) if ((p.categoryName ?? '').isNotEmpty) p.categoryName!}
+            .map((c) => {'label': c, 'icon': Icons.category_outlined}),
+      ];
+
+  List<ProductModel> get _visible => _selectedChipIndex == 0 || _selectedChipIndex >= _filterChips.length
+      ? _recommended
+      : _recommended.where((p) => p.categoryName == _filterChips[_selectedChipIndex]['label']).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +99,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 2),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -169,20 +171,12 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
             color: AppColors.darkText,
           ),
         ),
-        Text(
-          "View All >",
-          style: GoogleFonts.poppins(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.secondaryPurple,
-          ),
-        ),
       ],
     );
   }
 
   Widget _buildTopPicksList() {
-    final top = _recommended.take(3).toList();
+    final top = _visible.take(3).toList();
     if (top.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
@@ -209,7 +203,7 @@ class _RecommendedProductsScreenState extends State<RecommendedProductsScreen> {
   }
 
   Widget _buildMoreRecommendationsList() {
-    final more = _recommended.skip(3).toList();
+    final more = _visible.skip(3).toList();
     if (more.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(

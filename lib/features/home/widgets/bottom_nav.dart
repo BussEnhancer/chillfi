@@ -49,7 +49,8 @@ class CustomBottomNavBar extends StatelessWidget {
     bool isActive = selectedIndex == index;
     return GestureDetector(
       onTap: () {
-        if (isActive) return;
+        // Tapping the active tab does nothing — except Home from a screen pushed on top of Home.
+        if (isActive && !(index == 0 && Navigator.canPop(context))) return;
         Widget nextScreen;
         switch (index) {
           case 0:

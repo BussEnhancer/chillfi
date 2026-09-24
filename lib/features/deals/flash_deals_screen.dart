@@ -8,7 +8,6 @@ import 'package:chillfi/features/deals/widgets/deal_feature_highlight.dart';
 import 'package:chillfi/features/deals/widgets/deal_product_card.dart';
 import 'package:chillfi/features/deals/widgets/flash_banner.dart';
 import 'package:chillfi/features/deals/widgets/flash_header.dart';
-import 'package:chillfi/features/deals/widgets/notify_card.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -45,20 +44,17 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
   }
 
-  final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All Deals', 'icon': Icons.bolt_rounded, 'filter': null},
-    {'label': 'Mobiles', 'icon': Icons.smartphone_rounded, 'filter': 'Mobiles'},
-    {'label': 'Electronics', 'icon': Icons.laptop_rounded, 'filter': 'Electronics'},
-    {'label': 'Home', 'icon': Icons.home_rounded, 'filter': 'Home'},
-    {'label': 'Fashion', 'icon': Icons.checkroom_rounded, 'filter': 'Fashion'},
-    {'label': 'Beauty', 'icon': Icons.face_rounded, 'filter': 'Beauty'},
-  ];
+  // Chips = the real categories present in this list (no invented categories).
+  List<Map<String, dynamic>> get _filterChips => [
+        {'label': 'All', 'icon': Icons.grid_view_rounded},
+        ...{for (final p in _deals) if ((p.categoryName ?? '').isNotEmpty) p.categoryName!}
+            .map((c) => {'label': c, 'icon': Icons.category_outlined}),
+      ];
 
-  List<ProductModel> get _filteredDeals {
-    final filter = _filterChips[_selectedChipIndex]['filter'] as String?;
-    if (filter == null) return _deals;
-    return _deals.where((p) => (p.categoryName ?? '').toLowerCase().contains(filter.toLowerCase())).toList();
-  }
+  List<ProductModel> get _visible => _selectedChipIndex == 0 || _selectedChipIndex >= _filterChips.length
+      ? _deals
+      : _deals.where((p) => p.categoryName == _filterChips[_selectedChipIndex]['label']).toList();
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +87,6 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
                           SizedBox(height: 16.h),
                           _buildDealsUnder999(),
                           SizedBox(height: 30.h),
-                          const NotifyCard(),
-                          SizedBox(height: 40.h),
                         ],
                       ),
                     ),
@@ -100,7 +94,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 2),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -137,20 +131,12 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
             color: AppColors.darkText,
           ),
         ),
-        Text(
-          "View All >",
-          style: GoogleFonts.poppins(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.secondaryPurple,
-          ),
-        ),
       ],
     );
   }
 
   Widget _buildTopDeals() {
-    final deals = _filteredDeals;
+    final deals = _visible;
     if (deals.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(
@@ -176,7 +162,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
   }
 
   Widget _buildDealsUnder999() {
-    final under999 = _filteredDeals.where((p) => p.price < 999).toList();
+    final under999 = _visible.where((p) => p.price < 999).toList();
     if (under999.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
     return SingleChildScrollView(

@@ -5,12 +5,10 @@ import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrival_product_card.dart';
-import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_category_item.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_feature_highlights.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_filter_chips.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_header.dart';
 import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_hero_banner.dart';
-import 'package:chillfi/features/new_arrivals/widgets/new_arrivals_notify_banner.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -46,15 +44,16 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: id)));
   }
 
-  final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All', 'icon': Icons.grid_view_rounded},
-    {'label': 'Mobiles', 'icon': Icons.smartphone_rounded},
-    {'label': 'Electronics', 'icon': Icons.laptop_rounded},
-    {'label': 'Fashion', 'icon': Icons.checkroom_rounded},
-    {'label': 'Home', 'icon': Icons.home_rounded},
-    {'label': 'Beauty', 'icon': Icons.face_rounded},
-    {'label': 'Filter', 'icon': Icons.tune_rounded},
-  ];
+  // Chips = the real categories present in this list (no invented categories).
+  List<Map<String, dynamic>> get _filterChips => [
+        {'label': 'All', 'icon': Icons.grid_view_rounded},
+        ...{for (final p in _arrivals) if ((p.categoryName ?? '').isNotEmpty) p.categoryName!}
+            .map((c) => {'label': c, 'icon': Icons.category_outlined}),
+      ];
+
+  List<ProductModel> get _visible => _selectedChipIndex == 0 || _selectedChipIndex >= _filterChips.length
+      ? _arrivals
+      : _arrivals.where((p) => p.categoryName == _filterChips[_selectedChipIndex]['label']).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +82,6 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
                           SizedBox(height: 16.h),
                           _buildNewArrivalsGrid(),
                           SizedBox(height: 30.h),
-                          const NewArrivalsNotifyBanner(),
-                          SizedBox(height: 30.h),
-                          _buildSectionHeader("Shop by Category"),
-                          SizedBox(height: 16.h),
-                          _buildCategoryRow(),
-                          SizedBox(height: 40.h),
                         ],
                       ),
                     ),
@@ -96,7 +89,7 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 2),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -133,20 +126,12 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
             color: AppColors.darkText,
           ),
         ),
-        Text(
-          "View All >",
-          style: GoogleFonts.poppins(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.secondaryPurple,
-          ),
-        ),
       ],
     );
   }
 
   Widget _buildNewArrivalsGrid() {
-    if (_arrivals.isEmpty) return const SizedBox.shrink();
+    if (_visible.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
 
     return GridView.builder(
@@ -158,9 +143,9 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
         crossAxisSpacing: 12.w,
         mainAxisSpacing: 15.h,
       ),
-      itemCount: _arrivals.length,
+      itemCount: _visible.length,
       itemBuilder: (context, index) {
-        final p = _arrivals[index];
+        final p = _visible[index];
         return NewArrivalProductCard(
           title: p.name,
           variant: p.brandName ?? p.categoryName ?? '',
@@ -177,22 +162,4 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
     );
   }
 
-  Widget _buildCategoryRow() {
-    final List<Map<String, dynamic>> categories = [
-      {'label': 'Mobiles', 'icon': Icons.smartphone_rounded},
-      {'label': 'Electronics', 'icon': Icons.laptop_rounded},
-      {'label': 'Fashion', 'icon': Icons.checkroom_rounded},
-      {'label': 'Home', 'icon': Icons.home_rounded},
-      {'label': 'Beauty', 'icon': Icons.face_rounded},
-      {'label': 'Accessories', 'icon': Icons.headset_rounded},
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: categories.map((c) => NewArrivalsCategoryItem(label: c['label'], icon: c['icon'])).toList(),
-      ),
-    );
-  }
 }

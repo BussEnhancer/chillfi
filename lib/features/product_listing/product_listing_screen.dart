@@ -30,7 +30,10 @@ class ProductListingScreen extends StatefulWidget {
   final String? brandId;
   final String? brandName;
   final String? searchQuery;
-  const ProductListingScreen({super.key, this.categoryId, this.categoryName, this.brandId, this.brandName, this.searchQuery});
+  /// Optional preset price filter (index into the Filter sheet's ranges, e.g. 0 = under ₹1,000).
+  final int? initialPriceIdx;
+  final String? title;
+  const ProductListingScreen({super.key, this.categoryId, this.categoryName, this.brandId, this.brandName, this.searchQuery, this.initialPriceIdx, this.title});
 
   @override
   State<ProductListingScreen> createState() => _ProductListingScreenState();
@@ -78,6 +81,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   void initState() {
     super.initState();
     _search = widget.searchQuery;
+    _priceIdx = widget.initialPriceIdx ?? -1;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
     _scrollController.addListener(() {
       final pp = context.read<ProductProvider>();
@@ -237,7 +241,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                 return Column(
                   children: [
                     ProductListingHeader(
-                      title: widget.categoryName ?? "All Products",
+                      title: widget.title ?? widget.categoryName ?? widget.brandName ?? (widget.searchQuery != null ? '"${widget.searchQuery}"' : "All Products"),
                       productCount: "${pp.productsTotal} ${pp.productsTotal == 1 ? "Product" : "Products"}",
                     ),
                     ProductListingSearch(
@@ -272,7 +276,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "${displayProducts.length} Products",
+                                            "${pp.productsTotal} ${pp.productsTotal == 1 ? "Product" : "Products"}",
                                             style: GoogleFonts.poppins(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w600,

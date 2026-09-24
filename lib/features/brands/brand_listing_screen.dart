@@ -2,7 +2,6 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/services/api_service.dart';
 import 'package:chillfi/features/brands/widgets/brand_banner.dart';
 import 'package:chillfi/features/brands/widgets/brand_card.dart';
-import 'package:chillfi/features/brands/widgets/brand_chip.dart';
 import 'package:chillfi/features/brands/widgets/brand_header.dart';
 import 'package:chillfi/features/brands/widgets/bottom_offer_widget.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -33,19 +32,11 @@ class _Brand {
 }
 
 class _BrandListingScreenState extends State<BrandListingScreen> {
-  int _selectedChipIndex = 0;
   List<_Brand> _brands = [];
   bool _loading = true;
   String? _error;
   String _search = '';
 
-  final List<Map<String, dynamic>> _filterChips = [
-    {'label': 'All Brands', 'icon': Icons.grid_view_rounded},
-    {'label': 'Popular', 'icon': Icons.star_rounded},
-    {'label': 'Electronics', 'icon': Icons.smartphone_rounded},
-    {'label': 'Fashion', 'icon': Icons.checkroom_rounded},
-    {'label': 'Home', 'icon': Icons.home_rounded},
-  ];
 
   @override
   void initState() {
@@ -88,8 +79,6 @@ class _BrandListingScreenState extends State<BrandListingScreen> {
                   children: [
                     SizedBox(height: 10.h),
                     _buildSearchBar(),
-                    SizedBox(height: 20.h),
-                    _buildFilterChips(),
                     SizedBox(height: 20.h),
                     const BrandBanner(),
                     SizedBox(height: 24.h),
@@ -161,27 +150,6 @@ class _BrandListingScreenState extends State<BrandListingScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChips() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: List.generate(
-          _filterChips.length,
-          (index) => Padding(
-            padding: EdgeInsets.only(right: 12.w),
-            child: BrandChip(
-              label: _filterChips[index]['label'],
-              icon: _filterChips[index]['icon'],
-              isSelected: _selectedChipIndex == index,
-              onTap: () => setState(() => _selectedChipIndex = index),
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:chillfi/features/product_listing/product_listing_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -62,7 +63,11 @@ class TrendingCtaBanner extends StatelessWidget {
               ],
             ),
           ),
-          Container(
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(
+              builder: (_) => const ProductListingScreen(initialPriceIdx: 0, title: 'Under ₹1,000'),
+            )),
+            child: Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
             decoration: BoxDecoration(
               gradient: AppColors.buttonGradient,
@@ -76,6 +81,7 @@ class TrendingCtaBanner extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+          ),
           ),
         ],
       ),

@@ -46,7 +46,7 @@ const getProducts = async (req, res) => {
   const sortDir = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
   const query = `
-    SELECT p.*, b.name as brand_name, c.name as category_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name, c.name as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image,
       (SELECT json_agg(url ORDER BY sort_order) FROM product_images WHERE product_id = p.id) as images
     FROM products p
@@ -84,7 +84,7 @@ const getProducts = async (req, res) => {
 const getProduct = async (req, res) => {
   const { id } = req.params;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name, c.name as category_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name, c.name as category_name,
       (SELECT json_agg(json_build_object('url', url, 'is_primary', is_primary) ORDER BY sort_order)
        FROM product_images WHERE product_id = p.id) as images
     FROM products p
@@ -101,7 +101,7 @@ const getProduct = async (req, res) => {
 const getTrending = async (req, res) => {
   const { limit = 10 } = req.query;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
     WHERE p.status IN ('Active', 'Low Stock')
@@ -115,7 +115,7 @@ const getTrending = async (req, res) => {
 const getNewArrivals = async (req, res) => {
   const { limit = 10 } = req.query;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
     WHERE p.status IN ('Active', 'Low Stock')
@@ -129,7 +129,7 @@ const getNewArrivals = async (req, res) => {
 const getFlashSale = async (req, res) => {
   const { limit = 10 } = req.query;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       ROUND(((p.old_price - p.price) / p.old_price * 100)) as discount_pct,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
@@ -145,7 +145,7 @@ const getFlashSale = async (req, res) => {
 const getFeatured = async (req, res) => {
   const { limit = 10 } = req.query;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
     FROM products p LEFT JOIN brands b ON p.brand_id = b.id
     WHERE p.status IN ('Active', 'Low Stock') AND p.is_featured = TRUE
@@ -164,7 +164,7 @@ const getRecommended = async (req, res) => {
   if (userId) {
     // Recommend based on recently viewed categories
     result = await pool.query(`
-      SELECT DISTINCT p.*, b.name as brand_name,
+      SELECT DISTINCT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p
       LEFT JOIN brands b ON p.brand_id = b.id
@@ -181,7 +181,7 @@ const getRecommended = async (req, res) => {
 
     if (!result.rows.length) {
       result = await pool.query(`
-        SELECT p.*, b.name as brand_name,
+        SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
           (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
         FROM products p LEFT JOIN brands b ON p.brand_id = b.id
         WHERE p.status IN ('Active', 'Low Stock')
@@ -191,7 +191,7 @@ const getRecommended = async (req, res) => {
     }
   } else {
     result = await pool.query(`
-      SELECT p.*, b.name as brand_name,
+      SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
       WHERE p.status IN ('Active', 'Low Stock')
@@ -305,7 +305,7 @@ const logRecentlyViewed = async (req, res) => {
 const getRecentlyViewed = async (req, res) => {
   const { limit = 10 } = req.query;
   const result = await pool.query(`
-    SELECT p.*, b.name as brand_name,
+    SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image,
       rv.viewed_at
     FROM recently_viewed rv

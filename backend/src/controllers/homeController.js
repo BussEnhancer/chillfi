@@ -25,7 +25,7 @@ const getHomeData = async (req, res) => {
 
     pool.query(`
       SELECT p.id, p.name, p.price, p.old_price, p.rating, p.review_count,
-        b.name as brand_name,
+        b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
       WHERE p.status IN ('Active', 'Low Stock')
@@ -34,7 +34,7 @@ const getHomeData = async (req, res) => {
 
     pool.query(`
       SELECT p.id, p.name, p.price, p.old_price, p.rating,
-        b.name as brand_name,
+        b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
         (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
       FROM products p LEFT JOIN brands b ON p.brand_id = b.id
       WHERE p.status IN ('Active', 'Low Stock') AND p.is_featured = TRUE

@@ -52,7 +52,7 @@ class RecommendedHeroBanner extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        "Based on your views, likes and recent activity.",
+                        "Based on products you've viewed recently.",
                         style: GoogleFonts.poppins(
                           fontSize: 12.sp,
                           color: AppColors.greyText,
