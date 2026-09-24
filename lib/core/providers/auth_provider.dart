@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +35,21 @@ class AuthProvider extends ChangeNotifier {
 
     final loggedIn = await _authService.isLoggedIn();
     if (loggedIn) {
-      final user = await _authService.getMe();
-      if (user != null) {
-        _user = user;
-        _state = AuthState.authenticated;
-        _saveFcmToken();
-      } else {
-        _state = AuthState.unauthenticated;
+      try {
+        final user = await _authService.getMe();
+        if (user != null) {
+          _setUser(user);
+          _state = AuthState.authenticated;
+          _saveFcmToken();
+        } else {
+          await _clearCachedUser();
+          _state = AuthState.unauthenticated;
+        }
+      } catch (_) {
+        // Offline or server unavailable: keep the session with the last known profile.
+        final cached = await _cachedUser();
+        _user = cached;
+        _state = cached != null ? AuthState.authenticated : AuthState.unauthenticated;
       }
     } else {
       _state = AuthState.unauthenticated;
@@ -73,7 +84,7 @@ class AuthProvider extends ChangeNotifier {
     final result = await _authService.verifyOtpLogin(phone, otp);
     _message = result.message;
     if (result.success && result.user != null) {
-      _user = result.user;
+      _setUser(result.user);
       _state = AuthState.authenticated;
       _saveFcmToken();
     } else {
@@ -90,7 +101,7 @@ class AuthProvider extends ChangeNotifier {
     final result = await _authService.signup(name, phone, otp, email: email);
     _message = result.message;
     if (result.success && result.user != null) {
-      _user = result.user;
+      _setUser(result.user);
       _state = AuthState.authenticated;
       _saveFcmToken();
     } else {
@@ -125,7 +136,7 @@ class AuthProvider extends ChangeNotifier {
     final result = await _authService.firebaseVerify(verificationId, smsCode, name: name, email: email);
     _message = result.message;
     if (result.success && result.user != null) {
-      _user = result.user;
+      _setUser(result.user);
       _state = AuthState.authenticated;
       _saveFcmToken();
     } else {
@@ -159,10 +170,30 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await _authService.logout();
+    await _clearCachedUser();
     _user = null;
     _state = AuthState.unauthenticated;
     notifyListeners();
   }
+
+  static const _cacheKey = 'cached_user';
+
+  void _setUser(UserModel? user) {
+    _user = user;
+    if (user == null) return;
+    SharedPreferences.getInstance().then((p) => p.setString(_cacheKey, jsonEncode(user.toJson())));
+  }
+
+  Future<UserModel?> _cachedUser() async {
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(_cacheKey);
+      return raw == null ? null : UserModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _clearCachedUser() async => (await SharedPreferences.getInstance()).remove(_cacheKey);
 
   void clearMessage() {
     _message = '';

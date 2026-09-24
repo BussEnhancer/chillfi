@@ -86,6 +86,9 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _productsTotal = 0;
+  int get productsTotal => _productsTotal;
+
   Future<void> loadProducts({
     String? category, String? brand, String? search,
     String sort = 'created_at', String order = 'DESC',
@@ -109,6 +112,7 @@ class ProductProvider extends ChangeNotifier {
         minPrice: minPrice, maxPrice: maxPrice,
       );
       _products = refresh ? result.products : [..._products, ...result.products];
+      _productsTotal = result.total;
       _hasMore = _currentPage < result.pages;
       _currentPage++;
       _productsState = LoadState.loaded;
@@ -151,8 +155,15 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  LoadState _categoriesState = LoadState.idle;
+  LoadState get categoriesState => _categoriesState;
+
   Future<void> loadCategories() async {
+    _categoriesState = LoadState.loading;
+    notifyListeners();
     _categories = await _service.getCategories();
+    // getCategories() returns [] on failure; an empty active list is treated as "couldn't load"
+    _categoriesState = _categories.isEmpty ? LoadState.error : LoadState.loaded;
     notifyListeners();
   }
 

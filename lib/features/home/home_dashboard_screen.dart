@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
@@ -45,6 +46,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     });
   }
 
+  Future<void> _reloadAll() async {
+    final cart = context.read<CartProvider>();
+    final loggedIn = context.read<AuthProvider>().isAuthenticated;
+    cart.loadActiveCoupons();
+    if (loggedIn) {
+      cart.loadCart();
+      if (cart.selectedAddress == null) cart.loadAddresses();
+    }
+    await context.read<ProductProvider>().loadHome();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,10 +68,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const HomeSearchBar(),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () => context.read<ProductProvider>().loadHome(),
+                onRefresh: _reloadAll,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  child: Column(
+                  child: context.watch<ProductProvider>().homeState == LoadState.error &&
+                          context.read<ProductProvider>().home.banners.isEmpty &&
+                          context.read<ProductProvider>().home.categories.isEmpty
+                      ? AppErrorState(onRetry: _reloadAll)
+                      : Column(
                     children: [
                       HeroBannerSlider(banners: context.watch<ProductProvider>().home.banners),
                       const QuickFeatureSection(),

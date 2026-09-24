@@ -130,3 +130,51 @@ class AppErrorDialog {
     );
   }
 }
+
+/// Inline error/empty state for screens whose data failed to load (instead of an endless spinner).
+class AppErrorState extends StatelessWidget {
+  final String? message;
+  final bool offline;
+  final VoidCallback? onRetry;
+  const AppErrorState({super.key, this.message, this.offline = true, this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 40.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 64.r,
+            height: 64.r,
+            decoration: const BoxDecoration(color: Color(0xFFFFEEE6), shape: BoxShape.circle),
+            child: Icon(offline ? Icons.wifi_off_rounded : Icons.error_outline_rounded, color: const Color(0xFFFF6B2C), size: 32.sp),
+          ),
+          SizedBox(height: 14.h),
+          Text(offline ? "Can't load right now" : 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+          SizedBox(height: 6.h),
+          Text(message ?? AppError.noInternet,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText, height: 1.4)),
+          if (onRetry != null) ...[
+            SizedBox(height: 18.h),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text('Try again', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondaryPurple,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

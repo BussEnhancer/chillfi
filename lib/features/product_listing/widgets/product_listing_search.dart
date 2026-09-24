@@ -3,8 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProductListingSearch extends StatelessWidget {
-  const ProductListingSearch({super.key});
+class ProductListingSearch extends StatefulWidget {
+  final String? initialText;
+  final ValueChanged<String>? onSubmitted;
+  const ProductListingSearch({super.key, this.initialText, this.onSubmitted});
+
+  @override
+  State<ProductListingSearch> createState() => _ProductListingSearchState();
+}
+
+class _ProductListingSearchState extends State<ProductListingSearch> {
+  late final TextEditingController _ctrl = TextEditingController(text: widget.initialText);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +46,11 @@ class ProductListingSearch extends StatelessWidget {
             SizedBox(width: 12.w),
             Expanded(
               child: TextField(
+                controller: _ctrl,
+                textInputAction: TextInputAction.search,
+                onSubmitted: widget.onSubmitted,
                 decoration: InputDecoration(
-                  hintText: 'Search for products, brands and more...',
+                  hintText: 'Search in this list...',
                   hintStyle: GoogleFonts.poppins(
                     fontSize: 13.sp,
                     color: AppColors.greyText.withValues(alpha: 0.6),

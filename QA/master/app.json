@@ -1021,9 +1021,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open, type 2+ letters",
      "expected": "Suggestions appear from API",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Typing 'bo' shows API suggestions + trending",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1033,9 +1033,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Submit \"boat\"",
      "expected": "Results list with image, name, price, discount",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "'boat' → 3 results with image, name, price, discount",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_search_boat.png",
      "defect": "",
      "retest": ""
     },
@@ -1045,9 +1045,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap a result",
      "expected": "Opens Product Details",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Result opens Product Details (boAt Airdopes 141 TWS Earbuds)",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1057,9 +1057,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Search \"zzzzqq\"",
      "expected": "\"No results found\" empty state",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "'zzzzqq' → 'No results found / Try different keywords'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_search_none.png",
      "defect": "",
      "retest": ""
     },
@@ -1069,9 +1069,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap ✕ / back",
      "expected": "Clears query / returns",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "✕ clears query; back returns",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1081,11 +1081,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open mic",
      "expected": "Mic permission requested; recognised text used; popular chips work",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Permission requested; denied → guidance; popular chip runs search",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_voice_denied.png",
+     "defect": "ADEF-14",
+     "retest": "Speech recognition itself needs a real mic (not testable on emulator)"
     }
    ]
   },
@@ -1101,9 +1101,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open tab",
      "expected": "Categories from API render in sidebar and grid",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Sidebar + grid from API (7 categories with counts)",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_cat_tile.png",
      "defect": "",
      "retest": ""
     },
@@ -1113,9 +1113,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap one",
      "expected": "Opens listing filtered by category",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Smartphones → listing (7), Cameras → '0 Products / No products found'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_empty_cat.png",
      "defect": "",
      "retest": ""
     },
@@ -1125,11 +1125,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Backend down / no categories",
      "expected": "Shows message + retry, not an endless spinner",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Offline → 'Can't load right now' + Try again; retry after reconnect loads categories",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_offline_cats.png",
+     "defect": "ADEF-22",
+     "retest": "Retested"
     }
    ]
   },
@@ -1145,9 +1145,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Open from a category",
      "expected": "Title = category name; search/cart icons work",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Title = category name; total count from server; search/cart icons",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_bottom.png",
      "defect": "",
      "retest": ""
     },
@@ -1157,11 +1157,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Type + submit",
      "expected": "Filters the listing (not a dead input)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "In-list search 'rockerz' → 1 Product (server query within category)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-23",
+     "retest": "Retested"
     },
     {
      "id": "APP-16-03",
@@ -1169,11 +1169,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap a brand",
      "expected": "List filtered to that brand",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Sony chip → 3 products (server brand filter); chips persist",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-23",
+     "retest": "Retested"
     },
     {
      "id": "APP-16-04",
@@ -1181,11 +1181,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Choose each option",
      "expected": "List reorders correctly",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Low→High ₹999,1299,1799…; High→Low ₹26990,24990,24900… (server-side)",
+     "status": "PASS",
+     "evidence": "adbui dump",
+     "defect": "ADEF-23",
+     "retest": "Retested"
     },
     {
      "id": "APP-16-05",
@@ -1193,11 +1193,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Provides a real filter (or is removed)",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Filter opens price ranges; Under ₹1,000 → 1 product; Clear restores 8",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_filter.png",
+     "defect": "ADEF-23",
+     "retest": "Retested"
     },
     {
      "id": "APP-16-06",
@@ -1205,9 +1205,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Layout switches",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Grid/List toggle switches layout",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_list.png",
      "defect": "",
      "retest": ""
     },
@@ -1217,9 +1217,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Opens details",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Card opens details",
+     "status": "PASS",
+     "evidence": "adbui dump",
      "defect": "",
      "retest": ""
     },
@@ -1229,9 +1229,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap",
      "expected": "Toggles wishlist (server) with visible state",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Heart toggles server wishlist (0→1→0) with red state",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_heart_on.png",
      "defect": "",
      "retest": ""
     },
@@ -1241,9 +1241,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Tap Add",
      "expected": "Item added with visible feedback",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Add → green '<name> added to cart'; OOS card disabled with overlay",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_added_crop.png; qa-tools/results/app_oos_card.png",
      "defect": "",
      "retest": ""
     },
@@ -1253,11 +1253,11 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Scroll to end with >1 page",
      "expected": "Next page loads with same filters",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "All Products (22, 2 pages): page-2 items (Lenovo IdeaPad, Sony WH-1000XM5 Wireless) load on scroll with same filters",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_listing_bottom.png",
+     "defect": "ADEF-23",
+     "retest": "Retested"
     },
     {
      "id": "APP-16-11",
@@ -1265,9 +1265,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Category with no products",
      "expected": "\"No products found\"",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Cameras: 'No products found'",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_empty_cat.png",
      "defect": "",
      "retest": ""
     }
@@ -3278,6 +3278,24 @@
    "root_cause": "Badge tied to is_featured",
    "fix": "Renamed to 'Featured'",
    "retest": "Code fixed"
+  },
+  {
+   "id": "ADEF-22",
+   "title": "Offline: logged-in users shown Welcome as if logged out; Home/Categories/Listing spin forever or say 'not found'",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "getMe() treated network errors as invalid session; no error states",
+   "fix": "Session kept offline with cached profile (only 401/403 logs out); AppErrorState + Try again on Home, Categories, Listing",
+   "retest": "PASS APP-15-03; offline screenshots"
+  },
+  {
+   "id": "ADEF-23",
+   "title": "Listing: sort/brand filter only applied to loaded page; Filter button fake; in-page search dead; next page dropped search; 'Popular' sort fake",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Client-side filtering over paginated data",
+   "fix": "Server-side sort/brand/price/search on every page; price filter sheet; 'Newest' label; total count from server",
+   "retest": "PASS APP-16-02..05,10"
   }
  ],
  "blockers": [

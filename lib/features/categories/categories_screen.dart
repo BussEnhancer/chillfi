@@ -1,3 +1,4 @@
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
@@ -79,6 +80,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 builder: (context, pp, _) {
                   final cats = pp.categories.where((c) => c.isActive).toList();
                   if (cats.isEmpty) {
+                    if (pp.categoriesState == LoadState.error) {
+                      return Center(child: AppErrorState(onRetry: pp.loadCategories));
+                    }
                     return const Center(child: CircularProgressIndicator());
                   }
                   return Row(

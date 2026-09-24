@@ -150,10 +150,16 @@ class AuthService {
     }
   }
 
+  /// Returns the signed-in user, or null when the session is no longer valid (401/403/404).
+  /// Connectivity/server problems are rethrown so callers don't mistake "offline" for "logged out".
   Future<UserModel?> getMe() async {
     try {
       final res = await _api.get('/auth/me');
       return UserModel.fromJson(res.data['data']['user']);
+    } on DioException catch (e) {
+      final code = e.response?.statusCode ?? 0;
+      if (code == 401 || code == 403 || code == 404) return null;
+      rethrow;
     } catch (_) {
       return null;
     }
