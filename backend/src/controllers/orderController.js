@@ -387,7 +387,8 @@ const cancelOrder = async (req, res) => {
 
 // GET /api/admin/orders
 const adminGetOrders = async (req, res) => {
-  const { status, page = 1, limit = 20, search } = req.query;
+  const { status, page = 1, search } = req.query;
+  const limit = Math.max(1, Math.min(1000, parseInt(req.query.limit) || 20));
   const offset = (page - 1) * limit;
   const values = [];
   const conditions = [];
@@ -406,6 +407,8 @@ const adminGetOrders = async (req, res) => {
       a.line1 as address_line1, a.line2 as address_line2, a.city as address_city,
       a.state as address_state, a.pincode as address_pincode,
       (SELECT product_name FROM order_items WHERE order_id = o.id LIMIT 1) as product,
+      (SELECT COALESCE(SUM(quantity),0) FROM order_items WHERE order_id = o.id) as item_count,
+      (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as line_count,
       (SELECT product_image FROM order_items WHERE order_id = o.id LIMIT 1) as img
     FROM orders o
     JOIN users u ON o.user_id = u.id

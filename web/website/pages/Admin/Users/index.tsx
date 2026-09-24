@@ -238,8 +238,7 @@ const AdminUsers: React.FC = () => {
                         <button onClick={() => handleBlock(u.id)} className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${u.status === 'Blocked' ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-amber-50 text-amber-500 hover:bg-amber-100'}`} title={u.status === 'Blocked' ? 'Unblock' : 'Block'}>
                           {u.status === 'Blocked' ? <ShieldCheck size={13} /> : <ShieldOff size={13} />}
                         </button>
-                        <button onClick={() => window.open(`mailto:${u.email}`)} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-[#FFF3ED] hover:text-[#FF6B2C] transition-colors" title="Email"><Mail size={13} /></button>
-                        <button onClick={async () => { try { await apiPut(`/admin/users/${u.id}/status`, { status: 'Blocked' }); } catch {} setUsers(prev => prev.filter(x => x.id !== u.id)); showToast(`User ${u.name} deactivated`); }} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors" title="Remove"><Trash2 size={13} /></button>
+                        <button onClick={() => window.open(`mailto:${u.email}`)} className="w-7 h-7 rounded-lg bg-[#F8F7FC] flex items-center justify-center text-gray-500 hover:bg-[#FFF3ED] hover:text-[#FF6B2C] transition-colors" title="Email"><Mail size={13} /></button>  {/* No fake 'Remove': use Block/Unblock (accounts with orders must be kept). */}
                       </div>
                     </td>
                   </tr>

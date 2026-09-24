@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { TrendingUp, ShoppingCart, Package, Users, ArrowUpRight, ArrowDownRight, Eye, ChevronRight } from 'lucide-react';
-import { useStore } from '../../../context/StoreContext';
-import { apiGet } from '../../../utils/api';
+import { apiGet, friendlyError } from '../../../utils/api';
 
 const statusStyle: Record<string, string> = {
   Delivered: 'bg-green-50 text-green-600',
@@ -12,12 +11,6 @@ const statusStyle: Record<string, string> = {
   Cancelled: 'bg-red-50 text-red-500',
 };
 
-const chartBars = [
-  { label: 'Jan', h: 40 }, { label: 'Feb', h: 55 }, { label: 'Mar', h: 48 },
-  { label: 'Apr', h: 70 }, { label: 'May', h: 62 }, { label: 'Jun', h: 88 },
-  { label: 'Jul', h: 75 }, { label: 'Aug', h: 82 }, { label: 'Sep', h: 68 },
-  { label: 'Oct', h: 90 }, { label: 'Nov', h: 78 }, { label: 'Dec', h: 95 },
-];
 
 interface DashData {
   revenue: number;
@@ -27,53 +20,57 @@ interface DashData {
   recent_orders: Array<{ order_number: string; customer: string; total: number; status: string; created_at: string; item_count: number }>;
   top_products: Array<{ name: string; units_sold: number; revenue: number; image: string }>;
   monthly_revenue: Array<{ month: string; revenue: number }>;
-  changes?: { revenue: number; orders: number; users: number };
+  changes?: { revenue: number | null; orders: number | null; users: number | null };
 }
 
 const AdminDashboard: React.FC = () => {
-  const { products, orders } = useStore();
   const [dash, setDash] = useState<DashData | null>(null);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     apiGet<{ success: boolean; data: DashData }>('/admin/dashboard')
       .then(r => setDash(r.data))
-      .catch(() => {}); // fallback to StoreContext data
+      .catch((e) => setLoadError(friendlyError(e, "Couldn't load dashboard data"))); // never show mock data
   }, []);
 
-  const totalRevenue = dash ? dash.revenue : orders.reduce((s, o) => s + o.amount, 0);
-  const totalOrders = dash ? dash.orders.total : orders.length;
-  const totalProducts = dash ? dash.products : products.length;
+  const totalRevenue = dash ? dash.revenue : 0;
+  const totalOrders = dash ? dash.orders.total : 0;
+  const totalProducts = dash ? dash.products : 0;
   const totalUsers = dash ? dash.users : 0;
 
-  const fmtChange = (n: number) => `${n >= 0 ? '+' : ''}${n}%`;
+  // null = no data for the previous 30 days → show nothing rather than a made-up %
+  const fmtChange = (n: number | null | undefined) => (n == null ? '' : `${n >= 0 ? '+' : ''}${n}%`);
   const ch = dash?.changes;
   const stats = [
-    { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, change: ch ? fmtChange(ch.revenue) : '—', up: (ch?.revenue ?? 0) >= 0, icon: <TrendingUp size={20} />, color: '#FF6B2C', bg: '#FFF3ED' },
-    { label: 'Total Orders', value: totalOrders.toLocaleString(), change: ch ? fmtChange(ch.orders) : '—', up: (ch?.orders ?? 0) >= 0, icon: <ShoppingCart size={20} />, color: '#0EA5E9', bg: '#E0F2FE' },
-    { label: 'Total Products', value: totalProducts.toLocaleString(), change: '—', up: true, icon: <Package size={20} />, color: '#10B981', bg: '#D1FAE5' },
-    { label: 'Total Users', value: totalUsers.toLocaleString(), change: ch ? fmtChange(ch.users) : '—', up: (ch?.users ?? 0) >= 0, icon: <Users size={20} />, color: '#F59E0B', bg: '#FEF3C7' },
+    { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, change: fmtChange(ch?.revenue), up: (ch?.revenue ?? 0) >= 0, icon: <TrendingUp size={20} />, color: '#FF6B2C', bg: '#FFF3ED' },
+    { label: 'Total Orders', value: totalOrders.toLocaleString(), change: fmtChange(ch?.orders), up: (ch?.orders ?? 0) >= 0, icon: <ShoppingCart size={20} />, color: '#0EA5E9', bg: '#E0F2FE' },
+    { label: 'Total Products', value: totalProducts.toLocaleString(), change: '', up: true, icon: <Package size={20} />, color: '#10B981', bg: '#D1FAE5' },
+    { label: 'Total Users', value: totalUsers.toLocaleString(), change: fmtChange(ch?.users), up: (ch?.users ?? 0) >= 0, icon: <Users size={20} />, color: '#F59E0B', bg: '#FEF3C7' },
   ];
 
   const recentOrders = dash
     ? dash.recent_orders.slice(0, 5).map(o => ({
         id: o.order_number,
         customer: o.customer,
-        product: `${o.item_count} item${o.item_count !== 1 ? 's' : ''}`,
+        product: `${Number(o.item_count)} item${Number(o.item_count) !== 1 ? 's' : ''}`,
         amount: `₹${Number(o.total).toLocaleString()}`,
         status: o.status,
         date: new Date(o.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
       }))
-    : orders.slice(0, 5).map(o => ({ id: o.id, customer: o.customer, product: o.product, amount: `₹${o.amount.toLocaleString()}`, status: o.status, date: o.date }));
+    : [];
 
   const topProducts = dash
     ? dash.top_products.slice(0, 4).map(p => ({ name: p.name, sales: p.units_sold, revenue: `₹${Number(p.revenue).toLocaleString()}`, img: p.image }))
-    : products.filter(p => p.status === 'Active').slice(0, 4).map(p => ({ name: p.name, sales: p.reviews, revenue: `₹${(p.price * Math.floor(p.reviews / 10)).toLocaleString()}`, img: p.img }));
+    : [];
 
-  const barData = dash?.monthly_revenue ?? chartBars.map(b => ({ month: b.label, revenue: b.h * 1000 }));
+  const barData = dash?.monthly_revenue ?? [];
   const maxRevenue = Math.max(...barData.map(b => Number(b.revenue)), 1);
 
   return (
     <AdminLayout title="Dashboard" subtitle="Welcome back, Admin! Here's what's happening.">
+      {loadError && (
+        <div className="mb-6 bg-red-50 border border-red-100 text-red-600 text-sm font-bold rounded-2xl px-5 py-4">{loadError}</div>
+      )}
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
         {stats.map((s, i) => (
@@ -82,10 +79,10 @@ const AdminDashboard: React.FC = () => {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: s.bg, color: s.color }}>
                 {s.icon}
               </div>
-              <span className={`flex items-center gap-1 text-xs font-black px-2 py-1 rounded-lg ${s.up ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+              {s.change && <span className={`flex items-center gap-1 text-xs font-black px-2 py-1 rounded-lg ${s.up ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
                 {s.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                 {s.change}
-              </span>
+              </span>}
             </div>
             <p className="text-2xl font-black text-[#111827] mb-1">{s.value}</p>
             <p className="text-xs font-bold text-gray-400">{s.label}</p>

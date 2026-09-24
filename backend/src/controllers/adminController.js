@@ -3,19 +3,23 @@ const { sendPushToTokens } = require('../utils/firebase');
 
 // ── Analytics ──────────────────────────────────────────────────────────────
 
+// Single definition of revenue used by Dashboard and Analytics: money actually received and kept
+// (paid online or COD collected) — excluding orders that were cancelled (refund due) or refunded.
+const PAID_KEPT = `payment_status='Paid' AND status <> 'Cancelled'`;
+
 const getDashboardStats = async (req, res, next) => {
   try {
     const [revenue, orders, products, users, prevRevenue, prevOrders, prevUsers,
            recentOrders, topProducts, monthlyRevenue] = await Promise.all([
-      pool.query(`SELECT COALESCE(SUM(total),0) AS total FROM orders WHERE payment_status='Paid'`),
+      pool.query(`SELECT COALESCE(SUM(total),0) AS total FROM orders WHERE ${PAID_KEPT}`),
       pool.query(`SELECT COUNT(*) AS total, status FROM orders GROUP BY status`),
       pool.query(`SELECT COUNT(*) AS total FROM products WHERE status!='Inactive'`),
       pool.query(`SELECT COUNT(*) AS total FROM users WHERE role='customer'`),
       // Period comparisons: last 30 days vs prior 30 days
       pool.query(`SELECT COALESCE(SUM(total),0) AS cur,
-        (SELECT COALESCE(SUM(total),0) FROM orders WHERE payment_status='Paid'
+        (SELECT COALESCE(SUM(total),0) FROM orders WHERE ${PAID_KEPT}
           AND created_at >= NOW()-INTERVAL '60 days' AND created_at < NOW()-INTERVAL '30 days') AS prev
-        FROM orders WHERE payment_status='Paid' AND created_at >= NOW()-INTERVAL '30 days'`),
+        FROM orders WHERE ${PAID_KEPT} AND created_at >= NOW()-INTERVAL '30 days'`),
       pool.query(`SELECT COUNT(*) FILTER (WHERE created_at >= NOW()-INTERVAL '30 days') AS cur,
         COUNT(*) FILTER (WHERE created_at >= NOW()-INTERVAL '60 days' AND created_at < NOW()-INTERVAL '30 days') AS prev
         FROM orders`),
@@ -36,20 +40,21 @@ const getDashboardStats = async (req, res, next) => {
                SUM(oi.quantity * oi.price) AS revenue,
                pi.url AS image
         FROM order_items oi
+        JOIN orders o ON o.id = oi.order_id AND o.status <> 'Cancelled'
         JOIN products p ON p.id = oi.product_id
         LEFT JOIN LATERAL (SELECT url FROM product_images WHERE product_id=p.id ORDER BY sort_order LIMIT 1) pi ON true
         GROUP BY p.id, p.name, p.price, pi.url
         ORDER BY units_sold DESC LIMIT 5
       `),
       pool.query(`
-        SELECT TO_CHAR(created_at,'Mon') AS month,
-               EXTRACT(MONTH FROM created_at) AS month_num,
+        SELECT TO_CHAR(DATE_TRUNC('month', created_at),'Mon') AS month,
+               EXTRACT(MONTH FROM DATE_TRUNC('month', created_at)) AS month_num,
                COALESCE(SUM(total),0) AS revenue
         FROM orders
-        WHERE payment_status='Paid'
+        WHERE ${PAID_KEPT}
           AND created_at >= NOW() - INTERVAL '12 months'
-        GROUP BY month, month_num
-        ORDER BY month_num
+        GROUP BY DATE_TRUNC('month', created_at)
+        ORDER BY DATE_TRUNC('month', created_at)
       `),
     ]);
 
@@ -59,7 +64,7 @@ const getDashboardStats = async (req, res, next) => {
     const pctChange = (cur, prev) => {
       const c = parseFloat(cur) || 0;
       const p = parseFloat(prev) || 0;
-      if (p === 0) return c > 0 ? 100 : 0;
+      if (p === 0) return null; // no previous-period data → no % (UI shows nothing / "New")
       return Math.round(((c - p) / p) * 100);
     };
 
@@ -100,7 +105,8 @@ const getAnalytics = async (req, res, next) => {
 
     const [sales, topCats, conversionData, userGrowth] = await Promise.all([
       pool.query(`
-        SELECT DATE(created_at) AS date, COUNT(*) AS orders, COALESCE(SUM(total),0) AS revenue
+        SELECT DATE(created_at) AS date, COUNT(*) AS orders,
+               COALESCE(SUM(total) FILTER (WHERE ${PAID_KEPT}),0) AS revenue
         FROM orders
         WHERE created_at >= NOW() - ($1 * INTERVAL '1 day')
         GROUP BY DATE(created_at)
@@ -112,7 +118,7 @@ const getAnalytics = async (req, res, next) => {
         JOIN products p ON p.id=oi.product_id
         JOIN categories c ON c.id=p.category_id
         JOIN orders o ON o.id = oi.order_id
-        WHERE o.created_at >= NOW() - ($1 * INTERVAL '1 day')
+        WHERE o.created_at >= NOW() - ($1 * INTERVAL '1 day') AND o.status <> 'Cancelled'
         GROUP BY c.name ORDER BY revenue DESC LIMIT 6
       `, [days]),
       pool.query(`
@@ -184,7 +190,10 @@ const updateUserStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    await pool.query('UPDATE users SET is_active=$1 WHERE id=$2', [status === 'Active', id]);
+    if (!['Active', 'Blocked'].includes(status)) return res.status(400).json({ success: false, message: 'Status must be Active or Blocked' });
+    if (id === req.user.id) return res.status(400).json({ success: false, message: "You can't block your own account." });
+    const r = await pool.query('UPDATE users SET is_active=$1 WHERE id=$2 RETURNING id', [status === 'Active', id]);
+    if (!r.rows.length) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, message: `User ${status.toLowerCase()}` });
   } catch (err) { next(err); }
 };
@@ -196,6 +205,7 @@ const updateUserRole = async (req, res, next) => {
     if (!['customer', 'admin', 'support_staff'].includes(role)) {
       return res.status(400).json({ success: false, message: 'Invalid role' });
     }
+    if (id === req.user.id) return res.status(400).json({ success: false, message: "You can't change your own role." });
     const result = await pool.query('UPDATE users SET role=$1 WHERE id=$2 RETURNING id, name, email, phone, role', [role, id]);
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, message: 'Role updated', data: result.rows[0] });

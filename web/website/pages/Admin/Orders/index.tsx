@@ -18,7 +18,7 @@ interface ApiOrder {
   id: string; order_number?: string; customer_name?: string; customer_email?: string;
   customer_phone?: string; total: string | number; payment_method?: string; status?: string;
   created_at?: string; address_line1?: string; address_line2?: string;
-  address_city?: string; address_state?: string; address_pincode?: string; item_count?: number;
+  address_city?: string; address_state?: string; address_pincode?: string; item_count?: number | string; line_count?: number | string;
   tracking_id?: string; payment_status?: string;
   shipping_status?: string; courier_status?: string; shipment_error?: string; shipment_env?: string; shipment_provider?: string;
   product?: string; img?: string;
@@ -46,7 +46,7 @@ const normalizeApiOrder = (o: ApiOrder): AdminOrder => ({
   customer: o.customer_name || 'Unknown',
   email: o.customer_email || '',
   phone: o.customer_phone || '',
-  product: o.product || (Array.isArray(o.items) && o.items.length > 0 ? (o.items[0].product_name || 'Product') : 'Multiple items'),
+  product: (Number(o.line_count) > 1 ? `${o.product} + ${Number(o.line_count) - 1} more` : o.product) || (Array.isArray(o.items) && o.items.length > 0 ? (o.items[0].product_name || 'Product') : 'Multiple items'),
   qty: Number(o.item_count || 1),
   amount: Number(o.total || 0),
   payment: o.payment_method || 'COD',
@@ -332,6 +332,7 @@ const PAGE_SIZE = 10;
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [serverTotal, setServerTotal] = useState(0);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [viewing, setViewing] = useState<AdminOrder | null>(null);
@@ -346,7 +347,8 @@ const AdminOrders: React.FC = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const res = await apiGet<{ success: boolean; data: { orders: ApiOrder[]; pagination?: unknown } }>('/admin/orders?limit=200');
+      const res = await apiGet<{ success: boolean; data: { orders: ApiOrder[]; total?: number } }>('/admin/orders?limit=1000');
+      setServerTotal(Number(res.data?.total || 0));
       if (res.data?.orders) setOrders(res.data.orders.map(normalizeApiOrder));
     } catch { } finally { setLoading(false); }
   };
@@ -381,7 +383,12 @@ const AdminOrders: React.FC = () => {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <AdminLayout title="Orders" subtitle={`${orders.length} total orders`}>
+    <AdminLayout title="Orders" subtitle={`${serverTotal || orders.length} total orders`}>
+      {serverTotal > orders.length && (
+        <div className="mb-4 bg-amber-50 border border-amber-100 text-amber-700 text-xs font-bold rounded-xl px-4 py-3">
+          Showing the latest {orders.length} of {serverTotal} orders.
+        </div>
+      )}
       <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
         {tabs.map(tab => (
           <button key={tab} onClick={() => { setActiveTab(tab); setPage(1); }}
