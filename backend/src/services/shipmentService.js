@@ -276,6 +276,17 @@ const onOrderPaid = async (orderId, trigger) => {
   const o = (await pool.query('SELECT * FROM orders WHERE id = $1', [orderId])).rows[0];
   if (!o) return;
   console.log(`[order] paid ${o.order_number} via ${trigger}`);
+  // Payment landed after the order was cancelled (customer cancelled, or unpaid-order expiry) → refund, never ship.
+  if (o.status === 'Cancelled') {
+    const opened = await require('../utils/refunds').openAutoRefund(pool, o, 'Payment received after the order was cancelled');
+    if (opened) notifyUser(o.user_id, {
+      title: 'Refund started',
+      body: `We received a payment for cancelled order ${o.order_number}. A full refund of ₹${o.total} has been started.`,
+      data: { order_id: o.id, order_number: o.order_number },
+      dedupeKey: `order:${o.id}:late-payment-refund`,
+    });
+    return;
+  }
   await notifyOrderConfirmed(o);
   if (o.payment_method !== 'COD') await maybeAutoShip(orderId, trigger);
 };
@@ -345,6 +356,7 @@ const runScheduledSync = async () => {
     const retry = await retryFailedShipments();
     const sync = await syncShipments();
     const pickup = await ensurePickup({ trigger: 'scheduler' });
+    await require('./paymentExpiry').expireUnpaidOrders().catch((e) => log(`unpaid-order expiry error: ${e.message}`));
     lastRun.at = new Date(); lastRun.result = { retry, sync, pickup };
     if (sync.checked || retry.retried) log(`scheduled sync: ${JSON.stringify(lastRun.result)}`);
   } catch (err) {

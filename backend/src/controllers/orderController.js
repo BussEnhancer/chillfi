@@ -1,5 +1,6 @@
 const pool = require('../db/pool');
 const { getShippingFee, checkoutServiceability } = require('../utils/shipping');
+const { openAutoRefund } = require('../utils/refunds');
 const { getGstAmount } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
@@ -308,16 +309,6 @@ const requestRefund = async (req, res) => {
 
 // A cancelled order that was already paid online must be refunded — open the refund request automatically
 // (idempotent) so it shows up in Admin → Refunds instead of relying on the customer to ask.
-const openAutoRefund = async (db, order, reason) => {
-  if (order.payment_status !== 'Paid' || order.payment_method === 'COD') return;
-  await db.query(
-    `INSERT INTO refund_requests (order_id, user_id, type, reason, refund_amount)
-     SELECT $1, $2, 'Refund', $3, $4
-     WHERE NOT EXISTS (SELECT 1 FROM refund_requests WHERE order_id = $1 AND status IN ('Requested','Approved','Refunded'))`,
-    [order.id, order.user_id, reason, order.total]
-  );
-};
-
 // POST /api/orders/:id/cancel
 const cancelOrder = async (req, res) => {
   const { id } = req.params;

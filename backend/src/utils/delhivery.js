@@ -228,7 +228,19 @@ const createShipment = async (order) => {
     const existing = await findWaybillByOrderRef(order.order_number, cfg);
     if (existing) return { waybill: existing, env: cfg.env, recovered: true };
   }
-  throw new DelhiveryError(`Delhivery rejected shipment: ${remarks || 'unknown error'}`, { code: 'REJECTED' });
+  console.warn(`[delhivery] create rejected order=${order.order_number}: ${remarks || 'no remarks'}`);
+  throw new DelhiveryError(`Delhivery rejected shipment: ${explainRejection(remarks)}`, { code: 'REJECTED' });
+};
+
+// Turns Delhivery's raw rejection remarks into a short, actionable admin message (raw text is logged above).
+const explainRejection = (remarks = '') => {
+  if (/package type cod not serviceable/i.test(remarks)) return 'Cash on Delivery isn\'t enabled on this Delhivery account. Ask Delhivery to enable COD, or ship prepaid orders only.';
+  if (/non[- ]?serviceable|pincode.*(not|isn)/i.test(remarks)) return 'Delhivery can\'t deliver to this pincode.';
+  if (/pickup.*(location|warehouse|client).*(not|invalid)|clientwarehouse/i.test(remarks)) return 'The pickup location name doesn\'t match your Delhivery account. Check Admin → API Keys → Shipping.';
+  if (/weight|dimension/i.test(remarks)) return 'Delhivery rejected the package weight/dimensions.';
+  const quoted = remarks.match(/exception '([^']{5,160})'/i)?.[1];
+  const text = (quoted || remarks || 'unknown error').replace(/\s+/g, ' ').trim();
+  return text.length > 140 ? `${text.slice(0, 137)}…` : text;
 };
 
 const findWaybillByOrderRef = async (orderNumber, cfgIn) => {

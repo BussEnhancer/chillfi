@@ -1649,9 +1649,9 @@
      "pre": "Logged in as DLV-TEST customer",
      "steps": "Cancel on website",
      "expected": "Delhivery cancellation accepted",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Cancel before pickup (website + API) cancels shipment; late courier events can't revive",
+     "status": "PASS",
+     "evidence": "account suite WEB-13-05 + lifecycle",
      "defect": "",
      "retest": ""
     },
@@ -1999,6 +1999,15 @@
    "root_cause": "Admin-entered content",
    "fix": "Edit the promo banner text in Admin → Promo Banners (content owner)",
    "retest": ""
+  },
+  {
+   "id": "WDEF-26",
+   "title": "Order card payment status always green (Pending/Failed looked successful); '(1 Item)' hardcoded",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Static styling/text",
+   "fix": "Colour by status, 'Not completed' for Failed; real item count",
+   "retest": "Probe screenshot"
   }
  ],
  "blockers": []

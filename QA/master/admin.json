@@ -389,11 +389,11 @@
      "pre": "Logged in as admin",
      "steps": "Processing COD/Paid order",
      "expected": "AWB created on Delhivery staging",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Auto-create on order (staging AWB); duplicate/parallel re-ship refused; Retry shows actionable Delhivery reason in dialog",
+     "status": "PASS",
+     "evidence": "lifecycle 48/48 + qa-tools/results/web/adm17_retry_dialog.png",
+     "defect": "ADEF-A23",
+     "retest": "Retested"
     },
     {
      "id": "ADM-04-06",
@@ -425,9 +425,9 @@
      "pre": "Logged in as admin",
      "steps": "Set Cancelled",
      "expected": "Shipment cancelled at Delhivery",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Cancel before pickup cancels Delhivery shipment; after pickup refused 409",
+     "status": "PASS",
+     "evidence": "lifecycle 48/48 (real staging)",
      "defect": "",
      "retest": ""
     },
@@ -1249,9 +1249,9 @@
      "pre": "Logged in as admin",
      "steps": "Open shipped order",
      "expected": "AWB, stage, env, history",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Admin list/detail show shipping status, AWB, env badge, courier status, live track, label",
+     "status": "PASS",
+     "evidence": "lifecycle + admin UI",
      "defect": "",
      "retest": ""
     },
@@ -1261,10 +1261,10 @@
      "pre": "Logged in as admin",
      "steps": "Shipment rejected",
      "expected": "Reason shown; retry works",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Failed shipment shows reason + Retry; failure explained in persistent dialog",
+     "status": "PASS",
+     "evidence": "qa-tools/results/web/adm17_failed_before.png, adm17_retry_dialog.png",
+     "defect": "ADEF-A23",
      "retest": ""
     },
     {
@@ -1273,9 +1273,9 @@
      "pre": "Logged in as admin",
      "steps": "After Delivered event",
      "expected": "Admin shows Delivered, payment Paid",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Webhook Delivered → order Delivered, COD marked Paid, customer notified",
+     "status": "PASS",
+     "evidence": "lifecycle 48/48",
      "defect": "",
      "retest": ""
     },
@@ -1285,10 +1285,10 @@
      "pre": "Logged in as admin",
      "steps": "Walk order from placed to delivered",
      "expected": "Every step actionable from admin",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Every open order has a next action (create/retry, awaiting payment, status change); abandoned online orders now auto-expire",
+     "status": "PASS",
+     "evidence": "DB audit + test-payment-expiry 13/13",
+     "defect": "ADEF-A22",
      "retest": ""
     }
    ]
@@ -1483,6 +1483,24 @@
    "root_cause": "Test cleanup",
    "fix": "Deactivated; suites now self-seed and clean up",
    "retest": "public QA products: none"
+  },
+  {
+   "id": "ADEF-A22",
+   "title": "Abandoned online payments kept orders 'Processing' forever (stock + coupon held); a late payment on a cancelled order sent 'Order confirmed' and opened no refund",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "No expiry job; onOrderPaid ignored order status",
+   "fix": "paymentExpiry job (gateway-verified, never cancels on uncertainty) + late-payment auto-refund",
+   "retest": "test-payment-expiry 13/13; lifecycle 48/48"
+  },
+  {
+   "id": "ADEF-A23",
+   "title": "Delhivery rejection showed as generic 'Something went wrong' toast for 3s (raw text >180 chars / technical)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Raw remarks passed through",
+   "fix": "explainRejection() concise actionable text; error dialog",
+   "retest": "UI verified"
   }
  ],
  "blockers": [

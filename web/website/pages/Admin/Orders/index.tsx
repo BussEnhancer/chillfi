@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Search, Eye, ChevronLeft, ChevronRight, Download, X, Check, MapPin, Loader2, Truck, Navigation, RefreshCw, AlertTriangle } from 'lucide-react';
 import { apiGet, apiPut, apiPost } from '../../../utils/api';
+import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import { useAdminRole } from '../../../utils/useAdminRole';
 import { Order } from '../../../context/StoreContext';
 
@@ -375,7 +376,7 @@ const AdminOrders: React.FC = () => {
     try {
       const res = await apiPost<{ success: boolean; data: { awb: string; env?: string }; message: string }>(`/admin/orders/${id}/ship`, { provider: 'delhivery' });
       showToast(`${res.message || 'Shipment created'} — AWB ${res.data?.awb}`);
-    } catch (e: any) { showToast(e.message || 'Failed to create shipment', true); }
+    } catch (e: any) { showErrorDialog({ title: "Couldn't create the shipment", error: e }); }
     // Order status only changes to Shipped when Delhivery reports pickup; reload server truth.
     await loadOrders();
   };

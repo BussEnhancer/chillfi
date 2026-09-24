@@ -55,12 +55,12 @@ const OrderCard: React.FC<OrderCardProps> = ({
           <div>
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Total Amount</span>
             <p className="text-sm font-black text-[#111827]">₹{amount.toLocaleString()}</p>
-            <p className="text-[10px] font-bold text-gray-400">(1 Item)</p>
+            <p className="text-[10px] font-bold text-gray-400">({qty} {qty === 1 ? 'Item' : 'Items'})</p>
           </div>
 
           <div>
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Payment</span>
-            <p className="text-sm font-black text-green-600">{paymentStatus}</p>
+            <p className={`text-sm font-black ${paymentStatus === 'Paid' ? 'text-green-600' : paymentStatus === 'Failed' ? 'text-red-500' : paymentStatus === 'Refunded' ? 'text-blue-600' : 'text-amber-600'}`}>{paymentStatus === 'Failed' ? 'Not completed' : paymentStatus}</p>
             <p className="text-[10px] font-bold text-gray-400">{paymentMethod}</p>
           </div>
 
