@@ -761,9 +761,9 @@
      "pre": "Guest (logged out)",
      "steps": "Type/paste/backspace",
      "expected": "Works; fits at 320px",
-     "actual": "OTP boxes appear only after a real OTP send (Firebase test number BLK-01); not sent to real numbers",
+     "actual": "Website OTP send requires Google reCAPTCHA — owner to verify manually with test number +91 90000 00001",
      "status": "BLOCKED",
-     "evidence": "—",
+     "evidence": "probe",
      "defect": "BLK-01",
      "retest": ""
     },
