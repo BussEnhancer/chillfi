@@ -40,6 +40,14 @@ const createOrder = async (req, res) => {
       : 'Pay on Delivery isn\'t available for this pincode. Please pay online.' });
   }
 
+  // Online payment must actually be possible before an online order is created.
+  if (String(payment_method).toUpperCase() !== 'COD') {
+    const online = await require('../utils/phonepe').onlinePaymentStatus();
+    if (!online.available) {
+      return res.status(400).json({ success: false, message: 'Online payment is temporarily unavailable. Please choose Cash on Delivery.' });
+    }
+  }
+
   // Get cart items
   const cartResult = await pool.query('SELECT id FROM cart WHERE user_id = $1', [req.user.id]);
   if (!cartResult.rows.length) return res.status(400).json({ success: false, message: 'Cart is empty' });

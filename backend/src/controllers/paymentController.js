@@ -22,6 +22,10 @@ const initiatePayment = async (req, res) => {
   const amount = parseFloat(ord.rows[0].total);
 
   const cfg = await phonepe.getConfig();
+  if (phonepe.sandboxInProduction(cfg)) {
+    console.warn('[payment] refused: PhonePe is in sandbox mode on a production server — switch to PRODUCTION keys to accept payments');
+    return res.status(503).json({ success: false, message: 'Online payment is temporarily unavailable. Please choose Cash on Delivery or try again later.' });
+  }
   const merchantTxnId = `CF_${order_id.replace(/-/g, '').slice(0, 10)}_${Date.now()}`;
   const payload = {
     merchantId: cfg.merchantId,
@@ -133,7 +137,8 @@ const verifyPayment = async (req, res) => {
     );
 
     const txnStatus = response.data?.data?.state;
-    const pgStatus = txnStatus === 'COMPLETED' ? 'SUCCESS' : txnStatus === 'FAILED' ? 'FAILED' : 'PENDING';
+    let pgStatus = txnStatus === 'COMPLETED' ? 'SUCCESS' : txnStatus === 'FAILED' ? 'FAILED' : 'PENDING';
+    if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(cfg)) { console.warn('[payment] ignored sandbox success on production'); pgStatus = 'FAILED'; }
 
     const client = await pool.connect();
     try {
@@ -193,7 +198,8 @@ const webhook = async (req, res) => {
     const { merchantTransactionId, state } = decoded.data || {};
 
     if (merchantTransactionId && state) {
-      const pgStatus = state === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
+      let pgStatus = state === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
+      if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(await phonepe.getConfig())) { console.warn('[webhook] ignored sandbox success on production'); pgStatus = 'FAILED'; }
       let paidOrderId = null;
       const client = await pool.connect();
       try {
@@ -265,7 +271,8 @@ const paymentCallback = async (req, res) => {
     );
 
     const txnState = response.data?.data?.state;
-    const pgStatus = txnState === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
+    let pgStatus = txnState === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
+    if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(cfg)) { console.warn('[callback] ignored sandbox success on production'); pgStatus = 'FAILED'; }
 
     await pool.query(
       `UPDATE payments SET status = $1, gateway_response = $2 WHERE merchant_txn_id = $3`,

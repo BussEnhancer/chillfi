@@ -3,6 +3,7 @@ import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/orders/order_success_screen.dart';
 import 'package:chillfi/features/payment/phonepe_payment_screen.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/core/services/remote_config_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +19,7 @@ class PaymentMethodScreen extends StatefulWidget {
 class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   String _selected = 'COD';
   bool _placing = false;
+  bool _online = true;
 
   @override
   void initState() {
@@ -25,6 +27,14 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     // Re-check on every visit so COD reflects the latest admin switch / pincode rule.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<CartProvider>().checkServiceability();
+    });
+    // The server can switch online payment off (e.g. PhonePe not live yet) — then only COD is offered.
+    RemoteConfigService().fetch().then((c) {
+      if (!mounted || c == null) return;
+      setState(() {
+        _online = c.onlinePaymentAvailable;
+        if (!_online && _selected == 'PhonePe') _selected = 'COD';
+      });
     });
   }
 
@@ -120,13 +130,16 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     ),
                   ),
                   SizedBox(height: 10.h),
-                  _PaymentOption(
-                    value: 'PhonePe',
-                    selected: _selected,
-                    icon: Icons.phone_android_rounded,
-                    title: 'PhonePe / UPI',
-                    subtitle: 'Pay via UPI, Credit / Debit Card',
-                    onTap: () => setState(() => _selected = 'PhonePe'),
+                  Opacity(
+                    opacity: _online ? 1 : 0.45,
+                    child: _PaymentOption(
+                      value: 'PhonePe',
+                      selected: _selected,
+                      icon: Icons.phone_android_rounded,
+                      title: 'PhonePe / UPI',
+                      subtitle: _online ? 'Pay via UPI, Credit / Debit Card' : 'Temporarily unavailable',
+                      onTap: _online ? () => setState(() => _selected = 'PhonePe') : () {},
+                    ),
                   ),
 
                   SizedBox(height: 20.h),

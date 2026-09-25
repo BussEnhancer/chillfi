@@ -14,6 +14,8 @@ const TTL_MIN = () => Math.max(30, parseInt(process.env.UNPAID_ORDER_TTL_MIN || 
 const gatewayStatus = async (merchantTxnId) => {
   const cfg = await phonepe.getConfig();
   if (phonepe.configProblems(cfg).length) throw new Error('PhonePe not configured');
+  // Sandbox answers are meaningless for a production order: never mark Paid from them (orders stay for manual review).
+  if (phonepe.sandboxInProduction(cfg)) throw new Error('PhonePe sandbox on production');
   const path = `/pg/v1/status/${cfg.merchantId}/${merchantTxnId}`;
   const r = await axios.get(`${cfg.baseUrl}${path}`, {
     headers: { 'X-VERIFY': phonepe.xVerify(cfg, path), 'X-MERCHANT-ID': cfg.merchantId }, timeout: 15000,

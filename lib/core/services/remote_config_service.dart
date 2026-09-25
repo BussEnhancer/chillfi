@@ -27,6 +27,7 @@ class AppRemoteConfig {
   final String forceUpdateMessage;
   final bool freeShippingEnabled;
   final double freeShippingThreshold;
+  final bool onlinePaymentAvailable;
 
   AppRemoteConfig({
     required this.maintenanceMode,
@@ -36,6 +37,7 @@ class AppRemoteConfig {
     required this.forceUpdateMessage,
     this.freeShippingEnabled = true,
     this.freeShippingThreshold = 499,
+    this.onlinePaymentAvailable = true,
   });
 
   factory AppRemoteConfig.fromJson(Map<String, dynamic> json) => AppRemoteConfig(
@@ -46,6 +48,7 @@ class AppRemoteConfig {
         forceUpdateMessage: json['force_update_message'] ?? '',
         freeShippingEnabled: json['free_shipping_enabled'] != false,
         freeShippingThreshold: (json['free_shipping_threshold'] as num?)?.toDouble() ?? 499,
+        onlinePaymentAvailable: json['online_payment_available'] != false,
       );
 }
 

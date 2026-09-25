@@ -45,4 +45,15 @@ const configProblems = (cfg) =>
 const xVerify = (cfg, payload) =>
   crypto.createHash('sha256').update(payload + cfg.saltKey).digest('hex') + `###${cfg.saltIndex}`;
 
-module.exports = { getConfig, getEnv, configProblems, xVerify, BASE_URLS };
+// A production server must never take "payments" from PhonePe's sandbox (no real money moves).
+const sandboxInProduction = (cfg) => process.env.NODE_ENV === 'production' && cfg.env !== 'PRODUCTION';
+
+// Whether customers may pay online right now (checkout shows/hides the option; the API enforces it).
+const onlinePaymentStatus = async () => {
+  const cfg = await getConfig();
+  if (configProblems(cfg).length) return { available: false, reason: 'not_configured' };
+  if (sandboxInProduction(cfg)) return { available: false, reason: 'sandbox_in_production' };
+  return { available: true, reason: null };
+};
+
+module.exports = { getConfig, getEnv, configProblems, xVerify, BASE_URLS, sandboxInProduction, onlinePaymentStatus };

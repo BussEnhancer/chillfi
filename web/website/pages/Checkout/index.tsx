@@ -138,7 +138,15 @@ const CheckoutPage: React.FC = () => {
   const notServiceable = svc?.serviceable === false;
   // COD off for this pincode (rule/courier) or store-wide (Admin → Settings) — the reason decides the wording.
   const codUnavailable = svc?.cod === false;
-  useEffect(() => { if (codUnavailable && payment === 'COD') setPayment('UPI'); }, [codUnavailable]);
+  // Online payment can be switched off by the server (e.g. PhonePe not live yet) — then only COD is offered.
+  const [onlineAvailable, setOnlineAvailable] = useState(true);
+  useEffect(() => {
+    apiGet<{ data: { online_payment_available?: boolean } }>('/app-config')
+      .then(r => setOnlineAvailable(r.data.online_payment_available !== false)).catch(() => {});
+  }, []);
+  useEffect(() => { if (codUnavailable && payment === 'COD' && onlineAvailable) setPayment('UPI'); }, [codUnavailable, onlineAvailable]);
+  useEffect(() => { if (!onlineAvailable && payment !== 'COD') setPayment('COD'); }, [onlineAvailable]);
+  const optionDisabled = (v: string) => (v === 'COD' ? codUnavailable : !onlineAvailable);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -357,20 +365,26 @@ const CheckoutPage: React.FC = () => {
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-[#111827] mb-1">3. Payment Method</h2>
                 <p className="text-sm font-bold text-gray-400">Select a payment option</p>
+                {!onlineAvailable && (
+                  <p className="mt-2 text-xs font-bold text-amber-700 bg-amber-50 rounded-xl px-3 py-2">
+                    {codUnavailable ? "Online payment is temporarily unavailable and Cash on Delivery isn't available for this address. Please try again later." : 'Online payment is temporarily unavailable — please use Cash on Delivery.'}
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {PAYMENT_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
                     onClick={() => setPayment(opt.value)}
-                    disabled={opt.value === 'COD' && codUnavailable}
+                    disabled={optionDisabled(opt.value)}
                     className="text-left disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <PaymentMethodCard
                       label={opt.label}
                       icon={opt.icon}
                       isSelected={payment === opt.value}
-                      badge={opt.value === 'COD' && codUnavailable ? (svc?.cod_reason === 'store' ? 'Currently unavailable' : 'Not available for this pincode') : opt.badge}
+                      badge={opt.value === 'COD' && codUnavailable ? (svc?.cod_reason === 'store' ? 'Currently unavailable' : 'Not available for this pincode')
+                        : opt.value !== 'COD' && !onlineAvailable ? 'Temporarily unavailable' : opt.badge}
                     />
                   </button>
                 ))}
@@ -473,7 +487,7 @@ const CheckoutPage: React.FC = () => {
 
               <button
                 onClick={summaryFailed ? () => setSummaryRetry(n => n + 1) : handlePlaceOrder}
-                disabled={placingOrder || cart.length === 0 || !selectedAddressId || notServiceable || (!cartSummary && !summaryFailed)}
+                disabled={placingOrder || cart.length === 0 || !selectedAddressId || notServiceable || (codUnavailable && !onlineAvailable) || (!cartSummary && !summaryFailed)}
                 className="w-full bg-gradient-to-r from-[#FF6B2C] to-[#E05520] text-white py-4 rounded-xl font-black flex items-center justify-center gap-3 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 disabled:scale-100"
               >
                 {placingOrder ? (

@@ -26,6 +26,7 @@ router.get('/', async (req, res, next) => {
         standard_shipping_fee: parseFloat(data.standard_shipping_fee ?? 49),
         gst_rate: parseFloat(data.gst_rate ?? 18),
         gst_inclusive: true,
+        online_payment_available: (await require('../utils/phonepe').onlinePaymentStatus()).available,
         // Customer-support contact shown by the app + website; edited in Admin → Settings → Store Info.
         contact: (() => {
           const phone = (data.store_phone || '').trim() || null;

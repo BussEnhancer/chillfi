@@ -2071,6 +2071,15 @@
    "root_cause": "Exclusive tax model",
    "fix": "Backend total = items − coupon + delivery; GST reported as included (tax_amount) for invoices; app/web show 'Includes GST'; Terms updated; older orders labelled by formula",
    "retest": "checkout 7/7 (₹999, coupon ₹799.20 = charged); lifecycle 48/48"
+  },
+  {
+   "id": "WDEF-34",
+   "title": "Production ran PhonePe in sandbox mode: online checkout would fail for customers or a sandbox 'payment' could be accepted",
+   "severity": "Critical",
+   "status": "Fixed",
+   "root_cause": "No guard against sandbox on a production server",
+   "fix": "Server refuses online orders/payments and ignores sandbox success when NODE_ENV=production and PhonePe≠PRODUCTION; app-config online_payment_available; app + web show 'Temporarily unavailable' and default to COD",
+   "retest": "Production-mode test: 1–5 all guarded; local regression green"
   }
  ],
  "blockers": []
