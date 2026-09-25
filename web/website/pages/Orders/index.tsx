@@ -14,6 +14,7 @@ import { Truck, RotateCcw, FileText, HelpCircle, ChevronLeft, ChevronRight, Load
 import { apiGet } from '../../utils/api';
 import { OrderStatus } from '../../components/order/OrderStatusBadge';
 import { friendlyError } from '../../utils/api';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiOrderItem {
   product_name: string;
@@ -182,13 +183,11 @@ const OrdersPage: React.FC = () => {
                 <button onClick={() => loadOrders(activeTab, page)} className="text-[#FF6B2C] font-black text-sm hover:underline">Try again</button>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="py-20 text-center">
-                <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
-                <h3 className="text-lg font-black text-[#111827] mb-2">No orders found</h3>
-                <p className="text-sm font-bold text-gray-400">
-                  {search ? 'Try a different search term' : activeTab !== 'All' ? `No ${activeTab.toLowerCase()} orders` : "You haven't placed any orders yet"}
-                </p>
-              </div>
+              <EmptyState
+                icon={PackageOpen}
+                title="No orders found"
+                message={search ? 'Try a different search term' : activeTab !== 'All' ? `No ${activeTab.toLowerCase()} orders` : "You haven't placed any orders yet"}
+              />
             ) : (
               <div className="space-y-4">
                 {filtered.map((o, i) => <OrderCard key={i} {...toCardProps(o)} />)}

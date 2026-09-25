@@ -324,7 +324,7 @@ const CheckoutPage: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase tracking-wider">{addr.label}</span>
                         {selectedAddressId === addr.id && <CheckCircle2 size={18} className="text-[#FF6B2C]" />}
-                        {addr.is_default && <span className="text-[9px] font-black text-[#FF6B2C] uppercase tracking-wider">Default</span>}
+                        {addr.is_default && <span className="text-[10px] font-black text-[#FF6B2C] uppercase tracking-wider">Default</span>}
                       </div>
                       <p className="text-sm font-black text-[#111827] mb-1">{addr.name}</p>
                       <p className="text-xs font-bold text-gray-500 leading-relaxed mb-1">

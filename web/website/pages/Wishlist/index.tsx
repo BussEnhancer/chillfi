@@ -14,6 +14,7 @@ import { ShoppingBag, Heart, Loader2, Trash2 } from 'lucide-react';
 import { apiGet, apiDelete } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 import { friendlyError } from '../../utils/api';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiWishlistItem {
   id: string;
@@ -128,11 +129,7 @@ const WishlistPage: React.FC = () => {
                 <button onClick={loadWishlist} className="text-[#FF6B2C] font-black text-sm hover:underline">Try again</button>
               </div>
             ) : items.length === 0 ? (
-              <div className="py-20 text-center">
-                <Heart size={48} className="mx-auto text-gray-200 mb-4" />
-                <h3 className="text-lg font-black text-[#111827] mb-2">Your wishlist is empty</h3>
-                <p className="text-sm font-bold text-gray-400">Save items you love to your wishlist</p>
-              </div>
+              <EmptyState icon={Heart} title="Your wishlist is empty" message="Save items you love to your wishlist" />
             ) : (
               <div className="space-y-4">
                 {items.map(item => (

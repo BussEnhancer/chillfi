@@ -8,6 +8,7 @@ import Container from '../../components/common/Container';
 import ProductCardPLP from '../../components/product/ProductCardPLP';
 import { apiGet } from '../../utils/api';
 import { Loader2, PackageOpen, Search } from 'lucide-react';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiProduct {
   id: string;
@@ -102,23 +103,17 @@ const SearchPage: React.FC = () => {
             <Loader2 size={36} className="animate-spin text-[#FF6B2C]" />
           </div>
         ) : !q ? (
-          <div className="py-32 text-center">
-            <Search size={48} className="mx-auto text-gray-200 mb-4" />
-            <h3 className="text-xl font-black text-[#111827] mb-2">What are you looking for?</h3>
-            <p className="text-sm font-bold text-gray-400 mb-6">Search for products, brands or categories</p>
+          <EmptyState icon={Search} title="What are you looking for?" message="Search for products, brands or categories" className="py-32">
             <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
               Browse All Products
             </Link>
-          </div>
+          </EmptyState>
         ) : results.length === 0 ? (
-          <div className="py-32 text-center">
-            <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
-            <h3 className="text-xl font-black text-[#111827] mb-2">No results for "{q}"</h3>
-            <p className="text-sm font-bold text-gray-400 mb-6">Try different keywords or browse all products.</p>
+          <EmptyState icon={PackageOpen} title={<>No results for "{q}"</>} message="Try different keywords or browse all products." className="py-32">
             <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
               Browse All Products
             </Link>
-          </div>
+          </EmptyState>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {results.map(p => (

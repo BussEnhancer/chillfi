@@ -9,6 +9,7 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import { Loader2, Star } from 'lucide-react';
 import { apiGet } from '../../utils/api';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiReview {
   id: string;
@@ -54,10 +55,7 @@ const MyReviewsPage: React.FC = () => {
                 <span className="text-sm font-bold">Loading reviews...</span>
               </div>
             ) : reviews.length === 0 ? (
-              <div className="py-16 text-center text-gray-400">
-                <Star size={40} className="mx-auto mb-4 text-gray-200" />
-                <p className="text-sm font-bold">You haven't reviewed any products yet.</p>
-              </div>
+              <EmptyState icon={Star} title="No reviews yet" message="You haven't reviewed any products yet." className="py-16" />
             ) : (
               <div className="space-y-4">
                 {reviews.map(r => (

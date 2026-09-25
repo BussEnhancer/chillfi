@@ -11,6 +11,7 @@ import PLP_HeroBanner from '../../sections/ProductListing/PLP_HeroBanner';
 import ProductCardPLP from '../../components/product/ProductCardPLP';
 import { apiGet, friendlyError } from '../../utils/api';
 import { ChevronDown, Loader2, PackageOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiProduct {
   id: string;
@@ -229,11 +230,7 @@ const ProductListingPage: React.FC = () => {
               <button onClick={() => setReloadKey(k => k + 1)} className="bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-[#E05520]">Try again</button>
             </div>
           ) : products.length === 0 ? (
-            <div className="py-32 text-center">
-              <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
-              <h3 className="text-xl font-black text-[#111827] mb-2">No products found</h3>
-              <p className="text-sm font-bold text-gray-400">Try adjusting your filters or search query.</p>
-            </div>
+            <EmptyState icon={PackageOpen} title="No products found" message="Try adjusting your filters or search query." className="py-32" />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map(p => (

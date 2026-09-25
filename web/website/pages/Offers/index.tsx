@@ -11,6 +11,7 @@ import HeroOfferBanner from '../../sections/Offers/HeroOfferBanner';
 import OffersSidebar from '../../sections/Offers/OffersSidebar';
 import { HelpCircle, ChevronDown, Copy, Check, Tag, X, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import EmptyState from '../../components/common/EmptyState';
 
 const typeTag: Record<string, string> = { Percentage: 'SITEWIDE', Flat: 'SITEWIDE', 'Free Shipping': 'SHIPPING' };
 
@@ -80,7 +81,7 @@ const OffersPage: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[9px] font-black bg-[#FFF3ED] text-[#FF6B2C] px-2 py-0.5 rounded-full uppercase tracking-widest">{typeTag[coupon.type] || 'OFFER'}</span>
+                      <span className="text-[10px] font-black bg-[#FFF3ED] text-[#FF6B2C] px-2 py-0.5 rounded-full uppercase tracking-widest">{typeTag[coupon.type] || 'OFFER'}</span>
                     </div>
                     <p className="text-base font-black text-[#111827] mb-0.5">
                       {coupon.type === 'Percentage' ? `Flat ${coupon.value}% OFF` : coupon.type === 'Flat' ? `Flat ₹${coupon.value} OFF` : 'Free Shipping'}
@@ -108,11 +109,7 @@ const OffersPage: React.FC = () => {
               ))}
 
               {activeCoupons.length === 0 && (
-                <div className="py-16 text-center">
-                  <Tag size={40} className="text-gray-200 mx-auto mb-4" />
-                  <p className="text-gray-500 font-bold text-base mb-1">No active offers right now</p>
-                  <p className="text-gray-400 font-medium text-sm">Check back soon — new deals are added regularly.</p>
-                </div>
+                <EmptyState icon={Tag} title="No active offers right now" message="Check back soon — new deals are added regularly." className="py-16" />
               )}
             </div>
           </div>

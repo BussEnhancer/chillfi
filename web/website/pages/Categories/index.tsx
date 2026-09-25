@@ -10,8 +10,9 @@ import CategorySidebar from '../../components/navigation/CategorySidebar';
 import CategoryHeroBanner from '../../sections/Categories/CategoryHeroBanner';
 import CategoryCard from '../../components/product/CategoryCard';
 import PopularBrandsSection from '../../sections/Categories/PopularBrands';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, LayoutGrid } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import EmptyState from '../../components/common/EmptyState';
 
 const categoryImages: Record<string, string> = {
   Smartphones: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=200',
@@ -71,7 +72,7 @@ const CategoriesPage: React.FC = () => {
               </Link>
             ))}
             {active.length === 0 && (
-              <div className="col-span-5 py-16 text-center text-gray-400 font-bold">Categories are coming soon. Please check back shortly.</div>
+              <EmptyState icon={LayoutGrid} title="Categories are coming soon" message="Please check back shortly." className="col-span-5 py-16" />
             )}
           </div>
 

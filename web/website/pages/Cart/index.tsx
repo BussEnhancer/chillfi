@@ -8,8 +8,9 @@ import Footer from '../../components/navigation/Footer';
 import Container from '../../components/common/Container';
 import TrustStripSmall from '../../components/common/TrustStripSmall';
 import ProductCardPLP from '../../components/product/ProductCardPLP';
-import { ChevronRight, Sparkles, Truck, RotateCcw, ShieldCheck, Headphones, Trash2, Plus, Minus } from 'lucide-react';
+import { ChevronRight, Sparkles, Truck, RotateCcw, ShieldCheck, Headphones, Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useStore, productDiscount } from '../../context/StoreContext';
+import EmptyState from '../../components/common/EmptyState';
 
 const CartPage: React.FC = () => {
   const { cart, products, removeFromCart, updateCartQty, cartTotal, cartCount } = useStore();
@@ -55,12 +56,9 @@ const CartPage: React.FC = () => {
         </div>
 
         {cart.length === 0 ? (
-          <div className="py-24 text-center">
-            <p className="text-5xl mb-4">🛒</p>
-            <h2 className="text-2xl font-black text-[#111827] mb-2">Your cart is empty</h2>
-            <p className="text-gray-400 font-bold mb-6">Add products from the store to get started</p>
+          <EmptyState icon={ShoppingCart} title="Your cart is empty" message="Add products from the store to get started">
             <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] active:scale-[0.98] transition-all">Shop Now</Link>
-          </div>
+          </EmptyState>
         ) : (
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Cart Items */}

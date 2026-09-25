@@ -290,7 +290,7 @@ const TrackingPage: React.FC = () => {
                 onChange={e => setCancelReason(e.target.value)}
                 placeholder="Reason for cancellation (optional)"
                 rows={3}
-                className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-red-500 resize-none mb-4"
+                className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C] resize-none mb-4"
               />
               {cancelError && <p className="text-xs font-bold text-red-500 mb-4">{cancelError}</p>}
               <div className="flex gap-3">

@@ -9,6 +9,7 @@ import AccountSidebar from '../../components/profile/AccountSidebar';
 import { MapPin, Plus, Loader2, Pencil, Trash2, Star } from 'lucide-react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../utils/api';
 import { showErrorDialog } from '../../components/feedback/ErrorDialog';
+import EmptyState from '../../components/common/EmptyState';
 
 interface Address {
   id: string;
@@ -158,17 +159,14 @@ const SavedAddressesPage: React.FC = () => {
                 <span className="text-sm font-bold">Loading addresses...</span>
               </div>
             ) : addresses.length === 0 ? (
-              <div className="py-16 text-center text-gray-400">
-                <MapPin size={40} className="mx-auto mb-4 text-gray-200" />
-                <p className="text-sm font-bold">No addresses saved yet. Add one above.</p>
-              </div>
+              <EmptyState icon={MapPin} title="No addresses saved yet" message="Add one above to speed up checkout." className="py-16" />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {addresses.map(addr => (
                   <div key={addr.id} className="p-5 rounded-2xl border-2 border-[#ECECEC] hover:border-[#FF6B2C]/40 transition-all">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase tracking-wider">{addr.label}</span>
-                      {addr.is_default && <span className="text-[9px] font-black text-[#FF6B2C] uppercase tracking-wider">Default</span>}
+                      {addr.is_default && <span className="text-[10px] font-black text-[#FF6B2C] uppercase tracking-wider">Default</span>}
                     </div>
                     <p className="text-sm font-black text-[#111827] mb-1">{addr.name}</p>
                     <p className="text-xs font-bold text-gray-500 leading-relaxed mb-1">

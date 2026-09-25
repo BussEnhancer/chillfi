@@ -70,7 +70,7 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
           <span className="text-sm font-bold">{item.label}</span>
         </div>
         {item.comingSoon && (
-          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-400 uppercase tracking-wider">
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-gray-100 text-gray-400 uppercase tracking-wider">
             Soon
           </span>
         )}

@@ -8,6 +8,7 @@ import Breadcrumb from '../../components/common/Breadcrumb';
 import AccountSidebar from '../../components/profile/AccountSidebar';
 import { Loader2, Bell } from 'lucide-react';
 import { apiGet } from '../../utils/api';
+import EmptyState from '../../components/common/EmptyState';
 
 interface ApiNotification {
   id: string;
@@ -51,10 +52,7 @@ const NotificationsPage: React.FC = () => {
                 <span className="text-sm font-bold">Loading notifications...</span>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="py-16 text-center text-gray-400">
-                <Bell size={40} className="mx-auto mb-4 text-gray-200" />
-                <p className="text-sm font-bold">No notifications yet.</p>
-              </div>
+              <EmptyState icon={Bell} title="No notifications yet" message="Order and delivery updates will show up here." className="py-16" />
             ) : (
               <div className="space-y-3">
                 {notifications.map(n => (
