@@ -37,10 +37,12 @@ app.use(cors({
 }));
 app.use(morgan('dev'));
 
-// Global rate limit: 200 req/min per IP (generous for legitimate use, blocks scrapers/attacks)
+// Global rate limit: 200 req/min per IP (generous for legitimate use, blocks scrapers/attacks).
+// RATE_LIMIT_MAX may raise it only outside production (local automated QA runs from one IP).
+const RATE_MAX = process.env.NODE_ENV !== 'production' && process.env.RATE_LIMIT_MAX ? parseInt(process.env.RATE_LIMIT_MAX, 10) : 200;
 app.use(rateLimit({
   windowMs: 60 * 1000,
-  max: 200,
+  max: RATE_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please slow down.' },

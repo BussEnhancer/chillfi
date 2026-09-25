@@ -369,7 +369,9 @@ const cancelOrder = async (req, res) => {
     client.release();
   }
 
-  notifyUser(req.user.id, {
+  // An unpaid online order was never confirmed to the customer (they just saw payment fail) — no "cancelled" notice.
+  const neverConfirmed = result.rows[0].payment_method !== 'COD' && result.rows[0].payment_status !== 'Paid';
+  if (!neverConfirmed) notifyUser(req.user.id, {
     title: 'Order cancelled',
     body: `Your order ${result.rows[0].order_number} has been cancelled.`,
     data: { order_id: id, order_number: result.rows[0].order_number },

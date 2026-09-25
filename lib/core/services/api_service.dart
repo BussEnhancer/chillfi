@@ -37,6 +37,14 @@ class ApiService {
             final response = await _dio.fetch(error.requestOptions);
             return handler.resolve(response);
           }
+          // Refresh failed transiently (session still stored): report "server busy", not "signed out".
+          if (await _storage.read(key: 'refresh_token') != null) {
+            final busy = error.copyWith(
+              response: Response(requestOptions: error.requestOptions, statusCode: 503,
+                  data: {'success': false, 'message': AppError.server}),
+            );
+            return handler.next(_withFriendlyMessage(busy));
+          }
         }
         return handler.next(_withFriendlyMessage(error));
       },
@@ -57,7 +65,13 @@ class ApiService {
     return e.copyWith(response: resp);
   }
 
-  Future<bool> _refreshToken() async {
+  // Single flight: refresh tokens rotate, so concurrent 401s share one refresh call.
+  Future<bool>? _refreshInFlight;
+  Future<bool> _refreshToken() {
+    return _refreshInFlight ??= _doRefresh().whenComplete(() => _refreshInFlight = null);
+  }
+
+  Future<bool> _doRefresh() async {
     try {
       final refresh = await _storage.read(key: 'refresh_token');
       if (refresh == null) return false;
@@ -66,8 +80,12 @@ class ApiService {
       await _storage.write(key: 'access_token', value: data['accessToken']);
       await _storage.write(key: 'refresh_token', value: data['refreshToken']);
       return true;
+    } on DioException catch (e) {
+      // Sign out only when the server rejected the refresh token; offline / rate limit / 5xx keep the session.
+      final code = e.response?.statusCode;
+      if (code == 400 || code == 401 || code == 403) await logout();
+      return false;
     } catch (_) {
-      await logout();
       return false;
     }
   }

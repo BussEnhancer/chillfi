@@ -3364,10 +3364,10 @@
    "id": "ADEF-31",
    "title": "Auto-cancel after failed payment initiation sends 'Order cancelled' push for an order the customer never saw",
    "severity": "Low",
-   "status": "Open",
+   "status": "Fixed",
    "root_cause": "Cancellation notification fires for system cancels",
-   "fix": "Suppress customer notification for payment-initiation auto-cancel",
-   "retest": ""
+   "fix": "No \"Order cancelled\" notification for unpaid online orders (never confirmed)",
+   "retest": "Code + API"
   },
   {
    "id": "ADEF-32",
@@ -3463,10 +3463,10 @@
    "id": "ADEF-42",
    "title": "Guest Orders/Wishlist tabs show empty lists instead of a login prompt",
    "severity": "Low",
-   "status": "Open",
+   "status": "Fixed",
    "root_cause": "",
-   "fix": "Show sign-in prompt for guests",
-   "retest": ""
+   "fix": "GuestPrompt with Login / Sign up on Orders and Wishlist",
+   "retest": "Emulator: guest_orders screenshot"
   },
   {
    "id": "ADEF-43",
@@ -3593,6 +3593,15 @@
    "root_cause": "Stale context; dead code",
    "fix": "Captured navigator; removed dead widgets",
    "retest": "Emulator verified"
+  },
+  {
+   "id": "ADEF-57",
+   "title": "Any failed token refresh (offline, rate limit, server error) signed the user out; parallel 401s refreshed twice with a rotating token and signed the user out",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Refresh failure treated as logout; no single-flight; backend returned 401 for DB errors",
+   "fix": "Single-flight refresh; sign out only on 400/401/403; transient → 'server busy'; backend 401 only for invalid tokens",
+   "retest": "Code + analyzer (expired-session path re-verified on emulator)"
   }
  ],
  "blockers": [

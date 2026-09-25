@@ -137,7 +137,7 @@ INSERT INTO banners (title, subtitle, image_url, link, position, sort_order, is_
   ('New Samsung Galaxy S24 FE',     'The fan edition you''ve waited for', 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1400', '/product/a1000000-0000-0000-0000-000000000001', 'hero', 2, TRUE),
   ('Sony Audio — Premium Sound',    'WH-1000XM5 now at ₹24,990',    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1400', '/product/a1000000-0000-0000-0000-000000000002', 'hero', 3, TRUE),
   ('Flash Deals — Today Only',      'Grab them before they''re gone', 'https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&q=80&w=900',  '/offers', 'promo', 1, TRUE),
-  ('Free Delivery on ₹499+',       'Use code FREESHIP at checkout',  'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&q=80&w=900',  '/products', 'promo', 2, TRUE)
+  ('Free Delivery on ₹499+',       'Applied automatically on orders over ₹499',  'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&q=80&w=900',  '/products', 'promo', 2, TRUE)
 ON CONFLICT DO NOTHING;
 
 -- STORE SETTINGS

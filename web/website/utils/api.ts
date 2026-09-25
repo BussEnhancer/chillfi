@@ -54,21 +54,31 @@ export const clearTokens = () => {
 
 export const getAccessToken = () => accessToken;
 
-const refreshAccessToken = async (): Promise<boolean> => {
-  if (!refreshToken) return false;
+// 'ok' = new tokens saved; 'invalid' = the session is really over (refresh token rejected);
+// 'unavailable' = rate limit / server error / offline — keep the session and let the request fail softly.
+type RefreshResult = 'ok' | 'invalid' | 'unavailable';
+// Single flight: refresh tokens rotate, so parallel 401s must share one refresh call
+// (a second call would present the already-rotated token and wrongly sign the user out).
+let refreshInFlight: Promise<RefreshResult> | null = null;
+const refreshAccessToken = (): Promise<RefreshResult> => {
+  if (!refreshInFlight) refreshInFlight = doRefresh().finally(() => { refreshInFlight = null; });
+  return refreshInFlight;
+};
+const doRefresh = async (): Promise<RefreshResult> => {
+  if (!refreshToken) return 'invalid';
   try {
     const res = await fetch(`${BASE_URL}/auth/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     });
-    if (!res.ok) { clearTokens(); return false; }
+    if (res.status === 400 || res.status === 401 || res.status === 403) return 'invalid';
+    if (!res.ok) return 'unavailable';
     const data = await res.json();
     saveTokens(data.data.accessToken, data.data.refreshToken);
-    return true;
+    return 'ok';
   } catch {
-    clearTokens();
-    return false;
+    return 'unavailable';
   }
 };
 
@@ -95,8 +105,9 @@ export const api = async <T = unknown>(
   }
 
   if (res.status === 401 && !retried) {
-    const ok = await refreshAccessToken();
-    if (ok) return api<T>(path, method, body, true);
+    const r = await refreshAccessToken();
+    if (r === 'ok') return api<T>(path, method, body, true);
+    if (r === 'unavailable') throw new ApiError(ERR_SERVER, 503); // transient — don't sign the customer out
     clearTokens();
     window.location.href = '/login';
     throw new ApiError(ERR_SESSION, 401);

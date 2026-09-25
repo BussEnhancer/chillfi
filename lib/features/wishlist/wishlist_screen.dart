@@ -2,7 +2,9 @@ import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/wishlist_model.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Consumer<WishlistProvider>(builder: (context, wishlist, _) {
+      body: context.watch<AuthProvider>().user == null
+          ? const SafeArea(
+              child: GuestPrompt(
+                icon: Icons.favorite_border_rounded,
+                title: 'Sign in to see your wishlist',
+                message: 'Save products you love and find them on any device.',
+              ),
+            )
+          : Consumer<WishlistProvider>(builder: (context, wishlist, _) {
         final isLoading = wishlist.wishlistState == WishlistState.loading && wishlist.items.isEmpty;
 
         return SafeArea(

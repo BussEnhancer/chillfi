@@ -1,7 +1,9 @@
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/orders/order_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -79,7 +81,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
           tabs: _labels.map((l) => Tab(text: l)).toList(),
         ),
       ),
-      body: Consumer<CartProvider>(builder: (context, cart, _) {
+      body: context.watch<AuthProvider>().user == null
+          ? const GuestPrompt(
+              icon: Icons.receipt_long_outlined,
+              title: 'Sign in to see your orders',
+              message: 'Track, cancel and review your orders after you sign in.',
+            )
+          : Consumer<CartProvider>(builder: (context, cart, _) {
         if (cart.orderState == CartLoadState.loading && cart.orders.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: AppColors.secondaryPurple));
         }

@@ -152,7 +152,7 @@ const ProductListingPage: React.FC = () => {
                 {categoryLabel || (q ? `"${q}"` : 'All Products')}
               </h2>
               <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">
-                {loading ? 'Loading…' : `Showing ${Math.min((page - 1) * PAGE_SIZE + 1, total)}–${Math.min(page * PAGE_SIZE, total)} of ${total} products`}
+                {loading ? 'Loading…' : loadError ? '' : `Showing ${Math.min((page - 1) * PAGE_SIZE + 1, total)}–${Math.min(page * PAGE_SIZE, total)} of ${total} products`}
               </p>
             </div>
             <div className="flex items-center gap-3">

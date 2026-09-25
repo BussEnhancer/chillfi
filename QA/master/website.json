@@ -761,10 +761,10 @@
      "pre": "Guest (logged out)",
      "steps": "Type/paste/backspace",
      "expected": "Works; fits at 320px",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "OTP boxes appear only after a real OTP send (Firebase test number BLK-01); not sent to real numbers",
+     "status": "BLOCKED",
+     "evidence": "—",
+     "defect": "BLK-01",
      "retest": ""
     },
     {
@@ -1995,10 +1995,10 @@
    "id": "WDEF-25",
    "title": "Promo banner copy says 'Use code FREESHIP' but no such coupon exists (free delivery ≥₹499 is automatic)",
    "severity": "Low",
-   "status": "Open",
+   "status": "Fixed (local + seed)",
    "root_cause": "Admin-entered content",
-   "fix": "Edit the promo banner text in Admin → Promo Banners (content owner)",
-   "retest": ""
+   "fix": "Seed + local banner: \"Applied automatically on orders over ₹499\"; production banner text is content-owner action",
+   "retest": "Local verified"
   },
   {
    "id": "WDEF-26",
@@ -2026,6 +2026,24 @@
    "root_cause": "Status ignored",
    "fix": "'No longer available' + disabled",
    "retest": "Screenshot"
+  },
+  {
+   "id": "WDEF-29",
+   "title": "Website signed customers out on any refresh failure (429/5xx/offline) and on concurrent 401s (token rotation race)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Same as ADEF-57",
+   "fix": "Single-flight refresh, tri-state result",
+   "retest": "Probe: 1 refresh call & stays signed in; garbage token → /login; network failure → session kept"
+  },
+  {
+   "id": "WDEF-30",
+   "title": "Listing showed 'Showing 0–0 of 0 products' next to a load error",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Count rendered on error",
+   "fix": "Hidden on error",
+   "retest": "tsc"
   }
  ],
  "blockers": []

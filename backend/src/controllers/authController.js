@@ -179,12 +179,18 @@ const logout = async (req, res) => {
 };
 
 // POST /auth/refresh-token
-const refreshToken = async (req, res) => {
+const refreshToken = async (req, res, next) => {
   const { refreshToken: token } = req.body;
   if (!token) return res.status(400).json({ success: false, message: 'Refresh token required' });
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  } catch {
+    return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+  }
+  // Only a rejected token is a 401 (client signs out); database/other failures are 5xx so clients keep the session.
+  try {
     const result = await pool.query(
       'SELECT id FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()',
       [token]
@@ -195,9 +201,7 @@ const refreshToken = async (req, res) => {
     await revokeRefreshToken(token);
     const { accessToken, refreshToken: newRefresh } = await generateTokens(decoded.id);
     res.json({ success: true, data: { accessToken, refreshToken: newRefresh } });
-  } catch {
-    res.status(401).json({ success: false, message: 'Invalid refresh token' });
-  }
+  } catch (err) { next(err); }
 };
 
 // POST /auth/fcm-token
