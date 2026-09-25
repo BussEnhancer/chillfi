@@ -573,9 +573,9 @@
      "pre": "Fresh install / guest",
      "steps": "Valid form",
      "expected": "Firebase OTP → OTP screen (needs real phone)",
-     "actual": "Needs real Firebase OTP",
-     "status": "BLOCKED",
-     "evidence": "",
+     "actual": "New user 'sonu' (+91 83606 91637) signed up via real Firebase OTP on the emulator; account created, push token registered",
+     "status": "PASS",
+     "evidence": "users + fcm_tokens tables",
      "defect": "BLK-01",
      "retest": ""
     },
