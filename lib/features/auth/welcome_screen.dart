@@ -92,7 +92,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     // LOGO SECTION - Center aligned logo only
                     Center(
                       child: Image.asset(
-                        'assets/images/logo.png',
+                        'assets/images/logo_color.png',
                         width: 80.w,
                         height: 80.h,
                         fit: BoxFit.contain,
