@@ -10,11 +10,14 @@ const CACHE_TTL = 30000; // 30 seconds
 // deployments work without a new env var. Plaintext legacy values still read fine.
 const ENC_PREFIX = 'enc:v1:';
 
+const deriveKey = (material) => crypto.createHash('sha256').update(`chillfi-settings:${material}`).digest();
 const getKey = () => {
   const material = process.env.SETTINGS_ENCRYPTION_KEY || process.env.JWT_SECRET;
-  if (!material) return null;
-  return crypto.createHash('sha256').update(`chillfi-settings:${material}`).digest();
+  return material ? deriveKey(material) : null;
 };
+// Keys to try when reading: the current key, then the legacy JWT_SECRET-derived key (values stored
+// before SETTINGS_ENCRYPTION_KEY was introduced). reencryptLegacySettings() moves them to the new key.
+const readKeys = () => [process.env.SETTINGS_ENCRYPTION_KEY, process.env.JWT_SECRET].filter(Boolean).map(deriveKey);
 
 const encryptValue = (plain) => {
   const key = getKey();
@@ -25,19 +28,37 @@ const encryptValue = (plain) => {
   return `${ENC_PREFIX}${iv.toString('base64')}:${cipher.getAuthTag().toString('base64')}:${enc.toString('base64')}`;
 };
 
+const decryptWith = (key, stored) => {
+  const [iv, tag, data] = stored.slice(ENC_PREFIX.length).split(':');
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64'));
+  decipher.setAuthTag(Buffer.from(tag, 'base64'));
+  return Buffer.concat([decipher.update(Buffer.from(data, 'base64')), decipher.final()]).toString('utf8');
+};
+
 const decryptValue = (stored) => {
   if (typeof stored !== 'string' || !stored.startsWith(ENC_PREFIX)) return stored;
-  const key = getKey();
-  if (!key) return null;
-  try {
-    const [iv, tag, data] = stored.slice(ENC_PREFIX.length).split(':');
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64'));
-    decipher.setAuthTag(Buffer.from(tag, 'base64'));
-    return Buffer.concat([decipher.update(Buffer.from(data, 'base64')), decipher.final()]).toString('utf8');
-  } catch {
-    console.error('[settings] failed to decrypt a stored credential (encryption key changed?)');
-    return null;
+  for (const key of readKeys()) {
+    try { return decryptWith(key, stored); } catch { /* try the next key */ }
   }
+  console.error('[settings] failed to decrypt a stored credential (encryption key changed?)');
+  return null;
+};
+
+// On start-up: credentials still encrypted with the legacy key are re-encrypted with SETTINGS_ENCRYPTION_KEY.
+const reencryptLegacySettings = async () => {
+  if (!process.env.SETTINGS_ENCRYPTION_KEY) return 0;
+  const current = getKey();
+  const { rows } = await pool.query(`SELECT key, value FROM store_settings WHERE value LIKE $1`, [`${ENC_PREFIX}%`]);
+  let moved = 0;
+  for (const r of rows) {
+    try { decryptWith(current, r.value); continue; } catch { /* not on the current key */ }
+    const plain = decryptValue(r.value);
+    if (plain == null) continue;
+    await pool.query('UPDATE store_settings SET value = $1, updated_at = NOW() WHERE key = $2', [encryptValue(plain), r.key]);
+    moved++;
+  }
+  if (moved) console.log(`[settings] re-encrypted ${moved} credential(s) with SETTINGS_ENCRYPTION_KEY`);
+  return moved;
 };
 
 const getSetting = async (key) => {
@@ -67,4 +88,4 @@ const setSetting = async (key, value, { secret = false } = {}) => {
 
 const invalidateCache = (key) => settingsCache.delete(key);
 
-module.exports = { getSetting, setSetting, invalidateCache, encryptValue, decryptValue };
+module.exports = { getSetting, setSetting, invalidateCache, encryptValue, decryptValue, reencryptLegacySettings };

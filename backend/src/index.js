@@ -21,10 +21,8 @@ const allowedOrigins = [
   'https://chillfi.web.app',   // Firebase Hosting default domain
   'https://chillfi.firebaseapp.com',
   process.env.FRONTEND_URL,    // override via env (optional)
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:5200',
+  // Local development servers — never allowed on the production server
+  ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5200']),
 ].filter(Boolean);
 
 app.use(cors({
@@ -50,6 +48,17 @@ app.use(rateLimit({
   // Courier webhooks arrive in bursts from a few Delhivery IPs; they are token-authenticated instead.
   skip: (req) => req.path === '/health' || req.path === '/api/health' || req.path.startsWith('/api/shipping/'),
 }));
+
+// Tighter limits where guessing or spam is the risk (per client IP, per minute).
+const tightLimit = (max) => rateLimit({
+  windowMs: 60 * 1000, max: process.env.NODE_ENV === 'production' ? max : max * 50, // local QA runs from one IP
+  standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'Too many attempts. Please wait a minute and try again.' },
+});
+app.use(['/api/auth/send-otp', '/api/auth/verify-otp', '/api/auth/firebase-verify', '/api/profile/request-delete'], tightLimit(20));
+app.use('/api/cart/apply-coupon', tightLimit(20));
+const contactLimit = tightLimit(5);
+app.use('/api/contact', (req, res, next) => (req.method === 'POST' ? contactLimit(req, res, next) : next()));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -107,6 +116,7 @@ const PORT = process.env.PORT || 5000;
 const start = async () => {
   try {
     await initDB();
+    await require('./utils/settings').reencryptLegacySettings().catch((e) => console.error('[settings] re-encryption skipped:', e.message));
     app.listen(PORT, () => {
       console.log(`🚀 ChillFi API running on http://localhost:${PORT}`);
       console.log(`📋 Health: http://localhost:${PORT}/health`);
