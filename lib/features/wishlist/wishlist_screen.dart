@@ -7,6 +7,7 @@ import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -49,15 +50,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
             children: [
               // Header
               Padding(
-                padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
+                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Wishlist', style: GoogleFonts.poppins(fontSize: 28.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
-                        Text('${wishlist.items.length} saved items', style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText)),
+                        Text('Wishlist', style: AppText.pageTitle()),
+                        Text('${wishlist.items.length} saved item${wishlist.items.length == 1 ? '' : 's'}', style: AppText.pageSubtitle()),
                       ],
                     ),
                     if (wishlist.items.isNotEmpty)
