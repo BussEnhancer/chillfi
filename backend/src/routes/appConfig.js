@@ -8,7 +8,8 @@ router.get('/', async (req, res, next) => {
       `SELECT key, value FROM store_settings
        WHERE key IN ('maintenance_mode', 'maintenance_message', 'force_update_enabled', 'min_app_version', 'force_update_message',
                      'free_shipping_enabled', 'free_shipping_threshold', 'standard_shipping_fee', 'gst_rate',
-                     'store_name', 'store_phone', 'store_email', 'support_email', 'store_address', 'whatsapp_number')`
+                     'store_name', 'store_phone', 'store_email', 'support_email', 'store_address', 'whatsapp_number',
+                     'max_delivery_days', 'seo_title', 'seo_description', 'seo_keywords', 'seo_og_image', 'security_session_timeout')`
     );
     const data = {};
     result.rows.forEach((row) => { data[row.key] = row.value; });
@@ -26,6 +27,9 @@ router.get('/', async (req, res, next) => {
         standard_shipping_fee: parseFloat(data.standard_shipping_fee ?? 49),
         gst_rate: parseFloat(data.gst_rate ?? 18),
         gst_inclusive: true,
+        max_delivery_days: parseInt(data.max_delivery_days, 10) || null,
+        admin_session_timeout_min: data.security_session_timeout === 'false' ? null : 30,
+        seo: { title: data.seo_title || null, description: data.seo_description || null, keywords: data.seo_keywords || null, og_image: data.seo_og_image || null },
         online_payment_available: (await require('../utils/phonepe').onlinePaymentStatus()).available,
         // Customer-support contact shown by the app + website; edited in Admin → Settings → Store Info.
         contact: (() => {

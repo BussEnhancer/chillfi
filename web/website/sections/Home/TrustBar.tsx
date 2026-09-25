@@ -1,6 +1,7 @@
 import React from 'react';
 import Container from '../../components/common/Container';
 import { Truck, RotateCcw, ShieldCheck, Headphones } from 'lucide-react';
+import { useAppConfig, freeDeliveryText } from '../../utils/useAppConfig';
 
 const features = [
   {
@@ -26,11 +27,12 @@ const features = [
 ];
 
 const TrustBar: React.FC = () => {
+  const cfg = useAppConfig();
   return (
     <section className="py-10 bg-gray-50/50">
       <Container>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {features.map((f, i) => (
+          {features.map((raw, i) => { const f = raw.title === 'Free Delivery' ? { ...raw, title: cfg && !cfg.free_shipping_enabled ? 'Fast Delivery' : 'Free Delivery', desc: freeDeliveryText(cfg) } : raw; return (
             <div
               key={i}
               className="flex flex-col items-center md:flex-row md:items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100"
@@ -43,7 +45,7 @@ const TrustBar: React.FC = () => {
                 <p className="text-sm text-gray-500 font-medium">{f.desc}</p>
               </div>
             </div>
-          ))}
+          ); })}
         </div>
       </Container>
     </section>

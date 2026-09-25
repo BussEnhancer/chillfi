@@ -2080,6 +2080,15 @@
    "root_cause": "No guard against sandbox on a production server",
    "fix": "Server refuses online orders/payments and ignores sandbox success when NODE_ENV=production and PhonePe≠PRODUCTION; app-config online_payment_available; app + web show 'Temporarily unavailable' and default to COD",
    "retest": "Production-mode test: 1–5 all guarded; local regression green"
+  },
+  {
+   "id": "WDEF-35",
+   "title": "Free-delivery threshold and delivery time hardcoded (₹499, 3–5 days) in 7 places; wrong if admin changes shipping settings",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Hardcoded copy",
+   "fix": "All read Admin → Settings (threshold, fee, free on/off, max delivery days)",
+   "retest": "Admin sets ₹799 → PDP + top bar show ₹799"
   }
  ],
  "blockers": []

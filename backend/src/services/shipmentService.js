@@ -264,13 +264,18 @@ const sendStatusNotification = async (order, shippingStatus) => {
   });
 };
 
-const notifyOrderConfirmed = (order) => notifyUser(order.user_id, {
-  title: 'Order confirmed',
-  body: `Your order ${order.order_number} for ₹${order.total} has been placed.`,
-  data: { order_id: order.id, order_number: order.order_number },
-  dedupeKey: `order:${order.id}:placed`,
-  storeSettingKey: 'notify_order_placed',
-});
+const notifyOrderConfirmed = async (order) => {
+  const r = await notifyUser(order.user_id, {
+    title: 'Order confirmed',
+    body: `Your order ${order.order_number} for ₹${order.total} has been placed.`,
+    data: { order_id: order.id, order_number: order.order_number },
+    dedupeKey: `order:${order.id}:placed`,
+    storeSettingKey: 'notify_order_placed',
+  });
+  // First confirmation only (same dedupe as the customer's notification) → tell the store.
+  if (r.inserted) require('../utils/adminAlerts').newOrderAlert(order).catch(() => {});
+  return r;
+};
 
 /** Called whenever an order transitions to payment_status = 'Paid' (any gateway path). */
 const onOrderPaid = async (orderId, trigger) => {

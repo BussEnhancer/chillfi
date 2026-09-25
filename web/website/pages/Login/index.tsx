@@ -47,6 +47,9 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // e.g. set by the admin idle timeout before redirecting here
+  const [notice] = useState(() => sessionStorage.getItem('signed_out_reason'));
+  useEffect(() => { if (notice) sessionStorage.removeItem('signed_out_reason'); }, [notice]); // clear after it has been shown once
   const [timer, setTimer] = useState(0);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -261,6 +264,7 @@ const LoginPage: React.FC = () => {
                   </div>
 
                   {error && <p className="text-xs font-bold text-red-500 mb-4 -mt-4">{error}</p>}
+                  {notice && <p className="text-xs font-bold text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mb-4">{notice}</p>}
 
                   <button
                     onClick={handleSendOtp}

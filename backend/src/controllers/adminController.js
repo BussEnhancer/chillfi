@@ -231,6 +231,29 @@ const getBanners = async (req, res, next) => {
 
 // ── Shipping Rules ───────────────────────────────────────────────────────────
 
+// POST /admin/email/test — sends a test email to the store inbox (or ?to=) so SMTP setup can be verified.
+const sendTestEmail = async (req, res, next) => {
+  try {
+    const { sendMail, isEmailConfigured } = require('../utils/mailer');
+    if (!(await isEmailConfigured())) return res.status(400).json({ success: false, message: 'Email is not set up yet. Enter the SMTP details above first.' });
+    const inbox = (await pool.query(`SELECT value FROM store_settings WHERE key IN ('store_email','support_email') AND value <> '' ORDER BY key DESC LIMIT 1`)).rows[0]?.value;
+    const to = String(req.body?.to || inbox || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return res.status(400).json({ success: false, message: 'Set a Store Email in Store Information first.' });
+    const r = await sendMail({ to, subject: 'ChillFi test email', title: 'Email is working', body: 'Order and alert emails from ChillFi will arrive like this one.' });
+    if (!r.sent) return res.status(502).json({ success: false, message: 'The email server rejected the message. Check the SMTP host, port, username and password.' });
+    res.json({ success: true, message: `Test email sent to ${to}` });
+  } catch (err) { next(err); }
+};
+
+// GET /admin/login-activity — latest admin / support-staff sign-ins
+const getLoginActivity = async (req, res, next) => {
+  try {
+    const r = await pool.query(`SELECT e.created_at, e.method, e.ip, e.user_agent, u.name, u.role
+      FROM admin_login_events e LEFT JOIN users u ON u.id = e.user_id ORDER BY e.created_at DESC LIMIT 30`);
+    res.json({ success: true, data: r.rows });
+  } catch (err) { next(err); }
+};
+
 // GET /admin/alerts — actionable counts for the header bell (staff sees only what it can act on).
 const getAdminAlerts = async (req, res, next) => {
   try {
@@ -644,7 +667,7 @@ const deleteMessage = async (req, res, next) => {
 // ── Store Settings ─────────────────────────────────────────────────────────
 
 // Credential keys and integration-internal keys are never exposed/edited through generic settings.
-const isCredentialKey = (key) => CREDENTIAL_KEYS.some((c) => c.key === key) || /^DELHIVERY_|^SHIPROCKET_|^PHONEPE_/.test(key);
+const isCredentialKey = (key) => CREDENTIAL_KEYS.some((c) => c.key === key) || /^DELHIVERY_|^SHIPROCKET_|^PHONEPE_|^SMTP_|^MSG91_/.test(key);
 
 const getSettings = async (req, res, next) => {
   try {
@@ -706,6 +729,13 @@ const CREDENTIAL_KEYS = [
   { key: 'MSG91_TEMPLATE_ID', label: 'MSG91 Template ID', group: 'otp', secret: false },
   { key: 'MSG91_SENDER_ID', label: 'MSG91 Sender ID', group: 'otp', secret: false },
   { key: 'FAST2SMS_API_KEY', label: 'Fast2SMS API Key', group: 'otp', secret: true },
+  { key: 'SMS_ORDER_UPDATES', label: 'SMS order updates (MSG91)', group: 'otp', secret: false, options: ['off', 'on'] },
+  { key: 'MSG91_ORDER_TEMPLATE_ID', label: 'MSG91 DLT template ID for order updates (vars: order, status)', group: 'otp', secret: false },
+  { key: 'SMTP_HOST', label: 'SMTP Host (e.g. smtp.zoho.in, email-smtp.ap-south-1.amazonaws.com)', group: 'email', secret: false },
+  { key: 'SMTP_PORT', label: 'SMTP Port (587 = STARTTLS, 465 = SSL)', group: 'email', secret: false },
+  { key: 'SMTP_USER', label: 'SMTP Username', group: 'email', secret: false },
+  { key: 'SMTP_PASS', label: 'SMTP Password / App Password', group: 'email', secret: true },
+  { key: 'EMAIL_FROM', label: 'From address (e.g. ChillFi <orders@chillfi.in>)', group: 'email', secret: false },
   { key: 'FIREBASE_SERVER_KEY', label: 'Firebase Server Key', group: 'firebase', secret: true },
   { key: 'PHONEPE_ENV', label: 'PhonePe Environment (UAT = test, PRODUCTION = live money)', group: 'payment', secret: false, options: ['UAT', 'PRODUCTION'] },
   { key: 'PHONEPE_MERCHANT_ID', label: 'PhonePe Merchant ID', group: 'payment', secret: false },
@@ -915,7 +945,7 @@ const sendPushNotification = async (req, res, next) => {
 };
 
 module.exports = {
-  getAdminAlerts,
+  getAdminAlerts, sendTestEmail, getLoginActivity,
   getDashboardStats, getAnalytics,
   getUsers, updateUserStatus, updateUserRole,
   getBanners, createBanner, updateBanner, deleteBanner,

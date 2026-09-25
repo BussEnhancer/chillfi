@@ -54,9 +54,11 @@ import ReturnPolicyPage from '../pages/ReturnPolicy/index'
 import ShippingPolicyPage from '../pages/ShippingPolicy/index'
 import DeleteAccountPage from '../pages/DeleteAccount/index'
 import NotFoundPage from '../pages/NotFound/index'
+import { useSeoDefaults } from '../utils/useSeoDefaults'
 
 function App() {
   const location = useLocation()
+  useSeoDefaults()
   const [maintenance, setMaintenance] = useState<{ on: boolean; message: string } | null>(null)
 
   useEffect(() => {

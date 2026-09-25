@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
-import { apiGet, apiPut } from '../../../utils/api';
+import { apiGet, apiPost, apiPut } from '../../../utils/api';
 import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import DelhiveryStatusPanel from '../../../components/admin/DelhiveryStatusPanel';
 
@@ -28,6 +28,29 @@ const Toast: React.FC<{ msg: string; onClose: () => void }> = ({ msg, onClose })
 const NotActive: React.FC = () => (
   <span className="ml-2 align-middle text-[9px] font-black uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Not active yet</span>
 );
+const LoginActivity: React.FC = () => {
+  const [rows, setRows] = useState<{ created_at: string; method: string; ip: string; user_agent: string; name: string; role: string }[] | null>(null);
+  useEffect(() => { apiGet<{ data: any[] }>('/admin/login-activity').then(r => setRows(r.data)).catch(() => setRows([])); }, []);
+  return (
+    <div className="mt-5">
+      <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Recent admin / staff sign-ins</p>
+      {rows === null ? <p className="text-xs font-bold text-gray-400">Loading…</p>
+        : rows.length === 0 ? <p className="text-xs font-bold text-gray-400">No sign-ins recorded yet.</p>
+        : (
+          <div className="max-h-64 overflow-y-auto border border-[#F3F4F6] rounded-xl divide-y divide-[#F3F4F6]">
+            {rows.map((r, i) => (
+              <div key={i} className="px-3 py-2 flex items-center justify-between gap-3 text-xs font-bold">
+                <span className="text-[#111827]">{r.name || '—'} <span className="text-gray-400">({r.role === 'support_staff' ? 'staff' : r.role})</span></span>
+                <span className="text-gray-500 truncate">{r.ip} · {/Mobile|Android|iPhone/i.test(r.user_agent) ? 'Mobile' : 'Desktop'}</span>
+                <span className="text-gray-400 shrink-0">{new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            ))}
+          </div>
+        )}
+    </div>
+  );
+};
+
 const Toggle: React.FC<{ value: boolean; onChange: (v: boolean) => void; label: string; desc?: string; inactive?: boolean }> = ({ value, onChange, label, desc, inactive }) => (
   <div className={`flex items-center justify-between py-4 border-b border-[#F8F7FC] last:border-0 ${inactive ? 'opacity-60' : ''}`}>
     <div>
@@ -290,8 +313,7 @@ const AdminSettings: React.FC = () => {
                 <h3 className="text-sm font-black text-[#111827] mb-4">Store Features</h3>
                 <Toggle value={features.maintenanceMode} onChange={v => setFeatures(f => ({ ...f, maintenanceMode: v }))} label="Maintenance Mode" desc="Put the store in maintenance mode for visitors" />
                 <Toggle value={features.invoices} onChange={v => setFeatures(f => ({ ...f, invoices: v }))} label="Issue GST Tax Invoices" desc="Customers can download a tax invoice once an order ships. Needs your real 15-character GSTIN in Store Information." />
-                <Toggle value={features.userRegistration} onChange={v => setFeatures(f => ({ ...f, userRegistration: v }))} label="User Registration" inactive desc="Allow new users to register on the platform" />
-                <Toggle value={features.guestCheckout} onChange={v => setFeatures(f => ({ ...f, guestCheckout: v }))} label="Guest Checkout" inactive desc="Allow users to checkout without an account" />
+                <Toggle value={features.userRegistration} onChange={v => setFeatures(f => ({ ...f, userRegistration: v }))} label="User Registration" desc="When off, new sign-ups are paused (existing customers can still log in)" />
                 <Toggle value={features.productReviews} onChange={v => setFeatures(f => ({ ...f, productReviews: v }))} label="Product Reviews" desc="When off, new reviews are refused (existing reviews stay visible)" />
               </div>
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
@@ -320,7 +342,7 @@ const AdminSettings: React.FC = () => {
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
               <h3 className="text-sm font-black text-[#111827] mb-5">Shipping Configuration</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {([['Free Shipping Threshold (₹)', 'freeThreshold'], ['Standard Shipping Fee (₹)', 'standardFee'], ['Express Shipping Fee (₹)', 'expressFee', true], ['Max Delivery Days', 'maxDays', true]] as [string, keyof typeof shipping, boolean?][]).map(([label, key, inactive]) => (
+                {([['Free Shipping Threshold (₹)', 'freeThreshold'], ['Standard Shipping Fee (₹)', 'standardFee'], ['Max Delivery Days (shown on product pages)', 'maxDays']] as [string, keyof typeof shipping, boolean?][]).map(([label, key, inactive]) => (
                   <div key={key} className={inactive ? 'opacity-60' : ''}>
                     <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">{label}{inactive && <NotActive />}</label>
                     <input type="number" min={0} disabled={inactive} value={shipping[key] as string} onChange={e => setShipping(s => ({ ...s, [key]: e.target.value }))} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]" />
@@ -328,7 +350,6 @@ const AdminSettings: React.FC = () => {
                 ))}
               </div>
               <Toggle value={shipping.freeShipping} onChange={v => setShipping(s => ({ ...s, freeShipping: v }))} label="Free Shipping on Orders Above Threshold" />
-              <Toggle value={shipping.express} onChange={v => setShipping(s => ({ ...s, express: v }))} label="Enable Express Delivery" inactive desc="Show express delivery option at checkout" />
               <Toggle value={shipping.cod} onChange={v => setShipping(s => ({ ...s, cod: v }))} label="COD Available" desc="When off, Pay on Delivery is disabled at checkout on the app and website" />
             </div>
           )}
@@ -353,9 +374,9 @@ const AdminSettings: React.FC = () => {
               <Toggle value={notif.orderShipped} onChange={v => setNotif(n => ({ ...n, orderShipped: v }))} label="Order Shipped" desc="Send shipping updates with tracking link" />
               <Toggle value={notif.orderDelivered} onChange={v => setNotif(n => ({ ...n, orderDelivered: v }))} label="Order Delivered" desc="Confirm delivery to customer" />
               <Toggle value={notif.orderCancelled} onChange={v => setNotif(n => ({ ...n, orderCancelled: v }))} label="Order Cancelled" desc="Inform customer about cancellation" />
-              <Toggle value={notif.promo} onChange={v => setNotif(n => ({ ...n, promo: v }))} label="Promotional Emails" inactive desc="Send offer and deal emails to users" />
-              <Toggle value={notif.adminAlerts} onChange={v => setNotif(n => ({ ...n, adminAlerts: v }))} label="Admin Order Alerts" inactive desc="Get email alerts for new orders" />
-              <Toggle value={notif.lowStock} onChange={v => setNotif(n => ({ ...n, lowStock: v }))} label="Low Stock Alerts" inactive desc="Alert admin when product stock is low" />
+              <Toggle value={notif.promo} onChange={v => setNotif(n => ({ ...n, promo: v }))} label="Promotional Emails" inactive desc="Needs unsubscribe/consent handling before marketing emails can be sent" />
+              <Toggle value={notif.adminAlerts} onChange={v => setNotif(n => ({ ...n, adminAlerts: v }))} label="Admin Order Alerts" desc="Email the Store Email for every new confirmed order (needs Email set up in API Keys)" />
+              <Toggle value={notif.lowStock} onChange={v => setNotif(n => ({ ...n, lowStock: v }))} label="Low Stock Alerts" desc="Email the Store Email when an order takes a product to 5 or fewer in stock" />
             </div>
           )}
 
@@ -363,21 +384,31 @@ const AdminSettings: React.FC = () => {
           {activeTab === 'security' && (
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
               <h3 className="text-sm font-black text-[#111827] mb-5">Security Settings</h3>
-              <Toggle value={security.twoFactor} onChange={v => setSecurity(s => ({ ...s, twoFactor: v }))} label="Two-Factor Authentication" inactive desc="Require 2FA for admin login" />
-              <Toggle value={security.loginLog} onChange={v => setSecurity(s => ({ ...s, loginLog: v }))} label="Login Activity Log" inactive desc="Track all admin login events" />
-              <Toggle value={security.forceHttps} onChange={v => setSecurity(s => ({ ...s, forceHttps: v }))} label="Force HTTPS" inactive desc="Redirect all HTTP traffic to HTTPS" />
-              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" inactive desc="Auto logout after 30 min of inactivity" />
-              <p className="text-[11px] font-bold text-gray-400 mt-4">
-                Note: chillFi uses phone number + OTP for login — there is no password to change.
-              </p>
+              <div className="py-4 border-b border-[#F8F7FC] flex items-start gap-3">
+                <span className="mt-0.5 text-green-600 text-xs font-black">✓</span>
+                <div>
+                  <p className="text-sm font-black text-[#111827]">Sign-in with one-time code (always on)</p>
+                  <p className="text-[11px] font-bold text-gray-400 mt-0.5">Admin and staff sign in only with a code sent to their phone. Password sign-in is disabled on the server.</p>
+                </div>
+              </div>
+              <div className="py-4 border-b border-[#F8F7FC] flex items-start gap-3">
+                <span className="mt-0.5 text-green-600 text-xs font-black">✓</span>
+                <div>
+                  <p className="text-sm font-black text-[#111827]">HTTPS enforced (always on)</p>
+                  <p className="text-[11px] font-bold text-gray-400 mt-0.5">The web server redirects every http:// request to https:// with a valid certificate.</p>
+                </div>
+              </div>
+              <Toggle value={security.loginLog} onChange={v => setSecurity(s => ({ ...s, loginLog: v }))} label="Login Activity Log" desc="Record every admin / staff sign-in (time, IP, device) — latest shown below" />
+              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" desc="Sign out of the admin panel after 30 minutes without activity" />
+              <LoginActivity />
             </div>
           )}
 
           {/* SEO */}
           {activeTab === 'seo' && (
             <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-              <h3 className="text-sm font-black text-[#111827] mb-1">SEO Configuration<NotActive /></h3>
-              <p className="text-[11px] font-bold text-gray-400 mb-5">Saved for reference only — the website's page titles and meta tags don't read these values yet.</p>
+              <h3 className="text-sm font-black text-[#111827] mb-1">SEO Configuration</h3>
+              <p className="text-[11px] font-bold text-gray-400 mb-5">Used as the website's default page title, meta description, keywords and social-share image.</p>
               <div className="space-y-4">
                 <div>
                   <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">Meta Title</label>
@@ -404,7 +435,8 @@ const AdminSettings: React.FC = () => {
           {/* API Keys */}
           {activeTab === 'apikeys' && (() => {
             const groups = [
-              { id: 'otp', label: 'OTP / SMS', desc: 'SMS OTP delivery credentials' },
+              { id: 'otp', label: 'OTP / SMS', desc: 'SMS OTP delivery credentials, and SMS order updates via MSG91 (needs a DLT-approved template with variables order and status)' },
+              { id: 'email', label: 'Email (SMTP)', desc: 'Order emails to customers + new-order / low-stock alerts to the Store Email. Works with any SMTP service (Zoho, Google Workspace, Amazon SES…)' },
               { id: 'firebase', label: 'Firebase', desc: 'Push notification credentials' },
               { id: 'payment', label: 'Payment Gateway', desc: 'PhonePe & Razorpay credentials' },
               { id: 'media', label: 'Media / CDN', desc: 'Cloudinary image upload credentials' },
@@ -445,7 +477,17 @@ const AdminSettings: React.FC = () => {
                             <h3 className="text-sm font-black text-[#111827]">{g.label}</h3>
                             <p className="text-[11px] font-bold text-gray-400 mt-0.5">{g.desc}</p>
                           </div>
-                          <button onClick={loadCredentials} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"><RefreshCw size={14} /></button>
+                          <div className="flex items-center gap-2">
+                            {g.id === 'email' && (
+                              <button
+                                onClick={() => apiPost<{ message: string }>('/admin/email/test', {})
+                                  .then(r => showToast(r.message || 'Test email sent'))
+                                  .catch(e => showErrorDialog({ title: "Couldn't send the test email", error: e }))}
+                                className="px-3 py-2 rounded-lg bg-[#F8F7FC] text-xs font-black text-gray-600 hover:bg-[#FFF3ED] hover:text-[#FF6B2C]"
+                              >Send test email</button>
+                            )}
+                            <button onClick={loadCredentials} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"><RefreshCw size={14} /></button>
+                          </div>
                         </div>
                         <div className="space-y-4">
                           {gCreds.map(cred => {

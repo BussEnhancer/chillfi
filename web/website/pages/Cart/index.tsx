@@ -164,7 +164,7 @@ const CartPage: React.FC = () => {
 
         <div className="mt-20 py-12 border-t border-[#F8F7FC] grid grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { icon: <Truck size={24} />, title: 'Free Delivery', desc: 'On orders above ₹499' },
+            { icon: <Truck size={24} />, title: pricing.freeEnabled ? 'Free Delivery' : 'Fast Delivery', desc: pricing.freeEnabled ? `On orders above ₹${pricing.threshold.toLocaleString('en-IN')}` : `Flat ₹${pricing.fee} delivery` },
             { icon: <RotateCcw size={24} />, title: 'Easy Returns', desc: 'Within 7 days' },
             { icon: <ShieldCheck size={24} />, title: 'Secure Payments', desc: '100% secure payments' },
             { icon: <Headphones size={24} />, title: 'Daily Support', desc: "We're here to help" },

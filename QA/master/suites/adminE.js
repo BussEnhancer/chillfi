@@ -135,10 +135,10 @@ module.exports = async (b, { rec, shot }) => {
     await p.getByRole('button', { name: /^Payment$/ }).click(); await p.waitForTimeout(300); const payTxt = await body();
     await p.getByRole('button', { name: /^Security$/ }).click(); await p.waitForTimeout(300); const secTxt = await body();
     const secShot = await shot(p, 'adm16_security_inactive');
-    rec('ADM-16-07', /PhonePe merchant dashboard/.test(payTxt) && (secTxt.match(/Not active yet/gi) || []).length >= 4, `payment tab explains PhonePe/COD; security toggles marked "Not active yet"=${(secTxt.match(/Not active yet/gi) || []).length}`, secShot);
+    rec('ADM-16-07', /PhonePe merchant dashboard/.test(payTxt) && /one-time code/i.test(secTxt) && /HTTPS enforced/i.test(secTxt) && !(secTxt.match(/Not active yet/gi) || []).length, `payment tab explains PhonePe/COD; security: OTP-only sign-in + HTTPS shown as always on, login log + session timeout real, "Not active yet"=${(secTxt.match(/Not active yet/gi) || []).length}`, secShot);
     await p.getByRole('button', { name: /^Notifications$/ }).click(); await p.waitForTimeout(300);
     const nt = await body();
-    rec('ADM-16-06', /Order Placed/.test(nt) && (nt.match(/Not active yet/gi) || []).length === 3, `order notification toggles active (per-stage honoured in notify.js); promo/admin/low-stock marked inactive`, await shot(p, 'adm16_notifications'));
+    rec('ADM-16-06', /Order Placed/.test(nt) && (nt.match(/Not active yet/gi) || []).length === 1 && /Admin Order Alerts/.test(nt) && /Low Stock Alerts/.test(nt), `order notification toggles active; admin order + low-stock email alerts active; only promotional emails marked inactive`, await shot(p, 'adm16_notifications'));
     rec('ADM-16-11', svcOff.cod === false && oCod2.__status === 400 && rvOff.__status === 403, `COD master switch off → pincode cod=${svcOff.cod}, COD order ${oCod2.__status}; reviews off → review POST ${rvOff.__status} "${rvOff.message}"`);
     // load-failure guard
     const p2 = await c.newPage();

@@ -1519,6 +1519,33 @@
    "root_cause": "Orders referenced addresses by id only (ON DELETE SET NULL)",
    "fix": "shipping_address snapshot at order time; backfilled 145/154 (9 already lost earlier)",
    "retest": "Edit + delete address → order still shows original"
+  },
+  {
+   "id": "ADEF-A26",
+   "title": "Password sign-in endpoint (unused by app/website) allowed single-factor admin login; password reset endpoints open",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Legacy routes left enabled",
+   "fix": "Password login/reset disabled (ALLOW_PASSWORD_LOGIN to re-enable); admin sign-in = phone OTP only",
+   "retest": "API: 403 on /auth/login and /auth/reset-password"
+  },
+  {
+   "id": "ADEF-A27",
+   "title": "Remaining 'Not active yet' settings: registration switch, login activity log, session timeout, SEO, max delivery days did nothing; guest checkout / express / 2FA / force-HTTPS toggles were misleading",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Settings never read",
+   "fix": "Implemented registration pause, staff sign-in log, 30-min admin idle sign-out, SEO title/meta, delivery-days text; removed unsupported toggles; 2FA + HTTPS shown as always-on facts",
+   "retest": "Browser + API verified"
+  },
+  {
+   "id": "ADEF-A28",
+   "title": "No email/SMS notifications; admin had no new-order or low-stock alerts",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Channels not built",
+   "fix": "SMTP mailer (customer order emails, new-order + low-stock alerts, test button) and MSG91 SMS order updates; inactive until configured",
+   "retest": "Local SMTP/MSG91 mocks: test, customer, admin, low-stock emails + SMS verified"
   }
  ],
  "blockers": [

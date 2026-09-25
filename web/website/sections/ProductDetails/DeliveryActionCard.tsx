@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Truck, ShieldCheck, Heart, ShoppingCart, Zap, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { CartItem } from '../../context/StoreContext';
+import { useAppConfig, freeDeliveryText } from '../../utils/useAppConfig';
 
 interface DeliveryActionCardProps {
   product?: {
@@ -24,6 +25,7 @@ const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
   isWishlisted = false,
   onWishlistToggle,
 }) => {
+  const cfg = useAppConfig();
   const { addToCart, cart } = useStore();
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
@@ -67,8 +69,8 @@ const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
           <div className="flex items-start gap-3">
             <Truck size={20} className="text-gray-400 mt-0.5" />
             <div>
-              <p className="text-sm font-black text-[#111827]">Standard Delivery in 3–5 Days</p>
-              <p className="text-[11px] font-bold text-green-600">FREE Delivery on orders above ₹499</p>
+              <p className="text-sm font-black text-[#111827]">{cfg?.max_delivery_days ? `Delivery in up to ${cfg.max_delivery_days} days` : 'Standard Delivery via Delhivery'}</p>
+              <p className="text-[11px] font-bold text-green-600">{cfg && !cfg.free_shipping_enabled ? freeDeliveryText(cfg) : freeDeliveryText(cfg, 'FREE Delivery on orders above')}</p>
             </div>
           </div>
         </div>

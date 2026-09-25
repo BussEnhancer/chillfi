@@ -7,6 +7,22 @@ const { getSetting } = require('../utils/settings');
 const { getFirebaseApp } = require('../utils/firebase');
 
 // POST /auth/send-otp
+const settingOff = async (key) => (await pool.query('SELECT value FROM store_settings WHERE key = $1', [key])).rows[0]?.value === 'false';
+const SIGNUPS_PAUSED = 'New sign-ups are paused right now. Please try again later.';
+// Password sign-in is off: the app and website use phone OTP, which also makes OTP the admin's second factor.
+const PASSWORD_LOGIN = process.env.ALLOW_PASSWORD_LOGIN === 'true';
+const PASSWORD_OFF = { success: false, message: 'Please sign in with your phone number and OTP.' };
+
+/** Records admin / support-staff sign-ins (Settings → Security → Login Activity Log). Never throws. */
+const recordStaffSignIn = async (user, req, method) => {
+  try {
+    if (!user || !['admin', 'support_staff'].includes(user.role)) return;
+    if (await settingOff('security_login_log')) return;
+    await pool.query('INSERT INTO admin_login_events (user_id, method, ip, user_agent) VALUES ($1,$2,$3,$4)',
+      [user.id, method, req.ip, String(req.headers['user-agent'] || '').slice(0, 300)]);
+  } catch (e) { console.warn(`[auth] login log failed: ${e.message}`); }
+};
+
 const sendOtp = async (req, res) => {
   const { phone, purpose = 'login' } = req.body;
   if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
@@ -62,6 +78,7 @@ const verifyOtpLogin = async (req, res) => {
 
   const user = result.rows[0];
   const { accessToken, refreshToken } = await generateTokens(user.id);
+  recordStaffSignIn(user, req, 'otp');
 
   res.json({ success: true, message: 'Login successful', data: { user, accessToken, refreshToken } });
 };
@@ -72,6 +89,7 @@ const signup = async (req, res) => {
   if (!name || !phone || !otp) {
     return res.status(400).json({ success: false, message: 'Name, phone and OTP required' });
   }
+  if (await settingOff('user_registration_enabled')) return res.status(403).json({ success: false, message: SIGNUPS_PAUSED });
 
   const valid = await verifyOTP(phone, otp, 'signup');
   if (!valid) {
@@ -98,6 +116,7 @@ const signup = async (req, res) => {
 
 // POST /auth/login  (email+password or phone+password)
 const login = async (req, res) => {
+  if (!PASSWORD_LOGIN) return res.status(403).json(PASSWORD_OFF);
   const { phone, email, password } = req.body;
   if ((!phone && !email) || !password) {
     return res.status(400).json({ success: false, message: 'Credentials required' });
@@ -130,6 +149,7 @@ const login = async (req, res) => {
 
 // POST /auth/forgot-password  → sends OTP
 const forgotPassword = async (req, res) => {
+  if (!PASSWORD_LOGIN) return res.status(403).json(PASSWORD_OFF);
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ success: false, message: 'Phone required' });
 
@@ -147,6 +167,7 @@ const forgotPassword = async (req, res) => {
 
 // POST /auth/reset-password
 const resetPassword = async (req, res) => {
+  if (!PASSWORD_LOGIN) return res.status(403).json(PASSWORD_OFF);
   const { phone, otp, newPassword } = req.body;
   if (!phone || !otp || !newPassword) {
     return res.status(400).json({ success: false, message: 'All fields required' });
@@ -261,6 +282,7 @@ const firebaseVerify = async (req, res, next) => {
       await pool.query('UPDATE users SET is_phone_verified = TRUE WHERE phone = $1', [phone]);
       userRow = existing.rows[0];
     } else {
+      if (await settingOff('user_registration_enabled')) return res.status(403).json({ success: false, message: SIGNUPS_PAUSED });
       // New user — create with provided name/email or defaults
       const { name: reqName, email: reqEmail } = req.body;
       // The phone is already verified here, so never fail signup over the optional email:
@@ -279,6 +301,7 @@ const firebaseVerify = async (req, res, next) => {
 
     const { accessToken, refreshToken } = await generateTokens(userRow.id);
     const isNewUser = !existing.rows.length;
+    recordStaffSignIn(userRow, req, 'firebase-otp');
 
     res.json({
       success: true,
@@ -293,4 +316,5 @@ const firebaseVerify = async (req, res, next) => {
   }
 };
 
-module.exports = { sendOtp, verifyOtpLogin, signup, login, forgotPassword, resetPassword, getMe, logout, refreshToken, saveFcmToken, getOtpConfig, firebaseVerify };
+module.exports = {
+  recordStaffSignIn, sendOtp, verifyOtpLogin, signup, login, forgotPassword, resetPassword, getMe, logout, refreshToken, saveFcmToken, getOtpConfig, firebaseVerify };

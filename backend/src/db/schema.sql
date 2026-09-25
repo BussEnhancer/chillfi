@@ -441,3 +441,14 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_date TIMESTAMP;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS hsn_code VARCHAR(10);
 CREATE TABLE IF NOT EXISTS invoice_counters (fy VARCHAR(4) PRIMARY KEY, last_no INT NOT NULL DEFAULT 0);
 INSERT INTO store_settings (key, value) VALUES ('invoices_enabled', 'false') ON CONFLICT (key) DO NOTHING;
+
+-- Admin / support-staff sign-in history (Settings → Security → Login Activity Log)
+CREATE TABLE IF NOT EXISTS admin_login_events (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  method VARCHAR(30),
+  ip VARCHAR(64),
+  user_agent TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_admin_login_events_time ON admin_login_events(created_at DESC);

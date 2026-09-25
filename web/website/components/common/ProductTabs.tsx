@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, ThumbsUp, User, ChevronDown, ChevronUp, Loader2, Send } from 'lucide-react';
 import { apiGet, apiPost, getAccessToken } from '../../utils/api';
 import { friendlyError } from '../../utils/api';
+import { useAppConfig, freeDeliveryText } from '../../utils/useAppConfig';
 
 interface Review {
   id: string;
@@ -73,6 +74,7 @@ const TABS = ['Description', 'Specifications', 'Reviews', 'FAQs', 'Delivery & Re
 const ProductTabs: React.FC<ProductTabsProps> = ({
   reviewCount = 0, productId, description, specs, isLoggedIn,
 }) => {
+  const cfg = useAppConfig();
   const [active, setActive] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
@@ -306,8 +308,8 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         {active === 4 && (
           <div className="space-y-4 text-sm font-medium text-gray-600 leading-relaxed">
             <div className="p-5 bg-green-50 rounded-2xl border border-green-100">
-              <p className="font-black text-green-700 mb-1">Free Delivery</p>
-              <p>Free standard delivery on orders above ₹499. Delivery typically takes 3–7 business days across India.</p>
+              <p className="font-black text-green-700 mb-1">{cfg && !cfg.free_shipping_enabled ? 'Delivery' : 'Free Delivery'}</p>
+              <p>{cfg && !cfg.free_shipping_enabled ? `${freeDeliveryText(cfg)} on every order.` : `Free standard delivery on orders above ₹${Number(cfg?.free_shipping_threshold ?? 499).toLocaleString('en-IN')}.`} Delivery typically takes {cfg?.max_delivery_days ? `up to ${cfg.max_delivery_days}` : '3–7'} business days across India, via Delhivery.</p>
             </div>
             <div className="p-5 bg-blue-50 rounded-2xl border border-blue-100">
               <p className="font-black text-blue-700 mb-1">7-Day Easy Returns</p>

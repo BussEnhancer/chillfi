@@ -2,6 +2,7 @@ const pool = require('../db/pool');
 const { getShippingFee, checkoutServiceability } = require('../utils/shipping');
 const { openAutoRefund } = require('../utils/refunds');
 const invoice = require('../utils/invoice');
+const { lowStockAlert, LOW_STOCK } = require('../utils/adminAlerts');
 const { getIncludedGst } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
@@ -164,6 +165,7 @@ const createOrder = async (req, res) => {
     const order = orderResult.rows[0];
 
     // Insert order items + reduce stock (guarded WHERE as a final safety net against negative stock)
+    const lowStockCrossed = [];
     for (const item of items.rows) {
       await client.query(`
         INSERT INTO order_items (order_id, product_id, product_name, product_image, price, quantity)
@@ -178,6 +180,8 @@ const createOrder = async (req, res) => {
         await client.query('ROLLBACK');
         return res.status(400).json({ success: false, message: `"${item.name}" is out of stock` });
       }
+      const left = stockUpdate.rows[0].stock;
+      if (left <= LOW_STOCK && left + item.quantity > LOW_STOCK) lowStockCrossed.push({ name: item.name, stock: left });
     }
 
     // Mark coupon used
@@ -193,6 +197,7 @@ const createOrder = async (req, res) => {
     await client.query('DELETE FROM cart_items WHERE cart_id = $1', [cartId]);
 
     await client.query('COMMIT');
+    lowStockAlert(lowStockCrossed);
 
     res.status(201).json({
       success: true,

@@ -4,6 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
 import { useAdminRole } from '../../utils/useAdminRole';
+import { useAdminIdleTimeout } from '../../utils/useAdminIdleTimeout';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ const STAFF_ALLOWED_PREFIXES = ['/admin/orders', '/admin/reviews', '/admin/messa
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
   const { pathname } = useLocation();
   const { isSupportStaff, loading } = useAdminRole();
+  useAdminIdleTimeout();
   const isRestricted = !loading && isSupportStaff && !STAFF_ALLOWED_PREFIXES.some(p => pathname.startsWith(p));
 
   return (

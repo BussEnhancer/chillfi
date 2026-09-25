@@ -1,14 +1,16 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { useAppConfig, freeDeliveryText } from '../../utils/useAppConfig';
 
 const PLP_HeroBanner: React.FC = () => {
+  const cfg = useAppConfig();
   return (
     <div className="relative bg-[#F8F7FC] rounded-[32px] p-8 md:p-12 mb-10 flex flex-col md:flex-row items-center justify-between border border-[#ECECEC] overflow-hidden group">
       <div className="relative z-10 md:max-w-[50%] text-center md:text-left">
          <h2 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
             Power Up Your <span className="text-[#FF6B2C]">Tech</span>
          </h2>
-         <p className="text-gray-500 font-bold">Premium Electronics Collection <br className="hidden md:block" /> Free delivery on orders above ₹499</p>
+         <p className="text-gray-500 font-bold">Premium Electronics Collection <br className="hidden md:block" /> {cfg && !cfg.free_shipping_enabled ? freeDeliveryText(cfg) : freeDeliveryText(cfg, 'Free delivery on orders above')}</p>
       </div>
 
       <div className="relative w-full md:w-[45%] h-[200px] flex items-center justify-center mt-8 md:mt-0">

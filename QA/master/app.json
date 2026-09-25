@@ -3638,6 +3638,15 @@
    "root_cause": "Generic empty text",
    "fix": "Tab-specific empty message",
    "retest": "Analyzer"
+  },
+  {
+   "id": "ADEF-62",
+   "title": "Dead mock screens with fake products (EmptyCartScreen: Puma sneakers, Lavie bag) and unused website CartTable with fake items",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Unused files",
+   "fix": "Removed",
+   "retest": "Analyzer/tsc clean"
   }
  ],
  "blockers": [

@@ -1,6 +1,13 @@
 const pool = require('../db/pool');
 const { getSetting } = require('./settings');
 const { sendPushToTokens } = require('./firebase');
+const { sendMail } = require('./mailer');
+const { sendOrderSms } = require('./sms');
+
+// SMS only for the moments a customer really needs (cost + DLT template limits).
+const SMS_WORTHY = (data = {}, key = '') => /:placed$|:cancelled$/.test(key || '')
+  || ['in_transit', 'shipped', 'out_for_delivery', 'delivered'].includes(data.shipping_status);
+const siteUrl = () => (process.env.WEBSITE_URL || process.env.APP_BASE_URL || 'https://chillfi.in').replace(/\/$/, '');
 
 // Maps an order notification to the customer's per-stage toggle (Notification Settings in the app).
 // Cancellations and failed-delivery alerts are always sent: they need the customer's attention.
@@ -37,7 +44,7 @@ const notifyUser = async (userId, { title, body, type = 'order', data = {}, dedu
 
     let push = { attempted: false };
     const adminEnabled = storeSettingKey ? (await getSetting(storeSettingKey)) !== 'false' : true;
-    const prefs = await pool.query('SELECT notification_preferences FROM users WHERE id = $1', [userId]);
+    const prefs = await pool.query('SELECT notification_preferences, email, phone FROM users WHERE id = $1', [userId]);
     const userPrefs = prefs.rows[0]?.notification_preferences || {};
     const prefKey = userPrefKeyFor(data, dedupeKey);
     // orderUpdates is the legacy master switch; per-stage keys come from the app's Notification Settings.
@@ -54,8 +61,20 @@ const notifyUser = async (userId, { title, body, type = 'order', data = {}, dedu
         push = { attempted: false, reason: 'no FCM token' };
       }
     }
-    console.log(`[notify] user=${userId} type=${type} key=${dedupeKey || '-'} push=${JSON.stringify(push)}`);
-    return { inserted: true, push };
+    // Email + SMS follow the same admin switch and customer preferences as push; both are no-ops until configured.
+    let email = { attempted: false }; let sms = { attempted: false };
+    if (adminEnabled && userEnabled) {
+      const u = prefs.rows[0] || {};
+      const ctaUrl = data.order_id ? `${siteUrl()}/account/orders/${data.order_id}/track` : null;
+      if (u.email && userPrefs.emailUpdates !== false) {
+        email = { attempted: true, ...(await sendMail({ to: u.email, subject: title, title, body, ctaText: 'View your order', ctaUrl })) };
+      }
+      if (type === 'order' && u.phone && userPrefs.smsUpdates !== false && SMS_WORTHY(data, dedupeKey)) {
+        sms = { attempted: true, ...(await sendOrderSms({ phone: u.phone, orderNumber: data.order_number || '', status: title })) };
+      }
+    }
+    console.log(`[notify] user=${userId} type=${type} key=${dedupeKey || '-'} push=${JSON.stringify(push)} email=${email.sent ? 'sent' : email.reason || '-'} sms=${sms.sent ? 'sent' : sms.reason || '-'}`);
+    return { inserted: true, push, email, sms };
   } catch (err) {
     console.error(`[notify] failed user=${userId} key=${dedupeKey || '-'}: ${err.message}`);
     return { inserted: false, error: err.message };

@@ -1,15 +1,17 @@
 import React from 'react';
 import Container from '../common/Container';
 import { Truck, RotateCcw, ShieldCheck, Headphones, Smartphone } from 'lucide-react';
+import { useAppConfig, freeDeliveryText } from '../../utils/useAppConfig';
 
 const TopBar: React.FC = () => {
+  const cfg = useAppConfig();
   return (
     <div className="bg-[#121212] text-white py-2 text-[12px] font-medium hidden lg:block">
       <Container className="flex justify-between items-center">
         <div className="flex gap-8">
           <div className="flex items-center gap-2">
             <Truck size={14} className="text-[#FF6B2C]" />
-            <span>Free Delivery on orders above ₹499</span>
+            <span>{cfg && !cfg.free_shipping_enabled ? freeDeliveryText(cfg) : freeDeliveryText(cfg, 'Free Delivery on orders above')}</span>
           </div>
           <div className="flex items-center gap-2">
             <RotateCcw size={14} className="text-[#FF6B2C]" />
