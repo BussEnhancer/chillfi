@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult, signOut } from 'firebase/auth';
+import { firebaseAuth, firebaseErrorMsg } from '../../utils/firebase';
 import { ShieldOff, Phone, KeyRound, Trash2, CheckCircle, AlertTriangle, ChevronRight, Loader2 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { friendlyError } from '../../utils/api';
@@ -13,31 +15,46 @@ const DeleteAccountPage: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Same phone verification as Login (Firebase OTP); the server checks the Firebase token before deleting.
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const idTokenRef = useRef<string | null>(null);
 
   const sendOtp = async () => {
-    if (!/^\d{10}$/.test(phone)) { setError('Enter a valid 10-digit mobile number'); return; }
+    if (!/^[6-9]\d{9}$/.test(phone)) { setError('Enter a valid 10-digit mobile number'); return; }
     setLoading(true); setError('');
     try {
-      await api('/auth/send-otp', 'POST', { phone, purpose: 'login' });
+      recaptchaRef.current?.clear();
+      recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-delete', { size: 'invisible' });
+      confirmationRef.current = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, recaptchaRef.current);
       setStep('otp');
     } catch (e: any) {
-      setError(friendlyError(e, 'Failed to send OTP. Please try again.'));
+      recaptchaRef.current?.clear(); recaptchaRef.current = null;
+      setError(firebaseErrorMsg(e?.code) ?? 'Failed to send OTP. Please try again.');
     } finally { setLoading(false); }
   };
 
   const verifyOtp = async () => {
     if (otp.length !== 6) { setError('Enter the 6-digit OTP'); return; }
-    setStep('confirm');
-    setError('');
+    if (!confirmationRef.current) { setError('Session expired. Please request a new OTP.'); setStep('phone'); return; }
+    setLoading(true); setError('');
+    try {
+      const credential = await confirmationRef.current.confirm(otp);
+      idTokenRef.current = await credential.user.getIdToken();
+      setStep('confirm');
+    } catch (e: any) {
+      setError(firebaseErrorMsg(e?.code) ?? 'Verification failed. Please try again.');
+    } finally { setLoading(false); }
   };
 
   const deleteAccount = async () => {
     setLoading(true); setError('');
     try {
-      await api('/profile/request-delete', 'POST', { phone, otp });
+      await api('/profile/request-delete', 'POST', { idToken: idTokenRef.current });
+      signOut(firebaseAuth).catch(() => {});
       setStep('done');
     } catch (e: any) {
-      setError(friendlyError(e, 'Deletion failed. OTP may have expired — please start over.'));
+      setError(friendlyError(e, 'Deletion failed. Please verify your number again.'));
       setStep('phone');
       setOtp('');
     } finally { setLoading(false); }
@@ -65,7 +82,7 @@ const DeleteAccountPage: React.FC = () => {
                 </div>
                 <h1 className="text-2xl font-black text-[#111827] mb-2">Delete Your Account</h1>
                 <p className="text-sm font-bold text-gray-400 leading-relaxed">
-                  This will permanently delete your account and all associated data including orders, wishlist, reviews, and saved addresses.
+                  This permanently deletes your account and personal data — profile, wishlist, reviews and saved addresses. Past orders are kept without your name for tax records.
                 </p>
               </div>
 
@@ -143,10 +160,10 @@ const DeleteAccountPage: React.FC = () => {
               {error && <p className="text-xs font-bold text-red-500 mb-3">{error}</p>}
               <button
                 onClick={verifyOtp}
-                disabled={otp.length !== 6}
+                disabled={loading || otp.length !== 6}
                 className="w-full bg-[#FF6B2C] text-white py-3.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
               >
-                Verify OTP <ChevronRight size={16} />
+                {loading ? <><Loader2 size={16} className="animate-spin" /> Verifying…</> : <>Verify OTP <ChevronRight size={16} /></>}
               </button>
               <button onClick={() => { setStep('phone'); setOtp(''); setError(''); }} className="w-full mt-3 text-xs font-bold text-gray-400 hover:text-[#FF6B2C] transition-colors">
                 ← Change number
@@ -223,6 +240,8 @@ const DeleteAccountPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <div id="recaptcha-delete" />
 
       {/* Footer */}
       <footer className="border-t border-[#ECECEC] bg-white px-6 py-4 text-center">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
+import { signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
+import { firebaseAuth as auth, firebaseErrorMsg } from '../../utils/firebase';
 import Header from '../../components/navigation/Header';
 import TopBar from '../../components/navigation/TopBar';
 import Footer from '../../components/navigation/Footer';
@@ -13,17 +13,6 @@ import { apiPost } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 import { friendlyError } from '../../utils/api';
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyBOmbn0_LwNQhX_bitzh2Djae7NVPpFqro',
-  authDomain: 'chillfi.firebaseapp.com',
-  projectId: 'chillfi',
-  storageBucket: 'chillfi.firebasestorage.app',
-  messagingSenderId: '414620965564',
-  appId: '1:414620965564:web:2e8affe35b1da184f20eb9',
-};
-
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 type Tab = 'login' | 'register';
 type Step = 'phone' | 'otp';
@@ -35,7 +24,9 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { loginUser, isLoggedIn } = useStore();
-  const from = (location.state as { from?: string })?.from || '/';
+  // Only same-site paths (blocks "//evil.com" and "/\\evil.com" style open redirects)
+  const rawFrom = (location.state as { from?: string })?.from || '/';
+  const from = /^\/(?![\/\\])/.test(rawFrom) ? rawFrom : '/';
 
   useEffect(() => { if (isLoggedIn) navigate(from, { replace: true }); }, [isLoggedIn]);
 
@@ -86,16 +77,6 @@ const LoginPage: React.FC = () => {
     return recaptchaRef.current;
   };
 
-  const firebaseErrorMsg = (code: string) => {
-    switch (code) {
-      case 'auth/too-many-requests': return 'Too many attempts. Please wait and try again.';
-      case 'auth/invalid-phone-number': return 'Invalid phone number.';
-      case 'auth/unauthorized-domain': return 'Domain not authorized in Firebase. Contact support.';
-      case 'auth/invalid-verification-code': return 'Incorrect OTP. Please try again.';
-      case 'auth/code-expired': return 'OTP expired. Please request a new one.';
-      default: return null;
-    }
-  };
 
   const handleSendOtp = async () => {
     if (!validatePhone(phone)) { setError('Enter a valid 10-digit Indian mobile number'); return; }

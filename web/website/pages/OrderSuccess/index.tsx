@@ -14,6 +14,8 @@ const OrderSuccessPage: React.FC = () => {
   // COD orders are flagged by the checkout (state) or ?method=cod; online payments only land here after PhonePe confirms.
   const isCod = stateData.cod === true || searchParams.get('method') === 'cod';
   const total = stateData.total ?? (searchParams.get('total') ? Number(searchParams.get('total')) : undefined);
+  // PhonePe sometimes still reports "pending" when the customer returns (UPI); the webhook confirms it shortly after.
+  const paymentPending = !isCod && searchParams.get('payment') === 'pending';
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
@@ -39,7 +41,7 @@ const OrderSuccessPage: React.FC = () => {
               </div>
               {total !== undefined && (
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">{stateData.cod ? 'Pay on Delivery' : 'Total Paid'}</span>
+                  <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider">{isCod ? 'Pay on Delivery' : paymentPending ? 'Order Total' : 'Total Paid'}</span>
                   <span className="text-lg font-black text-[#FF6B2C]">₹{Number(total).toLocaleString()}</span>
                 </div>
               )}
@@ -64,8 +66,8 @@ const OrderSuccessPage: React.FC = () => {
                 </div>
                 <span className="text-[11px] font-black text-[#111827] uppercase tracking-wider">Payment</span>
               </div>
-              <p className="text-sm font-black text-[#111827]">{isCod ? 'Pay on Delivery' : 'Paid'}</p>
-              <p className="text-xs font-bold text-gray-400">{isCod ? 'Please keep the exact amount ready when your order arrives' : 'Payment received via PhonePe'}</p>
+              <p className="text-sm font-black text-[#111827]">{isCod ? 'Pay on Delivery' : paymentPending ? 'Payment processing' : 'Paid'}</p>
+              <p className="text-xs font-bold text-gray-400">{isCod ? 'Please keep the exact amount ready when your order arrives' : paymentPending ? "PhonePe is confirming your payment — we'll notify you in a minute. Please don't pay again." : 'Payment received via PhonePe'}</p>
             </div>
           </div>
 

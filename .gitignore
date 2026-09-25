@@ -58,3 +58,4 @@ backend/uploads/
 # Node modules
 backend/node_modules/
 web/website/node_modules/
+web/website/public/sitemap.xml

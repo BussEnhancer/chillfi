@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /order-success
+Disallow: /order-failed
+
+Sitemap: https://chillfi.in/sitemap.xml
