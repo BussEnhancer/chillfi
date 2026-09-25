@@ -69,7 +69,7 @@ const SearchPage: React.FC = () => {
       <Header />
       <CategoryNav />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         {/* Search input */}
         <form onSubmit={handleSubmit} className="flex gap-3 max-w-2xl mb-10">
           <div className="flex-1 min-w-0 flex items-center gap-3 bg-gray-50 border border-[#ECECEC] rounded-2xl px-4 sm:px-5 py-3.5 focus-within:border-[#FF6B2C] transition-all">
@@ -106,7 +106,7 @@ const SearchPage: React.FC = () => {
             <Search size={48} className="mx-auto text-gray-200 mb-4" />
             <h3 className="text-xl font-black text-[#111827] mb-2">What are you looking for?</h3>
             <p className="text-sm font-bold text-gray-400 mb-6">Search for products, brands or categories</p>
-            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20">
+            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
               Browse All Products
             </Link>
           </div>
@@ -115,7 +115,7 @@ const SearchPage: React.FC = () => {
             <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
             <h3 className="text-xl font-black text-[#111827] mb-2">No results for "{q}"</h3>
             <p className="text-sm font-bold text-gray-400 mb-6">Try different keywords or browse all products.</p>
-            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20">
+            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
               Browse All Products
             </Link>
           </div>

@@ -134,7 +134,7 @@ const OrdersPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="mb-8">
           <h1 className="text-3xl font-black text-[#111827] mb-1">My Orders</h1>
           <p className="text-sm font-bold text-gray-400">Track, manage and reorder your purchases</p>

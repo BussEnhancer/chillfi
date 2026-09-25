@@ -112,11 +112,11 @@ const ProductDetailsPage: React.FC = () => {
   if (error || !product) return (
     <div className="min-h-screen bg-white font-['Poppins']">
       <TopBar /><Header /><CategoryNav />
-      <Container className="py-32 text-center">
+      <Container className="py-32 text-center animate-page-in">
         <PackageOpen size={48} className="mx-auto text-gray-200 mb-4" />
         <h2 className="text-2xl font-black text-[#111827] mb-2">Product not found</h2>
         <p className="text-gray-400 font-bold mb-6">{error}</p>
-        <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20">
+        <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
           Browse Products
         </Link>
       </Container>
@@ -142,7 +142,7 @@ const ProductDetailsPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Left: Gallery */}
           <div className="lg:w-[50%]">

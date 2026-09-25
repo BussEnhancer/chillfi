@@ -20,7 +20,7 @@ const OrderSuccessPage: React.FC = () => {
       <TopBar />
       <Header />
 
-      <Container className="py-20">
+      <Container className="py-20 animate-page-in">
         <div className="max-w-xl mx-auto text-center">
           <div className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6 border-4 border-green-100">
             <CheckCircle2 size={48} className="text-green-500" />
@@ -72,7 +72,7 @@ const OrderSuccessPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/account/orders"
-              className="flex items-center justify-center gap-2 bg-[#FF6B2C] text-white px-8 py-4 rounded-xl font-black shadow-xl shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-all"
+              className="flex items-center justify-center gap-2 bg-[#FF6B2C] text-white px-8 py-4 rounded-xl font-black shadow-xl shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-all active:scale-[0.98]"
             >
               Track My Order <ChevronRight size={18} />
             </Link>

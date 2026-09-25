@@ -94,7 +94,7 @@ const WishlistPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl font-black text-[#111827] mb-1">
@@ -106,7 +106,7 @@ const WishlistPage: React.FC = () => {
             <button
               onClick={handleMoveAllToCart}
               disabled={items.length === 0}
-              className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] shadow-lg shadow-[#FF6B2C]/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] shadow-lg shadow-[#FF6B2C]/20 transition-all disabled:opacity-50 active:scale-[0.98]"
             >
               <ShoppingBag size={18} />
               Move All to Bag

@@ -36,7 +36,7 @@ const CouponCard: React.FC<CouponCardProps> = ({ code, tag, offer, condition, va
 
       {/* Action Section */}
       <div className="shrink-0 w-full md:w-auto">
-        <button className="w-full md:w-auto bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm">
+        <button className="w-full md:w-auto bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm active:scale-[0.98]">
           <Copy size={14} />
           Copy Code
         </button>

@@ -24,7 +24,7 @@ const Newsletter: React.FC = () => {
             <button
               type="button"
               disabled
-              className="bg-[#FF6B2C] text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 shrink-0 cursor-not-allowed"
+              className="bg-[#FF6B2C] text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 shrink-0 cursor-not-allowed active:scale-[0.98] transition-all"
             >
               Coming Soon
               <Send size={16} />

@@ -58,7 +58,7 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-[#FF6B2C] hover:text-white transition-all whitespace-nowrap">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-[#FF6B2C] hover:text-white transition-all whitespace-nowrap active:scale-[0.98]">
             <ShoppingBag size={14} />
             Move to Bag
           </button>

@@ -164,7 +164,7 @@ const TrackingPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         {loading ? (
           <div className="flex items-center justify-center py-32">
             <Loader2 size={32} className="animate-spin text-[#FF6B2C]" />
@@ -211,7 +211,7 @@ const TrackingPage: React.FC = () => {
                 </button>
               )
             )}
-            <Link to="/support" className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all">
+            <Link to="/support" className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all active:scale-[0.98]">
                <Headphones size={18} />
                Contact Support
             </Link>
@@ -327,7 +327,7 @@ const TrackingPage: React.FC = () => {
               {refundError && <p className="text-xs font-bold text-red-500 mb-4">{refundError}</p>}
               <div className="flex gap-3">
                 <button onClick={() => setShowRefundModal(false)} disabled={submittingRefund} className="flex-1 border-2 border-[#ECECEC] text-gray-600 py-2.5 rounded-xl font-black text-sm disabled:opacity-50">Cancel</button>
-                <button onClick={handleRequestRefund} disabled={submittingRefund || !refundReason.trim()} className="flex-1 bg-[#FF6B2C] text-white py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center justify-center gap-2">
+                <button onClick={handleRequestRefund} disabled={submittingRefund || !refundReason.trim()} className="flex-1 bg-[#FF6B2C] text-white py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
                   {submittingRefund ? <><Loader2 size={14} className="animate-spin" />Submitting...</> : 'Submit Request'}
                 </button>
               </div>

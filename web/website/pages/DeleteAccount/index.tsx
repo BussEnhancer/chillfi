@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldOff, Phone, KeyRound, Trash2, CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
+import { ShieldOff, Phone, KeyRound, Trash2, CheckCircle, AlertTriangle, ChevronRight, Loader2 } from 'lucide-react';
 import { api } from '../../utils/api';
 import { friendlyError } from '../../utils/api';
 import { useStoreContact } from '../../utils/useStoreContact';
@@ -111,9 +111,9 @@ const DeleteAccountPage: React.FC = () => {
               <button
                 onClick={sendOtp}
                 disabled={loading || phone.length !== 10}
-                className="w-full bg-[#FF6B2C] text-white py-3.5 rounded-xl font-black text-sm hover:bg-[#e55a1f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-[#FF6B2C] text-white py-3.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
               >
-                {loading ? 'Sending OTP…' : <>Send OTP <ChevronRight size={16} /></>}
+                {loading ? <><Loader2 size={16} className="animate-spin" /> Sending OTP…</> : <>Send OTP <ChevronRight size={16} /></>}
               </button>
             </div>
           )}
@@ -144,7 +144,7 @@ const DeleteAccountPage: React.FC = () => {
               <button
                 onClick={verifyOtp}
                 disabled={otp.length !== 6}
-                className="w-full bg-[#FF6B2C] text-white py-3.5 rounded-xl font-black text-sm hover:bg-[#e55a1f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-[#FF6B2C] text-white py-3.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 Verify OTP <ChevronRight size={16} />
               </button>
@@ -177,7 +177,7 @@ const DeleteAccountPage: React.FC = () => {
                 className="w-full bg-red-500 text-white py-3.5 rounded-xl font-black text-sm hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 <Trash2 size={16} />
-                {loading ? 'Deleting account…' : 'Delete My Account'}
+                {loading ? <><Loader2 size={16} className="animate-spin" /> Deleting account…</> : 'Delete My Account'}
               </button>
               <button onClick={() => setStep('otp')} className="w-full mt-3 text-xs font-bold text-gray-400 hover:text-[#111827] transition-colors">
                 ← Go back

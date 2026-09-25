@@ -143,7 +143,7 @@ module.exports = async (b, { rec, shot }) => {
     // load-failure guard
     const p2 = await c.newPage();
     await p2.route('**/api/admin/settings', (r) => (r.request().method() === 'GET' ? r.abort() : r.continue()));
-    await p2.goto(BASE + '/admin/settings', { waitUntil: 'networkidle' }); await p2.waitForTimeout(800);
+    await p2.goto(BASE + '/admin/settings?tab=store', { waitUntil: 'networkidle' }); // Go-Live (default tab) has no Save button await p2.waitForTimeout(800);
     const dlg = await p2.locator('body').innerText();
     const saveDisabled = await p2.getByRole('button', { name: /Save Changes|Save Settings|Save/ }).last().isDisabled().catch(() => null);
     rec('ADM-16-12', /(Couldn.t load settings|No internet connection)/i.test(dlg) && /saving is disabled/i.test(dlg) && saveDisabled === true, `settings GET fails → friendly dialog + persistent banner, Save disabled=${saveDisabled}`, await shot(p2, 'adm16_loadfail'));

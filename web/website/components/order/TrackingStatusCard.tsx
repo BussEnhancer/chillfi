@@ -39,7 +39,7 @@ const TrackingStatusCard: React.FC<TrackingStatusCardProps> = ({ status, updated
       {status === 'Delivered' && (
         <Link
           to={reviewProductId ? `/product/${reviewProductId}` : '/account/reviews'}
-          className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm"
+          className="bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm active:scale-[0.98]"
         >
           <Star size={18} />
           Rate & Review

@@ -14,9 +14,9 @@ const SupportHero: React.FC = () => {
     <div className="bg-[#FFF8F5] rounded-[32px] p-8 md:p-12 mb-12 relative overflow-hidden group border border-[#FF6B2C]/10">
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
         <div className="flex-1 w-full text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
+          <h2 className="text-3xl md:text-4xl font-black text-[#111827] leading-tight mb-4">
             How can we <span className="text-[#FF6B2C]">help you?</span>
-          </h1>
+          </h2>
           <p className="text-sm font-bold text-gray-400 mb-8 uppercase tracking-widest">Browse topics below or jump to a quick link</p>
 
           {/* Quick Links */}

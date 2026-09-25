@@ -52,7 +52,7 @@ const CategoriesPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb />
 
-      <Container className="flex gap-10 py-10">
+      <Container className="flex gap-10 py-10 animate-page-in">
         <CategorySidebar />
 
         <div className="flex-1 min-w-0">
@@ -71,7 +71,7 @@ const CategoriesPage: React.FC = () => {
               </Link>
             ))}
             {active.length === 0 && (
-              <div className="col-span-5 py-16 text-center text-gray-400 font-bold">No active categories. Add from Admin → Categories.</div>
+              <div className="col-span-5 py-16 text-center text-gray-400 font-bold">Categories are coming soon. Please check back shortly.</div>
             )}
           </div>
 

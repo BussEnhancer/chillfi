@@ -25,10 +25,10 @@ const SupportPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-12 md:py-16">
+      <Container className="py-12 md:py-16 animate-page-in">
         <div className="mb-12">
-          <h1 className="text-4xl font-black text-[#111827] mb-2 uppercase tracking-tight">Support Center</h1>
-          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">We're here to help! Find answers, track your orders, and get the support you need.</p>
+          <h1 className="text-3xl font-black text-[#111827] mb-2">Support Center</h1>
+          <p className="text-sm font-bold text-gray-400">We're here to help! Find answers, track your orders, and get the support you need.</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">

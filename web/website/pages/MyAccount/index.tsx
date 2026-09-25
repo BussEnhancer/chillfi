@@ -45,7 +45,7 @@ const MyAccountPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-black text-[#111827]">My Account</h1>
           <button

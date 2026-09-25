@@ -65,7 +65,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ products }) => {
             ))}
           </div>}
 
-          <Link to="/offers" className="inline-block bg-[#FF6B2C] text-white px-8 py-4 rounded-xl font-bold shadow-xl shadow-[#FF6B2C]/20 hover:scale-105 transition-all">
+          <Link to="/offers" className="inline-block bg-[#FF6B2C] text-white px-8 py-4 rounded-xl font-bold shadow-xl shadow-[#FF6B2C]/20 hover:scale-105 transition-all active:scale-[0.98]">
             Shop All Deals
           </Link>
         </div>

@@ -15,10 +15,10 @@ const HeroOfferBanner: React.FC = () => {
             <Sparkles size={14} className="text-amber-300" />
             <span className="text-[10px] font-black uppercase tracking-widest">Offers & Coupons</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black leading-[1.1] mb-4">
+          <h2 className="text-4xl md:text-5xl font-black leading-[1.1] mb-4">
             Save more on <br />
             <span className="text-amber-300 italic">top brands</span>
-          </h1>
+          </h2>
           <p className="text-sm font-bold text-white/80 uppercase tracking-[0.2em] mb-10">Apply a coupon below at checkout</p>
           <Link to="/products" className="inline-block bg-white text-[#FF6B2C] px-10 py-3.5 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
             Shop Now

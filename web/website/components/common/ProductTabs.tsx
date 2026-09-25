@@ -231,7 +231,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                     <button
                       type="submit"
                       disabled={!myRating || submitting}
-                      className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm disabled:opacity-40 hover:bg-[#E05520] transition-colors"
+                      className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm disabled:opacity-40 hover:bg-[#E05520] transition-colors active:scale-[0.98]"
                     >
                       {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                       {submitting ? 'Submitting...' : 'Submit Review'}

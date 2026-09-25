@@ -27,7 +27,7 @@ const TermsConditionsPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Left: Sidebar */}
           <AccountSidebar activeId="terms" />

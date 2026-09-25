@@ -236,7 +236,8 @@ const CheckoutPage: React.FC = () => {
       <TopBar />
       <Header />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
+        <h1 className="sr-only">Checkout</h1>
         <CheckoutStepper />
 
         <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 mt-4">
@@ -286,7 +287,7 @@ const CheckoutPage: React.FC = () => {
                     <button
                       onClick={handleSaveAddress}
                       disabled={savingAddr}
-                      className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center gap-2"
+                      className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center gap-2 active:scale-[0.98] transition-all"
                     >
                       {savingAddr && <Loader2 size={14} className="animate-spin" />}
                       Save Address
@@ -416,7 +417,7 @@ const CheckoutPage: React.FC = () => {
                 <button
                   onClick={handleApplyCoupon}
                   disabled={applyingCoupon}
-                  className="bg-[#FF6B2C] text-white px-8 py-3 rounded-lg font-black text-sm hover:bg-[#E05520] transition-all disabled:opacity-50"
+                  className="bg-[#FF6B2C] text-white px-8 py-3 rounded-lg font-black text-sm hover:bg-[#E05520] transition-all disabled:opacity-50 active:scale-[0.98]"
                 >
                   {applyingCoupon ? 'Applying...' : 'Apply'}
                 </button>

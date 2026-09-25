@@ -14,7 +14,7 @@ const NotFoundPage: React.FC = () => {
       <TopBar />
       <Header />
 
-      <Container className="py-20">
+      <Container className="py-20 animate-page-in">
         <div className="max-w-xl mx-auto text-center">
           <div className="relative mb-8">
             <p className="text-[120px] font-black text-[#F8F7FC] leading-none select-none">404</p>
@@ -35,7 +35,7 @@ const NotFoundPage: React.FC = () => {
             </button>
             <Link
               to="/"
-              className="flex items-center gap-2 px-6 py-3 bg-[#FF6B2C] text-white rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors"
+              className="flex items-center gap-2 px-6 py-3 bg-[#FF6B2C] text-white rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors active:scale-[0.98]"
             >
               <Home size={16} /> Back to Home
             </Link>

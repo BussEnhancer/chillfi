@@ -19,7 +19,7 @@ const ReferEarnCard: React.FC = () => {
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Potential Earnings</p>
           <p className="text-sm font-black text-[#111827]">You can earn up to <span className="text-[#FF6B2C]">500 Coins</span></p>
         </div>
-        <button className="bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.05] transition-all">
+        <button className="bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black text-sm flex items-center gap-2 shadow-xl shadow-[#FF6B2C]/20 hover:scale-[1.05] transition-all active:scale-[0.98]">
           Refer Now
           <Send size={16} />
         </button>

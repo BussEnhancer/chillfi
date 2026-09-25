@@ -16,7 +16,7 @@ const OrderFailedPage: React.FC = () => {
       <TopBar />
       <Header />
 
-      <Container className="py-20">
+      <Container className="py-20 animate-page-in">
         <div className="max-w-xl mx-auto text-center">
           <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6 border-4 border-red-100">
             <XCircle size={48} className="text-red-500" />

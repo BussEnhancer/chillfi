@@ -42,7 +42,7 @@ const SupportSidebar: React.FC = () => {
         <div className="mt-8 p-6 bg-[#FFF8F5] rounded-2xl border border-[#FF6B2C]/10 text-center">
            <h4 className="text-sm font-black text-[#111827] mb-2 uppercase tracking-tight">Still need help?</h4>
            <p className="text-[11px] font-bold text-gray-400 mb-4 leading-relaxed">Our support team is ready to assist you.</p>
-           <Link to="/contact" className="w-full bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm">
+           <Link to="/contact" className="w-full bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm active:scale-[0.98]">
               <Headphones size={14} />
               Contact Us
            </Link>

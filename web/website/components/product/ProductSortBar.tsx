@@ -27,7 +27,7 @@ const ProductSortBar: React.FC = () => {
            </button>
         </div>
 
-        <button className="lg:hidden flex items-center gap-2 bg-[#FF6B2C] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#FF6B2C]/20">
+        <button className="lg:hidden flex items-center gap-2 bg-[#FF6B2C] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#FF6B2C]/20 active:scale-[0.98] transition-all">
            <Filter size={18} />
            Filter
         </button>

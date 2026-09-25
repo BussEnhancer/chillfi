@@ -99,7 +99,7 @@ const TrackingOrderSummary: React.FC<TrackingOrderSummaryProps> = ({
          <div className="relative z-10">
             <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-2">Need Help?</h3>
             <p className="text-[11px] font-bold text-gray-400 mb-6 leading-relaxed">We're here to help you with your order</p>
-            <Link to="/support" className="w-full bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm">
+            <Link to="/support" className="w-full bg-white border-2 border-[#FF6B2C] text-[#FF6B2C] py-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 hover:bg-[#FF6B2C] hover:text-white transition-all shadow-sm active:scale-[0.98]">
                <Headphones size={14} />
                Contact Support
             </Link>

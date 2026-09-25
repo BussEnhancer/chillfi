@@ -59,6 +59,12 @@ import { useSeoDefaults } from '../utils/useSeoDefaults'
 function App() {
   const location = useLocation()
   useSeoDefaults()
+
+  // New page = start at the top (links used to open halfway down, wherever the previous page was scrolled).
+  // Same-page anchors (#hash) keep their own scrolling.
+  useEffect(() => {
+    if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+  }, [location.pathname])
   const [maintenance, setMaintenance] = useState<{ on: boolean; message: string } | null>(null)
 
   useEffect(() => {

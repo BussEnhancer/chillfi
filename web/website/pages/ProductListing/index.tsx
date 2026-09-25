@@ -129,7 +129,7 @@ const ProductListingPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="flex gap-10 py-10">
+      <Container className="flex gap-10 py-10 animate-page-in">
         <ProductFilterSidebar
           selectedCategory={category}
           onCategoryChange={v => setParam('category', v)}

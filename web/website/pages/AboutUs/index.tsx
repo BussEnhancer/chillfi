@@ -23,7 +23,7 @@ const AboutUsPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container>
+      <Container className="animate-page-in">
         {/* Hero Section */}
         <AboutHero />
 

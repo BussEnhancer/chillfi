@@ -97,7 +97,7 @@ const SavedAddressesPage: React.FC = () => {
       <CategoryNav />
       <Breadcrumb items={breadcrumbItems} />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex flex-col lg:flex-row gap-10">
           <AccountSidebar activeId="addresses" />
 
@@ -106,7 +106,7 @@ const SavedAddressesPage: React.FC = () => {
               <h1 className="text-3xl font-black text-[#111827]">Saved Addresses</h1>
               <button
                 onClick={startAdd}
-                className="flex items-center gap-2 bg-[#FF6B2C] text-white px-5 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520]"
+                className="flex items-center gap-2 bg-[#FF6B2C] text-white px-5 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] active:scale-[0.98] transition-all"
               >
                 <Plus size={18} /> Add New Address
               </button>
@@ -140,7 +140,7 @@ const SavedAddressesPage: React.FC = () => {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center gap-2"
+                    className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#E05520] disabled:opacity-60 flex items-center gap-2 active:scale-[0.98] transition-all"
                   >
                     {saving && <Loader2 size={14} className="animate-spin" />}
                     Save Address

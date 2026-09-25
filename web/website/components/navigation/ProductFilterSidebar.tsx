@@ -116,7 +116,7 @@ const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             </div>
             <div className="flex-1 overflow-y-auto p-5">{panel}</div>
             <div className="p-4 border-t border-[#ECECEC]">
-              <button onClick={onClose} className="w-full bg-[#FF6B2C] text-white py-3 rounded-xl font-black text-sm">Show results</button>
+              <button onClick={onClose} className="w-full bg-[#FF6B2C] text-white py-3 rounded-xl font-black text-sm active:scale-[0.98] transition-all">Show results</button>
             </div>
           </div>
         </div>

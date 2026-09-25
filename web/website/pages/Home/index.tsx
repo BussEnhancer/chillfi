@@ -39,15 +39,17 @@ const HomePage: React.FC = () => {
       <Header />
       <CategoryNav />
 
-      <HeroSection banners={home?.banners} />
-      <TrustBar />
-      <ShopByCategory />
-      <FlashSale products={home?.flash_sale} />
-      <TrendingNow products={home?.trending} />
-      <PromoBanners promos={home?.promo_banners} />
-      <TopBrands brands={home?.brands} />
-      <Testimonials testimonials={home?.testimonials} />
-      <Newsletter />
+      <div className="animate-page-in">
+        <HeroSection banners={home?.banners} />
+        <TrustBar />
+        <ShopByCategory />
+        <FlashSale products={home?.flash_sale} />
+        <TrendingNow products={home?.trending} />
+        <PromoBanners promos={home?.promo_banners} />
+        <TopBrands brands={home?.brands} />
+        <Testimonials testimonials={home?.testimonials} />
+        <Newsletter />
+      </div>
       <Footer />
     </div>
   );

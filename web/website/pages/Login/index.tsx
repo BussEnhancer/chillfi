@@ -187,7 +187,7 @@ const LoginPage: React.FC = () => {
       <TopBar />
       <Header />
 
-      <Container className="py-12 md:py-20">
+      <Container className="py-12 md:py-20 animate-page-in">
         <div className="flex flex-col lg:flex-row gap-12 items-stretch">
           <AuthHeroSection />
 

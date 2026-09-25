@@ -40,7 +40,7 @@ const CartPage: React.FC = () => {
       <Header />
       <CategoryNav />
 
-      <Container className="py-10">
+      <Container className="py-10 animate-page-in">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black text-[#111827] mb-2">My Cart <span className="text-gray-400 font-bold">({cartCount} Item{cartCount !== 1 ? 's' : ''})</span></h1>
@@ -59,7 +59,7 @@ const CartPage: React.FC = () => {
             <p className="text-5xl mb-4">🛒</p>
             <h2 className="text-2xl font-black text-[#111827] mb-2">Your cart is empty</h2>
             <p className="text-gray-400 font-bold mb-6">Add products from the store to get started</p>
-            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520]">Shop Now</Link>
+            <Link to="/products" className="inline-block bg-[#FF6B2C] text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] active:scale-[0.98] transition-all">Shop Now</Link>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-10">
@@ -139,7 +139,7 @@ const CartPage: React.FC = () => {
                   <span className="text-2xl font-black text-[#111827]">₹{estimatedTotal.toLocaleString()}</span>
                 </div>
                 <p className="-mt-4 mb-5 text-[11px] font-bold text-gray-400">Final amount (delivery for your pincode and any coupon) is confirmed at checkout.</p>
-                <Link to="/checkout" className="block w-full bg-[#FF6B2C] text-white py-4 rounded-xl font-black text-center shadow-xl shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors">
+                <Link to="/checkout" className="block w-full bg-[#FF6B2C] text-white py-4 rounded-xl font-black text-center shadow-xl shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors active:scale-[0.98]">
                   Proceed to Checkout <ChevronRight size={16} className="inline" />
                 </Link>
               </div>

@@ -117,7 +117,7 @@ const Header: React.FC = () => {
             <Link
               to={isLoggedIn ? '/account' : '/login'}
               onClick={closeMobile}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#FF6B2C] text-white py-3 rounded-xl font-bold text-sm"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#FF6B2C] text-white py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-all"
             >
               <User size={16} />
               {isLoggedIn ? 'My Account' : 'Sign In'}

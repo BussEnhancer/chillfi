@@ -20,7 +20,7 @@ const CategoryNav: React.FC = () => {
   return (
     <nav className="bg-white border-b border-gray-100 py-1 hidden md:block">
       <Container className="flex items-center gap-8">
-        <Link to="/categories" className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-lg flex items-center gap-3 font-semibold text-sm hover:bg-[#E05520] transition-all">
+        <Link to="/categories" className="bg-[#FF6B2C] text-white px-6 py-2.5 rounded-lg flex items-center gap-3 font-semibold text-sm hover:bg-[#E05520] transition-all active:scale-[0.98]">
           <Menu size={18} />
           Browse Categories
         </Link>
