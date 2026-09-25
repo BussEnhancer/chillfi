@@ -6,6 +6,8 @@ import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/features/auth/widgets/notification_widgets.dart';
 import 'package:chillfi/features/home/home_dashboard_screen.dart';
+import 'package:chillfi/features/auth/widgets/auth_chrome.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,7 +29,7 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppMotion.content,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -101,23 +103,7 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
           ),
 
           // Logo in Orange Part
-          Positioned(
-            top: 40.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Hero(
-                tag: 'logo',
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  width: 140.w,
-                  height: 140.h,
-                  fit: BoxFit.contain,
-                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 90.sp, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
+          const AuthLogo(),
 
           // 3. MAIN CONTENT - NO SCROLLING
           SafeArea(
@@ -139,29 +125,7 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                // BACK BUTTON (Circular with shadow)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: GestureDetector(
-                                    onTap: () => Navigator.pop(context),
-                                    behavior: HitTestBehavior.opaque,
-                                    child: Container(
-                                      padding: EdgeInsets.all(8.r),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 22.sp),
-                                    ),
-                                  ),
-                                ),
+                                SizedBox(height: AuthBackButton.barHeight.h),
                                 SizedBox(height: 140.h), // Space for the positioned logo
                                 const NotificationIllustration(),
                               ],

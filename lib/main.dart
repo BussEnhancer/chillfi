@@ -1,5 +1,6 @@
 import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/services/api_service.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/product_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
@@ -111,10 +112,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'CHILLFI',
-            theme: ThemeData(
-              useMaterial3: true,
-              scaffoldBackgroundColor: Colors.white,
-            ),
+            theme: AppTheme.light(),
             home: const SplashScreen(),
           );
         },

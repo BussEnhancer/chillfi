@@ -7,6 +7,8 @@ import 'package:chillfi/features/auth/reset_password_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/features/auth/widgets/auth_chrome.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -89,7 +91,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppMotion.content,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -178,23 +180,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
           ),
 
           // Logo in Orange Part
-          Positioned(
-            top: 40.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Hero(
-                tag: 'logo_otp',
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  width: 160.w,
-                  height: 160.h,
-                  fit: BoxFit.contain,
-                  errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 100.sp, color: AppColors.primaryOrange),
-                ),
-              ),
-            ),
-          ),
+          const AuthLogo(),
 
           // 3. MAIN CONTENT - SINGLE SCREEN (NON-SCROLLABLE)
           SafeArea(
@@ -207,24 +193,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                   child: Column(
                     children: [
                       // BACK BUTTON AREA
-                      SizedBox(
-                        height: 50.h,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              padding: EdgeInsets.all(8.r),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.arrow_back_rounded, color: Colors.black, size: 24.sp),
-                            ),
-                          ),
-                        ),
-                      ),
+                      const AuthBackButton(),
 
                       // LOGO & HEADER SECTION
                       Flexible(

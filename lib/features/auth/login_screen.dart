@@ -5,6 +5,8 @@ import 'package:chillfi/features/auth/otp_verification_screen.dart';
 import 'package:chillfi/features/auth/signup_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/features/auth/widgets/auth_chrome.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: AppMotion.content,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -76,6 +78,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           ),
 
+          const AuthLogo(),
+
           // 3. UI Content
           SafeArea(
             child: Padding(
@@ -85,48 +89,19 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Top Bar
-                    SizedBox(
-                      height: 56.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
-                              } else {
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WelcomeScreen()));
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(10.r),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.25),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20.sp),
-                            ),
-                          ),
-                        ],
-                      ),
+                    AuthBackButton(
+                      onTap: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        } else {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WelcomeScreen()));
+                        }
+                      },
                     ),
 
-                    const Spacer(flex: 1),
-
-                    // Logo
-                    Center(
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 160.w,
-                        height: 80.h,
-                        opacity: const AlwaysStoppedAnimation(0.8),
-                        fit: BoxFit.contain,
-                        errorBuilder: (c, e, s) => Icon(Icons.shopping_bag_rounded, size: 50.sp, color: Colors.grey.withValues(alpha: 0.4)),
-                      ),
-                    ),
-
-                    const Spacer(flex: 4),
+                    // Same slot as the other auth screens: the shared logo sits here (see AuthLogo)
+                    // Title lands on the same line as Signup / OTP (their header block is scaled by FittedBox)
+                    SizedBox(height: 95.h),
 
                     // Welcome Text
                     Column(
@@ -138,22 +113,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               TextSpan(
                                 text: 'Welcome ',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 32.sp,
+                                  fontSize: 26.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF1E1E1E),
+                                  color: AppColors.black,
                                 ),
                               ),
                               TextSpan(
                                 text: 'Back!',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 32.sp,
-                                  fontWeight: FontWeight.w700,
+                                  fontSize: 26.sp,
+                                  fontWeight: FontWeight.w800,
                                   color: AppColors.secondaryPurple,
                                 ),
                               ),
                               const TextSpan(
                                 text: ' 👋',
-                                style: TextStyle(fontSize: 28),
+                                style: TextStyle(fontSize: 22),
                               ),
                             ],
                           ),
@@ -163,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           'Login to continue shopping amazing deals',
                           style: GoogleFonts.poppins(
                             fontSize: 14.sp,
-                            color: AppColors.greyText.withValues(alpha: 0.6),
+                            color: AppColors.greyText,
                             fontWeight: FontWeight.w400,
                           ),
                         ),

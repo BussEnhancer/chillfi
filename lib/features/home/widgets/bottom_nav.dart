@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/theme/app_theme.dart';
 import 'package:chillfi/features/categories/categories_screen.dart';
 import 'package:chillfi/features/home/home_dashboard_screen.dart';
 import 'package:chillfi/features/orders/my_orders_screen.dart';
@@ -75,12 +76,15 @@ class CustomBottomNavBar extends StatelessWidget {
         // Keep Home at the base of the stack: every other tab sits on top of it, so Back from a tab
         // returns Home (instead of exiting the app or popping to a blank screen).
         final navigator = Navigator.of(context);
-        navigator.pushAndRemoveUntil(
-          PageRouteBuilder(pageBuilder: (_, _, _) => const HomeDashboardScreen(), transitionDuration: Duration.zero),
-          (_) => false,
-        );
-        if (index != 0) {
-          navigator.push(PageRouteBuilder(pageBuilder: (_, _, _) => nextScreen, transitionDuration: Duration.zero));
+        // Tabs are siblings: a quick cross-fade (not a slide), and Home is placed underneath without its own animation.
+        if (index == 0) {
+          navigator.pushAndRemoveUntil(TabSwitchRoute(page: const HomeDashboardScreen()), (_) => false);
+        } else {
+          navigator.pushAndRemoveUntil(
+            PageRouteBuilder(pageBuilder: (_, _, _) => const HomeDashboardScreen(), transitionDuration: Duration.zero),
+            (_) => false,
+          );
+          navigator.push(TabSwitchRoute(page: nextScreen));
         }
       },
       child: Column(
