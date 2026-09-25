@@ -24,7 +24,10 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   const all = await api('/products?limit=100');
   rec('WEB-03-01', /Showing/.test(count || ''), `"${(count||'').trim()}" ; API total=${all.data.total ?? all.data.products.length}`, await shot(p, 'web03_listing'));
   await go(p, '/products?sort=price_asc');
-  const prices = (await p.locator('text=/^₹[0-9,]+$/').allTextContents()).map((t) => +t.replace(/[₹,]/g, '')).filter(Boolean);
+  // Selling prices only — struck-through MRPs share the same "₹n" text.
+  const prices = (await p.locator('text=/^₹[0-9,]+$/').evaluateAll((els) => els
+    .filter((e) => !getComputedStyle(e).textDecorationLine.includes('line-through'))
+    .map((e) => e.textContent))).map((t) => +t.replace(/[₹,]/g, '')).filter(Boolean);
   const asc = prices.slice(0, 6).every((v, i, a) => i === 0 || a[i - 1] <= v);
   rec('WEB-03-02', asc, `price_asc first prices ${prices.slice(0, 6).join(',')}`);
   await go(p, '/products?category=Audio');
@@ -49,7 +52,7 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   const h1 = await p.locator('h1').first().textContent().catch(() => '');
   rec('WEB-05-01', /Sony WH-1000XM5/.test(h1), `h1="${h1}"`, await shot(p, 'web05_pdp', true));
   const addBtn = p.getByRole('button', { name: /add to cart/i }).first();
-  await addBtn.click(); await p.waitForTimeout(800);
+  await addBtn.click(); await p.waitForTimeout(2600); // "Added to Cart!" for 2s, then "Go to Cart"
   const goCart = await p.getByText(/go to cart/i).count();
   rec('WEB-05-03', goCart > 0, `after add: "Go to Cart" present=${goCart > 0}`);
   const wl = p.locator('button[aria-label*="ishlist"], button:has(svg.lucide-heart)').first();

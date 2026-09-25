@@ -1,6 +1,6 @@
 module.exports = async (b, { rec, shot }) => {
   const A = process.env.ADMIN_TOKEN, BASE = 'http://localhost:5200';
-  const api = async (path, opts = {}, tok = A) => (await fetch('http://localhost:5000/api' + path, { ...opts, headers: { 'Content-Type': 'application/json', ...(tok ? { Authorization: `Bearer ${tok}` } : {}), ...(opts.headers || {}) } })).json();
+  const api = async (path, opts = {}, tok = A) => { const r = await fetch('http://localhost:5000/api' + path, { ...opts, headers: { 'Content-Type': 'application/json', ...(tok ? { Authorization: `Bearer ${tok}` } : {}), ...(opts.headers || {}) } }); const j = await r.json().catch(() => ({})); j.__status = r.status; return j; };
   const c = await b.newContext({ viewport: { width: 1440, height: 900 } });
   await c.addInitScript((t) => { localStorage.setItem('access_token', t); localStorage.setItem('refresh_token', 'none'); }, A);
   const p = await c.newPage(); p.errs = []; p.on('pageerror', (e) => p.errs.push(e.message));
@@ -55,7 +55,10 @@ module.exports = async (b, { rec, shot }) => {
   await p.locator('button[title="Deactivate"]').first().click(); await p.waitForTimeout(400);
   const dlg = await p.locator('div.fixed', { hasText: 'Deactivate Product?' }).last().innerText();
   await p.getByRole('button', { name: /^Deactivate$/ }).last().click(); await p.waitForTimeout(1500);
-  rec('ADM-03-10', /hidden from the store/i.test(dlg) && (await pub())?.status === 'Inactive', `confirm text honest=${/hidden from the store/i.test(dlg)}; status ${(await pub())?.status}`, await shot(p, 'adm03_deactivated'));
+  // Deactivated products are 404 on the public API by design; read status from the admin list.
+  const adminRow = ((await api('/admin/products?limit=1000')).data?.products || []).find((x) => x.id === made.id);
+  const pubRes = await api(`/products/${made.id}`, {}, null);
+  rec('ADM-03-10', /hidden from the store/i.test(dlg) && adminRow?.status === 'Inactive' && pubRes.__status === 404, `confirm text honest=${/hidden from the store/i.test(dlg)}; admin status ${adminRow?.status}; public API → ${pubRes.__status}`, await shot(p, 'adm03_deactivated'));
   rec('JS-ERRORS', p.errs.length === 0, `page errors: ${p.errs.slice(0, 3).join(' | ') || 'none'}`);
   await c.close();
 };

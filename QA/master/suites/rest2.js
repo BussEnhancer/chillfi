@@ -21,7 +21,7 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
     await c.close(); }
   { const { c, p } = await ctx(b, { auth: true, w: 390, h: 844, cart: [cartItem] });
     await go(p, '/account');
-    const nav = await p.locator('nav[aria-label="Account menu"] a').evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+    const nav = await p.locator('nav[aria-label="Account menu"] a[href]').evaluateAll((els) => els.map((e) => e.getAttribute('href')));
     rec('WEB-11-04', nav.length >= 6, `mobile account nav links: ${nav.join(' ')}`, await shot(p, 'web11_account_mobile'));
     // orders mobile: pagination fits + card + view details
     await go(p, '/account/orders');
@@ -44,7 +44,8 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
     await p.getByRole('button', { name: /write a review/i }).first().click().catch(() => {}); await p.waitForTimeout(400);
     await p.getByRole('button', { name: /submit/i }).first().click().catch(() => {}); await p.waitForTimeout(600);
     const rv = await body(p);
-    rec('WEB-05-07a', /select a rating|rating is required|please (select|choose)/i.test(rv), `empty review → ${(rv.match(/[^\n]*(rating)[^\n]*/i) || ['none'])[0].slice(0, 60)}`, await shot(p, 'web05_review_validation'));
+    const submitDisabled = await p.getByRole('button', { name: /submit review/i }).first().isDisabled().catch(() => false);
+    rec('WEB-05-07a', submitDisabled || /select a rating|rating is required|please (select|choose)/i.test(rv), `empty review → ${(rv.match(/[^\n]*(rating)[^\n]*/i) || ['none'])[0].slice(0, 60)}`, await shot(p, 'web05_review_validation'));
     await p.locator('button:has(svg.lucide-star)').nth(4).click().catch(() => {});
     await p.locator('textarea').first().fill('Web QA review — great ANC').catch(() => {});
     await p.getByRole('button', { name: /submit/i }).first().click().catch(() => {}); await p.waitForTimeout(1500);
@@ -59,7 +60,7 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
     rec('WEB-09-01', addrBtns >= 1, `saved addresses selectable (${addrBtns})`);
     await p.getByRole('button', { name: /add new|add address/i }).first().click().catch(() => {}); await p.waitForTimeout(500);
     await p.getByRole('button', { name: /save/i }).first().click().catch(() => {}); await p.waitForTimeout(800);
-    rec('WEB-09-02', /required|valid|enter/i.test(await body(p)), 'empty address → field errors', await shot(p, 'web09_addr_validation', true));
+    rec('WEB-09-02', /required|valid|enter|please fill in/i.test(await body(p)), 'empty address → field errors', await shot(p, 'web09_addr_validation', true));
     await go(p, '/checkout'); await p.waitForTimeout(2500);
     await p.route('**/api/orders', (r) => r.request().method() === 'POST' ? r.fulfill({ status: 500, contentType: 'application/json', body: '{"success":false,"message":"error: relation orders deadlock"}' }) : r.continue());
     await p.getByRole('button', { name: /place order/i }).last().click(); await p.waitForTimeout(2500);

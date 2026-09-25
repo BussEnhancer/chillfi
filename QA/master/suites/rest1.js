@@ -6,7 +6,7 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   { const { c, p } = await ctx(b, { auth: true, cart: [{ id: boat.id, name: boat.name, img: '', price: +boat.price, oldPrice: +boat.old_price, brand: 'boAt', category: 'Audio', qty: 2 }] });
     await go(p, '/');
     const cartBadge = (await p.locator('header a[href="/cart"]').first().innerText()).replace(/\D/g, '');
-    const wl = (await api('/wishlist')).data; const wlN = (wl.items || wl.wishlist || wl).length;
+    const wl = (await api('/wishlist')).data; let wlN = (wl.items || wl.wishlist || wl).length;
     const wlBadge = (await p.locator('header a[href*="wishlist"]').first().innerText()).replace(/\D/g, '');
     rec('WEB-01-03', cartBadge === '2' && (wlN === 0 ? wlBadge === '' || wlBadge === '0' : wlBadge === String(wlN)), `cart badge=${cartBadge} (2) wishlist badge='${wlBadge}' (server ${wlN})`, await shot(p, 'web01_badges'));
     await p.locator('header a[href="/cart"]').first().click(); await p.waitForTimeout(800); const u1 = p.url();
@@ -35,6 +35,9 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
     rec('WEB-08-06', /empty/i.test(await body(p)), 'empty cart state', await shot(p, 'web08_empty'));
     // wishlist logged in: toggle on PDP updates header badge
     const sony = prods.find((x) => x.name === 'Sony WH-1000XM5');
+    // Precondition: Sony not already wishlisted (a previous interrupted run may have left it).
+    { const cur = (await api('/wishlist')).data; const l = cur.items || cur.wishlist || cur;
+      if (l.some((x) => x.product_id === sony.id)) { await api('/wishlist/toggle', { method: 'POST', body: JSON.stringify({ product_id: sony.id }) }); wlN = l.length - 1; } }
     await go(p, `/product/${sony.id}`);
     await p.getByRole('button', { name: /wishlist/i }).first().click(); await p.waitForTimeout(1500);
     const wl2 = (await api('/wishlist')).data; const n2 = (wl2.items || wl2.wishlist || wl2).length;

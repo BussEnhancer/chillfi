@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingBag, Truck, Heart, MapPin, Tag, Wallet,
   CircleDollarSign, Star, Users, Ticket, Settings, Bell, LogOut,
@@ -48,11 +48,15 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
 
   const renderItem = (item: any) => {
     const isActive = item.id === activeId;
+    // Real links for navigation (new tab, correct semantics); buttons for actions / "Soon" items.
+    const Tag: any = item.path && !item.comingSoon ? Link : 'button';
+    const tagProps = item.path && !item.comingSoon
+      ? { to: item.path, 'aria-current': isActive ? 'page' : undefined }
+      : { onClick: () => handleClick(item), disabled: item.comingSoon, type: 'button' };
     return (
-      <button
+      <Tag
         key={item.id}
-        onClick={() => handleClick(item)}
-        disabled={item.comingSoon}
+        {...tagProps}
         className={`w-full flex items-center justify-between p-3.5 rounded-xl transition-all group ${
           isActive ? 'bg-gradient-to-r from-[#FF6B2C] to-[#8B5CFF] text-white shadow-lg shadow-[#FF6B2C]/20' :
           item.danger ? 'text-red-500 hover:bg-red-50' :
@@ -70,7 +74,7 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
             Soon
           </span>
         )}
-      </button>
+      </Tag>
     );
   };
 
@@ -81,17 +85,21 @@ const AccountSidebar: React.FC<AccountSidebarProps> = ({ activeId = 'dashboard' 
       <div className="flex gap-2 w-max">
         {menuItems.filter(i => !i.comingSoon).map(item => {
           const isActive = item.id === activeId;
+          const Tag: any = item.path ? Link : 'button';
+          const tagProps = item.path
+            ? { to: item.path, 'aria-current': isActive ? 'page' : undefined }
+            : { onClick: () => handleClick(item), type: 'button' };
           return (
-            <button
+            <Tag
               key={item.id}
-              onClick={() => handleClick(item)}
+              {...tagProps}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap border transition-colors ${
                 isActive ? 'bg-[#FF6B2C] text-white border-[#FF6B2C]' :
                 item.danger ? 'text-red-500 border-red-100 bg-white' : 'text-gray-600 border-[#ECECEC] bg-white'
               }`}
             >
               <span className="[&>svg]:w-4 [&>svg]:h-4">{item.icon}</span>{item.label}
-            </button>
+            </Tag>
           );
         })}
       </div>

@@ -2044,6 +2044,24 @@
    "root_cause": "Count rendered on error",
    "fix": "Hidden on error",
    "retest": "tsc"
+  },
+  {
+   "id": "WDEF-31",
+   "title": "During maintenance, signed-out admins were redirected to /login which was itself behind the maintenance page — admin could not sign in to turn it off",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Only /admin* exempt from gate",
+   "fix": "/login exempt",
+   "retest": "maint suite PASS"
+  },
+  {
+   "id": "WDEF-32",
+   "title": "Account menu items were buttons, not links (no open-in-new-tab, weaker a11y)",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "onClick navigation",
+   "fix": "Links with aria-current; actions stay buttons",
+   "retest": "rest2 22/22"
   }
  ],
  "blockers": []

@@ -66,7 +66,8 @@ function App() {
   }, [])
 
   // Admin routes must stay reachable during maintenance so an admin can log in and turn it back off.
-  const isAdminRoute = location.pathname.startsWith('/admin')
+  // /login stays reachable too: signed-out admins are sent there and must be able to sign in to turn maintenance off.
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/login'
   if (maintenance?.on && !isAdminRoute) {
     return <MaintenancePage message={maintenance.message || "We're making some improvements to serve you better. We'll be back soon!"} />
   }
