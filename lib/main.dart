@@ -27,6 +27,14 @@ Future<void> _initNotifications() async {
   await _localNotifications.initialize(
     const InitializationSettings(android: androidSettings, iOS: iosSettings),
   );
+  // One named, high-importance channel for order updates (also the default for background FCM).
+  await _localNotifications
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(const AndroidNotificationChannel(
+        'chillfi_channel', 'Order updates',
+        description: 'Order, shipping and delivery updates from ChillFi',
+        importance: Importance.high,
+      ));
 
   FirebaseMessaging.onMessage.listen((message) {
     final notification = message.notification;
@@ -36,7 +44,7 @@ Future<void> _initNotifications() async {
         notification.title,
         notification.body,
         const NotificationDetails(
-          android: AndroidNotificationDetails('chillfi_channel', 'ChillFi', importance: Importance.high, priority: Priority.high),
+          android: AndroidNotificationDetails('chillfi_channel', 'Order updates', importance: Importance.high, priority: Priority.high),
           iOS: DarwinNotificationDetails(),
         ),
       );

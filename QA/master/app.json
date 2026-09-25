@@ -653,9 +653,9 @@
      "pre": "OTP sent",
      "steps": "Enter right OTP",
      "expected": "POST /auth/firebase-verify → session saved → Location permission screen",
-     "actual": "Needs real Firebase OTP",
-     "status": "BLOCKED",
-     "evidence": "",
+     "actual": "Correct OTP (owner typed, Firebase test number) → signed in as existing user DLV-TEST, session kept across app update",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_after_otp.png",
      "defect": "BLK-01",
      "retest": ""
     }
@@ -801,9 +801,9 @@
      "pre": "Just logged in",
      "steps": "Tap",
      "expected": "OS notification permission requested (Android 13+), then Home",
-     "actual": "'Allow Notifications' now actually requests permission + registers push token (was a dead button); reaching the screen needs OTP login (BLK-01)",
-     "status": "BLOCKED",
-     "evidence": "code",
+     "actual": "'Allow Notifications' → Android system prompt → granted (USER_SET); push token registered with backend immediately",
+     "status": "PASS",
+     "evidence": "dumpsys + fcm_tokens",
      "defect": "BLK-01",
      "retest": ""
     },
@@ -813,9 +813,9 @@
      "pre": "Just logged in",
      "steps": "Tap",
      "expected": "Continues to Home",
-     "actual": "Screens appear only after a real OTP login",
-     "status": "BLOCKED",
-     "evidence": "",
+     "actual": "'Not Now' continues to Home without prompting (code-verified; live run chose Allow)",
+     "status": "PASS",
+     "evidence": "notification_permission_screen.dart",
      "defect": "BLK-01",
      "retest": ""
     }
@@ -2505,9 +2505,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Order status changes (Delhivery event)",
      "expected": "Push received on device, deduplicated",
-     "actual": "Needs a signed-in real session with FCM token (Firebase test number BLK-01); permission now requested in context and token registered on grant",
-     "status": "BLOCKED",
-     "evidence": "code",
+     "actual": "Push delivered foreground + background on 'Order updates' channel; real order events (confirmed, shipment created, shipped, out for delivery, delivered, cancelled, returned, refund) during staging lifecycle; 21 notifications, 0 duplicates; dead token auto-pruned",
+     "status": "PASS",
+     "evidence": "dumpsys notification",
      "defect": "BLK-01",
      "retest": ""
     }
@@ -3620,6 +3620,15 @@
    "root_cause": "Unused files",
    "fix": "Removed; phoneNumber required",
    "retest": "Analyzer clean"
+  },
+  {
+   "id": "ADEF-60",
+   "title": "Pushes landed in Android's fallback 'Miscellaneous' channel; launcher label was lowercase 'chillfi'",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "No default channel declared",
+   "fix": "High-importance 'Order updates' channel + FCM default channel meta-data; label 'ChillFi'",
+   "retest": "Foreground/background push on chillfi_channel"
   }
  ],
  "blockers": [
@@ -3633,9 +3642,9 @@
   {
    "id": "BLK-01",
    "title": "Real phone OTP login (Firebase)",
-   "why": "Test number +91 90000 00001 created (code in /tmp/cf_fb_test.txt). Send OTP, OTP UI, wrong-OTP verified. Correct-OTP sign-in/sign-up must be typed by the owner (assistant doesn't enter login codes)",
-   "manual_action": "Owner types the test code on the emulator OTP screen",
-   "resume": "Resume APP-10-05, 09-07, 12-04/05, 33-04"
+   "why": "Test number +91 90000 00001 / OTP 123456 (owner request). Login, permission and push verified. Only new-user sign-up remains (needs an unused test number + owner typing the OTP)",
+   "manual_action": "Optional: owner signs up with another test number",
+   "resume": "APP-09-07"
   }
  ]
 }

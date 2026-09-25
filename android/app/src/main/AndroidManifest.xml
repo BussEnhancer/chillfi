@@ -2,9 +2,13 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="chillfi"
+        android:label="ChillFi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Background FCM pushes use the app's own channel (created in main.dart), not Android's fallback. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="chillfi_channel" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
