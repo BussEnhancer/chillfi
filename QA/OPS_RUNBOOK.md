@@ -41,5 +41,26 @@ Current: 1 small instance (~1 GB RAM). Recommended when traffic grows: **t3.smal
 2. EC2 → Instances → select → *Instance state → Stop* → *Actions → Instance settings → Change instance type* → `t3.small` → *Start*.
 3. The API restarts automatically (pm2 startup service, Node 22). Check `https://chillfi.in/api/health`.
 
-## 6. Database backups (recommended — not set up yet)
-The PostgreSQL database runs on the same EC2 instance and **no backup exists**. Ask me to add a nightly `pg_dump` (7-day retention, optionally copied to S3), and/or enable EC2 → *Lifecycle Manager* daily EBS snapshots.
+## 6. Database backups (set up 25 Sep 2026)
+**Nightly, automatic.** A systemd timer (`chillfi-db-backup.timer`) runs `~/bin/chillfi-db-backup.sh` every day at **02:30 IST**:
+- `pg_dump` (custom format, compressed) → `~/db-backups/daily/`, checked readable before it is kept
+- keeps **7 daily** + **monthly** copies (1st of each month) for 6 months in `~/db-backups/monthly/`
+- log: `~/db-backups/backup.log` · verify any time: `~/bin/chillfi-restore-check.sh` (read-only row-count comparison)
+
+Useful commands (on the server):
+```
+systemctl list-timers chillfi-db-backup.timer      # next run
+sudo systemctl start chillfi-db-backup.service     # backup now
+tail ~/db-backups/backup.log                        # history
+```
+**Restore** (emergency only — replaces current data; stop the API first):
+```
+pm2 stop chillfi-api
+set -a; . ~/.chillfi-db.env; set +a
+pg_restore --clean --if-exists --no-owner --dbname="$PGDATABASE" ~/db-backups/daily/<file>.dump
+pm2 start chillfi-api
+```
+**Still recommended — off-server copy.** The backups live on the same server, so they protect against mistakes and
+corruption, but not against losing the whole instance/disk. Either:
+- EC2 → *Lifecycle Manager* → daily **EBS snapshot** policy for the instance's volume (keep 7), and/or
+- attach an **IAM role** to the instance with write access to an S3 bucket — then I can add an automatic S3 copy to the script.
