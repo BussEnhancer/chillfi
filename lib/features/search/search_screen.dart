@@ -6,6 +6,7 @@ import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:chillfi/features/search/voice_search_screen.dart';
 import 'package:chillfi/features/search/widgets/help_banner_widget.dart';
 import 'package:chillfi/features/search/widgets/trending_chip_widget.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -82,10 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(Icons.arrow_back_rounded, size: 22.sp),
-                  ),
+                  const AppBackButton(),
                   SizedBox(width: 12.w),
                   Expanded(
                     child: TextField(

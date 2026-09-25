@@ -7,6 +7,7 @@ import 'package:chillfi/features/orders/cancel_order_screen.dart';
 import 'package:chillfi/features/orders/delhivery_tracking_screen.dart';
 import 'dart:io';
 
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -193,15 +194,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
       final order = cart.currentOrder;
 
       return Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.lightBackground,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
-          ),
-          title: Text('Order Details', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+          leadingWidth: 60.w,
+          leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
+          title: Text('Order Details', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
         ),
         body: order == null
             ? const Center(child: CircularProgressIndicator(color: AppColors.secondaryPurple))

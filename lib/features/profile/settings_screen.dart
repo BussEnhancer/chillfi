@@ -4,6 +4,7 @@ import 'package:chillfi/features/profile/notification_settings_screen.dart';
 import 'package:chillfi/features/profile/privacy_policy_screen.dart';
 import 'package:chillfi/features/profile/help_support_screen.dart';
 import 'package:chillfi/features/profile/about_us_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,25 +19,12 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 70.w,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 20.w),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
         title: Text(
           "Settings",
           style: GoogleFonts.poppins(
-            fontSize: 22.sp,
+            fontSize: 18.sp,
             fontWeight: FontWeight.w700,
             color: AppColors.darkText,
           ),

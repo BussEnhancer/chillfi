@@ -71,7 +71,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   /// Guests get a sign-in prompt plus the pages that don't need an account (no fake profile / logout).
   Widget _guestView(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.lightBackground,
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.all(20.r),
@@ -120,7 +120,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       final cartCount = context.watch<CartProvider>().cartCount;
 
       return Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.lightBackground,
         body: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),

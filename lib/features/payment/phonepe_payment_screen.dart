@@ -106,7 +106,7 @@ class _PhonePePaymentScreenState extends State<PhonePePaymentScreen> with Widget
           onPressed: () => Navigator.pop(context),
           icon: Icon(Icons.close_rounded, color: AppColors.darkText, size: 22.sp),
         ),
-        title: Text('PhonePe Payment', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+        title: Text('PhonePe Payment', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
       ),
       body: Center(
         child: Padding(

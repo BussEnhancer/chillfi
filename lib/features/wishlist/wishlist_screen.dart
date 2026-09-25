@@ -31,7 +31,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.lightBackground,
       body: context.watch<AuthProvider>().user == null
           ? const SafeArea(
               child: GuestPrompt(

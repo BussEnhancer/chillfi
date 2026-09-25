@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/search/voice_search_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,10 +20,7 @@ class CustomSearchHeader extends StatelessWidget {
       color: Colors.white,
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 24.sp),
-          ),
+          const AppBackButton(),
           Expanded(
             child: Container(
               height: 48.h,

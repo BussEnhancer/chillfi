@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:chillfi/features/search/search_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,10 +25,7 @@ class SubCategoriesHeader extends StatelessWidget {
       color: Colors.white,
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 24.sp),
-          ),
+          const AppBackButton(),
           Container(
             width: 40.r,
             height: 40.r,
@@ -45,8 +43,10 @@ class SubCategoriesHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 15.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
@@ -54,7 +54,7 @@ class SubCategoriesHeader extends StatelessWidget {
                 Text(
                   subtitle,
                   style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
+                    fontSize: 12.sp,
                     color: AppColors.greyText,
                   ),
                 ),

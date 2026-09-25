@@ -5,6 +5,7 @@ import 'package:chillfi/core/providers/auth_provider.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/orders/order_details_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -56,19 +57,17 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.maybePop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
-        ),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('My Orders', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w800, color: AppColors.darkText)),
-            Text('Track and manage orders', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColors.greyText)),
+            Text('Track and manage orders', style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText)),
           ],
         ),
         bottom: TabBar(

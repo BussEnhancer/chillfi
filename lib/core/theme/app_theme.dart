@@ -159,7 +159,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryOrange,
+          // In-app primary actions are purple; orange gradients are reserved for onboarding/auth CTAs.
+          backgroundColor: AppColors.secondaryPurple,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.l)),

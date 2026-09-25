@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:chillfi/features/search/search_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,23 +18,7 @@ class NewArrivalsHeader extends StatelessWidget {
       color: Colors.white,
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Icon(Icons.arrow_back_rounded, size: 22.sp, color: AppColors.darkText),
-            ),
-          ),
+          const AppBackButton(),
           SizedBox(width: 16.w),
           Expanded(
             child: Column(

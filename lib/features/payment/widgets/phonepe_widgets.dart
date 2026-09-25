@@ -1,5 +1,6 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/features/payment/widgets/payment_widgets.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,23 +14,7 @@ class PhonePeHeader extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: EdgeInsets.all(8.r),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
-            ),
-          ),
+          const AppBackButton(),
           SizedBox(width: 16.w),
           Expanded(
             child: Column(

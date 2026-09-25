@@ -2,6 +2,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/cart/cart_screen.dart';
 import 'package:chillfi/features/search/search_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,24 +26,7 @@ class ProductListingHeader extends StatelessWidget {
       child: Row(
         children: [
           // Circular Back Button with Shadow
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(Icons.arrow_back_rounded, size: 22.sp, color: AppColors.darkText),
-            ),
-          ),
+          const AppBackButton(),
           SizedBox(width: 12.w),
           // Category Image (Mock)
           Container(
@@ -63,8 +47,10 @@ class ProductListingHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 15.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.darkText,
                   ),
@@ -72,7 +58,7 @@ class ProductListingHeader extends StatelessWidget {
                 Text(
                   productCount,
                   style: GoogleFonts.poppins(
-                    fontSize: 11.sp,
+                    fontSize: 12.sp,
                     color: AppColors.greyText,
                   ),
                 ),

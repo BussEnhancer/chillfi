@@ -1,6 +1,7 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/services/wishlist_service.dart';
 import 'package:chillfi/features/profile/widgets/notification_widgets.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -79,35 +80,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 70.w,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 20.w),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.5)),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Notification Settings",
               style: GoogleFonts.poppins(
-                fontSize: 22.sp,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: AppColors.darkText,
               ),

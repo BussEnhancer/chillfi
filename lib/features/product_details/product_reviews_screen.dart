@@ -9,6 +9,7 @@ import 'package:chillfi/features/product_details/widgets/review_filter_chips.dar
 import 'package:chillfi/features/product_details/widgets/review_statistics_card.dart';
 import 'package:chillfi/features/product_details/widgets/review_summary_card.dart';
 import 'package:chillfi/features/search/search_screen.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -93,10 +94,8 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 24.sp),
-        ),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
         title: Row(
           children: [
             Container(
@@ -116,7 +115,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                   Text(
                     "Product Reviews",
                     style: GoogleFonts.poppins(
-                      fontSize: 15.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                       color: AppColors.darkText,
                     ),
@@ -125,7 +124,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
                     Text(
                       widget.productName!,
                       style: GoogleFonts.poppins(
-                        fontSize: 11.sp,
+                        fontSize: 12.sp,
                         color: AppColors.greyText,
                       ),
                       maxLines: 1,

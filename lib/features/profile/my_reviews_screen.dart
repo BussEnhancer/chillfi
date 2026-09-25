@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/wishlist_model.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,15 +27,13 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.lightBackground,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
-        ),
-        title: Text('My Reviews', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
+        title: Text('My Reviews', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
       ),
       body: Consumer<WishlistProvider>(builder: (context, wp, _) {
         if (wp.myReviews.isEmpty) {

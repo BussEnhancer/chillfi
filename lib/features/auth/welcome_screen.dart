@@ -40,7 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppColors.lightBackground,
       body: Stack(
         children: [
           // 1. TOP BACKGROUND DECORATIONS

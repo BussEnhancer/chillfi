@@ -73,18 +73,15 @@ class CustomBottomNavBar extends StatelessWidget {
             return;
         }
 
-        // Keep Home at the base of the stack: every other tab sits on top of it, so Back from a tab
+        // Keep Home at the base of the stack: every other tab sits directly on top of it, so Back from a tab
         // returns Home (instead of exiting the app or popping to a blank screen).
+        // The new tab cross-fades over the *current* screen; anything between it and Home is removed once
+        // the fade has finished (so Home never flashes in between two tabs).
         final navigator = Navigator.of(context);
-        // Tabs are siblings: a quick cross-fade (not a slide), and Home is placed underneath without its own animation.
         if (index == 0) {
           navigator.pushAndRemoveUntil(TabSwitchRoute(page: const HomeDashboardScreen()), (_) => false);
         } else {
-          navigator.pushAndRemoveUntil(
-            PageRouteBuilder(pageBuilder: (_, _, _) => const HomeDashboardScreen(), transitionDuration: Duration.zero),
-            (_) => false,
-          );
-          navigator.push(TabSwitchRoute(page: nextScreen));
+          navigator.pushAndRemoveUntil(TabSwitchRoute(page: nextScreen), (route) => route.isFirst);
         }
       },
       child: Column(

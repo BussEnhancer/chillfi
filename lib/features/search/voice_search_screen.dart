@@ -5,6 +5,7 @@ import 'package:chillfi/features/search/widgets/help_banner_widget.dart';
 import 'package:chillfi/features/search/widgets/security_info_card.dart';
 import 'package:chillfi/features/search/widgets/voice_mic_button.dart';
 import 'package:chillfi/features/search/widgets/voice_wave_widget.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -210,23 +211,7 @@ class _VoiceSearchScreenState extends State<VoiceSearchScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Icon(Icons.arrow_back_rounded, size: 22.sp, color: AppColors.darkText),
-            ),
-          ),
+          const AppBackButton(),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(

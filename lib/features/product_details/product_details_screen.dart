@@ -13,6 +13,7 @@ import 'package:chillfi/features/product_details/widgets/product_highlight_item.
 import 'package:chillfi/features/product_details/widgets/product_offer_card.dart';
 import 'package:chillfi/features/product_details/widgets/similar_products_section.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,10 +45,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 24.sp),
-        ),
+        leadingWidth: 60.w,
+        leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
         actions: [
           Consumer<WishlistProvider>(builder: (context, wp, _) {
             final productId = widget.productId;

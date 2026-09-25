@@ -4,6 +4,7 @@ import 'package:chillfi/features/orders/order_success_screen.dart';
 import 'package:chillfi/features/payment/phonepe_payment_screen.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/core/services/remote_config_service.dart';
+import 'package:chillfi/core/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,15 +97,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
       }
       final s = cart.summary;
       return Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: AppColors.lightBackground,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.darkText, size: 22.sp),
-          ),
-          title: Text('Payment', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+          leadingWidth: 60.w,
+          leading: Padding(padding: EdgeInsets.only(left: 16.w), child: const AppBackButton()),
+          title: Text('Payment', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
         ),
         body: Stack(
           children: [
