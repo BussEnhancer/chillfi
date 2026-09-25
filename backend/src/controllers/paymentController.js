@@ -8,6 +8,13 @@ const DEV_AUTOPAY = process.env.NODE_ENV === 'development' && process.env.PAYMEN
 const { onOrderPaid } = require('../services/shipmentService');
 const phonepe = require('../utils/phonepe');
 
+// The amount PhonePe reports (paise) must equal what we asked for when the payment was started.
+const amountMatches = async (merchantTxnId, paidPaise) => {
+  const r = await pool.query('SELECT amount FROM payments WHERE merchant_txn_id = $1', [merchantTxnId]);
+  if (!r.rows.length || paidPaise == null) return false;
+  return Math.round(parseFloat(r.rows[0].amount) * 100) === Number(paidPaise);
+};
+
 // POST /api/payment/initiate  (PhonePe)
 const initiatePayment = async (req, res) => {
   const { order_id } = req.body;
@@ -32,7 +39,7 @@ const initiatePayment = async (req, res) => {
     merchantTransactionId: merchantTxnId,
     merchantUserId: `USER_${req.user.id.replace(/-/g, '').slice(0, 10)}`,
     amount: Math.round(parseFloat(amount) * 100), // in paise
-    redirectUrl: `${process.env.APP_BASE_URL}/api/payment/callback`,
+    redirectUrl: `${process.env.APP_BASE_URL}/api/payment/callback?merchantTransactionId=${merchantTxnId}`, // REDIRECT mode adds no params
     redirectMode: 'REDIRECT',
     callbackUrl: `${process.env.APP_BASE_URL}/api/payment/webhook`,
     mobileNumber: req.user.phone,
@@ -139,6 +146,10 @@ const verifyPayment = async (req, res) => {
     const txnStatus = response.data?.data?.state;
     let pgStatus = txnStatus === 'COMPLETED' ? 'SUCCESS' : txnStatus === 'FAILED' ? 'FAILED' : 'PENDING';
     if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(cfg)) { console.warn('[payment] ignored sandbox success on production'); pgStatus = 'FAILED'; }
+    if (pgStatus === 'SUCCESS' && !(await amountMatches(merchant_txn_id, response.data?.data?.amount))) {
+      console.error(`[payment] amount mismatch for ${merchant_txn_id} — not marked paid`);
+      pgStatus = 'AMOUNT_MISMATCH';
+    }
 
     const client = await pool.connect();
     try {
@@ -186,8 +197,15 @@ const webhook = async (req, res) => {
     const { response } = req.body;
     if (!xVerify || !response) return res.status(400).json({ success: false });
 
+    // Without a real salt key the expected signature would be guessable — refuse instead.
+    const cfg = await phonepe.getConfig();
+    if (phonepe.configProblems(cfg).length) {
+      console.warn('[webhook] PhonePe not configured — webhook refused');
+      return res.status(503).json({ success: false });
+    }
+
     // Verify SHA256 checksum: SHA256(response + saltKey) + "###" + saltIndex
-    const expected = phonepe.xVerify(await phonepe.getConfig(), response);
+    const expected = phonepe.xVerify(cfg, response);
     const a = Buffer.from(String(xVerify)); const b = Buffer.from(expected);
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
       console.warn('[webhook] Invalid X-VERIFY from PhonePe');
@@ -195,11 +213,15 @@ const webhook = async (req, res) => {
     }
 
     const decoded = JSON.parse(Buffer.from(response, 'base64').toString());
-    const { merchantTransactionId, state } = decoded.data || {};
+    const { merchantTransactionId, state, amount: paidPaise } = decoded.data || {};
 
     if (merchantTransactionId && state) {
-      let pgStatus = state === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
-      if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(await phonepe.getConfig())) { console.warn('[webhook] ignored sandbox success on production'); pgStatus = 'FAILED'; }
+      let pgStatus = state === 'COMPLETED' ? 'SUCCESS' : state === 'PENDING' ? 'Pending' : 'FAILED';
+      if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(cfg)) { console.warn('[webhook] ignored sandbox success on production'); pgStatus = 'FAILED'; }
+      if (pgStatus === 'SUCCESS' && !(await amountMatches(merchantTransactionId, paidPaise))) {
+        console.error(`[webhook] amount mismatch for ${merchantTransactionId} (paid ${paidPaise} paise) — not marked paid`);
+        pgStatus = 'AMOUNT_MISMATCH';
+      }
       let paidOrderId = null;
       const client = await pool.connect();
       try {
@@ -273,6 +295,18 @@ const paymentCallback = async (req, res) => {
     const txnState = response.data?.data?.state;
     let pgStatus = txnState === 'COMPLETED' ? 'SUCCESS' : 'FAILED';
     if (pgStatus === 'SUCCESS' && phonepe.sandboxInProduction(cfg)) { console.warn('[callback] ignored sandbox success on production'); pgStatus = 'FAILED'; }
+    if (pgStatus === 'SUCCESS' && !(await amountMatches(merchantTransactionId, response.data?.data?.amount))) {
+      console.error(`[callback] amount mismatch for ${merchantTransactionId} — not marked paid`);
+      pgStatus = 'AMOUNT_MISMATCH';
+    }
+
+    // UPI often reports PENDING for a few seconds after the customer returns. Don't call that a failure:
+    // the webhook (or the 2-hour expiry check) settles it; the customer sees "payment processing".
+    if (txnState === 'PENDING' && orderId) {
+      const orderRow = await pool.query(`SELECT order_number, total FROM orders WHERE id = $1`, [orderId]);
+      const o = orderRow.rows[0];
+      return res.redirect(`${websiteUrl}/order-success?order_number=${o?.order_number || ''}&total=${o?.total || 0}&payment=pending`);
+    }
 
     await pool.query(
       `UPDATE payments SET status = $1, gateway_response = $2 WHERE merchant_txn_id = $3`,
