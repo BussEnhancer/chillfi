@@ -2,6 +2,23 @@
 **Final report · 25 Sep 2026** · Source of truth: `QA/master/{app,website,admin}.json` → the three Master QA PDFs in this folder.
 All work is on local branch `delhivery-integration` (committed, **not pushed, not deployed**). Delhivery was used in **staging only**; no production shipment, no real payment.
 
+> **Update — 25 Sep 2026, after owner decisions (asked one by one)**
+> - **Deployed to production (twice):**
+>   1. all security, money and QA fixes;
+>   2. GST-inclusive pricing plus contact details editable in Admin → Settings.
+>
+>   Health and smoke checks passed; Delhivery is still on staging and PhonePe on UAT.
+> - **Read-only production check:** the negative-quantity exploit was **never used** (0 bad order lines, 0 zero/negative orders out of 22).
+> - **Ratings:** recalculated on production (9 products; fake seeded ratings removed).
+> - **GST:** prices are now GST-inclusive everywhere; the charged total equals the displayed price. Verified on the website, the app and the staging lifecycle (48/48).
+> - **Contact details:** single-sourced from Admin → Settings → Store Info (phone, support email, WhatsApp); still the test values, as requested.
+> - **Fonts:** Poppins is bundled (SIL OFL), with no runtime downloads.
+> - **App release:** `FinalApp/ChillFi-v1.0.3-build4-release.aab` is built and signed with the same upload key as v1.0.2. **You upload it to Play.** Then turn on force update to 1.0.3, because v1.0.2 still shows GST added on top.
+> - **Still open:**
+>   - COD on the live Delhivery account (you're checking);
+>   - the Firebase test number and PhonePe UAT keys (you're providing);
+>   - Cloudinary keys.
+
 ---
 
 ## 1. Executive summary
