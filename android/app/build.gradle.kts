@@ -51,10 +51,11 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists())
-                signingConfigs.getByName("release")
-            else
-                signingConfigs.getByName("debug")
+            // Never ship a debug-signed release by accident: without key.properties the release build stops here.
+            if (!keystorePropertiesFile.exists()) {
+                throw GradleException("android/key.properties is missing — release builds must be signed with the ChillFi upload key.")
+            }
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

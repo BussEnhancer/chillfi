@@ -106,7 +106,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                               width: 260.w,
                               height: 260.h,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) {
+                              errorBuilder: (_, _, _) {
                                 WidgetsBinding.instance.addPostFrameCallback(
                                   (_) => _onImageError(_selectedIndex.clamp(0, allImages.length - 1)),
                                 );

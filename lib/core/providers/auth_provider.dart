@@ -171,6 +171,18 @@ class AuthProvider extends ChangeNotifier {
     return result.success;
   }
 
+  /// Permanently deletes the signed-in customer's account on the server, then signs out locally.
+  /// Throws (DioException) if the server refuses — e.g. staff accounts, or no connection.
+  Future<void> deleteAccount() async {
+    await ApiService().delete('/profile/account');
+    // The server already removed the account and its sessions — only clear this device.
+    await _authService.clearLocalSession();
+    await _clearCachedUser();
+    _user = null;
+    _state = AuthState.unauthenticated;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     await _authService.logout();
     await _clearCachedUser();

@@ -26,7 +26,6 @@ dependencies:
 
   # Auth & Storage
   flutter_secure_storage: ^9.2.2
-  local_auth: ^2.3.0
 
   # Navigation
   go_router: ^14.6.2

@@ -30,7 +30,11 @@ class ApiService {
         return handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401) {
+        // Never try to refresh for the refresh / logout calls themselves: a rejected refresh token would
+        // otherwise wait on the refresh that is already in flight (itself) and hang the app forever.
+        final path = error.requestOptions.path;
+        final isAuthSession = path.contains('/auth/refresh-token') || path.contains('/auth/logout');
+        if (error.response?.statusCode == 401 && !isAuthSession) {
           final refreshed = await _refreshToken();
           if (refreshed) {
             final token = await _storage.read(key: 'access_token');

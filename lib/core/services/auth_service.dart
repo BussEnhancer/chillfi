@@ -176,6 +176,14 @@ class AuthService {
     await _api.logout();
   }
 
+  /// Local sign-out only (no server call) — used after the account was deleted on the server.
+  Future<void> clearLocalSession() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+    await _api.logout();
+  }
+
   Future<bool> isLoggedIn() => _api.isLoggedIn();
 }
 
