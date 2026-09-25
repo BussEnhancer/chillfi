@@ -24,7 +24,8 @@ const CLAIM_STALE_MIN = 5;
 const loadOrderForShipment = async (orderId) => {
   const r = await pool.query(`
     SELECT o.*, u.name AS customer_name, u.phone AS customer_phone, u.email AS customer_email,
-           a.name AS addr_name, a.phone AS addr_phone, a.line1, a.line2, a.city, a.state, a.pincode
+           COALESCE(o.shipping_address->>'name', a.name) AS addr_name, COALESCE(o.shipping_address->>'phone', a.phone) AS addr_phone, COALESCE(o.shipping_address->>'line1', a.line1) AS line1, COALESCE(o.shipping_address->>'line2', a.line2) AS line2,
+           COALESCE(o.shipping_address->>'city', a.city) AS city, COALESCE(o.shipping_address->>'state', a.state) AS state, COALESCE(o.shipping_address->>'pincode', a.pincode) AS pincode
     FROM orders o
     JOIN users u ON u.id = o.user_id
     LEFT JOIN addresses a ON a.id = o.address_id

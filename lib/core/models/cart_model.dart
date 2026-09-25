@@ -124,6 +124,8 @@ class OrderModel {
   final DateTime createdAt;
   final List<OrderItemModel> items;
   final RefundRequestModel? refundRequest;
+  /// GST tax invoice can be downloaded (order shipped/delivered and invoicing enabled by the store).
+  final bool invoiceAvailable;
 
   OrderModel({
     required this.id,
@@ -142,6 +144,7 @@ class OrderModel {
     required this.createdAt,
     this.items = const [],
     this.refundRequest,
+    this.invoiceAvailable = false,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> j) => OrderModel(
@@ -161,6 +164,7 @@ class OrderModel {
         createdAt: DateTime.tryParse(j['created_at'] ?? '')?.toLocal() ?? DateTime.now(),
         items: (j['items'] as List? ?? []).map((e) => OrderItemModel.fromJson(e)).toList(),
         refundRequest: j['refund_request'] != null ? RefundRequestModel.fromJson(j['refund_request']) : null,
+        invoiceAvailable: j['invoice_available'] == true,
       );
 }
 

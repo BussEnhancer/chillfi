@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config.dart';
@@ -102,6 +103,19 @@ class ApiService {
   Future<bool> isLoggedIn() async {
     final token = await _storage.read(key: 'access_token');
     return token != null;
+  }
+
+  /// Raw bytes of a protected file (e.g. the GST invoice PDF).
+  /// Throws the server's own (user-facing) reason, e.g. "available once the order has shipped".
+  Future<List<int>> getBytes(String path) async {
+    final res = await _dio.get<List<int>>(path, options: Options(
+      responseType: ResponseType.bytes,
+      validateStatus: (s) => s != null && s < 500 && s != 401, // 401 still goes through the refresh interceptor
+    ));
+    if (res.statusCode == 200) return res.data ?? const [];
+    String? msg;
+    try { msg = (jsonDecode(utf8.decode(res.data ?? const [])) as Map)['message']?.toString(); } catch (_) {}
+    throw msg ?? 'Download failed. Please try again.';
   }
 
   // Generic methods

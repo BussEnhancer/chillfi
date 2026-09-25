@@ -132,7 +132,7 @@ const getAnalytics = async (req, res, next) => {
         GROUP BY DATE(created_at) ORDER BY date
       `, [days]),
       pool.query(`
-        SELECT COALESCE(NULLIF(TRIM(a.state), ''), 'Unknown') AS region, COUNT(*) AS orders,
+        SELECT COALESCE(NULLIF(TRIM(COALESCE(o.shipping_address->>'state', a.state)), ''), 'Unknown') AS region, COUNT(*) AS orders,
                COALESCE(SUM(o.total) FILTER (WHERE o.payment_status='Paid' AND o.status <> 'Cancelled'),0) AS revenue
         FROM orders o LEFT JOIN addresses a ON a.id = o.address_id
         WHERE o.created_at >= NOW() - ($1 * INTERVAL '1 day') AND o.status <> 'Cancelled'
@@ -665,6 +665,19 @@ const updateSettings = async (req, res, next) => {
     const blocked = keys.filter(isCredentialKey);
     if (blocked.length) {
       return res.status(400).json({ success: false, message: `Use Admin → API Keys to change: ${blocked.join(', ')}` });
+    }
+
+    // GST invoices: GSTIN must be valid, and invoices can only be switched on with a valid GSTIN.
+    const { GSTIN_RE } = require('../utils/invoice');
+    if (fields.gst_number != null && String(fields.gst_number).trim() && !GSTIN_RE.test(String(fields.gst_number).trim().toUpperCase())) {
+      return res.status(400).json({ success: false, message: 'GST Number must be a valid 15-character GSTIN (e.g. 07ABCDE1234F1Z5)' });
+    }
+    if (fields.gst_number != null) fields.gst_number = String(fields.gst_number).trim().toUpperCase();
+    if (String(fields.invoices_enabled) === 'true') {
+      const gstin = fields.gst_number ?? (await pool.query(`SELECT value FROM store_settings WHERE key = 'gst_number'`)).rows[0]?.value;
+      if (!GSTIN_RE.test(String(gstin || '').toUpperCase())) {
+        return res.status(400).json({ success: false, message: 'Enter your real GSTIN before turning on tax invoices.' });
+      }
     }
 
     for (const key of keys) {

@@ -428,3 +428,16 @@ INSERT INTO store_settings (key, value) VALUES ('DELHIVERY_ENV', 'staging') ON C
 -- Default OTP provider setting
 INSERT INTO store_settings (key, value) VALUES ('OTP_PROVIDER', 'firebase')
   ON CONFLICT (key) DO NOTHING;
+
+-- Orders keep the delivery address they were placed with (editing/deleting an address never changes past orders)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address JSONB;
+UPDATE orders o SET shipping_address = jsonb_build_object('label', a.label, 'name', a.name, 'phone', a.phone,
+  'line1', a.line1, 'line2', a.line2, 'city', a.city, 'state', a.state, 'pincode', a.pincode)
+  FROM addresses a WHERE a.id = o.address_id AND o.shipping_address IS NULL;
+
+-- GST tax invoices (sequential per financial year; issued once an order has shipped)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_number VARCHAR(20) UNIQUE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS invoice_date TIMESTAMP;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS hsn_code VARCHAR(10);
+CREATE TABLE IF NOT EXISTS invoice_counters (fy VARCHAR(4) PRIMARY KEY, last_no INT NOT NULL DEFAULT 0);
+INSERT INTO store_settings (key, value) VALUES ('invoices_enabled', 'false') ON CONFLICT (key) DO NOTHING;

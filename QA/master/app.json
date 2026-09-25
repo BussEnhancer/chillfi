@@ -3629,6 +3629,15 @@
    "root_cause": "No default channel declared",
    "fix": "High-importance 'Order updates' channel + FCM default channel meta-data; label 'ChillFi'",
    "retest": "Foreground/background push on chillfi_channel"
+  },
+  {
+   "id": "ADEF-61",
+   "title": "Filtered order tabs showed 'No orders yet / Start shopping' even when the customer has other orders",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Generic empty text",
+   "fix": "Tab-specific empty message",
+   "retest": "Analyzer"
   }
  ],
  "blockers": [

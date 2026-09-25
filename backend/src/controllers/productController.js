@@ -362,6 +362,14 @@ const resolveRefs = async (body) => {
 };
 
 // POST /api/admin/products
+// HSN (for GST invoices): undefined = not sent, '' = clear, false = invalid.
+const normHsn = (v) => {
+  if (v === undefined) return undefined;
+  const t = String(v ?? '').replace(/\s/g, '');
+  if (!t) return '';
+  return /^(\d{4}|\d{6}|\d{8})$/.test(t) ? t : false;
+};
+
 const createProduct = async (req, res) => {
   const { name, description, price, old_price, stock,
     status = 'Active', is_featured = false, is_flash_sale = false,
@@ -376,14 +384,16 @@ const createProduct = async (req, res) => {
   if (stock != null && Number(stock) < 0) return res.status(400).json({ success: false, message: 'Stock cannot be negative' });
   const { brand_id, category_id } = await resolveRefs(req.body);
   if (!category_id) return res.status(400).json({ success: false, message: 'Please choose a category' });
+  const hsn = normHsn(req.body.hsn_code);
+  if (hsn === false) return res.status(400).json({ success: false, message: 'HSN code must be 4, 6 or 8 digits' });
 
   const result = await pool.query(`
     INSERT INTO products (name, description, price, old_price, stock, brand_id, category_id,
-      status, is_featured, is_flash_sale, flash_sale_ends_at, tags)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      status, is_featured, is_flash_sale, flash_sale_ends_at, tags, hsn_code)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
     RETURNING *
   `, [name, description, price, old_price, stock, brand_id, category_id,
-    status, is_featured, is_flash_sale, flash_sale_ends_at, tags]);
+    status, is_featured, is_flash_sale, flash_sale_ends_at, tags, hsn || null]);
 
   const product = result.rows[0];
 
@@ -416,6 +426,8 @@ const updateProduct = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid status' });
   }
   const { brand_id, category_id } = await resolveRefs(req.body);
+  const hsn = normHsn(req.body.hsn_code);
+  if (hsn === false) return res.status(400).json({ success: false, message: 'HSN code must be 4, 6 or 8 digits' });
 
   const result = await pool.query(`
     UPDATE products SET
@@ -425,10 +437,11 @@ const updateProduct = async (req, res) => {
       category_id = COALESCE($7, category_id), status = COALESCE($8, status),
       is_featured = COALESCE($9, is_featured), is_flash_sale = COALESCE($10, is_flash_sale),
       flash_sale_ends_at = COALESCE($11, flash_sale_ends_at), tags = COALESCE($12, tags),
+      hsn_code = CASE WHEN $14::boolean THEN $15 ELSE hsn_code END,
       updated_at = NOW()
     WHERE id = $13 RETURNING *
   `, [name, description, price, old_price, stock, brand_id, category_id,
-    status, is_featured, is_flash_sale, flash_sale_ends_at, tags, id]);
+    status, is_featured, is_flash_sale, flash_sale_ends_at, tags, id, hsn !== undefined, hsn || null]);
 
   if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
 

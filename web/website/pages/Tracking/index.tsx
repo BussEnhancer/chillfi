@@ -13,7 +13,7 @@ import OrderProgressTracker from '../../components/order/OrderProgressTracker';
 import DeliveryInfoSection from '../../sections/Tracking/DeliveryInfoSection';
 import DeliveryTimelineSection from '../../sections/Tracking/DeliveryTimelineSection';
 import TrackingOrderSummary from '../../sections/Tracking/TrackingOrderSummary';
-import { apiGet, apiPost } from '../../utils/api';
+import { apiGet, apiPost, downloadFile } from '../../utils/api';
 
 import { Headphones, Loader2, X } from 'lucide-react';
 import { showErrorDialog } from '../../components/feedback/ErrorDialog';
@@ -47,6 +47,8 @@ interface ApiOrderDetail {
   discount: number;
   delivery_fee: number;
   tax_amount: number;
+  invoice_available?: boolean;
+  invoice_number?: string | null;
   total: number;
   tracking_id: string | null;
   created_at: string;
@@ -179,6 +181,15 @@ const TrackingPage: React.FC = () => {
             <p className="text-sm font-bold text-gray-400">Order ID: <span className="text-[#111827]">#{order.order_number}</span> | Placed on {placedAt!.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} at {placedAt!.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {order.invoice_available && (
+              <button
+                onClick={() => downloadFile(`/orders/${order.id}/invoice`, `Invoice-${order.order_number}.pdf`)
+                  .catch((e) => showErrorDialog({ title: "Couldn't download the invoice", error: e }))}
+                className="flex items-center gap-2 border-2 border-[#ECECEC] text-[#111827] px-6 py-2.5 rounded-xl font-black text-sm hover:border-[#FF6B2C] hover:text-[#FF6B2C] transition-all"
+              >
+                Download Invoice
+              </button>
+            )}
             {/* Cancellable only before the courier picks it up (backend enforces this too) */}
             {order.status === 'Processing' && (
               <button onClick={() => setShowCancelModal(true)} className="flex items-center gap-2 border-2 border-red-500 text-red-500 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-red-500 hover:text-white transition-all">

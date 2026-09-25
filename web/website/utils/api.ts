@@ -149,3 +149,21 @@ export const uploadImage = async (file: File, folder = 'chillfi/products'): Prom
   }
   return data.data.url;
 };
+
+/** Downloads a protected file (e.g. a GST invoice PDF) with the session token and saves it. */
+export const downloadFile = async (path: string, fallbackName: string): Promise<void> => {
+  const headers: HeadersInit = {};
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+  let res: Response;
+  try { res = await fetch(`${BASE_URL}${path}`, { headers }); } catch { throw new ApiError(ERR_OFFLINE, 0); }
+  if (!res.ok) {
+    let data: any = null;
+    try { data = await res.json(); } catch { /* not JSON */ }
+    throw new ApiError(pickMessage(res.status, data, ERR_GENERIC), res.status);
+  }
+  const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') || '')?.[1] || fallbackName;
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+};

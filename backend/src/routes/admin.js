@@ -28,7 +28,7 @@ const {
 } = require('../controllers/categoryController');
 const {
   adminGetOrders, adminUpdateStatus, adminGetRefunds, adminUpdateRefund,
-  adminShipOrder, adminTrackOrder, adminSyncTracking, adminShippingLabel,
+  adminShipOrder, adminTrackOrder, adminSyncTracking, adminShippingLabel, adminGetInvoice,
 } = require('../controllers/orderController');
 
 router.use(authenticate, staffOrAdmin);
@@ -122,6 +122,7 @@ router.post('/orders/:id/ship', adminOnly, adminShipOrder);
 router.get('/orders/:id/tracking', staffOrAdmin, adminTrackOrder);
 router.post('/orders/:id/sync-tracking', staffOrAdmin, adminSyncTracking);
 router.get('/orders/:id/label', staffOrAdmin, adminShippingLabel);
+router.get('/orders/:id/invoice', staffOrAdmin, adminGetInvoice);
 
 // Delhivery integration health — admin only
 router.get('/shipping/delhivery/status', adminOnly, getDelhiveryStatus);

@@ -34,6 +34,7 @@ app.use(cors({
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
+  exposedHeaders: ['Content-Disposition'], // invoice file names for browser downloads
 }));
 app.use(morgan('dev'));
 
@@ -47,7 +48,7 @@ app.use(rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please slow down.' },
   // Courier webhooks arrive in bursts from a few Delhivery IPs; they are token-authenticated instead.
-  skip: (req) => req.path === '/health' || req.path.startsWith('/api/shipping/'),
+  skip: (req) => req.path === '/health' || req.path === '/api/health' || req.path.startsWith('/api/shipping/'),
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -56,6 +57,23 @@ app.use(express.urlencoded({ extended: true }));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', env: process.env.NODE_ENV, time: new Date().toISOString() });
+});
+
+// Public uptime-monitor endpoint (nginx only forwards /api/*). 200 = API + database OK, 503 = something is down.
+app.get('/api/health', async (req, res) => {
+  const started = Date.now();
+  let db = 'ok';
+  try {
+    await Promise.race([
+      require('./db/pool').query('SELECT 1'),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000)),
+    ]);
+  } catch { db = 'down'; }
+  const ok = db === 'ok';
+  res.status(ok ? 200 : 503).json({
+    status: ok ? 'ok' : 'degraded', db, uptime_s: Math.round(process.uptime()),
+    response_ms: Date.now() - started, time: new Date().toISOString(),
+  });
 });
 
 // Routes

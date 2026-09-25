@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Search, Eye, ChevronLeft, ChevronRight, Download, X, Check, MapPin, Loader2, Truck, Navigation, RefreshCw, AlertTriangle } from 'lucide-react';
-import { apiGet, apiPut, apiPost } from '../../../utils/api';
+import { apiGet, apiPut, apiPost, downloadFile } from '../../../utils/api';
 import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import { useAdminRole } from '../../../utils/useAdminRole';
 import { Order } from '../../../context/StoreContext';
@@ -200,6 +200,15 @@ const OrderDetailModal: React.FC<{
             <h3 className="text-lg font-black text-[#111827]">Order {order.orderNumber || order.id}</h3>
             <p className="text-xs font-bold text-gray-400">{order.date}</p>
           </div>
+          {['Shipped', 'Delivered'].includes(order.status) && (
+            <button
+              onClick={() => downloadFile(`/admin/orders/${order.id}/invoice`, `Invoice-${order.orderNumber || order.id}.pdf`)
+                .catch((e) => showErrorDialog({ title: "Couldn't download the invoice", error: e }))}
+              className="ml-auto mr-3 flex items-center gap-1.5 px-3 py-2 bg-[#F8F7FC] text-gray-600 rounded-xl text-xs font-black hover:bg-[#FFF3ED] hover:text-[#FF6B2C]"
+            >
+              <Download size={12} /> Invoice
+            </button>
+          )}
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[#F8F7FC] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"><X size={16} /></button>
         </div>
 

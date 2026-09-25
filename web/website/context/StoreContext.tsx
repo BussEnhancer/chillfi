@@ -7,7 +7,7 @@ export interface Product {
   id: string; name: string; category: string; price: number; oldPrice: number;
   stock: number; rating: number; reviews: number; status: string;
   img: string; description: string; brand: string;
-  isFeatured?: boolean; isFlashSale?: boolean;
+  isFeatured?: boolean; isFlashSale?: boolean; hsn?: string;
 }
 
 export interface Category {

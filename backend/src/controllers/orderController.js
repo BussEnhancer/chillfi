@@ -1,6 +1,7 @@
 const pool = require('../db/pool');
 const { getShippingFee, checkoutServiceability } = require('../utils/shipping');
 const { openAutoRefund } = require('../utils/refunds');
+const invoice = require('../utils/invoice');
 const { getIncludedGst } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
@@ -26,7 +27,7 @@ const createOrder = async (req, res) => {
   }
 
   // Verify address belongs to user
-  const addr = await pool.query('SELECT id, pincode FROM addresses WHERE id = $1 AND user_id = $2', [address_id, req.user.id]);
+  const addr = await pool.query('SELECT id, label, name, phone, line1, line2, city, state, pincode FROM addresses WHERE id = $1 AND user_id = $2', [address_id, req.user.id]);
   if (!addr.rows.length) return res.status(400).json({ success: false, message: 'Invalid address' });
 
   // Delivery serviceability (only block when Delhivery definitively says no; unknown never blocks).
@@ -153,11 +154,12 @@ const createOrder = async (req, res) => {
 
     const orderResult = await client.query(`
       INSERT INTO orders (order_number, user_id, address_id, subtotal, discount, delivery_fee, tax_amount, total,
-        coupon_id, payment_method, payment_status, status, notes, shipping_status)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'Processing',$12,'pending') RETURNING *
+        coupon_id, payment_method, payment_status, status, notes, shipping_status, shipping_address)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'Processing',$12,'pending',$13) RETURNING *
     `, [orderNumber, req.user.id, address_id, subtotal, discount, deliveryFee, taxAmount, total,
       coupon_id || null, payment_method,
-      payment_method === 'COD' ? 'Pending' : 'Pending', notes || null]);
+      payment_method === 'COD' ? 'Pending' : 'Pending', notes || null,
+      JSON.stringify((({ id, ...snap }) => snap)(addr.rows[0]))]);
 
     const order = orderResult.rows[0];
 
@@ -262,8 +264,8 @@ const getOrders = async (req, res) => {
 const getOrder = async (req, res) => {
   const { id } = req.params;
   const result = await pool.query(`
-    SELECT o.*, a.name as addr_name, a.phone as addr_phone, a.line1, a.line2,
-      a.city, a.state, a.pincode, a.label as addr_label,
+    SELECT o.*, COALESCE(o.shipping_address->>'name', a.name) as addr_name, COALESCE(o.shipping_address->>'phone', a.phone) as addr_phone, COALESCE(o.shipping_address->>'line1', a.line1) as line1, COALESCE(o.shipping_address->>'line2', a.line2) as line2,
+      COALESCE(o.shipping_address->>'city', a.city) as city, COALESCE(o.shipping_address->>'state', a.state) as state, COALESCE(o.shipping_address->>'pincode', a.pincode) as pincode, COALESCE(o.shipping_address->>'label', a.label) as addr_label,
       COALESCE(o.shipment_provider, 'delhivery') as shipment_provider
     FROM orders o
     LEFT JOIN addresses a ON o.address_id = a.id
@@ -277,11 +279,29 @@ const getOrder = async (req, res) => {
     'SELECT * FROM refund_requests WHERE order_id = $1 ORDER BY created_at DESC LIMIT 1',
     [id]
   );
+  const invoiceBlock = invoice.invoiceBlocker(result.rows[0], await invoice.getSellerSettings());
   res.json({
     success: true,
-    data: { order: { ...result.rows[0], items: items.rows, refund_request: refundRequest.rows[0] || null } },
+    data: { order: { ...result.rows[0], items: items.rows, refund_request: refundRequest.rows[0] || null,
+      invoice_available: !invoiceBlock, invoice_note: invoiceBlock } },
   });
 };
+
+// GET /api/orders/:id/invoice (customer) and /api/admin/orders/:id/invoice (staff/admin) — GST tax invoice PDF
+const sendInvoice = (asAdmin) => async (req, res, next) => {
+  try {
+    const own = await pool.query(`SELECT id FROM orders WHERE id = $1 ${asAdmin ? '' : 'AND user_id = $2'}`, asAdmin ? [req.params.id] : [req.params.id, req.user.id]);
+    if (!own.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
+    const { pdf, number } = await invoice.buildInvoicePdf(req.params.id);
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="Invoice-${number.replace(/\//g, '-')}.pdf"`, 'Cache-Control': 'private, no-store' });
+    res.send(pdf);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ success: false, message: err.message });
+    next(err);
+  }
+};
+const getInvoice = sendInvoice(false);
+const adminGetInvoice = sendInvoice(true);
 
 // POST /api/orders/:id/refund-request
 const requestRefund = async (req, res) => {
@@ -410,9 +430,9 @@ const adminGetOrders = async (req, res) => {
 
   const result = await pool.query(`
     SELECT o.*, u.name as customer_name, u.phone as customer_phone, u.email as customer_email,
-      a.label as address_label, a.name as address_name, a.phone as address_phone,
-      a.line1 as address_line1, a.line2 as address_line2, a.city as address_city,
-      a.state as address_state, a.pincode as address_pincode,
+      COALESCE(o.shipping_address->>'label', a.label) as address_label, COALESCE(o.shipping_address->>'name', a.name) as address_name, COALESCE(o.shipping_address->>'phone', a.phone) as address_phone,
+      COALESCE(o.shipping_address->>'line1', a.line1) as address_line1, COALESCE(o.shipping_address->>'line2', a.line2) as address_line2, COALESCE(o.shipping_address->>'city', a.city) as address_city,
+      COALESCE(o.shipping_address->>'state', a.state) as address_state, COALESCE(o.shipping_address->>'pincode', a.pincode) as address_pincode,
       (SELECT product_name FROM order_items WHERE order_id = o.id LIMIT 1) as product,
       (SELECT COALESCE(SUM(quantity),0) FROM order_items WHERE order_id = o.id) as item_count,
       (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as line_count,
@@ -658,6 +678,7 @@ const adminSyncTracking = async (req, res, next) => {
 };
 
 module.exports = {
+  getInvoice, adminGetInvoice,
   createOrder, getOrders, getOrder, cancelOrder, requestRefund,
   adminGetOrders, adminUpdateStatus, adminGetRefunds, adminUpdateRefund,
   adminShipOrder, adminTrackOrder, getOrderTracking, adminSyncTracking, adminShippingLabel,

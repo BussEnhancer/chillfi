@@ -1501,6 +1501,24 @@
    "root_cause": "Raw remarks passed through",
    "fix": "explainRejection() concise actionable text; error dialog",
    "retest": "UI verified"
+  },
+  {
+   "id": "ADEF-A24",
+   "title": "No GST tax invoices for customers",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Feature missing",
+   "fix": "Sequential FY invoice numbers, CGST/SGST vs IGST by place of supply, HSN per product, amount in words; website/app/admin download; off until a valid GSTIN is set; old (GST-on-top) orders reproduced exactly as charged",
+   "retest": "Website download, app share sheet, admin route, rules + totals tests"
+  },
+  {
+   "id": "ADEF-A25",
+   "title": "Orders didn't keep their delivery address — editing or deleting an address changed or erased it on past orders (and on a not-yet-shipped Delhivery booking)",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Orders referenced addresses by id only (ON DELETE SET NULL)",
+   "fix": "shipping_address snapshot at order time; backfilled 145/154 (9 already lost earlier)",
+   "retest": "Edit + delete address → order still shows original"
   }
  ],
  "blockers": [

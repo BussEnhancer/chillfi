@@ -39,6 +39,7 @@ fi
 echo "▶ Backend source"
 rsync "${RSYNC_FLAGS[@]}" "$ROOT/backend/src/" "$HOST:$REMOTE_BACKEND/src/"
 rsync "${RSYNC_NODEL[@]}" "$ROOT/backend/scripts/" "$HOST:$REMOTE_BACKEND/scripts/"
+rsync "${RSYNC_NODEL[@]}" "$ROOT/backend/assets/" "$HOST:$REMOTE_BACKEND/assets/"   # invoice fonts
 rsync "${RSYNC_NODEL[@]}" "$ROOT/backend/package.json" "$ROOT/backend/package-lock.json" "$HOST:$REMOTE_BACKEND/"
 
 if $WEB; then

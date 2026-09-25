@@ -13,7 +13,7 @@ interface ApiProduct {
   id: string; name: string; category_name?: string; category?: string; brand_name?: string;
   price: string | number; old_price?: string | number; stock?: number; rating?: string | number;
   review_count?: number; status?: string; primary_image?: string; image?: string; description?: string;
-  brand?: string; category_id?: string; brand_id?: string; is_featured?: boolean; is_flash_sale?: boolean;
+  brand?: string; category_id?: string; brand_id?: string; is_featured?: boolean; is_flash_sale?: boolean; hsn_code?: string | null;
 }
 
 const normalizeApiProduct = (p: ApiProduct): Product => ({
@@ -31,6 +31,7 @@ const normalizeApiProduct = (p: ApiProduct): Product => ({
   description: (p.description || '') as string,
   isFeatured: !!p.is_featured,
   isFlashSale: !!p.is_flash_sale,
+  hsn: (p.hsn_code || '') as string,
 });
 
 const Toast: React.FC<{ msg: string; onClose: () => void }> = ({ msg, onClose }) => (
@@ -164,6 +165,10 @@ const ProductForm: React.FC<{ initial: Product; categories: string[]; onSave: (p
               <input type="number" value={form.stock} onChange={e => set('stock', +e.target.value)} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]" />
             </div>
             <div>
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">HSN Code (for GST invoice)</label>
+              <input value={form.hsn || ''} onChange={e => set('hsn', e.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="e.g. 8518 (4, 6 or 8 digits)" className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]" />
+            </div>
+            <div>
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">Status</label>
               <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]">
                 {['Active', 'Inactive', 'Out of Stock', 'Low Stock'].map(s => <option key={s}>{s}</option>)}
@@ -268,6 +273,7 @@ const AdminProducts: React.FC = () => {
         category_name: p.category,
         is_featured: !!p.isFeatured,
         is_flash_sale: !!p.isFlashSale,
+        hsn_code: p.hsn || '',
         ...(imageUrl ? { image: imageUrl, images: [{ url: imageUrl, is_primary: true }] } : {}),
       };
 

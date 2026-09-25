@@ -71,7 +71,7 @@ const AdminSettings: React.FC = () => {
     freeShipping: settings.freeShipping, express: settings.express, cod: settings.cod,
   });
 
-  const [features, setFeatures] = useState({ maintenanceMode: false, userRegistration: true, guestCheckout: true, productReviews: true });
+  const [features, setFeatures] = useState({ maintenanceMode: false, userRegistration: true, guestCheckout: true, productReviews: true, invoices: false });
   const [appControl, setAppControl] = useState({ maintenanceMessage: "We're making some improvements to serve you better. We'll be back soon!", forceUpdate: false, minAppVersion: '1.0.0', forceUpdateMessage: 'A new version of the app is available with important fixes. Please update to continue.' });
   const [payment, setPayment] = useState({ upi: true, cards: true, netBanking: true, emi: true, cod: false, wallets: true });
   const [notif, setNotif] = useState({ orderPlaced: true, orderShipped: true, orderDelivered: true, orderCancelled: true, promo: false, adminAlerts: true, lowStock: true });
@@ -131,6 +131,7 @@ const AdminSettings: React.FC = () => {
 
           setFeatures(f => ({
             maintenanceMode: asBool(d.maintenance_mode, f.maintenanceMode),
+            invoices: asBool(d.invoices_enabled, f.invoices),
             userRegistration: asBool(d.user_registration_enabled, f.userRegistration),
             guestCheckout: asBool(d.guest_checkout_enabled, f.guestCheckout),
             productReviews: asBool(d.product_reviews_enabled, f.productReviews),
@@ -199,6 +200,7 @@ const AdminSettings: React.FC = () => {
         express_enabled: shipping.express,
         cod_enabled: shipping.cod,
         maintenance_mode: features.maintenanceMode,
+        invoices_enabled: features.invoices,
         user_registration_enabled: features.userRegistration,
         guest_checkout_enabled: features.guestCheckout,
         product_reviews_enabled: features.productReviews,
@@ -287,6 +289,7 @@ const AdminSettings: React.FC = () => {
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
                 <h3 className="text-sm font-black text-[#111827] mb-4">Store Features</h3>
                 <Toggle value={features.maintenanceMode} onChange={v => setFeatures(f => ({ ...f, maintenanceMode: v }))} label="Maintenance Mode" desc="Put the store in maintenance mode for visitors" />
+                <Toggle value={features.invoices} onChange={v => setFeatures(f => ({ ...f, invoices: v }))} label="Issue GST Tax Invoices" desc="Customers can download a tax invoice once an order ships. Needs your real 15-character GSTIN in Store Information." />
                 <Toggle value={features.userRegistration} onChange={v => setFeatures(f => ({ ...f, userRegistration: v }))} label="User Registration" inactive desc="Allow new users to register on the platform" />
                 <Toggle value={features.guestCheckout} onChange={v => setFeatures(f => ({ ...f, guestCheckout: v }))} label="Guest Checkout" inactive desc="Allow users to checkout without an account" />
                 <Toggle value={features.productReviews} onChange={v => setFeatures(f => ({ ...f, productReviews: v }))} label="Product Reviews" desc="When off, new reviews are refused (existing reviews stay visible)" />

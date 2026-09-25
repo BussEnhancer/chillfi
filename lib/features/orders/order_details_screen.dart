@@ -1,12 +1,17 @@
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/cart_model.dart';
 import 'package:chillfi/core/providers/cart_provider.dart';
+import 'package:chillfi/core/services/api_service.dart';
+import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/features/orders/cancel_order_screen.dart';
 import 'package:chillfi/features/orders/delhivery_tracking_screen.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
@@ -37,6 +42,25 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) {
       context.read<CartProvider>().loadOrder(widget.orderId);
+    }
+  }
+
+  bool _downloadingInvoice = false;
+
+  /// Fetches the GST invoice PDF and opens the system share/save sheet.
+  Future<void> _downloadInvoice(OrderModel order) async {
+    if (_downloadingInvoice) return;
+    setState(() => _downloadingInvoice = true);
+    try {
+      final bytes = await ApiService().getBytes('/orders/${order.id}/invoice');
+      // A real, properly named file so "Save to Drive / Files" keeps the invoice name.
+      final f = File('${Directory.systemTemp.path}/Invoice-${order.orderNumber}.pdf');
+      await f.writeAsBytes(bytes, flush: true);
+      await Share.shareXFiles([XFile(f.path, mimeType: 'application/pdf')], subject: 'ChillFi invoice ${order.orderNumber}');
+    } catch (e) {
+      if (mounted) AppErrorDialog.show(context, error: e, title: "Couldn't download the invoice");
+    } finally {
+      if (mounted) setState(() => _downloadingInvoice = false);
     }
   }
 
@@ -284,6 +308,25 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                           ),
                           icon: Icon(Icons.local_shipping_outlined, size: 20.sp),
                           label: Text('Track Order', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+                        ),
+                      ),
+                    ],
+
+                    // GST tax invoice (shipped/delivered orders, when the store has invoicing on)
+                    if (order.invoiceAvailable) ...[
+                      SizedBox(height: 12.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52.h,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _downloadInvoice(order),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.secondaryPurple,
+                            side: BorderSide(color: AppColors.secondaryPurple.withValues(alpha: 0.4)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                          ),
+                          icon: Icon(Icons.receipt_long_outlined, size: 20.sp),
+                          label: Text('Download Invoice', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700)),
                         ),
                       ),
                     ],

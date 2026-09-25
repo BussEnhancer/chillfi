@@ -98,9 +98,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
               children: [
                 Icon(Icons.receipt_long_outlined, size: 72.sp, color: AppColors.greyText),
                 SizedBox(height: 16.h),
-                Text('No orders yet', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
+                Text(_tabController.index == 0 ? 'No orders yet' : 'No ${_labels[_tabController.index].toLowerCase()} orders',
+                    style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
                 SizedBox(height: 8.h),
-                Text('Start shopping to see orders here', style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
+                Text(_tabController.index == 0 ? 'Start shopping to see orders here' : 'Orders with this status will appear here',
+                    style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
               ],
             ),
           );
