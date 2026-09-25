@@ -10,6 +10,7 @@ import 'package:chillfi/features/recently_viewed/widgets/recently_viewed_header.
 import 'package:chillfi/features/recently_viewed/widgets/recently_viewed_product_card.dart';
 import 'package:chillfi/features/recently_viewed/widgets/recommendation_product_card.dart';
 import 'package:chillfi/features/recently_viewed/widgets/view_all_cta_card.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -126,15 +127,11 @@ class _RecentlyViewedScreenState extends State<RecentlyViewedScreen> {
                       if (_loading)
                         Padding(padding: EdgeInsets.symmetric(vertical: 40.h), child: const Center(child: CircularProgressIndicator()))
                       else if (_recentlyViewed.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40.h),
-                          child: Column(
-                            children: [
-                              Icon(Icons.visibility_off_outlined, size: 48.sp, color: Colors.grey[300]),
-                              SizedBox(height: 12.h),
-                              Text("No recently viewed products yet", style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-                            ],
-                          ),
+                        const AppEmptyState(
+                          compact: true,
+                          icon: Icons.history_rounded,
+                          title: 'No recently viewed products yet',
+                          message: 'Products you open will be saved here',
                         )
                       else
                         _buildRecentlyViewedGrid(),

@@ -3,6 +3,7 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/wishlist_model.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,17 +38,10 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
       ),
       body: Consumer<WishlistProvider>(builder: (context, wp, _) {
         if (wp.myReviews.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.star_border_rounded, size: 72.sp, color: AppColors.greyText),
-                SizedBox(height: 16.h),
-                Text('No reviews yet', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
-                SizedBox(height: 8.h),
-                Text('Your product reviews will appear here', style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-              ],
-            ),
+          return const AppEmptyState(
+            icon: Icons.star_border_rounded,
+            title: 'No reviews yet',
+            message: 'Your product reviews will appear here',
           );
         }
         return ListView.separated(

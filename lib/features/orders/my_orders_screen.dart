@@ -6,6 +6,7 @@ import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/orders/order_details_screen.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -91,19 +92,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> with SingleTickerProvid
           return const Center(child: CircularProgressIndicator(color: AppColors.secondaryPurple));
         }
         if (cart.orders.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.receipt_long_outlined, size: 72.sp, color: AppColors.greyText),
-                SizedBox(height: 16.h),
-                Text(_tabController.index == 0 ? 'No orders yet' : 'No ${_labels[_tabController.index].toLowerCase()} orders',
-                    style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
-                SizedBox(height: 8.h),
-                Text(_tabController.index == 0 ? 'Start shopping to see orders here' : 'Orders with this status will appear here',
-                    style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-              ],
-            ),
+          return AppEmptyState(
+            icon: Icons.receipt_long_outlined,
+            title: _tabController.index == 0 ? 'No orders yet' : 'No ${_labels[_tabController.index].toLowerCase()} orders',
+            message: _tabController.index == 0 ? 'Start shopping to see orders here' : 'Orders with this status will appear here',
           );
         }
         return RefreshIndicator(

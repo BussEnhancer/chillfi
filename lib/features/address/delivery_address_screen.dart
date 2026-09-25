@@ -5,6 +5,7 @@ import 'package:chillfi/features/address/add_new_address_screen.dart';
 import 'package:chillfi/features/address/widgets/delivery_address_card.dart';
 import 'package:chillfi/features/address/widgets/delivery_bottom_widgets.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -111,24 +112,12 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (cart.addresses.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.location_off_rounded, size: 48.sp, color: AppColors.greyText.withValues(alpha: 0.3)),
-                    SizedBox(height: 16.h),
-                    Text('No saved addresses yet', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: _addNew,
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondaryPurple, foregroundColor: Colors.white),
-                      child: const Text('Add Address'),
-                    ),
-                  ],
-                ),
-              ),
+            return AppEmptyState(
+              icon: Icons.location_on_outlined,
+              title: 'No saved addresses yet',
+              message: 'Add an address to get your orders delivered',
+              actionLabel: 'Add Address',
+              onAction: _addNew,
             );
           }
           return Stack(

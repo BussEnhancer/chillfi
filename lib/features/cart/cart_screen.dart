@@ -5,6 +5,7 @@ import 'package:chillfi/features/cart/apply_coupon_screen.dart';
 import 'package:chillfi/features/checkout/checkout_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -87,30 +88,15 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.shopping_cart_outlined, size: 80.sp, color: AppColors.greyText),
-          SizedBox(height: 16.h),
-          Text('Your cart is empty', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
-          SizedBox(height: 8.h),
-          Text('Add items to get started', style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-          SizedBox(height: 24.h),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondaryPurple,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-            ),
-            child: Text('Shop Now', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      icon: Icons.shopping_cart_outlined,
+      title: 'Your cart is empty',
+      message: 'Add items to get started',
+      actionLabel: 'Shop Now',
+      onAction: () => Navigator.maybePop(context),
     );
   }
+
 
   Widget _buildAddressSection(CartProvider cart) {
     final address = cart.selectedAddress;

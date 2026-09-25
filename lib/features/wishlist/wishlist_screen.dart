@@ -8,6 +8,7 @@ import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
 import 'package:chillfi/core/theme/app_theme.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -112,19 +113,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
   }
 
   Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.favorite_border_rounded, size: 80.sp, color: AppColors.greyText),
-          SizedBox(height: 16.h),
-          Text('Your wishlist is empty', style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w600, color: AppColors.darkText)),
-          SizedBox(height: 8.h),
-          Text('Save items you love here', style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-        ],
-      ),
+    return const AppEmptyState(
+      icon: Icons.favorite_border_rounded,
+      title: 'Your wishlist is empty',
+      message: 'Save items you love here',
     );
   }
+
 }
 
 class _WishlistCard extends StatelessWidget {

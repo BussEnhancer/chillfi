@@ -7,6 +7,7 @@ import 'package:chillfi/features/search/voice_search_screen.dart';
 import 'package:chillfi/features/search/widgets/help_banner_widget.dart';
 import 'package:chillfi/features/search/widgets/trending_chip_widget.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -155,15 +156,10 @@ class _SearchScreenState extends State<SearchScreen> {
     }
     if (provider.searchResults.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded, size: 60.sp, color: Colors.grey.shade300),
-            SizedBox(height: 12.h),
-            Text('No results found', style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.grey)),
-            SizedBox(height: 6.h),
-            Text('Try different keywords', style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText)),
-          ],
+        child: const AppEmptyState(
+          icon: Icons.search_off_rounded,
+          title: 'No results found',
+          message: 'Try different keywords',
         ),
       );
     }

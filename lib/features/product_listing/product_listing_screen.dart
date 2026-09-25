@@ -10,6 +10,7 @@ import 'package:chillfi/features/product_listing/widgets/category_filter_chips.d
 import 'package:chillfi/features/product_listing/widgets/product_card.dart';
 import 'package:chillfi/features/product_listing/widgets/product_listing_header.dart';
 import 'package:chillfi/features/product_listing/widgets/product_listing_search.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -259,11 +260,10 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                           : pp.productsState == LoadState.error && pp.products.isEmpty
                           ? Center(child: SingleChildScrollView(child: AppErrorState(onRetry: _load)))
                           : displayProducts.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'No products found',
-                                    style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.greyText),
-                                  ),
+                              ? const AppEmptyState(
+                                  icon: Icons.inventory_2_outlined,
+                                  title: 'No products found',
+                                  message: 'Try another filter or category',
                                 )
                               : SingleChildScrollView(
                                   controller: _scrollController,

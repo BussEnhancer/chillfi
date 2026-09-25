@@ -3,6 +3,7 @@ import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/features/orders/order_details_screen.dart';
 import 'package:chillfi/features/profile/notification_settings_screen.dart';
 import 'package:chillfi/core/widgets/app_back_button.dart';
+import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,12 +78,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 onRefresh: () => p.loadNotifications(),
                 child: items.isEmpty
                     ? ListView(children: [
-                        SizedBox(height: 160.h),
-                        Icon(Icons.notifications_off_outlined, size: 48.sp, color: AppColors.greyText),
-                        SizedBox(height: 12.h),
-                        Center(
-                            child: Text('No notifications yet',
-                                style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText))),
+                        SizedBox(height: 140.h),
+                        const AppEmptyState(
+                          compact: true,
+                          icon: Icons.notifications_none_rounded,
+                          title: 'No notifications yet',
+                          message: 'Order and delivery updates will show up here',
+                        ),
                       ])
                     : ListView.separated(
                         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
