@@ -1,13 +1,14 @@
 const axios = require('axios');
+const crypto = require('crypto');
 const pool = require('../db/pool');
 const { getSetting } = require('./settings');
 
 const MAX_OTP_ATTEMPTS = 5;
 
-// Test numbers that always get OTP 123456, no SMS sent
-const TEST_PHONES = new Set(['9876543210']);
+// Test numbers that always get OTP 123456, no SMS sent — development only (never on a production server).
+const TEST_PHONES = process.env.NODE_ENV === 'production' ? new Set() : new Set(['9876543210']);
 
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateOTP = () => crypto.randomInt(100000, 1000000).toString();
 
 const checkOtpRateLimit = async (phone) => {
   const result = await pool.query(

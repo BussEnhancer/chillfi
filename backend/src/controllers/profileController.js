@@ -130,77 +130,69 @@ const updateNotificationPreferences = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// Removes a customer and their personal data; orders are kept (anonymised) for tax records.
+const purgeUser = async (userId) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (const table of ['fcm_tokens', 'refresh_tokens', 'notifications', 'wishlist', 'recently_viewed', 'cart', 'reviews', 'addresses', 'coupon_usage']) {
+      await client.query(`DELETE FROM ${table} WHERE user_id = $1`, [userId]);
+    }
+    await client.query(
+      `UPDATE orders SET user_id = NULL, notes = COALESCE(notes, '') || ' [account deleted]' WHERE user_id = $1`,
+      [userId]
+    );
+    await client.query('DELETE FROM users WHERE id = $1', [userId]);
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+const STAFF_ROLES = ['admin', 'super_admin', 'support_staff', 'staff'];
+const STAFF_MESSAGE = "Store staff accounts can't be deleted here. Ask another admin to remove the account.";
+
+// DELETE /api/profile/account — signed-in customer deletes their own account (app + website)
 const deleteAccount = async (req, res, next) => {
   try {
-    const { id: userId } = req.user;
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      // Cascade-delete all user data
-      await client.query('DELETE FROM fcm_tokens WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM wishlist WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM recently_viewed WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM reviews WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM addresses WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM coupon_usage WHERE user_id = $1', [userId]);
-      // Anonymise orders — keep history but remove personal link
-      await client.query(
-        `UPDATE orders SET user_id = NULL, notes = COALESCE(notes, '') || ' [account deleted]' WHERE user_id = $1`,
-        [userId]
-      );
-      await client.query('DELETE FROM users WHERE id = $1', [userId]);
-      await client.query('COMMIT');
-    } catch (e) {
-      await client.query('ROLLBACK');
-      throw e;
-    } finally {
-      client.release();
-    }
+    const { id: userId, role } = req.user;
+    if (STAFF_ROLES.includes(role)) return res.status(403).json({ success: false, message: STAFF_MESSAGE });
+    await purgeUser(userId);
     res.json({ success: true, message: 'Account deleted successfully' });
   } catch (err) { next(err); }
 };
 
-// POST /api/auth/request-delete  — unauthenticated, OTP-verified deletion (for web page)
+// POST /api/profile/request-delete — public deletion page (no sign-in).
+// Preferred: { idToken } from Firebase phone sign-in (same as login). Legacy: { phone, otp } from /auth/send-otp.
 const requestDeleteByPhone = async (req, res, next) => {
   try {
-    const { phone, otp } = req.body;
-    if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP required' });
-
-    const { verifyOTP } = require('../utils/otp');
-    const valid = await verifyOTP(phone, otp, 'login');
-    if (!valid) return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
-
-    const userResult = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
-    if (!userResult.rows.length) return res.status(404).json({ success: false, message: 'No account found with this number' });
-
-    const userId = userResult.rows[0].id;
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      await client.query('DELETE FROM fcm_tokens WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM notifications WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM wishlist WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM recently_viewed WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM reviews WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM addresses WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM coupon_usage WHERE user_id = $1', [userId]);
-      await client.query(
-        `UPDATE orders SET user_id = NULL, notes = COALESCE(notes, '') || ' [account deleted]' WHERE user_id = $1`,
-        [userId]
-      );
-      await client.query('DELETE FROM users WHERE id = $1', [userId]);
-      await client.query('COMMIT');
-    } catch (e) {
-      await client.query('ROLLBACK');
-      throw e;
-    } finally {
-      client.release();
+    const { idToken, otp } = req.body || {};
+    let phone = req.body?.phone;
+    if (idToken) {
+      const { getFirebaseApp } = require('../utils/firebase');
+      const fbApp = getFirebaseApp();
+      if (!fbApp) return res.status(503).json({ success: false, message: 'Phone verification is temporarily unavailable. Please try again later.' });
+      const { getAuth } = require('firebase-admin/auth');
+      let decoded;
+      try { decoded = await getAuth(fbApp).verifyIdToken(idToken); }
+      catch { return res.status(401).json({ success: false, message: 'Your verification expired. Please verify your number again.' }); }
+      if (!decoded.phone_number) return res.status(400).json({ success: false, message: 'No phone number in the verification' });
+      phone = decoded.phone_number.replace(/^\+91/, '');
+    } else {
+      if (!phone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP required' });
+      const { verifyOTP } = require('../utils/otp');
+      const valid = await verifyOTP(phone, otp, 'login');
+      if (!valid) return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
     }
+
+    const userResult = await pool.query('SELECT id, role FROM users WHERE phone = $1', [phone]);
+    if (!userResult.rows.length) return res.status(404).json({ success: false, message: 'No account found with this number' });
+    if (STAFF_ROLES.includes(userResult.rows[0].role)) return res.status(403).json({ success: false, message: STAFF_MESSAGE });
+
+    await purgeUser(userResult.rows[0].id);
     res.json({ success: true, message: 'Account deleted successfully' });
   } catch (err) { next(err); }
 };
