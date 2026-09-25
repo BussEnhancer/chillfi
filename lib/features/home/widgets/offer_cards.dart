@@ -65,6 +65,8 @@ class OfferCardsSection extends StatelessWidget {
                         ),
                         Text(
                           isGuest ? 'Sign in for faster checkout' : 'Welcome back',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.poppins(
                             fontSize: 10.sp,
                             color: Colors.white.withValues(alpha: 0.8),
@@ -89,8 +91,10 @@ class OfferCardsSection extends StatelessWidget {
                         ),
                         Text(
                           isGuest ? 'Orders, wishlist & addresses' : 'Track & manage orders',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.poppins(
-                            fontSize: 9.sp,
+                            fontSize: 10.sp,
                             color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
