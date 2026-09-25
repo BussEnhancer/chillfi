@@ -2,7 +2,7 @@ name: chillfi
 description: "ChillFi - Electronics Shopping App"
 publish_to: 'none'
 
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ^3.11.5
@@ -64,3 +64,5 @@ flutter:
 
   assets:
     - assets/images/
+    # Poppins bundled (SIL OFL 1.1) so text renders offline; google_fonts picks these up by file name.
+    - assets/fonts/

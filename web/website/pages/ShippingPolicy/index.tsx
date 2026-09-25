@@ -12,8 +12,10 @@ import PrivacySection from '../../components/legal/PrivacySection';
 import PrivacyContactCard from '../../components/legal/PrivacyContactCard';
 
 import { Truck, Mail, Phone, MapPin, PackageCheck } from 'lucide-react';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 const ShippingPolicyPage: React.FC = () => {
+  const contact = useStoreContact();
   const breadcrumbItems = [
     { label: 'Shipping Policy' }
   ];
@@ -85,8 +87,8 @@ const ShippingPolicyPage: React.FC = () => {
               <PrivacySection title="9. Contact Us">
                 <p>Questions about a shipment or this policy? Reach out to us:</p>
                 <div className="flex flex-wrap gap-4 mt-6">
-                  <PrivacyContactCard icon={<Mail size={20} />} label="Email Us" detail="support@chillfi.com" />
-                  <PrivacyContactCard icon={<Phone size={20} />} label="Call Us" detail="+91 98765 43210" />
+                  <PrivacyContactCard icon={<Mail size={20} />} label="Email Us" detail={contact.email || 'Use the contact form'} />
+                  <PrivacyContactCard icon={<Phone size={20} />} label="Call Us" detail={contact.phone || '—'} />
                   <PrivacyContactCard
                     icon={<MapPin size={20} />}
                     label="Our Office"

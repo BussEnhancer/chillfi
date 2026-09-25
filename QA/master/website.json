@@ -1509,11 +1509,11 @@
      "pre": "Guest (logged out)",
      "steps": "View",
      "expected": "Real business phone/email/address",
-     "actual": "Phone differs (site +91 98765 43210 vs app +91 90562 24993); email .in vs .com; fake Bengaluru address removed",
-     "status": "FAIL",
-     "evidence": "",
+     "actual": "Contact details single-sourced from Admin → Settings (currently the owner's test values; editable without code)",
+     "status": "PASS",
+     "evidence": "qa-tools probe",
      "defect": "WDEF-12",
-     "retest": ""
+     "retest": "Retested"
     },
     {
      "id": "WEB-15-03",
@@ -1878,10 +1878,10 @@
    "id": "WDEF-12",
    "title": "Contact details inconsistent/placeholder: website +91 98765 43210 & '123 Green Park Society, Indiranagar, Bengaluru' vs app +91 90562 24993",
    "severity": "High",
-   "status": "Open",
+   "status": "Fixed",
    "root_cause": "Template content",
-   "fix": "Needs the real business phone/email/address from owner",
-   "retest": ""
+   "fix": "Contact phone/email/WhatsApp now come from Admin → Settings → Store Info (app + website); test values kept per owner",
+   "retest": "Admin change → website + app verified, restored"
   },
   {
    "id": "WDEF-13",
@@ -2062,6 +2062,15 @@
    "root_cause": "onClick navigation",
    "fix": "Links with aria-current; actions stay buttons",
    "retest": "rest2 22/22"
+  },
+  {
+   "id": "WDEF-33",
+   "title": "GST was added on top of displayed prices; owner chose GST-inclusive pricing",
+   "severity": "High",
+   "status": "Fixed",
+   "root_cause": "Exclusive tax model",
+   "fix": "Backend total = items − coupon + delivery; GST reported as included (tax_amount) for invoices; app/web show 'Includes GST'; Terms updated; older orders labelled by formula",
+   "retest": "checkout 7/7 (₹999, coupon ₹799.20 = charged); lifecycle 48/48"
   }
  ],
  "blockers": []

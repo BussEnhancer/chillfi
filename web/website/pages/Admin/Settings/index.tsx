@@ -41,7 +41,7 @@ const Toggle: React.FC<{ value: boolean; onChange: (v: boolean) => void; label: 
 );
 
 interface ApiSettings {
-  store_name?: string; store_email?: string; store_phone?: string;
+  store_name?: string; store_email?: string; store_phone?: string; whatsapp_number?: string;
   gst_number?: string; gst_rate?: string; website_url?: string; support_email?: string;
   store_address?: string; free_shipping_threshold?: string;
   standard_shipping_fee?: string; express_shipping_fee?: string;
@@ -62,7 +62,7 @@ const AdminSettings: React.FC = () => {
   const [store, setStore] = useState({
     name: settings.name, email: settings.email, phone: settings.phone,
     gst: settings.gst, gstRate: '18', url: settings.url, supportEmail: settings.supportEmail,
-    address: settings.address,
+    address: settings.address, whatsapp: '',
   });
 
   const [shipping, setShipping] = useState({
@@ -113,6 +113,7 @@ const AdminSettings: React.FC = () => {
             url: (d.website_url || settings.url) as string,
             supportEmail: (d.support_email || settings.supportEmail) as string,
             address: (d.store_address || settings.address) as string,
+            whatsapp: (d.whatsapp_number || '') as string,
           };
           setStore(loaded);
 
@@ -188,6 +189,7 @@ const AdminSettings: React.FC = () => {
         gst_rate: Number(store.gstRate),
         website_url: store.url,
         support_email: store.supportEmail,
+        whatsapp_number: store.whatsapp,
         store_address: store.address,
         free_shipping_threshold: Number(shipping.freeThreshold),
         standard_shipping_fee: Number(shipping.standardFee),
@@ -267,9 +269,10 @@ const AdminSettings: React.FC = () => {
           {activeTab === 'store' && (
             <>
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
-                <h3 className="text-sm font-black text-[#111827] mb-5">Store Information</h3>
+                <h3 className="text-sm font-black text-[#111827] mb-1">Store Information</h3>
+                <p className="text-[11px] font-bold text-gray-400 mb-5">Phone Number, Support Email and WhatsApp are shown to customers on the website (Contact, Help, policies) and in the app (Help &amp; Support). WhatsApp defaults to the phone number.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {([['Store Name', 'name'], ['Store Email', 'email'], ['Phone Number', 'phone'], ['GST Number', 'gst'], ['GST Rate (%)', 'gstRate'], ['Website URL', 'url'], ['Support Email', 'supportEmail']] as [string, keyof typeof store][]).map(([label, key]) => (
+                  {([['Store Name', 'name'], ['Store Email', 'email'], ['Phone Number', 'phone'], ['GST Number', 'gst'], ['GST Rate (%)', 'gstRate'], ['Website URL', 'url'], ['Support Email', 'supportEmail'], ['WhatsApp Number (optional)', 'whatsapp']] as [string, keyof typeof store][]).map(([label, key]) => (
                     <div key={key}>
                       <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">{label}</label>
                       <input value={store[key]} onChange={e => setStore(s => ({ ...s, [key]: e.target.value }))} className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold text-[#111827] outline-none focus:border-[#FF6B2C] transition-colors" />

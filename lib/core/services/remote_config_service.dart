@@ -1,5 +1,24 @@
 import 'api_service.dart';
 
+/// Customer-support contact, edited in Admin → Settings → Store Info (served by /app-config).
+class StoreContact {
+  final String? phone;
+  final String? phoneHref;
+  final String? whatsappHref;
+  final String? email;
+  const StoreContact({this.phone, this.phoneHref, this.whatsappHref, this.email});
+  static const empty = StoreContact();
+
+  factory StoreContact.fromJson(Map<String, dynamic>? j) => j == null
+      ? empty
+      : StoreContact(
+          phone: j['phone'] as String?,
+          phoneHref: j['phone_href'] as String?,
+          whatsappHref: j['whatsapp_href'] as String?,
+          email: j['email'] as String?,
+        );
+}
+
 class AppRemoteConfig {
   final bool maintenanceMode;
   final String maintenanceMessage;
@@ -33,13 +52,23 @@ class AppRemoteConfig {
 class RemoteConfigService {
   final _api = ApiService();
 
+  static StoreContact? _contact;
+
   Future<AppRemoteConfig?> fetch() async {
     try {
       final res = await _api.get('/app-config');
-      return AppRemoteConfig.fromJson(res.data['data']);
+      final data = res.data['data'] as Map<String, dynamic>;
+      _contact = StoreContact.fromJson(data['contact'] as Map<String, dynamic>?);
+      return AppRemoteConfig.fromJson(data);
     } catch (_) {
       return null;
     }
+  }
+
+  /// Latest support contact (fetched with the app config; refreshed if not loaded yet).
+  static Future<StoreContact> contact() async {
+    if (_contact == null) await RemoteConfigService().fetch();
+    return _contact ?? StoreContact.empty;
   }
 
   /// Returns true if [current] is strictly less than [minimum], comparing

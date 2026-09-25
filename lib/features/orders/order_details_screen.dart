@@ -244,7 +244,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                           _infoRow('Subtotal', '₹${order.subtotal.toStringAsFixed(0)}'),
                           if (order.discount > 0) _infoRow('Discount', '-₹${order.discount.toStringAsFixed(0)}', valueColor: Colors.green),
                           _infoRow('Delivery', order.deliveryFee == 0 ? 'FREE' : '₹${order.deliveryFee.toStringAsFixed(0)}', valueColor: order.deliveryFee == 0 ? Colors.green : null),
-                          if (order.taxAmount > 0) _infoRow('GST', '₹${order.taxAmount.toStringAsFixed(0)}'),
+                          // Orders before 25 Sep 2026 added GST on top; newer orders include it in the price.
+                          if (order.taxAmount > 0) _infoRow(
+                              (order.total - (order.subtotal + order.deliveryFee - order.discount)).abs() < 0.01 ? 'Includes GST' : 'GST',
+                              '₹${order.taxAmount.toStringAsFixed(0)}'),
                           Divider(height: 20.h),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

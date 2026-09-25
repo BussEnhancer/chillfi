@@ -21,7 +21,7 @@ class OtpVerificationScreen extends StatefulWidget {
   final String? signupEmail;
   const OtpVerificationScreen({
     super.key,
-    this.phoneNumber = "+91 98765 43210",
+    required this.phoneNumber,
     this.verificationId,
     this.isFromForgotPassword = false,
     this.isFromSignup = false,

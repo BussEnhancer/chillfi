@@ -10,15 +10,15 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   let { c, p } = await ctx(b, { auth: true, cart: [item(boat, 1)] });
   await go(p, '/cart');
   const cartTotal = (await p.locator('text=Total Amount').locator('xpath=following-sibling::span').first().textContent()).trim();
-  const gstTxt = await p.locator('text=/GST \\(18%\\)/').locator('xpath=following-sibling::span').first().textContent().catch(() => '');
-  rec('WEB-08-04', money(cartTotal) === 999 + 179.82 || Math.abs(money(cartTotal) - 1178.82) < 0.02, `cart: delivery Free (999 ≥ 499), GST ${gstTxt}, total ${cartTotal} (server would charge 1178.82)`, await shot(p, 'web08_cart'));
+  const gstTxt = await p.locator('text=/Includes GST \\(18%\\)/').locator('xpath=following-sibling::span').first().textContent().catch(() => '');
+  rec('WEB-08-04', Math.abs(money(cartTotal) - 999) < 0.02, `cart: delivery Free (999 ≥ 499), incl. GST ${gstTxt}, total ${cartTotal} (GST-inclusive: server charges 999)`, await shot(p, 'web08_cart'));
   // Checkout totals vs server
   await go(p, '/checkout'); await p.waitForTimeout(2500);
   const coTotal = await p.locator('text=Total Amount').locator('xpath=following-sibling::span').first().textContent();
   const express = await p.locator('text=/Express/').count();
   rec('WEB-09-04', express === 0, `Express option shown=${express > 0}`, await shot(p, 'web09_checkout', true));
-  rec('WEB-09-06', Math.abs(money(coTotal) - 1178.82) < 0.6, `checkout total ${coTotal.trim()} vs server formula 1178.82`);
-  // with coupon TEST20 (20% of 999 = 199.8) → tax on 799.2 = 143.86 → total 943.06
+  rec('WEB-09-06', Math.abs(money(coTotal) - 999) < 0.6, `checkout total ${coTotal.trim()} vs server formula 999 (GST included)`);
+  // with a 20% coupon (199.8 off 999) → GST-inclusive total 799.2 (contains 121.91 GST)
   // Own throwaway coupon (per-user coupons are consumed by earlier runs).
   const CODE = `QA20${Date.now().toString().slice(-5)}`;
   const adm = (path, o = {}) => fetch('http://localhost:5000/api' + path, { ...o, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_TOKEN}` } }).then((r) => r.json());
@@ -26,7 +26,7 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   await p.locator('input[placeholder="Enter coupon code"]').fill(CODE);
   await p.getByRole('button', { name: /^apply$/i }).click(); await p.waitForTimeout(1500);
   const coTotal2 = await p.locator('text=Total Amount').locator('xpath=following-sibling::span').first().textContent();
-  rec('WEB-09-05', Math.abs(money(coTotal2) - 943.06) < 0.6, `with ${CODE} (20%): ${coTotal2.trim()} (server formula 943.06)`, await shot(p, 'web09_coupon', true));
+  rec('WEB-09-05', Math.abs(money(coTotal2) - 799.2) < 0.6, `with ${CODE} (20%): ${coTotal2.trim()} (server formula 799.20)`, await shot(p, 'web09_coupon', true));
   // place COD order and compare with server order
   const before = (await api('/orders?limit=1')).data; const lastBefore = (before.orders || before)[0]?.order_number;
   await p.getByText(/pay on delivery|cash on delivery/i).first().click().catch(() => {});

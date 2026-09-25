@@ -67,10 +67,11 @@ const CheckoutPage: React.FC = () => {
 
   const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price) * i.qty, 0);
   const deliveryFee = cartSummary?.delivery_fee ?? (cartTotal > 499 ? 0 : 49);
-  // GST is charged on the amount after the coupon (same as the server's order calculation).
+  // GST-inclusive prices: the server returns the GST contained in the items; after a coupon the
+  // contained GST shrinks proportionally (same as the server's order calculation). Never added to the total.
   const grossTax = cartSummary?.tax_amount ?? 0;
   const taxAmount = cartTotal > 0 ? Math.round((grossTax * Math.max(0, cartTotal - couponDiscount) / cartTotal) * 100) / 100 : 0;
-  const orderTotal = cartTotal + deliveryFee + taxAmount - couponDiscount;
+  const orderTotal = cartTotal + deliveryFee - couponDiscount;
 
   useEffect(() => {
     if (cart.length === 0) navigate('/cart', { replace: true });
@@ -449,8 +450,8 @@ const CheckoutPage: React.FC = () => {
                 </div>
                 {taxAmount > 0 && (
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-gray-500">GST</span>
-                    <span className="text-[#111827]">₹{taxAmount.toLocaleString()}</span>
+                    <span className="text-gray-500">Includes GST</span>
+                    <span className="text-gray-500">₹{taxAmount.toLocaleString()}</span>
                   </div>
                 )}
                 {couponDiscount > 0 && (

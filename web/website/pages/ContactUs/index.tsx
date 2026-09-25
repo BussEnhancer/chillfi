@@ -17,8 +17,10 @@ import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { Send, Headphones, Phone, MessageSquare, Mail, Loader2, CheckCircle2 } from 'lucide-react';
 import { apiPost } from '../../utils/api';
 import { showErrorDialog } from '../../components/feedback/ErrorDialog';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 const ContactUsPage: React.FC = () => {
+  const contact = useStoreContact();
   const breadcrumbItems = [
     { label: 'Contact Us' }
   ];
@@ -170,27 +172,26 @@ const ContactUsPage: React.FC = () => {
                      icon={<Headphones size={24} />}
                      title="Daily Support"
                      desc="We're always here"
-                     detail="support@chillfi.com"
+                     detail={contact.email || 'Use the contact form'}
                    />
-                   {/* TODO(owner): confirm real support phone (site uses +91 98765 43210, app uses +91 90562 24993) */}
                    <ContactInfoCard
                      icon={<Phone size={24} />}
                      title="Call Us"
                      desc="Mon – Sun | 9-9"
-                     detail="+91 98765 43210"
+                     detail={contact.phone || '—'}
                    />
                    <ContactInfoCard
                      icon={<MessageSquare size={24} />}
                      title="WhatsApp"
                      desc="Chat with us"
-                     detail="+91 98765 43210"
+                     detail={contact.phone || '—'}
                      color="#22C55E"
                    />
                    <ContactInfoCard
                      icon={<Mail size={24} />}
                      title="Email Us"
                      desc="Reply in 24h"
-                     detail="support@chillfi.com"
+                     detail={contact.email || 'Use the contact form'}
                    />
                 </div>
              </div>

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { ShieldOff, Phone, KeyRound, Trash2, CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
 import { api } from '../../utils/api';
 import { friendlyError } from '../../utils/api';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 type Step = 'phone' | 'otp' | 'confirm' | 'done';
 
 const DeleteAccountPage: React.FC = () => {
+  const contact = useStoreContact();
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -204,7 +206,9 @@ const DeleteAccountPage: React.FC = () => {
               </div>
               <p className="text-xs font-bold text-gray-400">
                 Questions? Email us at{' '}
-                <a href="mailto:support@chillfi.in" className="text-[#FF6B2C] hover:underline">support@chillfi.in</a>
+                {contact.email
+                  ? <a href={`mailto:${contact.email}`} className="text-[#FF6B2C] hover:underline">{contact.email}</a>
+                  : <a href="/contact" className="text-[#FF6B2C] hover:underline">contact us</a>}
               </p>
             </div>
           )}

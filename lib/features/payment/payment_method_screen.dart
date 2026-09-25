@@ -140,7 +140,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         if (s.savings > 0) _row('Discount', '-₹${s.savings.toStringAsFixed(0)}', green: true),
                         if (cart.couponDiscount > 0) _row('Coupon', '-₹${cart.couponDiscount.toStringAsFixed(0)}', green: true),
                         _row('Delivery', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', green: s.deliveryFee == 0),
-                        if (s.taxAmount > 0) _row('GST', '₹${s.taxAmount.toStringAsFixed(0)}'),
+                        if (s.taxAmount > 0) _row('Includes GST', '₹${(s.subtotal > 0 ? s.taxAmount * (s.subtotal - cart.couponDiscount) / s.subtotal : 0).toStringAsFixed(0)}'),
                         Divider(height: 20.h),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -11,6 +11,6 @@ module.exports = async (b, { rec, ctx, go, shot, api }) => {
   for (const [k, v] of [['Address Line 1', '1 St'], ['ity', 'Delhi'], ['tate', 'Delhi'], ['incode', '110001']]) await p.locator(`input[placeholder*="${k}" i]`).last().fill(v).catch(() => {});
   await p.getByRole('button', { name: /save address/i }).click(); await p.waitForTimeout(500);
   rec('WEB-09-02b', /valid 10-digit mobile/.test(await p.locator('body').innerText()), 'bad phone → message');
-  const nav = await (async () => { const c2 = await b.newContext({ viewport: { width: 390, height: 844 } }); await c2.addInitScript((t) => { localStorage.setItem('access_token', t); localStorage.setItem('refresh_token', 'none'); }, process.env.CUSTOMER_TOKEN); const q = await c2.newPage(); await q.goto('http://localhost:5200/account', { waitUntil: 'networkidle' }); const n = await q.locator('nav[aria-label="Account menu"] button').allTextContents(); await c2.close(); return n; })();
+  const nav = await (async () => { const c2 = await b.newContext({ viewport: { width: 390, height: 844 } }); await c2.addInitScript((t) => { localStorage.setItem('access_token', t); localStorage.setItem('refresh_token', 'none'); }, process.env.CUSTOMER_TOKEN); const q = await c2.newPage(); await q.goto('http://localhost:5200/account', { waitUntil: 'networkidle' }); const n = await q.locator('nav[aria-label="Account menu"] a, nav[aria-label="Account menu"] button').allTextContents(); await c2.close(); return n; })();
   rec('WEB-11-04', nav.length >= 6, `mobile account menu: ${nav.map((s) => s.trim()).join(' | ')}`);
 };

@@ -12,8 +12,10 @@ import PrivacySection from '../../components/legal/PrivacySection';
 import PrivacyContactCard from '../../components/legal/PrivacyContactCard';
 
 import { RotateCcw, Mail, Phone, MapPin, PackageOpen } from 'lucide-react';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 const ReturnPolicyPage: React.FC = () => {
+  const contact = useStoreContact();
   const breadcrumbItems = [
     { label: 'Return Policy' }
   ];
@@ -101,8 +103,8 @@ const ReturnPolicyPage: React.FC = () => {
               <PrivacySection title="9. Contact Us">
                 <p>Need help with a return? Reach out to us:</p>
                 <div className="flex flex-wrap gap-4 mt-6">
-                  <PrivacyContactCard icon={<Mail size={20} />} label="Email Us" detail="support@chillfi.com" />
-                  <PrivacyContactCard icon={<Phone size={20} />} label="Call Us" detail="+91 98765 43210" />
+                  <PrivacyContactCard icon={<Mail size={20} />} label="Email Us" detail={contact.email || 'Use the contact form'} />
+                  <PrivacyContactCard icon={<Phone size={20} />} label="Call Us" detail={contact.phone || '—'} />
                   <PrivacyContactCard
                     icon={<MapPin size={20} />}
                     label="Our Office"

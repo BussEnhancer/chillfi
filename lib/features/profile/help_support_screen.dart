@@ -1,3 +1,4 @@
+import 'package:chillfi/core/services/remote_config_service.dart';
 import 'package:chillfi/core/widgets/app_error_dialog.dart';
 import 'package:chillfi/features/profile/edit_profile_screen.dart';
 import 'package:chillfi/core/app_colors.dart';
@@ -52,12 +53,20 @@ class HelpSupportScreen extends StatelessWidget {
   Future<void> _open(BuildContext context, Uri uri) async {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) => false);
     if (!ok && context.mounted) {
-      AppErrorDialog.show(context, title: "Couldn't open that app", message: 'Please call or email us at support@chillfi.com.');
+      AppErrorDialog.show(context, title: "Couldn't open that app", message: 'Please try another way to reach us, or use the contact form on our website.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<StoreContact>(
+      future: RemoteConfigService.contact(),
+      builder: (context, snap) => _build(context, snap.data ?? StoreContact.empty),
+    );
+  }
+
+  Widget _build(BuildContext context, StoreContact c) {
+    void chat() => c.whatsappHref != null ? _open(context, Uri.parse(c.whatsappHref!)) : null;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -114,7 +123,7 @@ class HelpSupportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20.h),
-            const QuickHelpBanner(),
+            QuickHelpBanner(onChat: c.whatsappHref == null ? null : chat),
             
             SizedBox(height: 32.h),
             Text(
@@ -174,7 +183,7 @@ class HelpSupportScreen extends StatelessWidget {
                   title: "Other Issues",
                   subtitle: "Anything else? We're here to help",
                   iconColor: Colors.grey,
-                  onTap: () => launchUrl(Uri.parse('https://wa.me/919056224993'), mode: LaunchMode.externalApplication),
+                  onTap: c.whatsappHref == null ? () {} : chat,
                 ),
               ],
             ),
@@ -255,30 +264,30 @@ class HelpSupportScreen extends StatelessWidget {
                         child: ContactChannelCard(
                           icon: Icons.call_outlined,
                           label: "Call Us",
-                          value: "+91 90562 24993",
+                          value: c.phone ?? '—',
                           time: "9 AM – 9 PM",
                           color: Colors.purple,
-                          onTap: () => _open(context, Uri.parse('tel:+919056224993')),
+                          onTap: () { if (c.phoneHref != null) _open(context, Uri.parse(c.phoneHref!)); },
                         ),
                       ),
                       Expanded(
                         child: ContactChannelCard(
                           icon: Icons.chat_bubble_outline_rounded,
                           label: "WhatsApp",
-                          value: "+91 90562 24993",
+                          value: c.phone ?? '—',
                           time: "9 AM – 9 PM",
                           color: Colors.green,
-                          onTap: () => _open(context, Uri.parse('https://wa.me/919056224993')),
+                          onTap: chat,
                         ),
                       ),
                       Expanded(
                         child: ContactChannelCard(
                           icon: Icons.mail_outline_rounded,
                           label: "Email Us",
-                          value: "support@chillfi.com",
+                          value: c.email ?? '—',
                           time: "Response in 24h",
                           color: Colors.blue,
-                          onTap: () => _open(context, Uri.parse('mailto:support@chillfi.com')),
+                          onTap: () { if (c.email != null) _open(context, Uri.parse('mailto:${c.email}')); },
                         ),
                       ),
                     ],

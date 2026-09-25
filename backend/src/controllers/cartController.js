@@ -1,6 +1,6 @@
 const pool = require('../db/pool');
 const { getShippingFee } = require('../utils/shipping');
-const { getGstAmount } = require('../utils/tax');
+const { getIncludedGst } = require('../utils/tax');
 
 const getOrCreateCart = async (userId) => {
   let result = await pool.query('SELECT id FROM cart WHERE user_id = $1', [userId]);
@@ -28,7 +28,7 @@ const getCart = async (req, res) => {
   const subtotal = items.rows.reduce((s, i) => s + i.price * i.quantity, 0);
   const savings = items.rows.reduce((s, i) => s + (i.old_price ? (i.old_price - i.price) * i.quantity : 0), 0);
   const deliveryFee = items.rows.length ? await getShippingFee(req.query.pincode, subtotal) : 0;
-  const taxAmount = items.rows.length ? await getGstAmount(subtotal) : 0;
+  const taxAmount = items.rows.length ? await getIncludedGst(subtotal) : 0; // included in prices, not added
 
   res.json({
     success: true,
@@ -40,7 +40,8 @@ const getCart = async (req, res) => {
         savings: parseFloat(savings.toFixed(2)),
         delivery_fee: deliveryFee,
         tax_amount: taxAmount,
-        total: parseFloat((subtotal + deliveryFee + taxAmount).toFixed(2)),
+        gst_inclusive: true,
+        total: parseFloat((subtotal + deliveryFee).toFixed(2)),
       },
     },
   });

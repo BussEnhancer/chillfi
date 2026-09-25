@@ -29,8 +29,9 @@ const CartPage: React.FC = () => {
       .catch(() => { /* keep defaults */ });
   }, []);
   const deliveryFee = cartTotal === 0 || (pricing.freeEnabled && cartTotal >= pricing.threshold) ? 0 : pricing.fee;
-  const gst = Math.round(cartTotal * pricing.gstRate) / 100;
-  const estimatedTotal = cartTotal + deliveryFee + gst;
+  // Prices are GST-inclusive: GST is shown as the part already inside the price, never added.
+  const gst = Math.round((cartTotal * pricing.gstRate / (100 + pricing.gstRate)) * 100) / 100;
+  const estimatedTotal = cartTotal + deliveryFee;
   const recommendations = products.filter(p => p.status === 'Active' && !cart.find(c => c.id === p.id)).slice(0, 4);
 
   return (
@@ -120,8 +121,8 @@ const CartPage: React.FC = () => {
                   </div>
                   {gst > 0 && (
                     <div className="flex justify-between text-sm font-bold">
-                      <span className="text-gray-500">GST ({pricing.gstRate}%)</span>
-                      <span className="text-[#111827]">₹{gst.toLocaleString()}</span>
+                      <span className="text-gray-500">Includes GST ({pricing.gstRate}%)</span>
+                      <span className="text-gray-500">₹{gst.toLocaleString()}</span>
                     </div>
                   )}
                   {deliveryFee > 0 && pricing.freeEnabled && (

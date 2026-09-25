@@ -63,7 +63,8 @@ const TrackingOrderSummary: React.FC<TrackingOrderSummaryProps> = ({
            )}
            {taxAmount > 0 && (
              <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
-                <span>GST</span>
+                {/* Orders before 25 Sep 2026 added GST on top; newer orders include it in the price. */}
+                <span>{Math.abs(total - (subtotal + deliveryFee - discount)) < 0.01 ? 'Includes GST' : 'GST'}</span>
                 <span className="text-[#111827]">₹{taxAmount.toLocaleString()}</span>
              </div>
            )}

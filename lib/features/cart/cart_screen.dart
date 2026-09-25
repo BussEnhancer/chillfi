@@ -222,13 +222,12 @@ class _CartScreenState extends State<CartScreen> {
     final s = cart.summary;
     final coupon = cart.couponDiscount;
 
-    // GST must be calculated on the post-coupon subtotal (coupon first, then tax).
-    // The backend GET /cart returns tax on the full subtotal; adjust here when a
-    // coupon is active so the displayed total matches what the order engine charges.
+    // Prices are GST-inclusive: GST is informational (contained in the price, shrinks with a coupon)
+    // and is never added — the total is exactly what the order engine charges.
     final adjustedTax = (coupon > 0 && s.subtotal > 0)
         ? s.taxAmount * (s.subtotal - coupon) / s.subtotal
         : s.taxAmount;
-    final adjustedTotal = s.subtotal - coupon + s.deliveryFee + adjustedTax;
+    final adjustedTotal = s.subtotal - coupon + s.deliveryFee;
 
     return Container(
       padding: EdgeInsets.all(16.r),
@@ -242,7 +241,7 @@ class _CartScreenState extends State<CartScreen> {
           if (s.savings > 0) _priceRow('Discount', '-₹${s.savings.toStringAsFixed(0)}', valueColor: Colors.green),
           if (coupon > 0) _priceRow('Coupon Discount', '-₹${coupon.toStringAsFixed(0)}', valueColor: Colors.green),
           _priceRow('Delivery Fee', s.deliveryFee == 0 ? 'FREE' : '₹${s.deliveryFee.toStringAsFixed(0)}', valueColor: s.deliveryFee == 0 ? Colors.green : null),
-          if (adjustedTax > 0) _priceRow('GST (18%)', '₹${adjustedTax.toStringAsFixed(0)}'),
+          if (adjustedTax > 0) _priceRow('Includes GST', '₹${adjustedTax.toStringAsFixed(0)}', valueColor: AppColors.greyText),
           Divider(height: 20.h, color: const Color(0xFFEEEEEE)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -285,11 +284,8 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildCheckoutBar(CartProvider cart) {
     final s = cart.summary;
     final coupon = cart.couponDiscount;
-    // Same adjusted-tax logic as _buildPriceSummary
-    final adjustedTax = (coupon > 0 && s.subtotal > 0)
-        ? s.taxAmount * (s.subtotal - coupon) / s.subtotal
-        : s.taxAmount;
-    final adjustedTotal = s.subtotal - coupon + s.deliveryFee + adjustedTax;
+    // Same GST-inclusive total as _buildPriceSummary
+    final adjustedTotal = s.subtotal - coupon + s.deliveryFee;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),

@@ -2,7 +2,6 @@ import 'package:chillfi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SupportSearchBar extends StatelessWidget {
   const SupportSearchBar({super.key});
@@ -41,7 +40,8 @@ class SupportSearchBar extends StatelessWidget {
 }
 
 class QuickHelpBanner extends StatelessWidget {
-  const QuickHelpBanner({super.key});
+  final VoidCallback? onChat;
+  const QuickHelpBanner({super.key, this.onChat});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +82,7 @@ class QuickHelpBanner extends StatelessWidget {
           Column(
             children: [
               GestureDetector(
-                onTap: () => launchUrl(Uri.parse('https://wa.me/919056224993'), mode: LaunchMode.externalApplication),
+                onTap: onChat,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                   decoration: BoxDecoration(

@@ -3256,10 +3256,10 @@
    "id": "ADEF-18",
    "title": "Fake ratings/review counts (e.g. 4.3 / 52,000 reviews with 0 real reviews) shown on app & website",
    "severity": "High",
-   "status": "Fixed (local DB)",
+   "status": "Fixed",
    "root_cause": "seed.sql inserted fabricated rating/review_count",
-   "fix": "Seed zeroed; scripts/recalc-ratings.js recomputes from reviews (applied locally; production needs approval)",
-   "retest": "Local: 9 products corrected"
+   "fix": "scripts/recalc-ratings.js --apply on production (owner-approved): 9 products corrected",
+   "retest": "Prod API: 0 products with rating but no reviews"
   },
   {
    "id": "ADEF-19",
@@ -3562,10 +3562,10 @@
    "id": "ADEF-53",
    "title": "Fonts (Poppins via google_fonts) are downloaded at runtime from fonts.gstatic.com — offline/first launch falls back to system font and logs unhandled exceptions",
    "severity": "Medium",
-   "status": "Open",
+   "status": "Fixed",
    "root_cause": "No bundled font assets",
-   "fix": "Bundle Poppins TTFs (OFL) in assets/fonts + GoogleFonts.config.allowRuntimeFetching=false — needs owner OK to download font files",
-   "retest": "—"
+   "fix": "Poppins (SIL OFL) bundled in assets/fonts, runtime fetching off, licence registered",
+   "retest": "Emulator: no font errors; Poppins renders"
   },
   {
    "id": "ADEF-54",
@@ -3602,6 +3602,24 @@
    "root_cause": "Refresh failure treated as logout; no single-flight; backend returned 401 for DB errors",
    "fix": "Single-flight refresh; sign out only on 400/401/403; transient → 'server busy'; backend 401 only for invalid tokens",
    "retest": "Code + analyzer (expired-session path re-verified on emulator)"
+  },
+  {
+   "id": "ADEF-58",
+   "title": "App Checkout/Payment totals with a coupon kept GST on the full subtotal (shown ≠ charged)",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Coupon not applied to tax in those screens",
+   "fix": "Inclusive model: total = subtotal − coupon + delivery",
+   "retest": "Emulator: cart/checkout/payment ₹999, Includes GST ₹152"
+  },
+  {
+   "id": "ADEF-59",
+   "title": "Dead code with fake data: mock profile/order widgets (rahul.sharma@example.com, Lucknow address), unreachable Forgot Password screen, OTP screen default fake phone",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Unused files",
+   "fix": "Removed; phoneNumber required",
+   "retest": "Analyzer clean"
   }
  ],
  "blockers": [

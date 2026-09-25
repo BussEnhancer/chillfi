@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import SupportContactCard from '../../components/support/SupportContactCard';
 import { Phone, MessageCircle, Mail, ChevronRight, HelpCircle } from 'lucide-react';
+import { useStoreContact } from '../../utils/useStoreContact';
 
-// TODO(owner): confirm real support phone (website shows +91 98765 43210, the app uses +91 90562 24993)
-const SUPPORT_PHONE = '+91 98765 43210';
-const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/\D/g, '');
-const SUPPORT_EMAIL = 'support@chillfi.com';
 
 const quickFaqs = [
   { q: 'How do I track my order?', a: 'Go to My Account → My Orders and open your order to see live Delhivery tracking once it has been shipped.' },
@@ -16,6 +13,7 @@ const quickFaqs = [
 ];
 
 const SupportContactSection: React.FC = () => {
+  const contact = useStoreContact();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -33,25 +31,25 @@ const SupportContactSection: React.FC = () => {
                 icon={<Phone size={24} />}
                 title="Call Us"
                 desc="Mon – Sun | 9 AM – 9 PM"
-                detail={SUPPORT_PHONE}
+                detail={contact.phone || '—'}
                 buttonText="Call Now"
-                href={`tel:+${SUPPORT_PHONE_DIGITS}`}
+                href={contact.phoneHref || '/contact'}
               />
               <SupportContactCard
                 icon={<MessageCircle size={24} />}
                 title="WhatsApp Us"
                 desc="Chat on WhatsApp for quick help"
                 buttonText="Chat on WhatsApp"
-                href={`https://wa.me/${SUPPORT_PHONE_DIGITS}`}
+                href={contact.whatsappHref || '/contact'}
                 color="#22C55E"
               />
               <SupportContactCard
                 icon={<Mail size={24} />}
                 title="Email Us"
                 desc="Response within 24 hours"
-                detail={SUPPORT_EMAIL}
+                detail={contact.email || '—'}
                 buttonText="Email Us"
-                href={`mailto:${SUPPORT_EMAIL}`}
+                href={contact.email ? `mailto:${contact.email}` : '/contact'}
               />
            </div>
         </div>

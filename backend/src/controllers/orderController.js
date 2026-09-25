@@ -1,7 +1,7 @@
 const pool = require('../db/pool');
 const { getShippingFee, checkoutServiceability } = require('../utils/shipping');
 const { openAutoRefund } = require('../utils/refunds');
-const { getGstAmount } = require('../utils/tax');
+const { getIncludedGst } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
 const { notifyUser } = require('../utils/notify');
@@ -103,8 +103,9 @@ const createOrder = async (req, res) => {
     }
   }
 
-  const taxAmount = await getGstAmount(subtotal - discount);
-  const total = parseFloat((subtotal + deliveryFee - discount + taxAmount).toFixed(2));
+  // GST-inclusive prices: tax_amount is the GST already contained in the (post-coupon) item value.
+  const taxAmount = await getIncludedGst(subtotal - discount);
+  const total = parseFloat((subtotal + deliveryFee - discount).toFixed(2));
   const orderNumber = generateOrderNumber();
 
   // Create order in transaction

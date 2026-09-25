@@ -12,8 +12,10 @@ import PrivacySection from '../../components/legal/PrivacySection';
 import PrivacyContactCard from '../../components/legal/PrivacyContactCard';
 
 import { FileText, Mail, Phone, MapPin, Scale } from 'lucide-react';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 const TermsConditionsPage: React.FC = () => {
+  const contact = useStoreContact();
   const breadcrumbItems = [
     { label: 'Terms & Conditions' }
   ];
@@ -57,7 +59,7 @@ const TermsConditionsPage: React.FC = () => {
                 <PrivacySection title="3. Products & Pricing">
                    <p>We strive to display accurate product information and pricing. However, errors may occur.</p>
                    <p>We reserve the right to correct any errors and cancel orders if the product is unavailable or incorrectly priced.</p>
-                   <p>All prices are in INR and inclusive/exclusive of applicable taxes as mentioned.</p>
+                   <p>All prices are in INR and inclusive of GST and other applicable taxes. Delivery charges, if any, are shown separately at checkout.</p>
                 </PrivacySection>
 
                 <PrivacySection title="4. Orders & Payments">
@@ -102,12 +104,12 @@ const TermsConditionsPage: React.FC = () => {
                       <PrivacyContactCard
                         icon={<Mail size={20} />}
                         label="Email Us"
-                        detail="support@chillfi.com"
+                        detail={contact.email || 'Use the contact form'}
                       />
                       <PrivacyContactCard
                         icon={<Phone size={20} />}
                         label="Call Us"
-                        detail="+91 98765 43210"
+                        detail={contact.phone || '—'}
                       />
                       <PrivacyContactCard
                         icon={<MapPin size={20} />}

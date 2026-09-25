@@ -1,7 +1,9 @@
 import React from 'react';
 import { Mail, Clock } from 'lucide-react';
+import { useStoreContact } from '../../utils/useStoreContact';
 
 const OfficeInfoCard: React.FC = () => {
+  const contact = useStoreContact();
   return (
     <div className="bg-white border border-[#ECECEC] rounded-[24px] p-8 shadow-sm h-full">
       <h3 className="text-sm font-black text-[#111827] uppercase tracking-wider mb-8">Support Hours</h3>
@@ -12,9 +14,9 @@ const OfficeInfoCard: React.FC = () => {
           <Mail size={24} className="text-[#FF6B2C] shrink-0 mt-1" />
           <div>
             <h4 className="text-sm font-black text-[#111827] mb-2 uppercase tracking-wider">Email</h4>
-            <a href="mailto:support@chillfi.com" className="text-xs font-bold text-gray-500 hover:text-[#FF6B2C]">
-              support@chillfi.com
-            </a>
+            {contact.email
+              ? <a href={`mailto:${contact.email}`} className="text-xs font-bold text-gray-500 hover:text-[#FF6B2C]">{contact.email}</a>
+              : <p className="text-xs font-bold text-gray-500">Use the contact form</p>}
           </div>
         </div>
 
