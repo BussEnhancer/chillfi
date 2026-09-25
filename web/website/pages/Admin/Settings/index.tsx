@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw, Rocket } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import GoLiveChecklist from '../../../components/admin/GoLiveChecklist';
 import { useStore } from '../../../context/StoreContext';
 import { apiGet, apiPost, apiPut } from '../../../utils/api';
 import { showErrorDialog } from '../../../components/feedback/ErrorDialog';
 import DelhiveryStatusPanel from '../../../components/admin/DelhiveryStatusPanel';
 
 const tabs = [
+  { id: 'golive', label: 'Go-Live', icon: <Rocket size={16} /> },
   { id: 'store', label: 'Store Info', icon: <Store size={16} /> },
   { id: 'shipping', label: 'Shipping', icon: <Truck size={16} /> },
   { id: 'payment', label: 'Payment', icon: <CreditCard size={16} /> },
@@ -77,7 +80,10 @@ const asBool = (v: string | undefined, fallback: boolean) => v === undefined ? f
 
 const AdminSettings: React.FC = () => {
   const { settings, setSettings } = useStore();
-  const [activeTab, setActiveTab] = useState('store');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTabState] = useState(() => (tabs.some(t => t.id === searchParams.get('tab')) ? searchParams.get('tab')! : 'golive'));
+  // Tab lives in the URL (?tab=apikeys) so the checklist / dashboard can deep-link to it.
+  const setActiveTab = (id: string) => { setActiveTabState(id); setSearchParams({ tab: id }, { replace: true }); };
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -291,6 +297,7 @@ const AdminSettings: React.FC = () => {
               <button onClick={() => window.location.reload()} className="shrink-0 px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black">Reload</button>
             </div>
           )}
+          {activeTab === 'golive' && <GoLiveChecklist onGo={setActiveTab} />}
           {activeTab === 'store' && (
             <>
               <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
@@ -550,7 +557,7 @@ const AdminSettings: React.FC = () => {
             );
           })()}
 
-          {activeTab !== 'apikeys' && <div className="flex justify-end">
+          {activeTab !== 'apikeys' && activeTab !== 'golive' && <div className="flex justify-end">
             <button onClick={handleSave} disabled={saving || loadFailed} className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors disabled:opacity-60">
               {saving ? <><Loader2 size={16} className="animate-spin" />Saving...</> : <><Save size={16} /> Save Changes</>}
             </button>

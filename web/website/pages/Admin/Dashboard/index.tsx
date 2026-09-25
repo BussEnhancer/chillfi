@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { TrendingUp, ShoppingCart, Package, Users, ArrowUpRight, ArrowDownRight, Eye, ChevronRight } from 'lucide-react';
 import { apiGet, friendlyError } from '../../../utils/api';
+import { loadLaunchStatus, LaunchItem } from '../../../components/admin/GoLiveChecklist';
 
 const statusStyle: Record<string, string> = {
   Delivered: 'bg-green-50 text-green-600',
@@ -22,6 +23,25 @@ interface DashData {
   monthly_revenue: Array<{ month: string; revenue: number }>;
   changes?: { revenue: number | null; orders: number | null; users: number | null };
 }
+
+// Shown until every required launch item is done (admins only; staff can't see Dashboard).
+const GoLiveBanner: React.FC = () => {
+  const [items, setItems] = React.useState<LaunchItem[] | null>(null);
+  React.useEffect(() => { loadLaunchStatus(true).then(d => setItems(d.items)).catch(() => {}); }, []);
+  if (!items) return null;
+  const req = items.filter(i => !i.optional && !i.manual);
+  const pending = req.filter(i => !i.done);
+  if (!pending.length) return null;
+  return (
+    <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FFF8F5] border border-[#FFD8C7] rounded-2xl px-5 py-4">
+      <div>
+        <p className="text-sm font-black text-[#111827]">Go-Live checklist: {req.length - pending.length} of {req.length} done</p>
+        <p className="text-xs font-bold text-gray-500 mt-0.5">Pending: {pending.map(i => i.title).join(' · ')}</p>
+      </div>
+      <Link to="/admin/settings?tab=golive" className="shrink-0 px-4 py-2 rounded-xl bg-[#FF6B2C] text-white text-xs font-black text-center">Open checklist</Link>
+    </div>
+  );
+};
 
 const AdminDashboard: React.FC = () => {
   const [dash, setDash] = useState<DashData | null>(null);
@@ -71,6 +91,7 @@ const AdminDashboard: React.FC = () => {
       {loadError && (
         <div className="mb-6 bg-red-50 border border-red-100 text-red-600 text-sm font-bold rounded-2xl px-5 py-4">{loadError}</div>
       )}
+      <GoLiveBanner />
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
         {stats.map((s, i) => (

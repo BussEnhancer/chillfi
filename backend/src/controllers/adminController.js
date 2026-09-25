@@ -254,6 +254,62 @@ const getLoginActivity = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// GET /admin/launch-status — Go-Live checklist: every launch item's live status, computed from real config.
+const SAMPLE = { phone: '+91 98765 43210', gstin: '29AABCU9603R1ZM', address: /tech park, whitefield/i };
+const getLaunchStatus = async (req, res, next) => {
+  try {
+    const fs = require('fs'); const os = require('os'); const path = require('path');
+    const phonepe = require('../utils/phonepe');
+    const { isEmailConfigured } = require('../utils/mailer');
+    const { isSmsConfigured } = require('../utils/sms');
+    const { GSTIN_RE } = require('../utils/invoice');
+    const s = Object.fromEntries((await pool.query('SELECT key, value FROM store_settings')).rows.map((r) => [r.key, r.value]));
+    const pp = await phonepe.getConfig();
+    const dl = await delhivery.getConfig();
+    const dlMissing = delhivery.configProblems(dl);
+    const gstin = String(s.gst_number || '').toUpperCase();
+    const items = [];
+    const add = (key, title, done, detail, fix, optional = false) => items.push({ key, title, done: !!done, detail, fix, optional });
+
+    add('payments', 'Online payments live (PhonePe)', pp.env === 'PRODUCTION' && !phonepe.configProblems(pp).length,
+      pp.env === 'PRODUCTION' ? (phonepe.configProblems(pp).length ? 'PRODUCTION selected but keys missing' : 'Live — real payments accepted')
+        : phonepe.sandboxInProduction(pp) ? 'Test mode — online payment is switched off for customers (COD only)' : 'Test (UAT) mode — fine for development', 'apikeys');
+    add('shipping', 'Delhivery live shipping', dl.env === 'production' && !dlMissing.length,
+      dl.env === 'production' ? (dlMissing.length ? `Production selected but missing: ${dlMissing.join(', ')}` : `Live — pickup location "${dl.pickupLocation || ''}"`)
+        : 'Test (staging) mode — orders are not booked with Delhivery for real', 'apikeys');
+    add('cod', 'Cash on Delivery', true, s.cod_enabled === 'false' ? 'Switched OFF store-wide' : 'ON — confirm COD is enabled on your live Delhivery account', 'shipping');
+    const minV = s.min_app_version || '1.0.0';
+    add('app', 'Customers on app v1.0.3+ (force update)', s.force_update_enabled === 'true' && require('../utils/versions').atLeast(minV, '1.0.3'),
+      s.force_update_enabled === 'true' ? `Force update ON, minimum ${minV}` : 'Turn on after v1.0.3 is live on Google Play (older app shows GST on top)', 'store');
+    add('invoices', 'GST tax invoices', s.invoices_enabled === 'true' && GSTIN_RE.test(gstin) && gstin !== SAMPLE.gstin,
+      gstin === SAMPLE.gstin ? 'GSTIN is still the sample value' : !GSTIN_RE.test(gstin) ? 'Enter your 15-character GSTIN' : s.invoices_enabled === 'true' ? 'ON' : 'GSTIN set — switch on "Issue GST Tax Invoices"', 'store');
+    const sampleContact = (s.store_phone || '') === SAMPLE.phone || SAMPLE.address.test(s.store_address || '');
+    add('contact', 'Real contact details', !sampleContact && !!s.store_phone && !!(s.support_email || s.store_email),
+      sampleContact ? 'Phone / address are still sample values' : 'Set', 'store');
+    const emailOk = await isEmailConfigured();
+    add('email', 'Order emails (SMTP)', emailOk, emailOk ? 'Configured — use "Send test email" to confirm' : 'Not set up — customers get in-app + push only', 'apikeys');
+    const smsOk = await isSmsConfigured();
+    add('sms', 'SMS order updates (MSG91)', smsOk, smsOk ? 'ON' : 'Optional — needs a DLT-approved template', 'apikeys', true);
+
+    // Backups (nightly timer writes ~/db-backups/backup.log on the server)
+    const logFile = process.env.BACKUP_LOG || path.join(os.homedir(), 'db-backups', 'backup.log');
+    let lastBackup = null;
+    try { const lines = fs.readFileSync(logFile, 'utf8').trim().split('\n'); lastBackup = lines[lines.length - 1]; } catch { /* no log */ }
+    const lastAt = lastBackup ? new Date(lastBackup.split(' ')[0]) : null;
+    const fresh = lastAt && Date.now() - lastAt.getTime() < 26 * 3600e3;
+    add('backups', 'Nightly database backup', fresh, lastAt ? `Last backup ${lastAt.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (${lastBackup.split(' ').pop()})${fresh ? '' : ' — older than 26 h!'}` : 'No backup found on this server', null);
+    add('uptime', 'Uptime monitor (external)', null, 'Can\'t be checked from here — set up UptimeRobot on https://chillfi.in/api/health', null, false);
+    items[items.length - 1].manual = true;
+
+    let disk = null;
+    try { const st = fs.statfsSync('/'); disk = { free_gb: +(st.bavail * st.bsize / 1e9).toFixed(1), total_gb: +(st.blocks * st.bsize / 1e9).toFixed(1) }; } catch { /* older node */ }
+    res.json({ success: true, data: {
+      items,
+      server: { node: process.version, uptime_h: +(process.uptime() / 3600).toFixed(1), memory_free_mb: Math.round(os.freemem() / 1e6), memory_total_mb: Math.round(os.totalmem() / 1e6), disk },
+    } });
+  } catch (err) { next(err); }
+};
+
 // GET /admin/alerts — actionable counts for the header bell (staff sees only what it can act on).
 const getAdminAlerts = async (req, res, next) => {
   try {
@@ -945,7 +1001,7 @@ const sendPushNotification = async (req, res, next) => {
 };
 
 module.exports = {
-  getAdminAlerts, sendTestEmail, getLoginActivity,
+  getAdminAlerts, sendTestEmail, getLoginActivity, getLaunchStatus,
   getDashboardStats, getAnalytics,
   getUsers, updateUserStatus, updateUserRole,
   getBanners, createBanner, updateBanner, deleteBanner,

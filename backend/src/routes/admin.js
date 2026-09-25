@@ -11,7 +11,7 @@ const {
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
   getReviews, deleteReview, toggleReviewVerified,
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
-  getSettings, updateSettings, getAdminAlerts, sendTestEmail, getLoginActivity,
+  getSettings, updateSettings, getAdminAlerts, sendTestEmail, getLoginActivity, getLaunchStatus,
   getCredentials, updateCredentials,
   uploadImage, deleteImage,
   sendPushNotification,
@@ -118,6 +118,7 @@ router.delete('/categories/:id', adminOnly, deleteCategory);
 router.get('/alerts', staffOrAdmin, getAdminAlerts);
 router.post('/email/test', adminOnly, sendTestEmail);
 router.get('/login-activity', adminOnly, getLoginActivity);
+router.get('/launch-status', adminOnly, getLaunchStatus);
 router.get('/orders', staffOrAdmin, adminGetOrders);
 router.put('/orders/:id/status', adminOnly, adminUpdateStatus);
 router.post('/orders/:id/ship', adminOnly, adminShipOrder);
