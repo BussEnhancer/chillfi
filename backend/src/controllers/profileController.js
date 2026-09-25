@@ -46,7 +46,17 @@ const uploadAvatar = async (req, res, next) => {
     const { id: userId } = req.user;
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-    const result = await uploadToCloudinary(req.file.buffer, 'chillfi/avatars');
+    let result;
+    try {
+      result = await uploadToCloudinary(req.file.buffer, 'chillfi/avatars');
+    } catch (e) {
+      // Upload-service problems are for the admin (logged); customers get a plain message.
+      if (e.status === 503) {
+        console.warn(`[profile] avatar upload unavailable: ${e.message}`);
+        return res.status(503).json({ success: false, message: "Photo upload isn't available right now. Please try again later." });
+      }
+      throw e;
+    }
     const updated = await pool.query(
       `UPDATE users SET avatar_url=$1, updated_at=NOW() WHERE id=$2 RETURNING id, name, email, phone, avatar_url, role`,
       [result.secure_url, userId]

@@ -1,4 +1,7 @@
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
 import 'package:chillfi/features/auth/widgets/notification_widgets.dart';
@@ -293,7 +296,16 @@ class _NotificationPermissionScreenState extends State<NotificationPermissionScr
                                   width: 327.w,
                                   child: PrimaryGradientButton(
                                     text: 'Allow Notifications',
-                                    onTap: () {
+                                    onTap: () async {
+                                      // Shows the system prompt (Android 13+/iOS); then registers this device for push.
+                                      try {
+                                        final s = await FirebaseMessaging.instance.requestPermission();
+                                        if (s.authorizationStatus == AuthorizationStatus.authorized ||
+                                            s.authorizationStatus == AuthorizationStatus.provisional) {
+                                          if (context.mounted) context.read<AuthProvider>().registerPushToken();
+                                        }
+                                      } catch (_) {}
+                                      if (!context.mounted) return;
                                       Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(builder: (context) => HomeDashboardScreen()),

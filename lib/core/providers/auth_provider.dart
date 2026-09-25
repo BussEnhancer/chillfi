@@ -57,6 +57,9 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Re-registers this device for push (e.g. right after the user grants notification permission).
+  Future<void> registerPushToken() => _saveFcmToken();
+
   Future<void> _saveFcmToken() async {
     try {
       final token = await FirebaseMessaging.instance.getToken();

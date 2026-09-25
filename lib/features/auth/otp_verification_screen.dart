@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
-import 'package:chillfi/features/auth/location_permission_screen.dart';
+import 'package:chillfi/features/auth/notification_permission_screen.dart';
 import 'package:chillfi/features/auth/reset_password_screen.dart';
 import 'package:chillfi/features/auth/widgets/login_widgets.dart';
 import 'package:chillfi/features/auth/widgets/otp_widgets.dart';
@@ -74,7 +74,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
     if (success) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LocationPermissionScreen()),
+        MaterialPageRoute(builder: (_) => const NotificationPermissionScreen()),
         (route) => false,
       );
     } else {

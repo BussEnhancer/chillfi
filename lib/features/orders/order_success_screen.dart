@@ -75,8 +75,10 @@ class OrderSuccessScreen extends StatelessWidget {
               SizedBox(height: 12.h),
               TextButton(
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
+                  // Capture the navigator first: this screen's context is gone after popUntil.
+                  final nav = Navigator.of(context);
+                  nav.popUntil((route) => route.isFirst);
+                  nav.push(MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
                 },
                 child: Text('View My Orders', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.secondaryPurple)),
               ),

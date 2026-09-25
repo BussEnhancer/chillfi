@@ -765,10 +765,10 @@
      "pre": "Just logged in",
      "steps": "Open",
      "expected": "Benefits list renders",
-     "actual": "Screens appear only after a real OTP login",
-     "status": "BLOCKED",
-     "evidence": "",
-     "defect": "BLK-01",
+     "actual": "Location permission screen removed — the app never used location (manual addresses); 'Allow' requested nothing",
+     "status": "NOT APPLICABLE",
+     "evidence": "code",
+     "defect": "ADEF-54",
      "retest": ""
     },
     {
@@ -777,10 +777,10 @@
      "pre": "Just logged in",
      "steps": "Tap",
      "expected": "OS permission prompt appears (or honest skip), then continues",
-     "actual": "Screens appear only after a real OTP login",
-     "status": "BLOCKED",
-     "evidence": "",
-     "defect": "BLK-01",
+     "actual": "Location permission screen removed — the app never used location (manual addresses); 'Allow' requested nothing",
+     "status": "NOT APPLICABLE",
+     "evidence": "code",
+     "defect": "ADEF-54",
      "retest": ""
     },
     {
@@ -789,10 +789,10 @@
      "pre": "Just logged in",
      "steps": "Tap",
      "expected": "Continues without permission",
-     "actual": "Screens appear only after a real OTP login",
-     "status": "BLOCKED",
-     "evidence": "",
-     "defect": "BLK-01",
+     "actual": "Location permission screen removed — the app never used location (manual addresses); 'Allow' requested nothing",
+     "status": "NOT APPLICABLE",
+     "evidence": "code",
+     "defect": "ADEF-54",
      "retest": ""
     },
     {
@@ -801,9 +801,9 @@
      "pre": "Just logged in",
      "steps": "Tap",
      "expected": "OS notification permission requested (Android 13+), then Home",
-     "actual": "Screens appear only after a real OTP login",
+     "actual": "'Allow Notifications' now actually requests permission + registers push token (was a dead button); reaching the screen needs OTP login (BLK-01)",
      "status": "BLOCKED",
-     "evidence": "",
+     "evidence": "code",
      "defect": "BLK-01",
      "retest": ""
     },
@@ -1917,11 +1917,11 @@
      "pre": "Order just placed",
      "steps": "Tap",
      "expected": "Back to Home",
-     "actual": "Button present; not re-run after rebuild",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
-     "retest": ""
+     "actual": "Order CF6331193645 placed → Continue Shopping → Home, cart emptied; View My Orders fixed to use captured navigator",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_order_success.png, app_continue_shopping.png",
+     "defect": "ADEF-56",
+     "retest": "Retested"
     },
     {
      "id": "APP-24-04",
@@ -2417,10 +2417,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Pick image",
      "expected": "Uploaded and shown",
-     "actual": "Needs image picker interaction with gallery on emulator",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Upload needs real Cloudinary keys (BLK-03); customer now sees 'Photo upload isn't available right now' instead of admin text; non-image → 400",
+     "status": "BLOCKED",
+     "evidence": "curl",
+     "defect": "BLK-03",
      "retest": ""
     }
    ]
@@ -2505,10 +2505,10 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Order status changes (Delhivery event)",
      "expected": "Push received on device, deduplicated",
-     "actual": "Needs FCM token on device (Firebase login) — covered by BLK-01",
-     "status": "NOT TESTED",
-     "evidence": "",
-     "defect": "",
+     "actual": "Needs a signed-in real session with FCM token (Firebase test number BLK-01); permission now requested in context and token registered on grant",
+     "status": "BLOCKED",
+     "evidence": "code",
+     "defect": "BLK-01",
      "retest": ""
     }
    ]
@@ -2901,9 +2901,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Expired access token",
      "expected": "Refreshed silently or sent to login cleanly",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Expired JWT + failing refresh → clean signed-out welcome flow, no error dialog/crash; backend outage → offline state, cached user kept",
+     "status": "PASS",
+     "evidence": "qa-tools/results/app_expired_session.png",
      "defect": "",
      "retest": ""
     },
@@ -3041,9 +3041,9 @@
      "pre": "Logged in as DLV-TEST customer; backend reachable",
      "steps": "Invalid number / quota",
      "expected": "Friendly mapped text, never raw Firebase message",
-     "actual": "",
-     "status": "NOT TESTED",
-     "evidence": "",
+     "actual": "Invalid number → 'Enter a valid 10-digit mobile number' (live). Firebase codes (network/quota/too-many) mapped to friendly text, default never raw (code-verified; live quota test needs BLK-01 test number — not sent to real numbers)",
+     "status": "PASS",
+     "evidence": "emulator + auth_service.dart",
      "defect": "",
      "retest": ""
     },
@@ -3557,6 +3557,42 @@
    "root_cause": "GET /products/:id and cart/add ignored Inactive; client didn't distinguish 404",
    "fix": "404 'no longer available', cart refuses Inactive, app/web unavailable states, search always refetches",
    "retest": "Emulator + website verified"
+  },
+  {
+   "id": "ADEF-53",
+   "title": "Fonts (Poppins via google_fonts) are downloaded at runtime from fonts.gstatic.com — offline/first launch falls back to system font and logs unhandled exceptions",
+   "severity": "Medium",
+   "status": "Open",
+   "root_cause": "No bundled font assets",
+   "fix": "Bundle Poppins TTFs (OFL) in assets/fonts + GoogleFonts.config.allowRuntimeFetching=false — needs owner OK to download font files",
+   "retest": "—"
+  },
+  {
+   "id": "ADEF-54",
+   "title": "Permission onboarding was fake: 'Allow Location Access' requested nothing (no location use) and 'Allow Notifications' only navigated; real notification prompt fired at cold start without context",
+   "severity": "Medium",
+   "status": "Fixed",
+   "root_cause": "Buttons unwired; requestPermission in main()",
+   "fix": "Removed location step; notification permission requested on Allow + push token registered; no cold-start prompt",
+   "retest": "Fresh install: no prompt at launch"
+  },
+  {
+   "id": "ADEF-55",
+   "title": "Avatar upload failure showed admin setup instructions to customers",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Shared upload error text",
+   "fix": "Customer-safe 503 message",
+   "retest": "curl"
+  },
+  {
+   "id": "ADEF-56",
+   "title": "Order success 'View My Orders' pushed with a popped screen's context (possible crash); dead QuickActionsGrid with unwired 'Download Invoice'",
+   "severity": "Low",
+   "status": "Fixed",
+   "root_cause": "Stale context; dead code",
+   "fix": "Captured navigator; removed dead widgets",
+   "retest": "Emulator verified"
   }
  ],
  "blockers": [

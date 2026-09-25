@@ -41,8 +41,7 @@ Future<void> _initNotifications() async {
       );
     }
   });
-
-  await FirebaseMessaging.instance.requestPermission();
+  // Permission is requested in context (Notification permission screen), not at cold start.
 }
 
 void main() async {
