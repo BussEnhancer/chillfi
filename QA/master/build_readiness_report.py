@@ -42,7 +42,7 @@ story += [kt, Spacer(1, 10 * mm),
                   'including all 7 must-fix items, every "should fix soon" item, and a round of hardening found while doing that work '
                   '(short staff sessions, hashed tokens/OTP codes, stricter input limits, an admin change-history log). '
                   'What remains is only the owner\'s part: the 6 switch-over steps after client testing, the email domain, '
-                  'the Play upload of build 6, the uptime monitor and pushing the code. The original analysis (sections 1-25) follows unchanged for reference.', GREEN, '#F0FDF4'),
+                  'the Play upload of build 6 and the uptime monitor. The original analysis (sections 1-25) follows unchanged for reference.', GREEN, '#F0FDF4'),
           Spacer(1, 4 * mm),
           callout('<b>Original verdict (25 Sep, before fixes).</b> The shop is built, tested and live on chillfi.in, and is safe to use for the client\'s testing right now '
                   '(online payment is locked off, Delhivery is in test mode). It is <b>not yet ready for real customers</b>: '
@@ -432,7 +432,7 @@ story += [h1('20. Infrastructure, backups and monitoring'), *bullets([
     '<b>Monitoring</b>: /api/health checks API + database. <b>Owner</b>: create an UptimeRobot (free) keyword monitor on https://chillfi.in/api/health for "ok", 5-minute interval, alerts to email + phone app.',
     '<b>TLS</b>: Let\'s Encrypt valid to 5 Nov 2026; confirm the renewal timer once (sudo certbot renew --dry-run).',
     '<b>Capacity</b>: fine for launch. Move to t3.small (2 GB) when traffic grows — first confirm the IP is an Elastic IP.',
-    '<b>Code backup</b>: GitHub (thesonushah1-dot/chillfi) last updated 6 Jun 2026; 55 newer commits exist only locally and on the server — push them (with your OK).']),
+    '<b>Code backup</b>: <font color="#15803D"><b>Done 26 Sep</b></font> — pushed to GitHub (BussEnhancer/chillfi, branch delhivery-integration, 73 commits). The original thesonushah1-dot/chillfi repo was inaccessible from this machine, so the owner created a new repo and granted push access instead.']),
     h1('21. Email and domain'), *bullets([
     '<b>chillfi.in has no MX record</b> — mail to help@chillfi.in (shown on the website, app, invoices and policies) cannot be delivered. Either set up mailboxes (Zoho Mail / Google Workspace: add their MX records) or show an address that works today.',
     '<b>No SPF or DMARC</b> — once order emails are sent from @chillfi.in they are likely to land in spam. Add the SPF and DKIM records your email provider gives you, and a DMARC record (start with p=none).',
