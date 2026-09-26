@@ -9,7 +9,7 @@ import Container from '../../components/common/Container';
 import AuthHeroSection from '../../components/auth/AuthHeroSection';
 import CheckoutTrustStrip from '../../sections/Checkout/CheckoutTrustStrip';
 import { ChevronRight, Smartphone, ArrowLeft, Loader2, CheckCircle2, RefreshCw } from 'lucide-react';
-import { apiPost } from '../../utils/api';
+import { apiGet, apiPost } from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 import { friendlyError } from '../../utils/api';
 
@@ -29,6 +29,16 @@ const LoginPage: React.FC = () => {
   const from = /^\/(?![\/\\])/.test(rawFrom) ? rawFrom : '/';
 
   useEffect(() => { if (isLoggedIn) navigate(from, { replace: true }); }, [isLoggedIn]);
+
+  // Admin-selected OTP provider (Settings → API Keys → OTP). 'firebase' uses the native SDK below
+  // (reCAPTCHA + Firebase's own fraud checks); anything else routes through the backend's own
+  // send-otp/verify-otp, with that provider doing the actual SMS delivery + verification.
+  const [otpProvider, setOtpProvider] = useState('firebase');
+  useEffect(() => { apiGet<{ data: { provider: string } }>('/auth/otp-config').then(r => setOtpProvider(r.data.provider)).catch(() => {}); }, []);
+  // Explicit allow-list, not "!== firebase": OTP_PROVIDER has stale/never-activated values (2factor,
+  // msg91, fast2sms) left over from earlier scaffolding — only messagecentral has an actual backend
+  // OTP flow wired up here today. Everything else, including any unrecognised value, stays on Firebase.
+  const useNativeFirebase = otpProvider !== 'messagecentral';
 
   const [tab, setTab] = useState<Tab>('login');
   const [step, setStep] = useState<Step>('phone');
@@ -86,15 +96,19 @@ const LoginPage: React.FC = () => {
     }
     setLoading(true); setError('');
     try {
-      const verifier = getRecaptchaVerifier();
-      const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
-      confirmationRef.current = result;
+      if (useNativeFirebase) {
+        const verifier = getRecaptchaVerifier();
+        const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
+        confirmationRef.current = result;
+      } else {
+        await apiPost('/auth/send-otp', { phone, purpose: tab === 'register' ? 'signup' : 'login' });
+      }
       setStep('otp');
       startTimer();
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (e: any) {
-      setError(firebaseErrorMsg(e.code) ?? 'Failed to send OTP. Try again.');
-      recaptchaRef.current?.clear(); recaptchaRef.current = null;
+      setError(useNativeFirebase ? (firebaseErrorMsg(e.code) ?? 'Failed to send OTP. Try again.') : friendlyError(e, 'Failed to send OTP. Try again.'));
+      if (useNativeFirebase) { recaptchaRef.current?.clear(); recaptchaRef.current = null; }
     } finally {
       setLoading(false);
     }
@@ -103,19 +117,23 @@ const LoginPage: React.FC = () => {
   const handleVerify = async () => {
     if (otpValue.length < OTP_LENGTH) { setError('Enter the 6-digit OTP'); return; }
     if (tab === 'register' && !name.trim()) { setError('Please enter your name'); return; }
-    if (!confirmationRef.current) { setError('Session expired. Please go back and request a new OTP.'); return; }
+    if (useNativeFirebase && !confirmationRef.current) { setError('Session expired. Please go back and request a new OTP.'); return; }
     setLoading(true); setError('');
     try {
-      const credential = await confirmationRef.current.confirm(otpValue);
-      const idToken = await credential.user.getIdToken();
-      const res = await apiPost<{ success: boolean; data: { user: any; accessToken: string; refreshToken: string } }>(
-        '/auth/firebase-verify',
-        { idToken, name: name.trim() || undefined, email: email.trim() || undefined }
-      );
+      let res: { success: boolean; data: { user: any; accessToken: string; refreshToken: string } };
+      if (useNativeFirebase) {
+        const credential = await confirmationRef.current!.confirm(otpValue);
+        const idToken = await credential.user.getIdToken();
+        res = await apiPost('/auth/firebase-verify', { idToken, name: name.trim() || undefined, email: email.trim() || undefined });
+      } else if (tab === 'register') {
+        res = await apiPost('/auth/signup', { name: name.trim(), phone, email: email.trim() || undefined, otp: otpValue });
+      } else {
+        res = await apiPost('/auth/verify-otp', { phone, otp: otpValue });
+      }
       loginUser(res.data.accessToken, res.data.refreshToken);
       navigate(from, { replace: true });
     } catch (e: any) {
-      setError(firebaseErrorMsg(e.code) ?? friendlyError(e, 'Verification failed. Try again.'));
+      setError(useNativeFirebase ? (firebaseErrorMsg(e.code) ?? friendlyError(e, 'Verification failed. Try again.')) : friendlyError(e, 'Verification failed. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -150,14 +168,18 @@ const LoginPage: React.FC = () => {
     if (timer > 0) return;
     setLoading(true); setError(''); setOtp(['', '', '', '', '', '']);
     try {
-      const verifier = getRecaptchaVerifier();
-      const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
-      confirmationRef.current = result;
+      if (useNativeFirebase) {
+        const verifier = getRecaptchaVerifier();
+        const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
+        confirmationRef.current = result;
+      } else {
+        await apiPost('/auth/send-otp', { phone, purpose: tab === 'register' ? 'signup' : 'login' });
+      }
       startTimer();
       setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (e: any) {
-      setError(firebaseErrorMsg(e.code) ?? 'Failed to resend OTP. Try again.');
-      recaptchaRef.current?.clear(); recaptchaRef.current = null;
+      setError(useNativeFirebase ? (firebaseErrorMsg(e.code) ?? 'Failed to resend OTP. Try again.') : friendlyError(e, 'Failed to resend OTP. Try again.'));
+      if (useNativeFirebase) { recaptchaRef.current?.clear(); recaptchaRef.current = null; }
     } finally {
       setLoading(false);
     }

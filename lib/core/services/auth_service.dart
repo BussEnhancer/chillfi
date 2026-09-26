@@ -16,6 +16,19 @@ class AuthResult {
 class AuthService {
   final _api = ApiService();
 
+  // ─── Which OTP provider is active (Settings → API Keys → OTP) ──────────────
+  // 'firebase' → use the native Firebase SDK flow below. Anything else → the backend
+  // send-otp/verify-otp/signup flow, with that provider doing the actual SMS delivery.
+
+  Future<String> getOtpProvider() async {
+    try {
+      final res = await _api.get('/auth/otp-config');
+      return res.data['data']['provider'] as String? ?? 'firebase';
+    } catch (_) {
+      return 'firebase';
+    }
+  }
+
   // ─── Send OTP (always via backend — backend handles Firebase/SMS delivery) ──
 
   Future<AuthResult> sendOtp(String phone, {String purpose = 'login'}) async {

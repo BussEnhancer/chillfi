@@ -824,8 +824,10 @@ const updateSettings = async (req, res, next) => {
 // ── API Credentials ────────────────────────────────────────────────────────
 
 const CREDENTIAL_KEYS = [
-  { key: 'OTP_PROVIDER', label: 'OTP Provider', group: 'otp', secret: false, options: ['firebase', '2factor', 'msg91', 'fast2sms'] },
+  { key: 'OTP_PROVIDER', label: 'OTP Provider', group: 'otp', secret: false, options: ['firebase', 'messagecentral', '2factor', 'msg91', 'fast2sms'] },
   { key: 'FIREBASE_WEB_API_KEY', label: 'Firebase Web API Key', group: 'otp', secret: true },
+  { key: 'MESSAGECENTRAL_CUSTOMER_ID', label: 'MessageCentral Customer ID', group: 'otp', secret: false },
+  { key: 'MESSAGECENTRAL_AUTH_KEY', label: 'MessageCentral Base64 Key (from your MessageCentral dashboard)', group: 'otp', secret: true },
   { key: 'TWO_FACTOR_API_KEY', label: '2Factor.in API Key', group: 'otp', secret: true },
   { key: 'MSG91_AUTH_KEY', label: 'MSG91 Auth Key', group: 'otp', secret: true },
   { key: 'MSG91_TEMPLATE_ID', label: 'MSG91 Template ID', group: 'otp', secret: false },

@@ -57,6 +57,52 @@ const sendViaFast2SMS = async (phone, otp, apiKey) => {
   throw new Error(response.data?.message || 'Unknown Fast2SMS error');
 };
 
+// ─── MessageCentral (VerifyNow) ──────────────────────────────────────────────
+// Docs: https://www.messagecentral.com/product/verify-now/api-india
+// Provider-side verification (like Firebase): send() returns a verificationId to store,
+// validateOtp() checks the code against MessageCentral — we never see or hash the code ourselves.
+const MC_BASE = 'https://cpaas.messagecentral.com';
+let mcTokenCache = { token: null, at: 0, customerId: null };
+const MC_TOKEN_TTL_MS = 60 * 60 * 1000; // MessageCentral doesn't publish an exact TTL — re-fetch hourly to be safe
+
+const getMessageCentralToken = async (customerId, authKey) => {
+  if (mcTokenCache.token && mcTokenCache.customerId === customerId && Date.now() - mcTokenCache.at < MC_TOKEN_TTL_MS) {
+    return mcTokenCache.token;
+  }
+  const response = await axios.get(`${MC_BASE}/auth/v1/authentication/token`, {
+    params: { customerId, key: authKey, scope: 'NEW', country: '91' },
+    headers: { accept: '*/*' },
+  });
+  if (response.data?.status !== 200 || !response.data?.token) {
+    throw new Error(`MessageCentral auth failed: ${JSON.stringify(response.data).slice(0, 200)}`);
+  }
+  mcTokenCache = { token: response.data.token, at: Date.now(), customerId };
+  return mcTokenCache.token;
+};
+
+const sendViaMessageCentral = async (phone, customerId, authKey) => {
+  const token = await getMessageCentralToken(customerId, authKey);
+  const response = await axios.post(`${MC_BASE}/verification/v3/send`, null, {
+    params: { countryCode: '91', flowType: 'SMS', mobileNumber: phone, customerId },
+    headers: { authToken: token },
+  });
+  const data = response.data?.data;
+  if (response.data?.responseCode !== 200 || !data?.verificationId) {
+    throw new Error(data?.errorMessage || response.data?.message || 'Unknown MessageCentral error');
+  }
+  console.log('✅ MessageCentral SMS sent');
+  return data.verificationId;
+};
+
+const verifyViaMessageCentral = async (verificationId, code, customerId, authKey) => {
+  const token = await getMessageCentralToken(customerId, authKey);
+  const response = await axios.get(`${MC_BASE}/verification/v3/validateOtp`, {
+    params: { verificationId, code, flowType: 'SMS' },
+    headers: { authToken: token },
+  });
+  return response.data?.data?.verificationStatus === 'VERIFICATION_COMPLETED';
+};
+
 // ─── Firebase Phone Auth via REST API ────────────────────────────────────────
 // Returns sessionInfo (used later in verifyViaFirebase).
 // Pass an optional clientToken (recaptchaToken for web, safetyNetToken for Android).
@@ -99,6 +145,14 @@ const sendOTP = async (phone, otp, clientToken = '') => {
       if (!webApiKey) { console.log('⚠️  FIREBASE_WEB_API_KEY not set'); return notConfigured(); }
       const sessionInfo = await sendViaFirebase(phone, webApiKey, clientToken);
       return { sent: true, sessionInfo };
+    }
+
+    if (provider === 'messagecentral') {
+      const customerId = await getSetting('MESSAGECENTRAL_CUSTOMER_ID');
+      const authKey = await getSetting('MESSAGECENTRAL_AUTH_KEY');
+      if (!customerId || !authKey) { console.log('⚠️  MessageCentral credentials not configured'); return notConfigured(); }
+      const verificationId = await sendViaMessageCentral(phone, customerId, authKey);
+      return { sent: true, verificationId };
     }
 
     if (provider === 'msg91') {
@@ -156,9 +210,9 @@ const createOTPSession = async (phone, purpose = 'login', clientToken = '') => {
 
   const result = await sendOTP(phone, otp, clientToken);
 
-  // Firebase returns a sessionInfo token instead of the client entering a backend-generated OTP.
-  // Store sessionInfo in the otp column so verifyOTP can detect and handle it.
-  const storedValue = result.sessionInfo || hashOtp(otp);
+  // Firebase/MessageCentral verify the code themselves — we store their session/verification id
+  // instead of our own OTP hash, so verifyOTP knows to check with the provider, not compare locally.
+  const storedValue = result.sessionInfo || (result.verificationId ? `mc:${result.verificationId}` : null) || hashOtp(otp);
   await pool.query(
     `INSERT INTO otp_sessions (phone, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)`,
     [phone, storedValue, purpose, expiresAt]
@@ -188,7 +242,16 @@ const verifyOTP = async (phone, otp, purpose = 'login') => {
 
   let valid = false;
 
-  if (isFirebaseSessionInfo(session.otp)) {
+  if (session.otp.startsWith('mc:')) {
+    try {
+      const customerId = await getSetting('MESSAGECENTRAL_CUSTOMER_ID');
+      const authKey = await getSetting('MESSAGECENTRAL_AUTH_KEY');
+      if (!customerId || !authKey) return false;
+      valid = await verifyViaMessageCentral(session.otp.slice(3), otp, customerId, authKey);
+    } catch {
+      valid = false;
+    }
+  } else if (isFirebaseSessionInfo(session.otp)) {
     // Firebase provider — verify code against Firebase REST API
     try {
       const webApiKey = await getSetting('FIREBASE_WEB_API_KEY');

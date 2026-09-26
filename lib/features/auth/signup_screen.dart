@@ -95,7 +95,35 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     final signupName = _nameController.text.trim();
     final signupEmail = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
     setState(() => _isLoading = true);
-    context.read<AuthProvider>().verifyPhoneFirebase(
+    final auth = context.read<AuthProvider>();
+
+    final provider = await auth.getOtpProvider();
+    if (!mounted) return;
+
+    // Explicit allow-list, not "!= firebase": OTP_PROVIDER has stale values (2factor, msg91,
+    // fast2sms) left over from earlier scaffolding, never actually wired to this screen — only
+    // messagecentral is real today.
+    if (provider == 'messagecentral') {
+      final ok = await auth.sendOtp(phone, purpose: 'signup');
+      try { setState(() => _isLoading = false); } catch (_) {}
+      if (!mounted) return;
+      if (ok) {
+        navigator.push(MaterialPageRoute(
+          builder: (_) => OtpVerificationScreen(
+            phoneNumber: phone,
+            isFromSignup: true,
+            signupName: signupName,
+            signupEmail: signupEmail,
+            useBackendOtp: true,
+          ),
+        ));
+      } else {
+        AppErrorDialog.show(context, message: AppError.message(auth.message, fallback: "Couldn't send OTP"), title: "Couldn't send OTP");
+      }
+      return;
+    }
+
+    auth.verifyPhoneFirebase(
       phone,
       codeSent: (verificationId, _) {
         try { setState(() => _isLoading = false); } catch (_) {}

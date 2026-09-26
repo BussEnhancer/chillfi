@@ -21,6 +21,9 @@ class OtpVerificationScreen extends StatefulWidget {
   final bool isFromSignup;
   final String? signupName;
   final String? signupEmail;
+  // true when the admin has selected a non-Firebase OTP provider (e.g. MessageCentral) — the code
+  // is verified against our own backend (verify-otp / signup) instead of Firebase's SDK.
+  final bool useBackendOtp;
   const OtpVerificationScreen({
     super.key,
     required this.phoneNumber,
@@ -29,6 +32,7 @@ class OtpVerificationScreen extends StatefulWidget {
     this.isFromSignup = false,
     this.signupName,
     this.signupEmail,
+    this.useBackendOtp = false,
   });
 
   @override
@@ -57,21 +61,27 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
       return;
     }
 
-    // Login & signup both use Firebase phone auth
-    final verificationId = _verificationId;
-    if (verificationId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session expired. Please go back and try again.'), backgroundColor: Colors.red),
+    bool success;
+    if (widget.useBackendOtp) {
+      // Non-Firebase provider (e.g. MessageCentral) — the backend verifies the code itself.
+      success = widget.isFromSignup
+          ? await auth.signup(widget.signupName ?? '', widget.phoneNumber, _enteredOtp, email: widget.signupEmail)
+          : await auth.verifyOtpLogin(widget.phoneNumber, _enteredOtp);
+    } else {
+      final verificationId = _verificationId;
+      if (verificationId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Session expired. Please go back and try again.'), backgroundColor: Colors.red),
+        );
+        return;
+      }
+      success = await auth.firebaseVerify(
+        verificationId,
+        _enteredOtp,
+        name: widget.signupName,
+        email: widget.signupEmail,
       );
-      return;
     }
-
-    final success = await auth.firebaseVerify(
-      verificationId,
-      _enteredOtp,
-      name: widget.signupName,
-      email: widget.signupEmail,
-    );
     if (!mounted) return;
     if (success) {
       Navigator.pushAndRemoveUntil(
@@ -84,6 +94,39 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
         SnackBar(content: Text(AppError.message(auth.message, fallback: 'Verification failed. Please try again.')), backgroundColor: Colors.red),
       );
     }
+  }
+
+  Future<void> _onResend() async {
+    if (widget.useBackendOtp) {
+      final ok = await context.read<AuthProvider>().sendOtp(
+            widget.phoneNumber,
+            purpose: widget.isFromSignup ? 'signup' : 'login',
+          );
+      if (!mounted) return;
+      if (ok) {
+        _startCountdown();
+      } else {
+        final msg = context.read<AuthProvider>().message;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppError.message(msg, fallback: "Couldn't resend OTP. Please try again.")), backgroundColor: Colors.red),
+        );
+      }
+      return;
+    }
+    context.read<AuthProvider>().verifyPhoneFirebase(
+      widget.phoneNumber,
+      codeSent: (newVerificationId, resendToken) {
+        if (!mounted) return;
+        setState(() => _verificationId = newVerificationId);
+        _startCountdown();
+      },
+      onFailed: (error) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppError.message(error, fallback: "Couldn't resend OTP. Please try again.")), backgroundColor: Colors.red),
+        );
+      },
+    );
   }
 
   @override
@@ -323,23 +366,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> with Sing
                                       style: GoogleFonts.poppins(fontSize: 13.sp, color: AppColors.greyText),
                                     ),
                                     GestureDetector(
-                                      onTap: _secondsLeft == 0
-                                          ? () {
-                                              context.read<AuthProvider>().verifyPhoneFirebase(
-                                                widget.phoneNumber,
-                                                codeSent: (newVerificationId, resendToken) {
-                                                  setState(() => _verificationId = newVerificationId);
-                                                  _startCountdown();
-                                                },
-                                                onFailed: (error) {
-                                                  if (!mounted) return;
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(AppError.message(error, fallback: "Couldn't resend OTP. Please try again.")), backgroundColor: Colors.red),
-                                                  );
-                                                },
-                                              );
-                                            }
-                                          : null,
+                                      onTap: _secondsLeft == 0 ? _onResend : null,
                                       child: Text(
                                         _secondsLeft == 0 ? 'Resend OTP' : 'Resend in ${_secondsLeft}s',
                                         style: GoogleFonts.poppins(

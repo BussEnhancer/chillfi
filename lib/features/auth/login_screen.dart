@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     // Primary Button
                     PrimaryGradientButton(
                       text: _isSending ? 'Sending OTP...' : 'Send OTP',
-                      onTap: () {
+                      onTap: () async {
                         if (_isSending) return;
                         final auth = context.read<AuthProvider>();
                         final phone = _phoneController.text.trim();
@@ -232,6 +232,32 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         auth.setPhone(phone);
                         final navigator = Navigator.of(context);
                         setState(() => _isSending = true);
+
+                        final provider = await auth.getOtpProvider();
+                        if (!mounted) return;
+
+                        // Explicit allow-list, not "!= firebase": OTP_PROVIDER has stale values
+                        // (2factor, msg91, fast2sms) left over from earlier scaffolding, never
+                        // actually wired to this screen — only messagecentral is real today.
+                        if (provider == 'messagecentral') {
+                          final ok = await auth.sendOtp(phone, purpose: 'login');
+                          try { setState(() => _isSending = false); } catch (_) {}
+                          if (!ok) {
+                            if (mounted) {
+                              AppErrorDialog.show(context, message: AppError.message(auth.message, fallback: "Couldn't send OTP"), title: "Couldn't send OTP");
+                            }
+                            return;
+                          }
+                          if (!mounted) return;
+                          navigator.push(MaterialPageRoute(
+                            builder: (_) => OtpVerificationScreen(
+                              phoneNumber: phone,
+                              useBackendOtp: true,
+                            ),
+                          ));
+                          return;
+                        }
+
                         auth.verifyPhoneFirebase(
                           phone,
                           codeSent: (verificationId, _) {

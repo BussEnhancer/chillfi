@@ -69,6 +69,8 @@ class AuthProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
+  Future<String> getOtpProvider() => _authService.getOtpProvider();
+
   Future<bool> sendOtp(String phone, {String purpose = 'login'}) async {
     _state = AuthState.loading;
     notifyListeners();
