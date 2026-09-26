@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
+const { isStaff, STAFF_ACCESS_MAX_SEC } = require('../utils/jwt');
 
 const authenticate = async (req, res, next) => {
   const header = req.headers.authorization;
@@ -12,6 +13,10 @@ const authenticate = async (req, res, next) => {
     const result = await pool.query('SELECT id, name, email, phone, role, avatar_url, is_active FROM users WHERE id = $1', [decoded.id]);
     if (!result.rows.length || !result.rows[0].is_active) {
       return res.status(401).json({ success: false, message: 'User not found or inactive' });
+    }
+    // Staff sessions: tokens issued more than an hour ago must be refreshed (also covers older 7-day tokens).
+    if (isStaff(result.rows[0].role) && decoded.iat && Date.now() / 1000 - decoded.iat > STAFF_ACCESS_MAX_SEC) {
+      return res.status(401).json({ success: false, message: 'Session expired. Please sign in again.' });
     }
     req.user = result.rows[0];
     next();

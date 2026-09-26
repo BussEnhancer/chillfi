@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/pool');
 const { createOTPSession, verifyOTP, checkOtpRateLimit } = require('../utils/otp');
-const { generateTokens, revokeRefreshToken } = require('../utils/jwt');
+const { generateTokens, revokeRefreshToken, findRefreshToken, isStaff, STAFF_REFRESH_MAX_SEC } = require('../utils/jwt');
 const { getSetting } = require('../utils/settings');
 const { getFirebaseApp } = require('../utils/firebase');
 
@@ -212,12 +212,16 @@ const refreshToken = async (req, res, next) => {
   }
   // Only a rejected token is a 401 (client signs out); database/other failures are 5xx so clients keep the session.
   try {
-    const result = await pool.query(
-      'SELECT id FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()',
-      [token]
-    );
-    if (!result.rows.length) {
+    const stored = await findRefreshToken(token);
+    if (!stored) {
       return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+    }
+    // Blocked / deleted accounts can't keep a session alive; staff must sign in again after 12 h.
+    const u = (await pool.query('SELECT role, is_active FROM users WHERE id = $1', [decoded.id])).rows[0];
+    const staffTooOld = u && isStaff(u.role) && decoded.iat && Date.now() / 1000 - decoded.iat > STAFF_REFRESH_MAX_SEC;
+    if (!u || !u.is_active || staffTooOld) {
+      await revokeRefreshToken(token);
+      return res.status(401).json({ success: false, message: 'Session expired. Please sign in again.' });
     }
     await revokeRefreshToken(token);
     const { accessToken, refreshToken: newRefresh } = await generateTokens(decoded.id);
@@ -260,7 +264,7 @@ const firebaseVerify = async (req, res, next) => {
     if (!fbApp) return res.status(503).json({ success: false, message: 'Phone sign-in is temporarily unavailable. Please try again later.' });
 
     const { getAuth } = require('firebase-admin/auth');
-    const decoded = await getAuth(fbApp).verifyIdToken(idToken);
+    const decoded = await getAuth(fbApp).verifyIdToken(idToken, true);
     const firebasePhone = decoded.phone_number; // e.g. "+919876543210"
     if (!firebasePhone) return res.status(400).json({ success: false, message: 'No phone number in Firebase token' });
 
