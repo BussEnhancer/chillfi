@@ -17,6 +17,9 @@ const updateProfile = async (req, res, next) => {
   try {
     const { id: userId } = req.user;
     const { avatar_url } = req.body;
+    if (avatar_url != null && avatar_url !== '' && !/^https:\/\/[^\s]{4,500}$/.test(String(avatar_url))) {
+      return res.status(400).json({ success: false, message: 'Please upload the photo again.' });
+    }
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : req.body.name;
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : req.body.email;
     if (name !== undefined && name !== null && name.length < 2) {
@@ -122,6 +125,12 @@ const getNotificationPreferences = async (req, res, next) => {
 const updateNotificationPreferences = async (req, res, next) => {
   try {
     const { id: userId } = req.user;
+    // Preferences are simple on/off switches with short names.
+    const prefs = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    const entries = Object.entries(prefs);
+    if (entries.length > 40 || entries.some(([k, v]) => !/^[A-Za-z_]{1,40}$/.test(k) || typeof v !== 'boolean')) {
+      return res.status(400).json({ success: false, message: 'Invalid notification preferences.' });
+    }
     const result = await pool.query(
       `UPDATE users SET notification_preferences=notification_preferences || $1::jsonb, updated_at=NOW() WHERE id=$2 RETURNING notification_preferences`,
       [JSON.stringify(req.body || {}), userId]
@@ -177,7 +186,7 @@ const requestDeleteByPhone = async (req, res, next) => {
       if (!fbApp) return res.status(503).json({ success: false, message: 'Phone verification is temporarily unavailable. Please try again later.' });
       const { getAuth } = require('firebase-admin/auth');
       let decoded;
-      try { decoded = await getAuth(fbApp).verifyIdToken(idToken); }
+      try { decoded = await getAuth(fbApp).verifyIdToken(idToken, true); }
       catch { return res.status(401).json({ success: false, message: 'Your verification expired. Please verify your number again.' }); }
       if (!decoded.phone_number) return res.status(400).json({ success: false, message: 'No phone number in the verification' });
       phone = decoded.phone_number.replace(/^\+91/, '');

@@ -13,14 +13,16 @@ const getProducts = async (req, res) => {
   const {
     category, brand, search, status,
     sort = 'created_at', order = 'DESC',
-    page = 1, limit = 20,
     min_price, max_price,
   } = req.query;
 
-  const offset = (page - 1) * limit;
-  const values = [];
   // The admin list (/api/admin/products) must also show Inactive products so they can be re-activated.
   const adminList = String(req.baseUrl || '').endsWith('/admin');
+  // Page size: 100 max for the shop, 1000 for the (staff-only) admin list.
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), adminList ? 1000 : 100);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const offset = (page - 1) * limit;
+  const values = [];
   const conditions = adminList ? [] : [`p.status != 'Inactive'`];
 
   if (status && status !== 'all') {
@@ -45,7 +47,7 @@ const getProducts = async (req, res) => {
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const allowedSort = { price: 'p.price', rating: 'p.rating', newest: 'p.created_at', name: 'p.name' };
   const sortCol = allowedSort[sort] || 'p.created_at';
-  const sortDir = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+  const sortDir = String(order).toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
   const query = `
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name, c.name as category_name,
@@ -105,7 +107,7 @@ const getProduct = async (req, res) => {
 
 // GET /api/products/trending
 const getTrending = async (req, res) => {
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
   const result = await pool.query(`
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
@@ -119,7 +121,7 @@ const getTrending = async (req, res) => {
 
 // GET /api/products/new-arrivals
 const getNewArrivals = async (req, res) => {
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
   const result = await pool.query(`
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
@@ -133,7 +135,7 @@ const getNewArrivals = async (req, res) => {
 
 // GET /api/products/flash-sale
 const getFlashSale = async (req, res) => {
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
   const result = await pool.query(`
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       ROUND(((p.old_price - p.price) / p.old_price * 100)) as discount_pct,
@@ -149,7 +151,7 @@ const getFlashSale = async (req, res) => {
 
 // GET /api/products/featured
 const getFeatured = async (req, res) => {
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
   const result = await pool.query(`
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image
@@ -164,7 +166,7 @@ const getFeatured = async (req, res) => {
 // GET /api/products/recommended  (user-specific or top-rated fallback)
 const getRecommended = async (req, res) => {
   const userId = req.user?.id;
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
 
   let result;
   if (userId) {
@@ -251,8 +253,11 @@ const addReview = async (req, res) => {
   if (reviewsSetting.rows[0]?.value === 'false') {
     return res.status(403).json({ success: false, message: 'Reviews are turned off at the moment. Please try again later.' });
   }
-  if (!rating || rating < 1 || rating > 5) {
-    return res.status(400).json({ success: false, message: 'Rating 1-5 required' });
+  if (!Number.isInteger(Number(rating)) || rating < 1 || rating > 5) {
+    return res.status(400).json({ success: false, message: 'Please choose a rating from 1 to 5 stars.' });
+  }
+  if ((title && String(title).length > 120) || (body && String(body).length > 2000)) {
+    return res.status(400).json({ success: false, message: 'Please keep the title under 120 and the review under 2,000 characters.' });
   }
 
   // A review is a "verified purchase" only when the reviewer has a delivered order containing this product.
@@ -313,7 +318,7 @@ const logRecentlyViewed = async (req, res) => {
 
 // GET /api/products/recently-viewed
 const getRecentlyViewed = async (req, res) => {
-  const { limit = 10 } = req.query;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
   const result = await pool.query(`
     SELECT p.*, b.name as brand_name, (SELECT name FROM categories WHERE id = p.category_id) as category_name,
       (SELECT url FROM product_images WHERE product_id = p.id AND is_primary = TRUE LIMIT 1) as primary_image,

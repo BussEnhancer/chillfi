@@ -16,8 +16,14 @@ const generateOrderNumber = () => {
 
 // POST /api/orders
 const createOrder = async (req, res) => {
-  const { address_id, payment_method = 'COD', coupon_id: rawCouponId, coupon_code, notes } = req.body;
+  const { address_id, coupon_id: rawCouponId, coupon_code } = req.body;
   if (!address_id) return res.status(400).json({ success: false, message: 'Delivery address required' });
+  // Only the methods the app/website offer; "cod" in any case means COD. Notes are capped.
+  const PAYMENT_METHODS = ['COD', 'PhonePe', 'UPI', 'Card', 'NetBanking', 'Wallet'];
+  const rawMethod = String(req.body.payment_method || 'COD');
+  const payment_method = rawMethod.toUpperCase() === 'COD' ? 'COD' : PAYMENT_METHODS.find((m) => m.toLowerCase() === rawMethod.toLowerCase());
+  if (!payment_method) return res.status(400).json({ success: false, message: 'Please choose a valid payment method.' });
+  const notes = typeof req.body.notes === 'string' ? req.body.notes.trim().slice(0, 500) : null;
 
   // Resolve coupon: accept either coupon_id (UUID) or coupon_code (string from Flutter)
   let coupon_id = rawCouponId;
@@ -149,6 +155,12 @@ const createOrder = async (req, res) => {
         if (usage_limit > 0 && used_count >= usage_limit) {
           await client.query('ROLLBACK');
           return res.status(400).json({ success: false, message: 'This coupon has reached its usage limit' });
+        }
+        // Re-checked under the coupon lock: two simultaneous orders can't both use a one-per-customer coupon.
+        const usedByMe = await client.query('SELECT 1 FROM coupon_usage WHERE coupon_id = $1 AND user_id = $2', [coupon_id, req.user.id]);
+        if (usedByMe.rows.length) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ success: false, message: "You've already used this coupon." });
         }
       }
     }

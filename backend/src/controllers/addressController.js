@@ -85,8 +85,10 @@ const deleteAddress = async (req, res) => {
 // PUT /api/addresses/:id/set-default
 const setDefault = async (req, res) => {
   const { id } = req.params;
-  await pool.query('UPDATE addresses SET is_default = FALSE WHERE user_id = $1', [req.user.id]);
-  await pool.query('UPDATE addresses SET is_default = TRUE WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+  // Check ownership first — otherwise a wrong id would clear the customer's current default.
+  const own = await pool.query('SELECT 1 FROM addresses WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+  if (!own.rows.length) return res.status(404).json({ success: false, message: 'Address not found' });
+  await pool.query('UPDATE addresses SET is_default = (id = $1) WHERE user_id = $2', [id, req.user.id]);
   res.json({ success: true, message: 'Default address updated' });
 };
 
