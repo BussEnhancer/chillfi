@@ -41,7 +41,7 @@ story += [kt, Spacer(1, 10 * mm),
           callout('<b>Update 26 Sep — every developer item in this report is now done, tested and deployed</b> (section 0), '
                   'including all 7 must-fix items, every "should fix soon" item, and a round of hardening found while doing that work '
                   '(short staff sessions, hashed tokens/OTP codes, stricter input limits, an admin change-history log). '
-                  'What remains is only the owner\'s part: the 6 switch-over steps after client testing, the Play App Signing certificate in Firebase (added automatically after the Play upload — the upload key\'s fingerprints are already there), the email domain, '
+                  'What remains is only the owner\'s part: the 6 switch-over steps after client testing, the email domain, '
                   'the Play upload of build 6, the uptime monitor and pushing the code. The original analysis (sections 1-25) follows unchanged for reference.', GREEN, '#F0FDF4'),
           Spacer(1, 4 * mm),
           callout('<b>Original verdict (25 Sep, before fixes).</b> The shop is built, tested and live on chillfi.in, and is safe to use for the client\'s testing right now '
@@ -61,7 +61,7 @@ story += [P('0. Update — what was fixed after this analysis', 'h1'), P('0a. Th
                  ['F1', 'PhonePe return page', '<font color="#15803D"><b>Fixed + live</b></font>', 'Return URL carries the transaction id; "pending" shows "Payment processing" instead of "failed"; test: callback no longer "Missing transaction ID"'],
                  ['F2', 'Backend test login 9876543210', '<font color="#15803D"><b>Fixed + live</b></font>', 'Only when NODE_ENV=development (production server confirmed NODE_ENV=production)'],
                  ['F3', 'In-app account deletion', '<font color="#15803D"><b>Verified</b></font> (app build 6)', 'Settings › Delete account — tested end-to-end on the emulator (account removed, app returns to Welcome); staff accounts refused'],
-                 ['F4', 'Firebase SHA fingerprints', '<font color="#15803D"><b>Already done</b></font>', 'Corrected 26 Sep: the upload key\'s SHA-1/SHA-256 were already registered in Firebase (an earlier check read a stale local file). Only the Play App Signing certificate is still needed, added automatically after the Play upload (step 3 below)'],
+                 ['F4', 'Firebase SHA fingerprints', '<font color="#15803D"><b>Done</b></font>', 'Corrected 26 Sep: 6 fingerprints registered in Firebase — debug keystore, upload key, and the Play App Signing key (the app had an earlier Play upload, so this was already available). Nothing left to add here; test real OTP on a real phone when convenient'],
                  ['F5', 'Website Delete Account', '<font color="#15803D"><b>Fixed + live</b></font>', 'Uses Firebase phone verification like Login; on chillfi.in it reaches Google reCAPTCHA (previously used a path that never sent SMS)'],
                  ['F6', 'Dependency advisories', '<font color="#15803D"><b>Fixed + live</b></font>', 'Backend 14 → 0 (nodemailer 10, send verified); website 2 moderate react-router advisories not reachable here (SSR / redirect path guarded)'],
                  ['F7', 'PhonePe webhook hardening', '<font color="#15803D"><b>Fixed + live</b></font>', 'Refused when keys missing; paid amount must match (tested: ₹1 "success" for a ₹799 order is not marked Paid)']],
