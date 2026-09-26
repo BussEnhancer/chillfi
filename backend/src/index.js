@@ -15,7 +15,6 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 const allowedOrigins = [
-  'http://3.111.32.220',       // production EC2 website (legacy plain-HTTP IP access)
   'https://chillfi.in',        // production custom domain
   'https://www.chillfi.in',
   'https://chillfi.web.app',   // Firebase Hosting default domain
@@ -34,7 +33,11 @@ app.use(cors({
   credentials: true,
   exposedHeaders: ['Content-Disposition'], // invoice file names for browser downloads
 }));
-app.use(morgan('dev'));
+// Request log without query strings on webhooks (a courier token can be passed as ?token=).
+morgan.token('safe-url', (req) => (req.originalUrl || '').replace(/([?&](token|key|secret)=)[^&]*/gi, '$1***'));
+app.use(morgan(process.env.NODE_ENV === 'production'
+  ? ':remote-addr :method :safe-url :status :res[content-length] - :response-time ms'
+  : ':method :safe-url :status :response-time ms'));
 
 // Global rate limit: 200 req/min per IP (generous for legitimate use, blocks scrapers/attacks).
 // RATE_LIMIT_MAX may raise it only outside production (local automated QA runs from one IP).
@@ -60,7 +63,7 @@ app.use('/api/cart/apply-coupon', tightLimit(20));
 const contactLimit = tightLimit(5);
 app.use('/api/contact', (req, res, next) => (req.method === 'POST' ? contactLimit(req, res, next) : next()));
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '2mb' })); // images go through multipart uploads, not JSON
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
