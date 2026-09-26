@@ -16,6 +16,13 @@ const delhivery = require('../utils/delhivery');
 const { getSetting } = require('../utils/settings');
 const { notifyUser } = require('../utils/notify');
 const { mapDelhiveryStatus, isTerminal, rankOf, labelOf, NOTIFY } = require('../utils/shipmentStatus');
+const { renderTemplate } = require('../utils/emailTemplates');
+
+// shippingStatus → email-templates key (subject/body admin-editable in Settings → Email Templates)
+const STATUS_TEMPLATE = {
+  manifested: 'shipment_manifested', in_transit: 'order_shipped', out_for_delivery: 'order_out_for_delivery',
+  delivered: 'order_delivered', rto_in_transit: 'shipment_returning', rto_delivered: 'order_returned', cancelled: 'shipment_cancelled',
+};
 
 const log = (msg) => console.log(`[shipping] ${msg}`);
 const MAX_AUTO_ATTEMPTS = 5;
@@ -238,9 +245,10 @@ const applyCourierUpdate = async (u, { source, raw, applyState = true } = {}) =>
 
   if (notifyOrder) {
     if (attemptFailed) {
+      const instructions = u.instructions ? ` (${u.instructions})` : '';
+      const { subject, body } = await renderTemplate('delivery_attempt_failed', { order_number: notifyOrder.order_number, instructions });
       await notifyUser(notifyOrder.user_id, {
-        title: 'Delivery attempt unsuccessful',
-        body: `Delhivery could not deliver order ${notifyOrder.order_number}${u.instructions ? ` (${u.instructions})` : ''}. They will re-attempt.`,
+        title: subject, body,
         data: { order_id: notifyOrder.id, awb: u.awb, shipping_status: 'delivery_attempt_failed' },
         dedupeKey: `order:${notifyOrder.id}:attempt_failed:${u.status_time ? u.status_time.toISOString() : Date.now()}`,
         storeSettingKey: 'notify_order_shipped',
@@ -255,9 +263,11 @@ const applyCourierUpdate = async (u, { source, raw, applyState = true } = {}) =>
 const sendStatusNotification = async (order, shippingStatus) => {
   const n = NOTIFY[shippingStatus];
   if (!n) return null;
+  const { subject, body } = await renderTemplate(STATUS_TEMPLATE[shippingStatus] || shippingStatus, {
+    order_number: order.order_number, tracking_id: order.tracking_id || '',
+  });
   return notifyUser(order.user_id, {
-    title: n.title,
-    body: n.body(order),
+    title: subject, body,
     data: { order_id: order.id, order_number: order.order_number, awb: order.tracking_id || '', shipping_status: shippingStatus },
     dedupeKey: `order:${order.id}:${shippingStatus}`,
     storeSettingKey: n.pref,
@@ -265,9 +275,9 @@ const sendStatusNotification = async (order, shippingStatus) => {
 };
 
 const notifyOrderConfirmed = async (order) => {
+  const { subject, body } = await renderTemplate('order_confirmed', { order_number: order.order_number, total: order.total });
   const r = await notifyUser(order.user_id, {
-    title: 'Order confirmed',
-    body: `Your order ${order.order_number} for ₹${order.total} has been placed.`,
+    title: subject, body,
     data: { order_id: order.id, order_number: order.order_number },
     dedupeKey: `order:${order.id}:placed`,
     storeSettingKey: 'notify_order_placed',

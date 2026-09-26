@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw, Rocket } from 'lucide-react';
+import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw, Rocket, Mail } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import GoLiveChecklist from '../../../components/admin/GoLiveChecklist';
 import { useStore } from '../../../context/StoreContext';
@@ -17,6 +17,7 @@ const tabs = [
   { id: 'security', label: 'Security', icon: <Shield size={16} /> },
   { id: 'seo', label: 'SEO', icon: <Globe size={16} /> },
   { id: 'apikeys', label: 'API Keys', icon: <Key size={16} /> },
+  { id: 'templates', label: 'Email Templates', icon: <Mail size={16} /> },
 ];
 
 const Toast: React.FC<{ msg: string; onClose: () => void }> = ({ msg, onClose }) => (
@@ -90,6 +91,125 @@ const AdminActivity: React.FC = () => {
             ))}
           </div>
         )}
+    </div>
+  );
+};
+
+interface EmailTemplate { key: string; label: string; group: string; placeholders: string[]; subject: string; body: string; defaultSubject: string; defaultBody: string; isCustom: boolean }
+
+const EmailTemplatesPanel: React.FC<{ showToast: (m: string) => void }> = ({ showToast }) => {
+  const [templates, setTemplates] = useState<EmailTemplate[] | null>(null);
+  const [edit, setEdit] = useState<Record<string, { subject: string; body: string }>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [openKey, setOpenKey] = useState<string | null>(null);
+
+  const load = () => {
+    apiGet<{ data: EmailTemplate[] }>('/admin/email-templates')
+      .then(r => setTemplates(r.data))
+      .catch(() => setTemplates([]));
+  };
+  useEffect(load, []);
+
+  const save = async (key: string) => {
+    const e = edit[key];
+    if (!e) return;
+    setSaving(s => ({ ...s, [key]: true }));
+    try {
+      await apiPut(`/admin/email-templates/${key}`, e);
+      showToast('Template saved!');
+      load();
+      setEdit(ed => { const c = { ...ed }; delete c[key]; return c; });
+    } catch (err: any) {
+      showErrorDialog({ title: "Couldn't save template", error: err });
+    } finally {
+      setSaving(s => ({ ...s, [key]: false }));
+    }
+  };
+
+  const reset = async (key: string) => {
+    if (!window.confirm('Revert this email to its default wording?')) return;
+    setSaving(s => ({ ...s, [key]: true }));
+    try {
+      await apiPost(`/admin/email-templates/${key}/reset`, {});
+      showToast('Reverted to default');
+      load();
+      setEdit(ed => { const c = { ...ed }; delete c[key]; return c; });
+    } catch (err: any) {
+      showErrorDialog({ title: "Couldn't reset template", error: err });
+    } finally {
+      setSaving(s => ({ ...s, [key]: false }));
+    }
+  };
+
+  if (templates === null) {
+    return <div className="flex items-center gap-2 text-gray-400 py-6"><Loader2 size={16} className="animate-spin" /><span className="text-sm font-bold">Loading templates...</span></div>;
+  }
+
+  const groups = Array.from(new Set(templates.map(t => t.group)));
+
+  return (
+    <div className="space-y-5">
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+        <p className="text-xs font-black text-blue-700">These control the wording of every order-update email (also used for the matching push / in-app notification) plus the store's own new-order and low-stock alerts. Use the {'{{placeholder}}'} tokens shown under each field — they're filled in automatically when the message is sent.</p>
+      </div>
+      {groups.map(g => (
+        <div key={g} className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6">
+          <h3 className="text-sm font-black text-[#111827] mb-5">{g}</h3>
+          <div className="space-y-3">
+            {templates.filter(t => t.group === g).map(t => {
+              const isOpen = openKey === t.key;
+              const e = edit[t.key];
+              const isEditing = e !== undefined;
+              return (
+                <div key={t.key} className="border border-[#F3F4F6] rounded-xl overflow-hidden">
+                  <button type="button" onClick={() => setOpenKey(isOpen ? null : t.key)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#FAFAFA] transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-[#111827]">{t.label}</p>
+                      <p className="text-[11px] font-bold text-gray-400 mt-0.5 truncate max-w-md">{e?.subject ?? t.subject}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 ml-3">
+                      {t.isCustom && <span className="text-[10px] font-black text-[#FF6B2C] bg-[#FFF3ED] px-2 py-0.5 rounded-full">CUSTOMISED</span>}
+                      <span className="text-gray-300 text-xs">{isOpen ? '▲' : '▼'}</span>
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="p-4 border-t border-[#F3F4F6] space-y-3 bg-[#FAFAFA]">
+                      <div>
+                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">Subject</label>
+                        <input
+                          value={e?.subject ?? t.subject}
+                          onChange={ev => setEdit(ed => ({ ...ed, [t.key]: { subject: ev.target.value, body: ed[t.key]?.body ?? t.body } }))}
+                          className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C] bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5">Body</label>
+                        <textarea
+                          rows={3}
+                          value={e?.body ?? t.body}
+                          onChange={ev => setEdit(ed => ({ ...ed, [t.key]: { subject: ed[t.key]?.subject ?? t.subject, body: ev.target.value } }))}
+                          className="w-full border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C] resize-none bg-white"
+                        />
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-400">Placeholders: {t.placeholders.map(p => `{{${p}}}`).join('   ')}</p>
+                      <div className="flex items-center gap-2 pt-1">
+                        <button onClick={() => save(t.key)} disabled={saving[t.key] || !isEditing} className="px-4 py-2 bg-[#FF6B2C] text-white rounded-xl text-xs font-black disabled:opacity-40 hover:bg-[#E05520] transition-colors flex items-center gap-1.5">
+                          {saving[t.key] ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save
+                        </button>
+                        {t.isCustom && (
+                          <button onClick={() => reset(t.key)} disabled={saving[t.key]} className="px-4 py-2 bg-white border border-[#ECECEC] text-gray-600 rounded-xl text-xs font-black hover:bg-gray-50 transition-colors disabled:opacity-40">
+                            Revert to default
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -598,7 +718,10 @@ const AdminSettings: React.FC = () => {
             );
           })()}
 
-          {activeTab !== 'apikeys' && activeTab !== 'golive' && <div className="flex justify-end">
+          {/* Email Templates */}
+          {activeTab === 'templates' && <EmailTemplatesPanel showToast={showToast} />}
+
+          {activeTab !== 'apikeys' && activeTab !== 'golive' && activeTab !== 'templates' && <div className="flex justify-end">
             <button onClick={handleSave} disabled={saving || loadFailed} className="flex items-center gap-2 bg-[#FF6B2C] text-white px-6 py-3 rounded-xl font-black text-sm shadow-lg shadow-[#FF6B2C]/20 hover:bg-[#E05520] transition-colors disabled:opacity-60">
               {saving ? <><Loader2 size={16} className="animate-spin" />Saving...</> : <><Save size={16} /> Save Changes</>}
             </button>

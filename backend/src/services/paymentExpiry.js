@@ -8,6 +8,7 @@ const axios = require('axios');
 const pool = require('../db/pool');
 const phonepe = require('../utils/phonepe');
 const { notifyUser } = require('../utils/notify');
+const { renderTemplate } = require('../utils/emailTemplates');
 
 const TTL_MIN = () => Math.max(30, parseInt(process.env.UNPAID_ORDER_TTL_MIN || '120', 10) || 120);
 
@@ -46,9 +47,9 @@ const cancelUnpaid = async (order) => {
     await client.query('ROLLBACK');
     throw e;
   } finally { client.release(); }
+  const { subject, body } = await renderTemplate('order_cancelled_unpaid', { order_number: order.order_number });
   notifyUser(order.user_id, {
-    title: 'Order cancelled — payment not completed',
-    body: `We didn't receive payment for order ${order.order_number}, so it has been cancelled. If any amount was deducted, it will be refunded automatically.`,
+    title: subject, body,
     data: { order_id: order.id, order_number: order.order_number },
     dedupeKey: `order:${order.id}:cancelled`,
     storeSettingKey: 'notify_order_cancelled',

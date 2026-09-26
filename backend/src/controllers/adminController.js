@@ -247,6 +247,39 @@ const sendTestEmail = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// GET /admin/email-templates — every customer/store email, its effective subject/body, and whether it's customised
+const getEmailTemplates = async (req, res, next) => {
+  try {
+    const { listTemplates } = require('../utils/emailTemplates');
+    res.json({ success: true, data: await listTemplates() });
+  } catch (err) { next(err); }
+};
+
+// PUT /admin/email-templates/:key — body: { subject, body }
+const updateEmailTemplate = async (req, res, next) => {
+  try {
+    const { updateTemplate, DEFAULTS } = require('../utils/emailTemplates');
+    const { key } = req.params;
+    if (!DEFAULTS[key]) return res.status(404).json({ success: false, message: 'Unknown email template' });
+    const subject = String(req.body?.subject || '').trim();
+    const body = String(req.body?.body || '').trim();
+    if (!subject || !body) return res.status(400).json({ success: false, message: 'Subject and body are required' });
+    await updateTemplate(key, { subject, body });
+    res.json({ success: true, message: 'Template saved' });
+  } catch (err) { next(err); }
+};
+
+// POST /admin/email-templates/:key/reset — revert to the built-in default wording
+const resetEmailTemplate = async (req, res, next) => {
+  try {
+    const { resetTemplate, DEFAULTS } = require('../utils/emailTemplates');
+    const { key } = req.params;
+    if (!DEFAULTS[key]) return res.status(404).json({ success: false, message: 'Unknown email template' });
+    await resetTemplate(key);
+    res.json({ success: true, message: 'Reverted to default' });
+  } catch (err) { next(err); }
+};
+
 // GET /admin/audit-log — latest admin/staff changes (who, what, when)
 const getAuditLog = async (req, res, next) => {
   try {
@@ -1026,6 +1059,7 @@ module.exports = {
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
   getSettings, updateSettings,
   getCredentials, updateCredentials,
+  getEmailTemplates, updateEmailTemplate, resetEmailTemplate,
   uploadImage, deleteImage,
   sendPushNotification,
   getDelhiveryStatus, testDelhiveryConnection, syncDelhiveryNow, requestDelhiveryPickup,

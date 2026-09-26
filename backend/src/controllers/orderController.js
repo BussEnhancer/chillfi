@@ -7,6 +7,7 @@ const { getIncludedGst } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
 const { notifyUser } = require('../utils/notify');
+const { renderTemplate } = require('../utils/emailTemplates');
 
 const generateOrderNumber = () => {
   const ts = Date.now().toString().slice(-6);
@@ -417,13 +418,15 @@ const cancelOrder = async (req, res) => {
 
   // An unpaid online order was never confirmed to the customer (they just saw payment fail) — no "cancelled" notice.
   const neverConfirmed = result.rows[0].payment_method !== 'COD' && result.rows[0].payment_status !== 'Paid';
-  if (!neverConfirmed) notifyUser(req.user.id, {
-    title: 'Order cancelled',
-    body: `Your order ${result.rows[0].order_number} has been cancelled.`,
-    data: { order_id: id, order_number: result.rows[0].order_number },
-    dedupeKey: `order:${id}:cancelled`,
-    storeSettingKey: 'notify_order_cancelled',
-  });
+  if (!neverConfirmed) {
+    const { subject, body } = await renderTemplate('order_cancelled', { order_number: result.rows[0].order_number });
+    notifyUser(req.user.id, {
+      title: subject, body,
+      data: { order_id: id, order_number: result.rows[0].order_number },
+      dedupeKey: `order:${id}:cancelled`,
+      storeSettingKey: 'notify_order_cancelled',
+    });
+  }
   res.json({ success: true, message: 'Order cancelled successfully' });
 };
 

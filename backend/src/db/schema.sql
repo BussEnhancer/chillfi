@@ -357,6 +357,14 @@ CREATE TABLE IF NOT EXISTS store_settings (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- EMAIL TEMPLATES (admin-editable subject/body; a missing row means "use the built-in default")
+CREATE TABLE IF NOT EXISTS email_templates (
+  key VARCHAR(60) PRIMARY KEY,
+  subject TEXT,
+  body TEXT,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- INDEXES for performance
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);

@@ -14,6 +14,7 @@ const {
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
   getSettings, updateSettings, getAdminAlerts, sendTestEmail, getLoginActivity, getAuditLog, getLaunchStatus,
   getCredentials, updateCredentials,
+  getEmailTemplates, updateEmailTemplate, resetEmailTemplate,
   uploadImage, deleteImage,
   sendPushNotification,
   getDelhiveryStatus, testDelhiveryConnection, syncDelhiveryNow, requestDelhiveryPickup,
@@ -118,6 +119,9 @@ router.delete('/categories/:id', adminOnly, deleteCategory);
 // Orders — staff can view, admin can update/ship
 router.get('/alerts', staffOrAdmin, getAdminAlerts);
 router.post('/email/test', adminOnly, sendTestEmail);
+router.get('/email-templates', adminOnly, getEmailTemplates);
+router.put('/email-templates/:key', adminOnly, updateEmailTemplate);
+router.post('/email-templates/:key/reset', adminOnly, resetEmailTemplate);
 router.get('/login-activity', adminOnly, getLoginActivity);
 router.get('/audit-log', adminOnly, getAuditLog);
 router.get('/launch-status', adminOnly, getLaunchStatus);
