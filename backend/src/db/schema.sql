@@ -369,6 +369,8 @@ CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlist(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_recently_viewed_user ON recently_viewed(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+-- Older databases were created with otp VARCHAR(6): too short for hashed codes / Firebase session info.
+ALTER TABLE otp_sessions ALTER COLUMN otp TYPE TEXT;
 CREATE INDEX IF NOT EXISTS idx_otp_phone ON otp_sessions(phone);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
@@ -452,3 +454,16 @@ CREATE TABLE IF NOT EXISTS admin_login_events (
   created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_admin_login_events_time ON admin_login_events(created_at DESC);
+
+-- Admin / staff change history (Settings → Security → Admin activity). Values of secrets are never stored.
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id SERIAL PRIMARY KEY,
+  actor_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  actor_name VARCHAR(100),
+  method VARCHAR(8),
+  path TEXT,
+  details JSONB,
+  ip VARCHAR(64),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_admin_audit_log_time ON admin_audit_log(created_at DESC);

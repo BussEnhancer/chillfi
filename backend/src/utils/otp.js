@@ -80,6 +80,12 @@ const verifyViaFirebase = async (sessionInfo, code, webApiKey) => {
 
 // ─── Dispatcher ──────────────────────────────────────────────────────────────
 // Returns { sent: true, sessionInfo? } — sessionInfo only for Firebase provider.
+// No SMS provider configured: fine to pretend in development (code is logged), never on production.
+const notConfigured = () => ({ sent: process.env.NODE_ENV !== 'production' });
+
+// OTP codes are stored hashed ("h:<sha256>"); Firebase session info is stored as-is.
+const hashOtp = (otp) => `h:${crypto.createHash('sha256').update(String(otp)).digest('hex')}`;
+
 const sendOTP = async (phone, otp, clientToken = '') => {
   if (process.env.NODE_ENV !== 'production') {
     console.log(`📱 OTP for ${phone}: ${otp}`);
@@ -90,7 +96,7 @@ const sendOTP = async (phone, otp, clientToken = '') => {
   try {
     if (provider === 'firebase') {
       const webApiKey = await getSetting('FIREBASE_WEB_API_KEY');
-      if (!webApiKey) { console.log('⚠️  FIREBASE_WEB_API_KEY not set'); return { sent: true }; }
+      if (!webApiKey) { console.log('⚠️  FIREBASE_WEB_API_KEY not set'); return notConfigured(); }
       const sessionInfo = await sendViaFirebase(phone, webApiKey, clientToken);
       return { sent: true, sessionInfo };
     }
@@ -98,14 +104,14 @@ const sendOTP = async (phone, otp, clientToken = '') => {
     if (provider === 'msg91') {
       const authKey = await getSetting('MSG91_AUTH_KEY');
       const templateId = await getSetting('MSG91_TEMPLATE_ID');
-      if (!authKey || !templateId) { console.log('⚠️  MSG91 credentials not configured'); return { sent: true }; }
+      if (!authKey || !templateId) { console.log('⚠️  MSG91 credentials not configured'); return notConfigured(); }
       await sendViaMSG91(phone, otp, authKey, templateId);
       return { sent: true };
     }
 
     if (provider === 'fast2sms') {
       const apiKey = await getSetting('FAST2SMS_API_KEY');
-      if (!apiKey) { console.log('⚠️  FAST2SMS_API_KEY not configured'); return { sent: true }; }
+      if (!apiKey) { console.log('⚠️  FAST2SMS_API_KEY not configured'); return notConfigured(); }
       await sendViaFast2SMS(phone, otp, apiKey);
       return { sent: true };
     }
@@ -114,7 +120,7 @@ const sendOTP = async (phone, otp, clientToken = '') => {
     const apiKey = await getSetting('TWO_FACTOR_API_KEY');
     if (!apiKey || apiKey === 'your_2factor_api_key') {
       console.log('⚠️  2Factor.in API key not configured');
-      return { sent: true };
+      return notConfigured();
     }
     await sendVia2Factor(phone, otp, apiKey);
     return { sent: true };
@@ -142,7 +148,7 @@ const createOTPSession = async (phone, purpose = 'login', clientToken = '') => {
   if (isTest) {
     await pool.query(
       `INSERT INTO otp_sessions (phone, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)`,
-      [phone, otp, purpose, expiresAt]
+      [phone, hashOtp(otp), purpose, expiresAt]
     );
     console.log(`🧪 Test OTP for ${phone}: ${otp}`);
     return { sent: true };
@@ -152,7 +158,7 @@ const createOTPSession = async (phone, purpose = 'login', clientToken = '') => {
 
   // Firebase returns a sessionInfo token instead of the client entering a backend-generated OTP.
   // Store sessionInfo in the otp column so verifyOTP can detect and handle it.
-  const storedValue = result.sessionInfo || otp;
+  const storedValue = result.sessionInfo || hashOtp(otp);
   await pool.query(
     `INSERT INTO otp_sessions (phone, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)`,
     [phone, storedValue, purpose, expiresAt]
@@ -161,7 +167,7 @@ const createOTPSession = async (phone, purpose = 'login', clientToken = '') => {
   return { sent: result.sent };
 };
 
-const isFirebaseSessionInfo = (stored) => stored && stored.length > 10 && !/^\d{6}$/.test(stored);
+const isFirebaseSessionInfo = (stored) => stored && stored.length > 10 && !/^\d{6}$/.test(stored) && !stored.startsWith('h:');
 
 const verifyOTP = async (phone, otp, purpose = 'login') => {
   const result = await pool.query(
@@ -192,7 +198,9 @@ const verifyOTP = async (phone, otp, purpose = 'login') => {
       valid = false;
     }
   } else {
-    valid = session.otp === otp;
+    const expected = Buffer.from(session.otp.startsWith('h:') ? session.otp : hashOtp(session.otp));
+    const given = Buffer.from(hashOtp(otp));
+    valid = expected.length === given.length && crypto.timingSafeEqual(expected, given);
   }
 
   if (!valid) {
