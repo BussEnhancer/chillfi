@@ -36,7 +36,7 @@ const PrivacyPolicyPage: React.FC = () => {
           <div className="flex-1 min-w-0">
              <div className="mb-10">
                 <h1 className="text-3xl font-black text-[#111827] mb-1">Privacy Policy</h1>
-                <p className="text-sm font-bold text-gray-400">Last Updated: 15 May 2025</p>
+                <p className="text-sm font-bold text-gray-400">Last Updated: 26 September 2026</p>
              </div>
 
              <PrivacyInfoBanner
@@ -90,6 +90,7 @@ const PrivacyPolicyPage: React.FC = () => {
                       <li>Delete information</li>
                       <li>Opt out of promotional communication</li>
                    </ul>
+                   <p className="mt-4"><strong>Deleting your account.</strong> In the app go to Account › Settings › Delete account, or use <a href="/delete-account" className="text-[#FF6B2C] hover:underline">chillfi.in/delete-account</a>. We permanently delete your profile, saved addresses, wishlist, reviews, notifications and login sessions. Records of orders you placed (items, amounts, invoice and the delivery address on that order) are kept without your name, because Indian GST law requires us to keep tax records for six years.</p>
                 </PrivacySection>
 
                 <PrivacySection title="7. Changes to This Policy">

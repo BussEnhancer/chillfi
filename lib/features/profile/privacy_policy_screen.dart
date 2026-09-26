@@ -50,6 +50,27 @@ class PrivacyPolicyScreen extends StatelessWidget {
             const PolicyIndexCard(),
             SizedBox(height: 24.h),
             const ExpandablePolicyCard(),
+            SizedBox(height: 16.h),
+            // Account deletion & what is kept (Play / App Store and GST record-keeping)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r), border: Border.all(color: AppColors.fieldBorder)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Deleting your account', style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+                  SizedBox(height: 6.h),
+                  Text(
+                    'Go to Account › Settings › Delete account (or chillfi.in/delete-account). We permanently delete your profile, '
+                    'saved addresses, wishlist, reviews, notifications and login sessions. Records of orders you placed (items, amounts, '
+                    'invoice and the delivery address on that order) are kept without your name, because Indian GST law requires us '
+                    'to keep tax records for six years.',
+                    style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColors.greyText, height: 1.5),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 24.h),
             const PrivacyCommitmentBanner(),
             SizedBox(height: 32.h),
@@ -64,7 +85,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    "Last updated: 15 May 2024",
+                    "Last updated: 26 September 2026",
                     style: GoogleFonts.poppins(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w700,
