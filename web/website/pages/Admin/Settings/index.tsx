@@ -54,6 +54,46 @@ const LoginActivity: React.FC = () => {
   );
 };
 
+// Human-readable line for an admin change, e.g. "PUT /api/admin/users/…/role" → "Changed a user's role → admin".
+const describeChange = (e: { method: string; path: string; details?: Record<string, any> }) => {
+  const p = e.path.replace(/^\/api\/admin/, ''); const d = e.details || {};
+  const rules: [RegExp, string][] = [
+    [/^\/users\/[^/]+\/role$/, `Changed a user's role${d.role ? ` → ${d.role}` : ''}`],
+    [/^\/users\/[^/]+\/status$/, `Changed a user's status${d.is_active !== undefined ? ` → ${d.is_active === 'true' ? 'active' : 'blocked'}` : ''}`],
+    [/^\/credentials/, `Updated gateway key${d.key ? ` ${d.key}` : ''}`],
+    [/^\/settings/, `Updated store settings (${(d.fields || []).slice(0, 4).join(', ')}${(d.fields || []).length > 4 ? '…' : ''})`],
+    [/^\/orders\/[^/]+\/status$/, `Changed an order status${d.status ? ` → ${d.status}` : ''}`],
+    [/^\/orders\/[^/]+\/ship$/, 'Created a shipment'],
+    [/^\/refund-requests\//, `Updated a refund${d.status ? ` → ${d.status}` : ''}`],
+    [/^\/products/, `${e.method === 'DELETE' ? 'Deleted' : e.method === 'POST' ? 'Added' : 'Edited'} a product${d.name ? ` (${d.name})` : ''}`],
+    [/^\/coupons/, `${e.method === 'DELETE' ? 'Deleted' : e.method === 'POST' ? 'Added' : 'Edited'} a coupon${d.code ? ` (${d.code})` : ''}`],
+  ];
+  const hit = rules.find(([re]) => re.test(p));
+  return hit ? hit[1] : `${e.method} ${p}`;
+};
+const AdminActivity: React.FC = () => {
+  const [rows, setRows] = useState<{ created_at: string; method: string; path: string; details: any; ip: string; actor_name: string }[] | null>(null);
+  useEffect(() => { apiGet<{ data: { events: any[] } }>('/admin/audit-log?limit=50').then(r => setRows(r.data.events)).catch(() => setRows([])); }, []);
+  return (
+    <div className="mt-5">
+      <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Recent admin changes (who changed what)</p>
+      {rows === null ? <p className="text-xs font-bold text-gray-400">Loading…</p>
+        : rows.length === 0 ? <p className="text-xs font-bold text-gray-400">No changes recorded yet.</p>
+        : (
+          <div className="max-h-64 overflow-y-auto border border-[#F3F4F6] rounded-xl divide-y divide-[#F3F4F6]">
+            {rows.map((r, i) => (
+              <div key={i} className="px-3 py-2 flex items-center justify-between gap-3 text-xs font-bold">
+                <span className="text-[#111827] truncate">{describeChange(r)}</span>
+                <span className="text-gray-500 shrink-0">{r.actor_name || '—'}</span>
+                <span className="text-gray-400 shrink-0">{new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            ))}
+          </div>
+        )}
+    </div>
+  );
+};
+
 const Toggle: React.FC<{ value: boolean; onChange: (v: boolean) => void; label: string; desc?: string; inactive?: boolean }> = ({ value, onChange, label, desc, inactive }) => (
   <div className={`flex items-center justify-between py-4 border-b border-[#F8F7FC] last:border-0 ${inactive ? 'opacity-60' : ''}`}>
     <div>
@@ -406,8 +446,9 @@ const AdminSettings: React.FC = () => {
                 </div>
               </div>
               <Toggle value={security.loginLog} onChange={v => setSecurity(s => ({ ...s, loginLog: v }))} label="Login Activity Log" desc="Record every admin / staff sign-in (time, IP, device) — latest shown below" />
-              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" desc="Sign out of the admin panel after 30 minutes without activity" />
+              <Toggle value={security.sessionTimeout} onChange={v => setSecurity(s => ({ ...s, sessionTimeout: v }))} label="Session Timeout" desc="Sign out of the admin panel after 30 minutes without activity. On the server, staff sessions also end after 12 hours (sign in again)." />
               <LoginActivity />
+              <AdminActivity />
             </div>
           )}
 

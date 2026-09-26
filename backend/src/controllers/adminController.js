@@ -157,7 +157,9 @@ const getAnalytics = async (req, res, next) => {
 
 const getUsers = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, search = '', status = '' } = req.query;
+    const { search = '', status = '' } = req.query;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 200);
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const offset = (page - 1) * limit;
 
     const where = [];
@@ -242,6 +244,17 @@ const sendTestEmail = async (req, res, next) => {
     const r = await sendMail({ to, subject: 'ChillFi test email', title: 'Email is working', body: 'Order and alert emails from ChillFi will arrive like this one.' });
     if (!r.sent) return res.status(502).json({ success: false, message: 'The email server rejected the message. Check the SMTP host, port, username and password.' });
     res.json({ success: true, message: `Test email sent to ${to}` });
+  } catch (err) { next(err); }
+};
+
+// GET /admin/audit-log — latest admin/staff changes (who, what, when)
+const getAuditLog = async (req, res, next) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 200);
+    const r = await pool.query(
+      'SELECT id, actor_name, method, path, details, ip, created_at FROM admin_audit_log ORDER BY created_at DESC LIMIT $1', [limit]
+    );
+    res.json({ success: true, data: { events: r.rows } });
   } catch (err) { next(err); }
 };
 
@@ -1001,7 +1014,7 @@ const sendPushNotification = async (req, res, next) => {
 };
 
 module.exports = {
-  getAdminAlerts, sendTestEmail, getLoginActivity, getLaunchStatus,
+  getAdminAlerts, sendTestEmail, getLoginActivity, getAuditLog, getLaunchStatus,
   getDashboardStats, getAnalytics,
   getUsers, updateUserStatus, updateUserRole,
   getBanners, createBanner, updateBanner, deleteBanner,

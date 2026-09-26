@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { adminAudit } = require('../middleware/adminAudit');
 const { authenticate, adminOnly, staffOrAdmin } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 const {
@@ -11,7 +12,7 @@ const {
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
   getReviews, deleteReview, toggleReviewVerified,
   getMessages, updateMessageReadStatus, replyToMessage, deleteMessage,
-  getSettings, updateSettings, getAdminAlerts, sendTestEmail, getLoginActivity, getLaunchStatus,
+  getSettings, updateSettings, getAdminAlerts, sendTestEmail, getLoginActivity, getAuditLog, getLaunchStatus,
   getCredentials, updateCredentials,
   uploadImage, deleteImage,
   sendPushNotification,
@@ -31,7 +32,7 @@ const {
   adminShipOrder, adminTrackOrder, adminSyncTracking, adminShippingLabel, adminGetInvoice,
 } = require('../controllers/orderController');
 
-router.use(authenticate, staffOrAdmin);
+router.use(authenticate, staffOrAdmin, adminAudit);
 
 // Dashboard & Analytics — admin only
 router.get('/dashboard', adminOnly, getDashboardStats);
@@ -118,6 +119,7 @@ router.delete('/categories/:id', adminOnly, deleteCategory);
 router.get('/alerts', staffOrAdmin, getAdminAlerts);
 router.post('/email/test', adminOnly, sendTestEmail);
 router.get('/login-activity', adminOnly, getLoginActivity);
+router.get('/audit-log', adminOnly, getAuditLog);
 router.get('/launch-status', adminOnly, getLaunchStatus);
 router.get('/orders', staffOrAdmin, adminGetOrders);
 router.put('/orders/:id/status', adminOnly, adminUpdateStatus);
