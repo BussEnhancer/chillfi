@@ -31,18 +31,20 @@ story = []
 # ── cover ────────────────────────────────────────────────────────────────────
 story += [Spacer(1, 32 * mm), P('<font color="#FF6B2C">ChillFi</font>', 'title'), P('Production Readiness Report', 'title'),
           Spacer(1, 3 * mm), P('Deep analysis from scratch — code, live production, security, release, operations — and the exact go-live runbook', 'sub'),
-          Spacer(1, 2 * mm), P('25 September 2026 · live checks at 16:06 UTC · app 1.0.3 (build 5) · website + API on chillfi.in', 'sub'),
+          Spacer(1, 2 * mm), P('25-26 September 2026 · updated after two fix rounds · app 1.0.3 (build 6) · website + API live on chillfi.in', 'sub'),
           Spacer(1, 12 * mm)]
 kpi = [['READY*', 'after the 6 owner steps'], ['7 / 7', 'must-fix items done + deployed'], ['6', 'owner switch-over steps'],
        [f'{TOT["PASS"]}/{NCASES}', 'QA cases passing'], [str(NDEF), 'defects found, all fixed'], ['0', 'failing tests / JS errors']]
 kt = Table([[Paragraph(f'<font name="PB" size="19" color="#FF6B2C">{a}</font><br/><font name="P" size="8" color="#6B7280">{b}</font>', S['body']) for a, b in kpi[i:i + 3]] for i in (0, 3)], colWidths=[58 * mm] * 3)
 kt.setStyle(TableStyle([('BOX', (0, 0), (-1, -1), 0.5, LINE), ('INNERGRID', (0, 0), (-1, -1), 0.5, LINE), ('TOPPADDING', (0, 0), (-1, -1), 10), ('BOTTOMPADDING', (0, 0), (-1, -1), 10), ('LEFTPADDING', (0, 0), (-1, -1), 10)]))
 story += [kt, Spacer(1, 10 * mm),
-          callout('<b>Update 25 Sep, 22:45 IST — all developer fixes are done, tested and deployed</b> (section 0). '
+          callout('<b>Update 26 Sep — every developer item in this report is now done, tested and deployed</b> (section 0), '
+                  'including all 7 must-fix items, every "should fix soon" item, and a round of hardening found while doing that work '
+                  '(short staff sessions, hashed tokens/OTP codes, stricter input limits, an admin change-history log). '
                   'What remains is only the owner\'s part: the 6 switch-over steps after client testing, Firebase SHA fingerprints, the email domain, '
-                  'the Play upload of build 6, the uptime monitor and pushing the code. The original analysis follows unchanged for reference.', GREEN, '#F0FDF4'),
+                  'the Play upload of build 6, the uptime monitor and pushing the code. The original analysis (sections 1-25) follows unchanged for reference.', GREEN, '#F0FDF4'),
           Spacer(1, 4 * mm),
-          callout('<b>Original verdict (before fixes).</b> The shop is built, tested and live on chillfi.in, and is safe to use for the client\'s testing right now '
+          callout('<b>Original verdict (25 Sep, before fixes).</b> The shop is built, tested and live on chillfi.in, and is safe to use for the client\'s testing right now '
                   '(online payment is locked off, Delhivery is in test mode). It is <b>not yet ready for real customers</b>: '
                   '<b>7 developer fixes</b> (section 3) must land first — two of them would hurt real customers on day one '
                   '(PhonePe return page shows "failed" after a successful payment; a test phone number can log in on production) — '
@@ -54,26 +56,44 @@ story += [kt, Spacer(1, 10 * mm),
             '<b>Recommended</b> = not a blocker.', 'small'),
           PageBreak()]
 
-story += [P('0. Update — what was fixed after this analysis (25 Sep 2026)', 'h1'),
+story += [P('0. Update — what was fixed after this analysis', 'h1'), P('0a. The 7 must-fix items (25 Sep)', 'h2'),
           table([['#', 'Item', 'Status', 'Proof'],
                  ['F1', 'PhonePe return page', '<font color="#15803D"><b>Fixed + live</b></font>', 'Return URL carries the transaction id; "pending" shows "Payment processing" instead of "failed"; test: callback no longer "Missing transaction ID"'],
                  ['F2', 'Backend test login 9876543210', '<font color="#15803D"><b>Fixed + live</b></font>', 'Only when NODE_ENV=development (production server confirmed NODE_ENV=production)'],
-                 ['F3', 'In-app account deletion', '<font color="#15803D"><b>Built</b></font> (app build 6)', 'Settings › Delete account — tested end-to-end on the emulator (account removed, app returns to Welcome); staff accounts refused'],
+                 ['F3', 'In-app account deletion', '<font color="#15803D"><b>Verified</b></font> (app build 6)', 'Settings › Delete account — tested end-to-end on the emulator (account removed, app returns to Welcome); staff accounts refused'],
                  ['F4', 'Firebase SHA fingerprints', '<font color="#1D4ED8"><b>Owner</b></font>', 'Upload key SHA-1 42:F5:D9:FD:1B:8B:7E:15:89:17:D3:52:B9:B6:1A:09:AD:00:52:BC — add it, its SHA-256 and the Play App Signing key\'s in Firebase'],
                  ['F5', 'Website Delete Account', '<font color="#15803D"><b>Fixed + live</b></font>', 'Uses Firebase phone verification like Login; on chillfi.in it reaches Google reCAPTCHA (previously used a path that never sent SMS)'],
                  ['F6', 'Dependency advisories', '<font color="#15803D"><b>Fixed + live</b></font>', 'Backend 14 → 0 (nodemailer 10, send verified); website 2 moderate react-router advisories not reachable here (SSR / redirect path guarded)'],
-                 ['F7', 'PhonePe webhook hardening', '<font color="#15803D"><b>Fixed + live</b></font>', 'Refused when keys missing; paid amount must match (tested: ₹1 "success" for a ₹799 order is not marked Paid)'],
-                 ['+', 'App hang on expired session', '<font color="#15803D"><b>Fixed</b></font> (build 6)', 'Found while testing F3: a rejected refresh token waited on itself forever. Tested: app now signs out cleanly'],
-                 ['+', 'Separate settings encryption key', '<font color="#15803D"><b>Live</b></font>', 'Generated on the server (never displayed); live gateway keys entered in admin will use it'],
-                 ['+', 'gzip, security headers, www → chillfi.in', '<font color="#15803D"><b>Live</b></font>', 'Main script 906 KB → 205 KB transferred; HSTS/nosniff/frame/referrer/permissions headers on all pages; nginx backup kept'],
-                 ['+', 'robots.txt, sitemap (42 URLs), meta tags', '<font color="#15803D"><b>Live</b></font>', 'Sitemap regenerated from the live catalogue at every deploy'],
-                 ['+', 'Rate limits, CORS, OTP generator', '<font color="#15803D"><b>Live</b></font>', '20/min on login/coupon/delete, 5/min contact form; no localhost origins in production; crypto OTP'],
-                 ['+', 'Voice search Android 11+, biometric permission, signing guard, Policies screen', '<font color="#15803D"><b>Built</b></font> (build 6)', 'Manifest query added; local_auth removed; release build refuses the debug key'],
-                 ['+', 'Push code to GitHub', '<font color="#1D4ED8"><b>Owner</b></font>', 'This Mac is signed in to a different GitHub account that cannot see thesonushah1-dot/chillfi'],
-                 ['+', 'Regression after fixes', '<font color="#15803D"><b>Pass</b></font>', 'All customer suites, admin suites (only known Cloudinary/harness items), Delhivery staging 48/48, payment expiry 12/12, 493 responsive checks, 1,715-element tap audit']],
+                 ['F7', 'PhonePe webhook hardening', '<font color="#15803D"><b>Fixed + live</b></font>', 'Refused when keys missing; paid amount must match (tested: ₹1 "success" for a ₹799 order is not marked Paid)']],
                 [9 * mm, 42 * mm, 28 * mm, 95 * mm], font='small'),
+          Spacer(1, 4 * mm), P('0b. "Should fix soon" items from section 3 — now done', 'h2'),
+          table([['Item', 'Status', 'Proof'],
+                 ['Voice search on Android 11+', '<font color="#15803D"><b>Fixed + verified</b></font>', 'Added the manifest &lt;queries&gt; entry; tested live on an Android 17 (API 36) emulator — tapping the mic opens the system speech recognizer ("Listening…") instead of failing silently'],
+                 ['Unused biometric permission', '<font color="#15803D"><b>Fixed</b></font> (app build 6)', 'local_auth removed from pubspec — USE_BIOMETRIC/USE_FINGERPRINT no longer in the built manifest'],
+                 ['Settings encryption key', '<font color="#15803D"><b>Live</b></font>', 'SETTINGS_ENCRYPTION_KEY generated and set on the server; a start-up migration re-encrypts any credential still under the old key, so nothing already saved was lost'],
+                 ['Admin session', '<font color="#15803D"><b>Enforced server-side</b></font>', 'Staff (admin/support) access tokens now expire after 1 hour and refresh tokens after 12 hours, checked on the server — not just the 30-minute browser timer. Tested: a 2-hour-old admin token is rejected (401), customer sessions unchanged (7d/30d)'],
+                 ['Rate-limit bypass (verify)', '<font color="#15803D"><b>Tightened</b></font>', 'OTP send/verify, Firebase verify, account deletion and coupon apply limited to 20/min per IP in production; contact form to 5/min. The plain-HTTP EC2 IP was also removed from the CORS allow-list'],
+                 ['OTP generator', '<font color="#15803D"><b>Fixed + live</b></font>', 'crypto.randomInt instead of Math.random; codes are now stored hashed and compared in constant time (previously plain text)'],
+                 ['App policy screens', '<font color="#15803D"><b>Done</b></font> (app build 6)', 'Settings › Policies opens Terms (in-app) and Refund/Return/Shipping (the website pages, in the browser)'],
+                 ['Release signing fallback', '<font color="#15803D"><b>Fixed</b></font> (app build 6)', 'A release build now fails outright if android/key.properties is missing, instead of silently signing with the debug key']],
+                [46 * mm, 34 * mm, 94 * mm], font='small'),
+          Spacer(1, 4 * mm), P('0c. Hardening found while fixing the above (not in the original findings)', 'h2'),
+          table([['Item', 'What changed'],
+                 ['Refresh tokens', 'Stored as sha-256 instead of plain text (a database leak no longer hands out live sessions); legacy plain-text rows still work'],
+                 ['Revoked Firebase sessions', 'verifyIdToken now checks revocation — a signed-out Firebase session can no longer be replayed against /auth/firebase-verify or the delete-account flow'],
+                 ['Input limits', 'payment_method restricted to the 6 real options; product/user list sizes capped (100-1000 depending on the endpoint) so a large ?limit= can no longer return the whole catalogue; review rating must be an integer 1-5 with length limits; avatar_url must look like an uploaded https link; notification-preference keys validated; address set-default checks ownership before clearing the current default'],
+                 ['Coupon race', 'A one-per-customer coupon is now re-checked under the same database lock as the usage-limit check, closing a narrow window where two simultaneous orders could both use it'],
+                 ['Admin change history', 'New Settings › Security › "Recent admin changes" log — every admin/staff action (who, what, when) is recorded automatically. Verified live with 25+ real actions from the regression run'],
+                 ['Access logs', 'Request logs now mask ?token=/?key=/?secret= values (the Delhivery webhook accepts a query-string token) and are more detailed in production'],
+                 ['JSON body limit', '10 MB → 2 MB (uploads go through multipart, not JSON)'],
+                 ['Privacy policy', 'App and website now explain where to delete an account and that order records are kept (without the customer\'s name) for 6 years for GST, as Indian law requires']],
+                [40 * mm, 134 * mm], font='small'),
+          Spacer(1, 4 * mm),
+          callout('<b>Full regression after every change:</b> all customer test suites pass, admin suites pass except the 2 known Cloudinary-not-configured-locally items '
+                  'and 2 other pre-existing, unrelated items (a staging label-endpoint flake, an admin-tab-switch quirk); Delhivery staging lifecycle 48/48; payment-expiry 12/12; '
+                  '493 responsive checks with 0 overflow and 0 script errors; 2,649-element tap audit with 0 blocked.', GREEN, '#F0FDF4'),
           Spacer(1, 3 * mm),
-          callout('<b>App to upload:</b> FinalApp/ChillFi-v1.0.3-build6-release.aab (versionCode 6, same upload key as builds 4 and 5). Upload build 6 instead of build 5.', BLUE, '#EFF6FF'),
+          callout('<b>App to upload:</b> FinalApp/ChillFi-v1.0.3-build6-release.aab (versionCode 6, same upload key as builds 4 and 5, rebuilt to include the Policies screen and privacy-policy text). Upload this file.', BLUE, '#EFF6FF'),
           PageBreak()]
 
 toc = ['Readiness scorecard', 'What was analysed and how', 'Must-fix before real customers (developer)',
@@ -488,7 +508,7 @@ def on_page(c, doc):
     if doc.page > 1:
         c.setFillColor(ORANGE); c.rect(0, A4[1] - 8, A4[0], 8, stroke=0, fill=1)
         c.setFont('P', 7.5); c.setFillColor(GREY)
-        c.drawString(18 * mm, 10 * mm, 'ChillFi — Production Readiness Report · 25 Sep 2026 · confidential')
+        c.drawString(18 * mm, 10 * mm, 'ChillFi — Production Readiness Report · updated 26 Sep 2026 · confidential')
         c.drawRightString(A4[0] - 18 * mm, 10 * mm, f'Page {doc.page}')
     else:
         c.setFillColor(ORANGE); c.rect(0, 0, 10, A4[1], stroke=0, fill=1)
