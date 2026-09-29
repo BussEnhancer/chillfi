@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Check } from 'lucide-react';
+import { Star, Heart, ShoppingCart, Check, Trash2 } from 'lucide-react';
 import Badge from '../common/Badge';
 import { useStore } from '../../context/StoreContext';
 
@@ -22,14 +22,18 @@ interface ProductCardPLPProps {
 const ProductCardPLP: React.FC<ProductCardPLPProps> = ({
   id = 1, image, name, brand, category = '', price, oldPrice, discount, rating, reviews, colors, isBestSeller
 }) => {
-  const { addToCart, toggleWishlist, isInWishlist, isInCart } = useStore();
+  const { addToCart, removeFromCart, toggleWishlist, isInWishlist, isInCart } = useStore();
   const inWish = isInWishlist(String(id));
   const inCart = isInCart(String(id));
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleCartAction = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({ id: String(id), name, img: image, price, oldPrice: oldPrice || 0, brand, category, qty: 1 });
+    if (inCart) {
+      removeFromCart(String(id));
+    } else {
+      addToCart({ id: String(id), name, img: image, price, oldPrice: oldPrice || 0, brand, category, qty: 1 });
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -86,17 +90,28 @@ const ProductCardPLP: React.FC<ProductCardPLPProps> = ({
         </div>
       </Link>
 
-      {/* Add to Cart — separate from Link, no navigation */}
+      {/* Add to Cart — separate from Link, no navigation. In-cart state toggles to Remove on hover/tap. */}
       <button
-        onClick={handleAddToCart}
-        className={`mt-auto w-full border-2 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 ${
+        onClick={handleCartAction}
+        className={`group/cart mt-auto w-full border-2 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 ${
           inCart
-            ? 'bg-green-500 border-green-500 text-white'
+            ? 'bg-green-500 border-green-500 text-white hover:bg-red-500 hover:border-red-500'
             : 'border-[#FF6B2C] text-[#FF6B2C] hover:bg-[#FF6B2C] hover:text-white'
         }`}
       >
-        {inCart ? <Check size={14} /> : <ShoppingCart size={14} />}
-        {inCart ? 'Added to Cart' : 'Add To Cart'}
+        {inCart ? (
+          <>
+            <Check size={14} className="group-hover/cart:hidden" />
+            <Trash2 size={14} className="hidden group-hover/cart:inline" />
+            <span className="group-hover/cart:hidden">Added to Cart</span>
+            <span className="hidden group-hover/cart:inline">Remove</span>
+          </>
+        ) : (
+          <>
+            <ShoppingCart size={14} />
+            Add To Cart
+          </>
+        )}
       </button>
     </div>
   );

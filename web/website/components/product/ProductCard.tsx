@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
-import { Star, ShoppingCart, Heart, Check } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Check, Trash2 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 interface ProductCardProps {
@@ -18,7 +18,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   id = 1, image, name, price, oldPrice, discount, rating, reviews
 }) => {
-  const { addToCart, toggleWishlist, isInWishlist, isInCart, products } = useStore();
+  const { addToCart, removeFromCart, toggleWishlist, isInWishlist, isInCart, products } = useStore();
   const strId = String(id);
   const inWishlist = isInWishlist(strId);
   const added = isInCart(strId);
@@ -30,6 +30,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
   const handleCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (added) {
+      removeFromCart(strId);
+      return;
+    }
     const p = products.find(x => x.id === strId);
     if (!p) return;
     addToCart(p);
@@ -45,8 +49,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <button onClick={handleWishlist} className={`w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center transition-colors ${inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
           <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
         </button>
-        <button onClick={handleCart} className={`w-9 h-9 shadow-md rounded-full flex items-center justify-center transition-colors ${added ? 'bg-green-500 text-white' : 'bg-white text-gray-400 hover:text-[#FF6B2C]'}`}>
-          {added ? <Check size={18} /> : <ShoppingCart size={18} />}
+        <button
+          onClick={handleCart}
+          title={added ? 'Remove from cart' : 'Add to cart'}
+          className={`group/cart w-9 h-9 shadow-md rounded-full flex items-center justify-center transition-colors ${added ? 'bg-green-500 hover:bg-red-500 text-white' : 'bg-white text-gray-400 hover:text-[#FF6B2C]'}`}
+        >
+          {added ? (
+            <>
+              <Check size={18} className="group-hover/cart:hidden" />
+              <Trash2 size={16} className="hidden group-hover/cart:inline" />
+            </>
+          ) : <ShoppingCart size={18} />}
         </button>
       </div>
 

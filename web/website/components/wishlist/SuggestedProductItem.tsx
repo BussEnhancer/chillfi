@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Check } from 'lucide-react';
+import { ShoppingBag, Check, Trash2 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 interface SuggestedProductItemProps {
@@ -14,10 +14,14 @@ interface SuggestedProductItemProps {
 }
 
 const SuggestedProductItem: React.FC<SuggestedProductItemProps> = ({ id, image, name, price, oldPrice = 0, brand = '', category = '' }) => {
-  const { addToCart, isInCart } = useStore();
+  const { addToCart, removeFromCart, isInCart } = useStore();
   const added = isInCart(id);
 
   const handleAdd = () => {
+    if (added) {
+      removeFromCart(id);
+      return;
+    }
     addToCart({ id, name, img: image, price, oldPrice, brand, category, qty: 1 });
   };
 
@@ -33,11 +37,16 @@ const SuggestedProductItem: React.FC<SuggestedProductItemProps> = ({ id, image, 
           <button
             type="button"
             onClick={handleAdd}
-            aria-label={added ? 'Added to cart' : `Add ${name} to cart`}
-            title={added ? 'Added to cart' : 'Add to cart'}
-            className={`p-1.5 rounded-lg transition-all ${added ? 'bg-green-500 text-white' : 'bg-[#FF6B2C]/5 text-[#FF6B2C] hover:bg-[#FF6B2C] hover:text-white'}`}
+            aria-label={added ? `Remove ${name} from cart` : `Add ${name} to cart`}
+            title={added ? 'Remove from cart' : 'Add to cart'}
+            className={`group/cart p-1.5 rounded-lg transition-all ${added ? 'bg-green-500 hover:bg-red-500 text-white' : 'bg-[#FF6B2C]/5 text-[#FF6B2C] hover:bg-[#FF6B2C] hover:text-white'}`}
           >
-            {added ? <Check size={14} /> : <ShoppingBag size={14} />}
+            {added ? (
+              <>
+                <Check size={14} className="group-hover/cart:hidden" />
+                <Trash2 size={14} className="hidden group-hover/cart:inline" />
+              </>
+            ) : <ShoppingBag size={14} />}
           </button>
         </div>
       </div>
