@@ -12,7 +12,6 @@ import TrendingNow, { ApiTrendingProduct } from '../../sections/Home/TrendingNow
 import PromoBanners, { ApiPromoBanner } from '../../sections/Home/PromoBanners';
 import TopBrands, { ApiBrand } from '../../sections/Home/TopBrands';
 import Testimonials, { ApiTestimonial } from '../../sections/Home/Testimonials';
-import Newsletter from '../../sections/Home/Newsletter';
 import { apiGet } from '../../utils/api';
 
 interface HomeData {
@@ -48,7 +47,6 @@ const HomePage: React.FC = () => {
         <PromoBanners promos={home?.promo_banners} />
         <TopBrands brands={home?.brands} />
         <Testimonials testimonials={home?.testimonials} />
-        <Newsletter />
       </div>
       <Footer />
     </div>
