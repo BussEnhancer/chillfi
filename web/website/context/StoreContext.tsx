@@ -166,6 +166,7 @@ interface StoreContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  isInCart: (id: string) => boolean;
 
   // Wishlist
   wishlist: WishlistItem[];
@@ -333,6 +334,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const clearCart = useCallback(() => { setCart([]); }, [setCart]);
 
+  const isInCart = useCallback((id: string) => cart.some(i => i.id === id), [cart]);
+
   const toggleWishlist = useCallback((product: Product) => {
     setWishlist(prev => {
       const exists = prev.some(i => i.id === product.id);
@@ -386,7 +389,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       settings, setSettings,
       apiLoading, refreshFromAPI,
       isLoggedIn, loginUser, logoutUser,
-      cart, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal, cartCount,
+      cart, addToCart, removeFromCart, updateCartQty, clearCart, cartTotal, cartCount, isInCart,
       wishlist, toggleWishlist, isInWishlist, refreshWishlist,
       applyCoupon,
     }}>

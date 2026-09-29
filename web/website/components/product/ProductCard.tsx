@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
 import { Star, ShoppingCart, Heart, Check } from 'lucide-react';
@@ -18,10 +18,10 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   id = 1, image, name, price, oldPrice, discount, rating, reviews
 }) => {
-  const { addToCart, toggleWishlist, isInWishlist, products } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, isInCart, products } = useStore();
   const strId = String(id);
   const inWishlist = isInWishlist(strId);
-  const [added, setAdded] = useState(false);
+  const added = isInCart(strId);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,8 +33,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const p = products.find(x => x.id === strId);
     if (!p) return;
     addToCart(p);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
   return (

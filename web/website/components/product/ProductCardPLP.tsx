@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Check } from 'lucide-react';
 import Badge from '../common/Badge';
@@ -22,16 +22,14 @@ interface ProductCardPLPProps {
 const ProductCardPLP: React.FC<ProductCardPLPProps> = ({
   id = 1, image, name, brand, category = '', price, oldPrice, discount, rating, reviews, colors, isBestSeller
 }) => {
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
-  const [added, setAdded] = useState(false);
+  const { addToCart, toggleWishlist, isInWishlist, isInCart } = useStore();
   const inWish = isInWishlist(String(id));
+  const inCart = isInCart(String(id));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart({ id: String(id), name, img: image, price, oldPrice: oldPrice || 0, brand, category, qty: 1 });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -92,13 +90,13 @@ const ProductCardPLP: React.FC<ProductCardPLPProps> = ({
       <button
         onClick={handleAddToCart}
         className={`mt-auto w-full border-2 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 ${
-          added
+          inCart
             ? 'bg-green-500 border-green-500 text-white'
             : 'border-[#FF6B2C] text-[#FF6B2C] hover:bg-[#FF6B2C] hover:text-white'
         }`}
       >
-        {added ? <Check size={14} /> : <ShoppingCart size={14} />}
-        {added ? 'Added!' : 'Add To Cart'}
+        {inCart ? <Check size={14} /> : <ShoppingCart size={14} />}
+        {inCart ? 'Added to Cart' : 'Add To Cart'}
       </button>
     </div>
   );
