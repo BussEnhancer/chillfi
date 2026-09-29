@@ -20,8 +20,13 @@ const Footer: React.FC = () => {
               Shop smart, Chill more. Discover the best products at the best prices across multiple categories. Your one-stop destination for everything premium.
             </p>
             <div className="flex items-center gap-3">
-               {/* Google Play badge - app not yet published, shown as coming soon */}
-               <div title="Coming soon" className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 opacity-60 cursor-not-allowed">
+               {/* Google Play badge - app is live */}
+               <a
+                 href="https://play.google.com/store/apps/details?id=com.ecom.chillfi"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 hover:bg-white/10 hover:border-white/20 transition-colors"
+               >
                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                    <path d="M3.18 1.26C2.77 1.69 2.5 2.37 2.5 3.25v17.5c0 .88.27 1.56.68 1.99l.11.1 9.8-9.8v-.23L3.29 1.15l-.11.11z" fill="#EA4335"/>
                    <path d="M16.34 15.81l-3.25-3.25v-.23l3.26-3.26.07.04 3.86 2.19c1.1.63 1.1 1.65 0 2.28l-3.86 2.2-.08.03z" fill="#FBBC04"/>
@@ -29,10 +34,10 @@ const Footer: React.FC = () => {
                    <path d="M16.42 8.22L4.81 1.6C4.14 1.22 3.54 1.27 3.18 1.65l9.91 9.91 3.33-3.34z" fill="#4285F4"/>
                  </svg>
                  <div>
-                   <div className="text-[10px] text-white/60 leading-none">COMING SOON ON</div>
+                   <div className="text-[10px] text-white/60 leading-none">GET IT ON</div>
                    <div className="text-xs font-bold text-white leading-tight">Google Play</div>
                  </div>
-               </div>
+               </a>
                {/* App Store badge - app not yet published, shown as coming soon */}
                <div title="Coming soon" className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 opacity-60 cursor-not-allowed">
                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

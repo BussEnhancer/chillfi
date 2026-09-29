@@ -26,10 +26,15 @@ const TopBar: React.FC = () => {
             <span>Support 9 AM – 9 PM, every day</span>
           </div>
         </div>
-        <div title="Coming soon" className="flex items-center gap-2 opacity-60 cursor-not-allowed">
+        <a
+          href="https://play.google.com/store/apps/details?id=com.ecom.chillfi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:text-[#FF6B2C] transition-colors"
+        >
           <Smartphone size={14} />
-          <span>Download App (Coming Soon)</span>
-        </div>
+          <span>Download App</span>
+        </a>
       </Container>
     </div>
   );
