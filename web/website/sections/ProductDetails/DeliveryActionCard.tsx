@@ -26,11 +26,11 @@ const DeliveryActionCard: React.FC<DeliveryActionCardProps> = ({
   onWishlistToggle,
 }) => {
   const cfg = useAppConfig();
-  const { addToCart, cart } = useStore();
+  const { addToCart, isInCart } = useStore();
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
 
-  const inCart = product ? cart.some(i => i.id === product.id) : false;
+  const inCart = product ? isInCart(product.id) : false;
 
   const handleAddToCart = () => {
     if (!product || product.stock === 0) return;

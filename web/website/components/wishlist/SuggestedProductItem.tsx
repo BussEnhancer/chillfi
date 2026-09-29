@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Check } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
@@ -14,13 +14,11 @@ interface SuggestedProductItemProps {
 }
 
 const SuggestedProductItem: React.FC<SuggestedProductItemProps> = ({ id, image, name, price, oldPrice = 0, brand = '', category = '' }) => {
-  const { addToCart } = useStore();
-  const [added, setAdded] = useState(false);
+  const { addToCart, isInCart } = useStore();
+  const added = isInCart(id);
 
   const handleAdd = () => {
     addToCart({ id, name, img: image, price, oldPrice, brand, category, qty: 1 });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
