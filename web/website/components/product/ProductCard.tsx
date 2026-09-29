@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
-import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Check } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 interface ProductCardProps {
@@ -21,6 +21,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { addToCart, toggleWishlist, isInWishlist, products } = useStore();
   const strId = String(id);
   const inWishlist = isInWishlist(strId);
+  const [added, setAdded] = useState(false);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,7 +31,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleCart = (e: React.MouseEvent) => {
     e.preventDefault();
     const p = products.find(x => x.id === strId);
-    if (p) addToCart(p);
+    if (!p) return;
+    addToCart(p);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -43,8 +47,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <button onClick={handleWishlist} className={`w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center transition-colors ${inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
           <Heart size={18} fill={inWishlist ? 'currentColor' : 'none'} />
         </button>
-        <button onClick={handleCart} className="w-9 h-9 bg-white shadow-md rounded-full flex items-center justify-center text-gray-400 hover:text-[#FF6B2C] transition-colors">
-          <ShoppingCart size={18} />
+        <button onClick={handleCart} className={`w-9 h-9 shadow-md rounded-full flex items-center justify-center transition-colors ${added ? 'bg-green-500 text-white' : 'bg-white text-gray-400 hover:text-[#FF6B2C]'}`}>
+          {added ? <Check size={18} /> : <ShoppingCart size={18} />}
         </button>
       </div>
 
