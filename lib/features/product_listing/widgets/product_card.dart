@@ -19,6 +19,7 @@ class ProductListingCard extends StatelessWidget {
   final VoidCallback? onWishlistToggle;
   final VoidCallback? onAddToCart;
   final bool inStock;
+  final bool isInCart;
 
   const ProductListingCard({
     super.key,
@@ -36,6 +37,7 @@ class ProductListingCard extends StatelessWidget {
     this.onWishlistToggle,
     this.onAddToCart,
     this.inStock = true,
+    this.isInCart = false,
   });
 
   @override
@@ -216,10 +218,18 @@ class ProductListingCard extends StatelessWidget {
                           width: 28.r,
                           height: 28.r,
                           decoration: BoxDecoration(
-                            color: inStock ? AppColors.secondaryPurple : AppColors.greyText.withValues(alpha: 0.35),
+                            color: !inStock
+                                ? AppColors.greyText.withValues(alpha: 0.35)
+                                : isInCart
+                                    ? Colors.green.shade600
+                                    : AppColors.secondaryPurple,
                             borderRadius: BorderRadius.circular(8.r),
                           ),
-                          child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
+                          child: Icon(
+                            isInCart ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+                            color: Colors.white,
+                            size: 14.sp,
+                          ),
                         ),
                       ),
                     ],

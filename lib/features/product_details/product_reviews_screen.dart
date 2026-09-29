@@ -284,6 +284,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
   }
 
   Widget _buildBottomPurchaseBar(BuildContext context) {
+    final isInCart = widget.productId != null && context.watch<CartProvider>().isInCart(widget.productId!);
     return Container(
       padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 15.h, bottom: 25.h),
       decoration: BoxDecoration(
@@ -351,18 +352,35 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
               child: Container(
               height: 54.h,
               decoration: BoxDecoration(
+                color: isInCart ? Colors.green.shade600 : null,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: AppColors.secondaryPurple, width: 2),
+                border: isInCart ? null : Border.all(color: AppColors.secondaryPurple, width: 2),
               ),
               alignment: Alignment.center,
-              child: Text(
-                "Add to Cart",
-                style: GoogleFonts.poppins(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.secondaryPurple,
-                ),
-              ),
+              child: isInCart
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_rounded, color: Colors.white, size: 18.sp),
+                        SizedBox(width: 6.w),
+                        Text(
+                          "Go to Cart",
+                          style: GoogleFonts.poppins(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      "Add to Cart",
+                      style: GoogleFonts.poppins(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.secondaryPurple,
+                      ),
+                    ),
             ),
             ),
           ),

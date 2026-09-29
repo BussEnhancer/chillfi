@@ -16,6 +16,7 @@ class MoreTrendingCard extends StatelessWidget {
   final bool isWishlisted;
   final VoidCallback? onWishlistToggle;
   final VoidCallback? onAddToCart;
+  final bool isInCart;
 
   const MoreTrendingCard({
     super.key,
@@ -31,6 +32,7 @@ class MoreTrendingCard extends StatelessWidget {
     this.isWishlisted = false,
     this.onWishlistToggle,
     this.onAddToCart,
+    this.isInCart = false,
   });
 
   @override
@@ -168,10 +170,14 @@ class MoreTrendingCard extends StatelessWidget {
                         width: 32.r,
                         height: 32.r,
                         decoration: BoxDecoration(
-                          color: AppColors.secondaryPurple,
+                          color: isInCart ? Colors.green.shade600 : AppColors.secondaryPurple,
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 16.sp),
+                        child: Icon(
+                          isInCart ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+                          color: Colors.white,
+                          size: 16.sp,
+                        ),
                       ),
                     ),
                   ],

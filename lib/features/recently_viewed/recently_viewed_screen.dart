@@ -1,6 +1,7 @@
 import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
 import 'package:chillfi/features/product_details/product_details_screen.dart';
@@ -14,6 +15,7 @@ import 'package:chillfi/core/widgets/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class RecentlyViewedScreen extends StatefulWidget {
   const RecentlyViewedScreen({super.key});
@@ -190,6 +192,7 @@ class _RecentlyViewedScreenState extends State<RecentlyViewedScreen> {
   }
 
   Widget _buildRecentlyViewedGrid() {
+    final cart = context.watch<CartProvider>();
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -212,12 +215,14 @@ class _RecentlyViewedScreenState extends State<RecentlyViewedScreen> {
           onTap: () => _openProduct(p.id),
           onRemove: () => _removeOne(p.id),
           onAddToCart: () => _addToCart(p.id),
+          isInCart: cart.isInCart(p.id),
         );
       },
     );
   }
 
   Widget _buildRecommendationsList() {
+    final cart = context.watch<CartProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
@@ -229,6 +234,7 @@ class _RecentlyViewedScreenState extends State<RecentlyViewedScreen> {
           imageUrl: p.primaryImage,
           onTap: () => _openProduct(p.id),
           onAddToCart: () => _addToCart(p.id),
+          isInCart: cart.isInCart(p.id),
         )).toList(),
       ),
     );

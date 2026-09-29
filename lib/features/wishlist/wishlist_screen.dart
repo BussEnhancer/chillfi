@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/wishlist_model.dart';
 import 'package:chillfi/core/providers/auth_provider.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/widgets/guest_prompt.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -128,6 +129,7 @@ class _WishlistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isInCart = context.watch<CartProvider>().isInCart(item.productId);
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(productId: item.productId))),
       child: Container(
@@ -201,13 +203,13 @@ class _WishlistCard extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => addToCartWithFeedback(context, item.productId),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondaryPurple,
+                          backgroundColor: isInCart ? Colors.green.shade600 : AppColors.secondaryPurple,
                           foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
                         ),
-                        icon: Icon(Icons.shopping_cart_outlined, size: 15.sp),
-                        label: Text('Add to Cart', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                        icon: Icon(isInCart ? Icons.check_rounded : Icons.shopping_cart_outlined, size: 15.sp),
+                        label: Text(isInCart ? 'Go to Cart' : 'Add to Cart', style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600)),
                       ),
                     ),
                 ],

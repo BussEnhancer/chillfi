@@ -1,9 +1,11 @@
 import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/features/product_details/widgets/components/product_card_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SimilarProductCard extends StatelessWidget {
   final String? productId;
@@ -37,6 +39,7 @@ class SimilarProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isInCart = productId != null && context.watch<CartProvider>().isInCart(productId!);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -177,6 +180,7 @@ class SimilarProductCard extends StatelessWidget {
                       ),
                     ),
                     AddToCartButton(
+                      isInCart: isInCart,
                       onTap: productId == null
                           ? null
                           : () => addToCartWithFeedback(context, productId!),

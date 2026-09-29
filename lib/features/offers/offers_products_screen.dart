@@ -1,6 +1,7 @@
 import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -138,6 +139,7 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
     final top = _visible.take(3).toList();
     if (top.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
+    final cart = context.watch<CartProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
@@ -156,6 +158,7 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
           onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
+          isInCart: cart.isInCart(p.id),
         )).toList(),
       ),
     );
@@ -165,6 +168,7 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
     final more = _visible.skip(3).toList();
     if (more.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
+    final cart = context.watch<CartProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
@@ -183,6 +187,7 @@ class _OffersProductsScreenState extends State<OffersProductsScreen> {
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
           onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
+          isInCart: cart.isInCart(p.id),
         )).toList(),
       ),
     );

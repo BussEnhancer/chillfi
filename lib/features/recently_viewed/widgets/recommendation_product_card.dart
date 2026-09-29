@@ -10,6 +10,7 @@ class RecommendationProductCard extends StatelessWidget {
   final String? imageUrl;
   final VoidCallback? onTap;
   final VoidCallback? onAddToCart;
+  final bool isInCart;
 
   const RecommendationProductCard({
     super.key,
@@ -19,6 +20,7 @@ class RecommendationProductCard extends StatelessWidget {
     this.imageUrl,
     this.onTap,
     this.onAddToCart,
+    this.isInCart = false,
   });
 
   @override
@@ -107,10 +109,14 @@ class RecommendationProductCard extends StatelessWidget {
                   width: 28.r,
                   height: 28.r,
                   decoration: BoxDecoration(
-                    color: AppColors.secondaryPurple,
+                    color: isInCart ? Colors.green.shade600 : AppColors.secondaryPurple,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
+                  child: Icon(
+                    isInCart ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+                    color: Colors.white,
+                    size: 14.sp,
+                  ),
                 ),
               ),
             ],

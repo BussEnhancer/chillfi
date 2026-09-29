@@ -35,6 +35,8 @@ class CartProvider extends ChangeNotifier {
 
   int get cartCount => items.fold(0, (sum, item) => sum + item.quantity);
 
+  bool isInCart(String productId) => items.any((i) => i.productId == productId);
+
   /// Drops everything that belongs to the signed-in user (called on logout).
   void reset() {
     items = [];

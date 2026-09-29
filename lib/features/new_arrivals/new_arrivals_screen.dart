@@ -1,6 +1,7 @@
 import 'package:chillfi/core/widgets/cart_feedback.dart';
 import 'package:chillfi/core/app_colors.dart';
 import 'package:chillfi/core/models/product_model.dart';
+import 'package:chillfi/core/providers/cart_provider.dart';
 import 'package:chillfi/core/providers/wishlist_provider.dart';
 import 'package:chillfi/core/services/product_service.dart';
 import 'package:chillfi/features/home/widgets/bottom_nav.dart';
@@ -133,6 +134,7 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
   Widget _buildNewArrivalsGrid() {
     if (_visible.isEmpty) return const SizedBox.shrink();
     final wishlist = context.watch<WishlistProvider>();
+    final cart = context.watch<CartProvider>();
 
     return GridView.builder(
       shrinkWrap: true,
@@ -157,6 +159,7 @@ class _NewArrivalsScreenState extends State<NewArrivalsScreen> {
           isWishlisted: wishlist.isWishlisted(p.id),
           onWishlistToggle: () => wishlist.toggleWishlist(p.id),
           onAddToCart: () => addToCartWithFeedback(context, p.id, productName: p.name),
+          isInCart: cart.isInCart(p.id),
         );
       },
     );

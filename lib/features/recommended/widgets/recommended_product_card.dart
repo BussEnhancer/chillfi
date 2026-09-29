@@ -17,6 +17,7 @@ class RecommendedProductCard extends StatelessWidget {
   final bool isWishlisted;
   final VoidCallback? onWishlistToggle;
   final VoidCallback? onAddToCart;
+  final bool isInCart;
 
   const RecommendedProductCard({
     super.key,
@@ -33,6 +34,7 @@ class RecommendedProductCard extends StatelessWidget {
     this.isWishlisted = false,
     this.onWishlistToggle,
     this.onAddToCart,
+    this.isInCart = false,
   });
 
   @override
@@ -181,10 +183,14 @@ class RecommendedProductCard extends StatelessWidget {
                         width: 28.r,
                         height: 28.r,
                         decoration: BoxDecoration(
-                          color: AppColors.secondaryPurple,
+                          color: isInCart ? Colors.green.shade600 : AppColors.secondaryPurple,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 14.sp),
+                        child: Icon(
+                          isInCart ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+                          color: Colors.white,
+                          size: 14.sp,
+                        ),
                       ),
                     ),
                   ],

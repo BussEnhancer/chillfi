@@ -94,7 +94,8 @@ class RatingWidget extends StatelessWidget {
 
 class AddToCartButton extends StatelessWidget {
   final VoidCallback? onTap;
-  const AddToCartButton({super.key, this.onTap});
+  final bool isInCart;
+  const AddToCartButton({super.key, this.onTap, this.isInCart = false});
 
   @override
   Widget build(BuildContext context) {
@@ -104,17 +105,21 @@ class AddToCartButton extends StatelessWidget {
         width: 34.r,
         height: 34.r,
         decoration: BoxDecoration(
-          color: AppColors.secondaryPurple,
+          color: isInCart ? Colors.green.shade600 : AppColors.secondaryPurple,
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.secondaryPurple.withValues(alpha: 0.2),
+              color: (isInCart ? Colors.green.shade600 : AppColors.secondaryPurple).withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 18.sp),
+        child: Icon(
+          isInCart ? Icons.check_rounded : Icons.add_shopping_cart_rounded,
+          color: Colors.white,
+          size: 18.sp,
+        ),
       ),
     );
   }
