@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Container from '../common/Container';
-import { ShoppingCart } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -12,7 +11,7 @@ const Footer: React.FC = () => {
           <div className="col-span-2 lg:col-span-2 pr-10">
             <Link to="/" className="flex items-center gap-2 mb-6 text-white w-fit">
               <div className="bg-[#FF6B2C] p-2 rounded-xl">
-                <ShoppingCart className="text-white" size={24} />
+                <img src="/logo-icon-white.png" alt="" className="w-6 h-6" />
               </div>
               <span className="text-2xl font-bold tracking-tight">chillFi</span>
             </Link>

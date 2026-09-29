@@ -27,7 +27,7 @@ const Header: React.FC = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 cursor-pointer shrink-0">
           <div className="bg-[#FF6B2C] p-2 rounded-xl">
-            <ShoppingCart className="text-white" size={24} />
+            <img src="/logo-icon-white.png" alt="" className="w-6 h-6" />
           </div>
           <span className="text-2xl font-bold tracking-tight text-gray-900">chillFi</span>
         </Link>

@@ -42,7 +42,7 @@ const AdminSidebar: React.FC = () => {
       <div className="px-6 py-6 border-b border-white/5">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-9 h-9 bg-[#FF6B2C] rounded-xl flex items-center justify-center shadow-lg shadow-[#FF6B2C]/30">
-            <Zap size={18} className="text-white" />
+            <img src="/logo-icon-white.png" alt="" className="w-5 h-5" />
           </div>
           <div>
             <span className="text-white font-black text-lg tracking-tight">chillFi</span>
