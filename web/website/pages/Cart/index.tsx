@@ -33,7 +33,7 @@ const CartPage: React.FC = () => {
   // Prices are GST-inclusive: GST is shown as the part already inside the price, never added.
   const gst = Math.round((cartTotal * pricing.gstRate / (100 + pricing.gstRate)) * 100) / 100;
   const estimatedTotal = cartTotal + deliveryFee;
-  const recommendations = products.filter(p => p.status === 'Active' && !cart.find(c => c.id === p.id)).slice(0, 4);
+  const recommendations = products.filter(p => p.status === 'Active').slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white font-['Poppins']">
