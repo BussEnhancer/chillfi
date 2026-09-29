@@ -45,7 +45,7 @@ const AdminSidebar: React.FC = () => {
             <img src="/logo-icon-white.png" alt="" className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-white font-black text-lg tracking-tight">chillFi</span>
+            <span className="text-white font-black text-lg tracking-tight">ChillFi</span>
             <span className="block text-[10px] font-bold text-white/30 uppercase tracking-widest -mt-0.5">Admin Panel</span>
           </div>
         </Link>

@@ -19,7 +19,7 @@ const PLP_HeroBanner: React.FC = () => {
             {/* Box */}
             <div className="absolute right-0 w-48 h-32 bg-[#FF6B2C] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl rotate-6 group-hover:rotate-0 transition-transform duration-700">
                <ShoppingBag size={32} className="mb-2 opacity-40" />
-               <span className="text-sm font-black tracking-tighter uppercase">chillFi</span>
+               <span className="text-sm font-black tracking-tighter uppercase">ChillFi</span>
             </div>
             {/* Shoes Illustration */}
             <div className="absolute left-0 top-0 w-56 h-48 flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform duration-700">

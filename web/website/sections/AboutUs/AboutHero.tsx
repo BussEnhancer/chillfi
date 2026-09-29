@@ -9,14 +9,14 @@ const AboutHero: React.FC = () => {
         {/* Left Side: Content */}
         <div className="flex-1 text-center lg:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#111827] leading-[1.1] mb-6">
-            About <span className="text-[#FF6B2C]">chillFi</span>
+            About <span className="text-[#FF6B2C]">ChillFi</span>
           </h1>
           <h2 className="text-xl md:text-2xl font-bold text-[#FF6B2C] mb-8">
             Shopping made easy. Prices that make you smile.
           </h2>
           <div className="space-y-6 text-gray-500 font-medium leading-relaxed max-w-[600px] mx-auto lg:mx-0">
             <p>
-              At chillFi, we believe shopping should be simple, affordable and enjoyable for everyone.
+              At ChillFi, we believe shopping should be simple, affordable and enjoyable for everyone.
               From the latest gadgets to everyday essentials, we bring you a wide range of quality
               products at the best prices, delivered right to your doorstep.
             </p>

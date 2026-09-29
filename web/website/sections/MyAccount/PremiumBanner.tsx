@@ -12,7 +12,7 @@ const PremiumBanner: React.FC = () => {
           <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
             <Crown size={24} className="text-white" />
           </div>
-          <h3 className="text-2xl font-black tracking-tight">chillFi <span className="opacity-80">Premium</span></h3>
+          <h3 className="text-2xl font-black tracking-tight">ChillFi <span className="opacity-80">Premium</span></h3>
         </div>
 
         <p className="text-sm font-bold text-white/80 leading-relaxed mb-10 max-w-[200px]">

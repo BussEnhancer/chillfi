@@ -29,7 +29,7 @@ const Header: React.FC = () => {
           <div className="bg-[#FF6B2C] p-2 rounded-xl">
             <img src="/logo-icon-white.png" alt="" className="w-6 h-6" />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-gray-900">chillFi</span>
+          <span className="text-2xl font-bold tracking-tight text-gray-900">ChillFi</span>
         </Link>
 
         {/* Search — hidden on mobile */}

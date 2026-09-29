@@ -109,7 +109,7 @@ export const initialUsers: StoreUser[] = [
 ];
 
 const defaultSettings: StoreSettings = {
-  name: 'chillFi', email: 'support@chillfi.in', phone: '+91 98765 43210',
+  name: 'ChillFi', email: 'support@chillfi.in', phone: '+91 98765 43210',
   gst: '27AABCU9603R1ZM', url: 'https://chillfi.web.app', supportEmail: 'help@chillfi.in',
   address: '123, Tech Park, Whitefield, Bengaluru, Karnataka - 560066',
   freeThreshold: '499', standardFee: '49', expressFee: '99', maxDays: '7',

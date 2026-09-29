@@ -8,7 +8,7 @@ const AuthHeroSection: React.FC = () => {
       <div className="relative z-10 max-w-[450px]">
         <h1 className="text-4xl md:text-5xl font-black text-[#111827] leading-[1.1] mb-4">
           Welcome to <br />
-          <span className="text-[#FF6B2C]">chillFi</span>
+          <span className="text-[#FF6B2C]">ChillFi</span>
         </h1>
         <h2 className="text-xl font-bold text-[#FF6B2C] mb-6">Shop Smart. Chill More.</h2>
         <p className="text-sm font-bold text-gray-400 mb-10 leading-relaxed">

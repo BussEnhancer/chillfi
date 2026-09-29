@@ -10,7 +10,7 @@ const ReferEarnCard: React.FC = () => {
         </div>
         <div>
           <h3 className="text-lg font-black text-[#111827] mb-1">Refer & Earn</h3>
-          <p className="text-sm font-bold text-gray-400">Invite your friends and earn chillFi Coins</p>
+          <p className="text-sm font-bold text-gray-400">Invite your friends and earn ChillFi Coins</p>
         </div>
       </div>
 

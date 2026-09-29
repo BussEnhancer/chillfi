@@ -18,7 +18,7 @@ const AboutJourney: React.FC = () => {
           <div className="flex-1 text-center xl:text-left">
             <h2 className="text-3xl font-black text-[#111827] mb-6 uppercase tracking-tight">Our Journey</h2>
             <p className="text-sm font-bold text-gray-400 leading-relaxed max-w-[600px] mx-auto xl:mx-0">
-              Founded in 2021, chillFi started with a simple idea — to revolutionize online shopping in India.
+              Founded in 2021, ChillFi started with a simple idea — to revolutionize online shopping in India.
               Today, we continue to innovate, grow and serve with the same passion and commitment.
             </p>
           </div>

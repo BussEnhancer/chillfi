@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
               <div className="bg-[#FF6B2C] p-2 rounded-xl">
                 <img src="/logo-icon-white.png" alt="" className="w-6 h-6" />
               </div>
-              <span className="text-2xl font-bold tracking-tight">chillFi</span>
+              <span className="text-2xl font-bold tracking-tight">ChillFi</span>
             </Link>
             <p className="leading-relaxed mb-8">
               Shop smart, Chill more. Discover the best products at the best prices across multiple categories. Your one-stop destination for everything premium.
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
            <p className="text-xs">
-              © {new Date().getFullYear()} chillFi. All rights reserved.
+              © {new Date().getFullYear()} ChillFi. All rights reserved.
            </p>
            <div className="flex items-center gap-3">
               {/* Visa */}

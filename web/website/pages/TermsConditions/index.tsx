@@ -41,18 +41,18 @@ const TermsConditionsPage: React.FC = () => {
 
              <PrivacyInfoBanner
                icon={<FileText size={32} />}
-               title="Welcome to chillFi!"
-               desc="These Terms & Conditions govern your use of our website, mobile application, and services. By accessing or using chillFi, you agree to be bound by these terms."
+               title="Welcome to ChillFi!"
+               desc="These Terms & Conditions govern your use of our website, mobile application, and services. By accessing or using ChillFi, you agree to be bound by these terms."
              />
 
              <div className="mt-10">
                 <PrivacySection title="1. Acceptance of Terms">
-                   <p>By accessing or using the chillFi website or app, you agree to comply with and be bound by these Terms & Conditions.</p>
+                   <p>By accessing or using the ChillFi website or app, you agree to comply with and be bound by these Terms & Conditions.</p>
                    <p>If you do not agree with any part of these terms, please do not use our services.</p>
                 </PrivacySection>
 
                 <PrivacySection title="2. Use of Our Services">
-                   <p>You must be at least 18 years old to use chillFi.</p>
+                   <p>You must be at least 18 years old to use ChillFi.</p>
                    <p>You agree to provide accurate, current, and complete information during registration and to keep your account information updated.</p>
                 </PrivacySection>
 
@@ -85,12 +85,12 @@ const TermsConditionsPage: React.FC = () => {
                 </PrivacySection>
 
                 <PrivacySection title="8. Intellectual Property">
-                   <p>All content on chillFi, including text, graphics, logos, images, and software, is the property of chillFi and protected by intellectual property laws.</p>
+                   <p>All content on ChillFi, including text, graphics, logos, images, and software, is the property of ChillFi and protected by intellectual property laws.</p>
                    <p>You may not use any content without prior written consent.</p>
                 </PrivacySection>
 
                 <PrivacySection title="9. Limitation of Liability">
-                   <p>chillFi shall not be liable for indirect, incidental, or consequential damages arising out of the use or inability to use services or products.</p>
+                   <p>ChillFi shall not be liable for indirect, incidental, or consequential damages arising out of the use or inability to use services or products.</p>
                 </PrivacySection>
 
                 <PrivacySection title="10. Changes to Terms">
@@ -129,7 +129,7 @@ const TermsConditionsPage: React.FC = () => {
              <div className="mt-12">
                 <PrivacyInfoBanner
                   icon={<Scale size={32} />}
-                  title="By using chillFi, you agree to these Terms & Conditions."
+                  title="By using ChillFi, you agree to these Terms & Conditions."
                   desc="Please read them carefully to understand your rights and responsibilities."
                 />
              </div>

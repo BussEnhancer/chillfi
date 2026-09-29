@@ -41,7 +41,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
              <PrivacyInfoBanner
                icon={<ShieldCheck size={32} />}
-               title="At chillFi, your privacy is important to us."
+               title="At ChillFi, your privacy is important to us."
                desc="This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services."
              />
 

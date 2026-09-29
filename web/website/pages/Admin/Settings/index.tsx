@@ -265,7 +265,7 @@ const AdminSettings: React.FC = () => {
   const [payment, setPayment] = useState({ upi: true, cards: true, netBanking: true, emi: true, cod: false, wallets: true });
   const [notif, setNotif] = useState({ orderPlaced: true, orderShipped: true, orderDelivered: true, orderCancelled: true, promo: false, adminAlerts: true, lowStock: true });
   const [security, setSecurity] = useState({ twoFactor: true, loginLog: true, forceHttps: false, sessionTimeout: true });
-  const [seo, setSeo] = useState({ title: 'chillFi — Premium Electronics at Best Prices', description: 'Shop the latest smartphones, laptops, audio & more at chillFi. Best deals on Samsung, Apple, Sony, boAt and more.', keywords: 'electronics, smartphones, laptops, earphones, India, online shopping', ogImage: 'https://chillfi.web.app/og-image.jpg' });
+  const [seo, setSeo] = useState({ title: 'ChillFi — Premium Electronics at Best Prices', description: 'Shop the latest smartphones, laptops, audio & more at ChillFi. Best deals on Samsung, Apple, Sony, boAt and more.', keywords: 'electronics, smartphones, laptops, earphones, India, online shopping', ogImage: 'https://chillfi.web.app/og-image.jpg' });
 
   interface CredentialMeta { key: string; label: string; group: string; secret: boolean; value: string; isSet: boolean; options?: string[] }
   const [credentials, setCredentials] = useState<CredentialMeta[]>([]);
