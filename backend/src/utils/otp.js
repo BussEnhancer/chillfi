@@ -65,7 +65,14 @@ const MC_BASE = 'https://cpaas.messagecentral.com';
 let mcTokenCache = { token: null, at: 0, customerId: null };
 const MC_TOKEN_TTL_MS = 60 * 60 * 1000; // MessageCentral doesn't publish an exact TTL — re-fetch hourly to be safe
 
+// The dashboard hands out a single long-lived Auth Token (a JWT, valid for years) meant to be used
+// as-is — not the short base64 "password" the /authentication/token exchange endpoint expects.
+// If the configured key already looks like a JWT, use it directly; only fall back to the exchange
+// call for the older-style short base64 key.
+const looksLikeJwt = (s) => typeof s === 'string' && s.split('.').length === 3;
+
 const getMessageCentralToken = async (customerId, authKey) => {
+  if (looksLikeJwt(authKey)) return authKey;
   if (mcTokenCache.token && mcTokenCache.customerId === customerId && Date.now() - mcTokenCache.at < MC_TOKEN_TTL_MS) {
     return mcTokenCache.token;
   }
