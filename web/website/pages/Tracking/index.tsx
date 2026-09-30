@@ -65,6 +65,10 @@ interface ApiOrderDetail {
   refund_request: ApiRefundRequest | null;
   shipping_status?: string | null;
   shipment_provider?: string | null;
+  can_cancel?: boolean;
+  cancel_deadline_at?: string | null;
+  can_return?: boolean;
+  return_deadline_at?: string | null;
 }
 
 export interface ApiTracking {
@@ -191,26 +195,28 @@ const TrackingPage: React.FC = () => {
                 Download Invoice
               </button>
             )}
-            {/* Cancellable only before the courier picks it up (backend enforces this too) */}
-            {order.status === 'Processing' && (
+            {/* Cancellation eligibility (shipment-pickup gate + the store's cancellation window) is decided server-side */}
+            {order.can_cancel && (
               <button onClick={() => setShowCancelModal(true)} className="flex items-center gap-2 border-2 border-red-500 text-red-500 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-red-500 hover:text-white transition-all">
                 Cancel Order
               </button>
             )}
-            {['Delivered', 'Cancelled'].includes(order.status) && (
-              order.refund_request && ['Requested', 'Approved'].includes(order.refund_request.status) ? (
-                <span className="flex items-center gap-2 border-2 border-amber-200 bg-amber-50 text-amber-600 px-6 py-2.5 rounded-xl font-black text-sm">
-                  {order.refund_request.type} {order.refund_request.status}
-                </span>
-              ) : order.refund_request?.status === 'Refunded' ? (
-                <span className="flex items-center gap-2 border-2 border-green-200 bg-green-50 text-green-600 px-6 py-2.5 rounded-xl font-black text-sm">
-                  Refunded
-                </span>
-              ) : (
-                <button onClick={() => setShowRefundModal(true)} className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all">
-                  Request Refund / Return
-                </button>
-              )
+            {order.refund_request && ['Requested', 'Approved'].includes(order.refund_request.status) ? (
+              <span className="flex items-center gap-2 border-2 border-amber-200 bg-amber-50 text-amber-600 px-6 py-2.5 rounded-xl font-black text-sm">
+                {order.refund_request.type} {order.refund_request.status}
+              </span>
+            ) : order.refund_request?.status === 'Refunded' ? (
+              <span className="flex items-center gap-2 border-2 border-green-200 bg-green-50 text-green-600 px-6 py-2.5 rounded-xl font-black text-sm">
+                Refunded
+              </span>
+            ) : order.can_return ? (
+              <button onClick={() => setShowRefundModal(true)} className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all">
+                Request Refund / Return
+              </button>
+            ) : order.status === 'Delivered' && (
+              <span className="flex items-center gap-2 border-2 border-[#ECECEC] text-gray-400 px-6 py-2.5 rounded-xl font-black text-sm">
+                Return window closed
+              </span>
             )}
             <Link to="/support" className="flex items-center gap-2 border-2 border-[#FF6B2C] text-[#FF6B2C] px-6 py-2.5 rounded-xl font-black text-sm hover:bg-[#FF6B2C] hover:text-white transition-all active:scale-[0.98]">
                <Headphones size={18} />

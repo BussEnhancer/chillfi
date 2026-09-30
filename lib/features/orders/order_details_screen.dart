@@ -330,8 +330,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                       ),
                     ],
 
-                    // Cancel button
-                    if (order.status == 'Processing') ...[
+                    // Cancel button — eligibility (policy window + shipment-pickup gate) decided server-side
+                    if (order.canCancel) ...[
                       SizedBox(height: 20.h),
                       SizedBox(
                         width: double.infinity,
@@ -348,10 +348,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                       ),
                     ],
 
-                    // Refund / Return request
-                    // Cancelled orders only need a refund when money was actually taken online.
-                    if (order.status == 'Delivered' ||
-                        (order.status == 'Cancelled' && (order.paymentStatus == 'Paid' || order.refundRequest != null))) ...[
+                    // Refund / Return request — eligibility decided server-side (return window + Cancelled/Paid rule)
+                    if (order.canReturn || (order.refundRequest != null && order.refundRequest!.status != 'Rejected')) ...[
                       SizedBox(height: 20.h),
                       if (order.refundRequest != null && order.refundRequest!.status != 'Rejected')
                         Container(
@@ -370,7 +368,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
                             ),
                           ),
                         )
-                      else
+                      else if (order.canReturn)
                         SizedBox(
                           width: double.infinity,
                           height: 52.h,

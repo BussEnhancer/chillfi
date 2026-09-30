@@ -460,5 +460,5 @@ const getTrackingView = async (orderId, { refresh = true } = {}) => {
 module.exports = {
   createShipmentForOrder, maybeAutoShip, applyCourierUpdate, syncShipments, retryFailedShipments,
   runScheduledSync, startScheduler, lastRun, cancelShipmentForOrder, getTrackingView, sendStatusNotification,
-  loadOrderForShipment, notifyOrderConfirmed, onOrderPaid, ensurePickup,
+  loadOrderForShipment, notifyOrderConfirmed, onOrderPaid, ensurePickup, CANCELLABLE,
 };

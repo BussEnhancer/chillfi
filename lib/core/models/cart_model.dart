@@ -126,6 +126,10 @@ class OrderModel {
   final RefundRequestModel? refundRequest;
   /// GST tax invoice can be downloaded (order shipped/delivered and invoicing enabled by the store).
   final bool invoiceAvailable;
+  /// Server-decided eligibility (store's cancellation/return policy + shipment-pickup gate) — trust
+  /// these over re-deriving from status, since the admin-configurable policy lives on the backend.
+  final bool canCancel;
+  final bool canReturn;
 
   OrderModel({
     required this.id,
@@ -145,6 +149,8 @@ class OrderModel {
     this.items = const [],
     this.refundRequest,
     this.invoiceAvailable = false,
+    this.canCancel = false,
+    this.canReturn = false,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> j) => OrderModel(
@@ -165,6 +171,8 @@ class OrderModel {
         items: (j['items'] as List? ?? []).map((e) => OrderItemModel.fromJson(e)).toList(),
         refundRequest: j['refund_request'] != null ? RefundRequestModel.fromJson(j['refund_request']) : null,
         invoiceAvailable: j['invoice_available'] == true,
+        canCancel: j['can_cancel'] == true,
+        canReturn: j['can_return'] == true,
       );
 }
 

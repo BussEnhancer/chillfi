@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw, Rocket, Mail } from 'lucide-react';
+import { Store, Truck, CreditCard, Bell, Shield, Globe, Save, Check, X, Loader2, Key, Eye, EyeOff, RefreshCw, Rocket, Mail, Undo2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import GoLiveChecklist from '../../../components/admin/GoLiveChecklist';
 import { useStore } from '../../../context/StoreContext';
@@ -12,6 +12,7 @@ const tabs = [
   { id: 'golive', label: 'Go-Live', icon: <Rocket size={16} /> },
   { id: 'store', label: 'Store Info', icon: <Store size={16} /> },
   { id: 'shipping', label: 'Shipping', icon: <Truck size={16} /> },
+  { id: 'orders', label: 'Cancellation & Returns', icon: <Undo2 size={16} /> },
   { id: 'payment', label: 'Payment', icon: <CreditCard size={16} /> },
   { id: 'notifications', label: 'Notifications', icon: <Bell size={16} /> },
   { id: 'security', label: 'Security', icon: <Shield size={16} /> },
@@ -260,6 +261,10 @@ const AdminSettings: React.FC = () => {
     freeShipping: settings.freeShipping, express: settings.express, cod: settings.cod,
   });
 
+  const [orderPolicy, setOrderPolicy] = useState({
+    cancellationEnabled: true, cancellationWindowHours: '',
+    returnsEnabled: true, returnWindowDays: '',
+  });
   const [features, setFeatures] = useState({ maintenanceMode: false, userRegistration: true, guestCheckout: true, productReviews: true, invoices: false });
   const [appControl, setAppControl] = useState({ maintenanceMessage: "We're making some improvements to serve you better. We'll be back soon!", forceUpdate: false, minAppVersion: '1.0.0', forceUpdateMessage: 'A new version of the app is available with important fixes. Please update to continue.' });
   const [payment, setPayment] = useState({ upi: true, cards: true, netBanking: true, emi: true, cod: false, wallets: true });
@@ -317,6 +322,13 @@ const AdminSettings: React.FC = () => {
           };
           setShipping(loadedShipping);
           setSettings(s => ({ ...s, ...loaded, ...loadedShipping }));
+
+          setOrderPolicy(op => ({
+            cancellationEnabled: asBool(d.cancellation_enabled, op.cancellationEnabled),
+            cancellationWindowHours: d.cancellation_window_hours ?? op.cancellationWindowHours,
+            returnsEnabled: asBool(d.returns_enabled, op.returnsEnabled),
+            returnWindowDays: d.return_window_days ?? op.returnWindowDays,
+          }));
 
           setFeatures(f => ({
             maintenanceMode: asBool(d.maintenance_mode, f.maintenanceMode),
@@ -388,6 +400,10 @@ const AdminSettings: React.FC = () => {
         free_shipping_enabled: shipping.freeShipping,
         express_enabled: shipping.express,
         cod_enabled: shipping.cod,
+        cancellation_enabled: orderPolicy.cancellationEnabled,
+        cancellation_window_hours: orderPolicy.cancellationWindowHours,
+        returns_enabled: orderPolicy.returnsEnabled,
+        return_window_days: orderPolicy.returnWindowDays,
         maintenance_mode: features.maintenanceMode,
         invoices_enabled: features.invoices,
         user_registration_enabled: features.userRegistration,
@@ -518,6 +534,43 @@ const AdminSettings: React.FC = () => {
               </div>
               <Toggle value={shipping.freeShipping} onChange={v => setShipping(s => ({ ...s, freeShipping: v }))} label="Free Shipping on Orders Above Threshold" />
               <Toggle value={shipping.cod} onChange={v => setShipping(s => ({ ...s, cod: v }))} label="COD Available" desc="When off, Pay on Delivery is disabled at checkout on the app and website" />
+            </div>
+          )}
+
+          {/* Cancellation & Returns */}
+          {activeTab === 'orders' && (
+            <div className="bg-white rounded-2xl border border-[#ECECEC] shadow-sm p-6 space-y-8">
+              <div>
+                <h3 className="text-sm font-black text-[#111827] mb-1">Order Cancellation</h3>
+                <p className="text-xs font-bold text-gray-400 mb-5">An order can only ever be cancelled before the courier picks it up — this window narrows that further.</p>
+                <Toggle value={orderPolicy.cancellationEnabled} onChange={v => setOrderPolicy(o => ({ ...o, cancellationEnabled: v }))} label="Allow Order Cancellation" desc="When off, customers can't cancel any order themselves — they'll be told to contact support" />
+                <div className={orderPolicy.cancellationEnabled ? '' : 'opacity-50 pointer-events-none'}>
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 mt-4">Cancellation Window (hours after order placed)</label>
+                  <input
+                    type="number" min={0} placeholder="No time limit — until the courier picks it up"
+                    value={orderPolicy.cancellationWindowHours}
+                    onChange={e => setOrderPolicy(o => ({ ...o, cancellationWindowHours: e.target.value }))}
+                    className="w-full max-w-xs border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]"
+                  />
+                  <p className="text-[11px] font-bold text-gray-400 mt-1.5">Leave blank to allow cancellation any time before pickup (Amazon/Flipkart-style stores usually cap this at 1–24 hours).</p>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-[#F8F7FC]">
+                <h3 className="text-sm font-black text-[#111827] mb-1">Returns &amp; Refunds</h3>
+                <p className="text-xs font-bold text-gray-400 mb-5">Applies to Delivered orders. Cancelled-and-paid orders can always be refunded regardless of this window.</p>
+                <Toggle value={orderPolicy.returnsEnabled} onChange={v => setOrderPolicy(o => ({ ...o, returnsEnabled: v }))} label="Allow Return / Refund Requests" desc="When off, customers can't request a return, exchange or refund on any order" />
+                <div className={orderPolicy.returnsEnabled ? '' : 'opacity-50 pointer-events-none'}>
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 mt-4">Return Window (days after delivery)</label>
+                  <input
+                    type="number" min={0} placeholder="No time limit"
+                    value={orderPolicy.returnWindowDays}
+                    onChange={e => setOrderPolicy(o => ({ ...o, returnWindowDays: e.target.value }))}
+                    className="w-full max-w-xs border border-[#ECECEC] rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#FF6B2C]"
+                  />
+                  <p className="text-[11px] font-bold text-gray-400 mt-1.5">Leave blank to allow returns any time after delivery. Most marketplaces use 7–10 days.</p>
+                </div>
+              </div>
             </div>
           )}
 

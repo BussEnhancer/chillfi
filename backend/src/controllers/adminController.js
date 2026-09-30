@@ -805,6 +805,17 @@ const updateSettings = async (req, res, next) => {
       }
     }
 
+    // Cancellation/return windows: must be a non-negative number of hours/days (or blank = no limit).
+    for (const [key, label] of [['cancellation_window_hours', 'Cancellation window'], ['return_window_days', 'Return window']]) {
+      if (fields[key] != null && String(fields[key]).trim() !== '') {
+        const n = Number(fields[key]);
+        if (!Number.isFinite(n) || n < 0) {
+          return res.status(400).json({ success: false, message: `${label} must be a non-negative number.` });
+        }
+      }
+    }
+
+    const { invalidateCache } = require('../utils/settings');
     for (const key of keys) {
       const value = fields[key] === null || fields[key] === undefined ? null : String(fields[key]);
       await pool.query(
@@ -812,6 +823,7 @@ const updateSettings = async (req, res, next) => {
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
         [key, value]
       );
+      invalidateCache(key);
     }
 
     const result = await pool.query('SELECT key, value FROM store_settings');

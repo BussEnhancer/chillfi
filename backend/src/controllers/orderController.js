@@ -7,6 +7,7 @@ const { getIncludedGst } = require('../utils/tax');
 const shiprocket = require('../utils/shiprocket');
 const shipments = require('../services/shipmentService');
 const { notifyUser } = require('../utils/notify');
+const { getCancellationPolicy, getReturnPolicy, computeOrderEligibility } = require('../utils/orderPolicy');
 const { renderTemplate } = require('../utils/emailTemplates');
 
 const generateOrderNumber = () => {
@@ -267,10 +268,12 @@ const getOrders = async (req, res) => {
     values
   );
 
+  const orders = await Promise.all(result.rows.map(async (o) => ({ ...o, ...(await computeOrderEligibility(o)) })));
+
   res.json({
     success: true,
     data: {
-      orders: result.rows,
+      orders,
       total: parseInt(count.rows[0].count),
       page: parseInt(page),
       pages: Math.ceil(count.rows[0].count / limit),
@@ -298,9 +301,10 @@ const getOrder = async (req, res) => {
     [id]
   );
   const invoiceBlock = invoice.invoiceBlocker(result.rows[0], await invoice.getSellerSettings());
+  const eligibility = await computeOrderEligibility(result.rows[0]);
   res.json({
     success: true,
-    data: { order: { ...result.rows[0], items: items.rows, refund_request: refundRequest.rows[0] || null,
+    data: { order: { ...result.rows[0], ...eligibility, items: items.rows, refund_request: refundRequest.rows[0] || null,
       invoice_available: !invoiceBlock, invoice_note: invoiceBlock } },
   });
 };
@@ -330,10 +334,14 @@ const requestRefund = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid request type' });
   }
 
-  const order = await pool.query('SELECT id, status, total, payment_status FROM orders WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+  const order = await pool.query('SELECT id, status, total, payment_status, delivered_at FROM orders WHERE id = $1 AND user_id = $2', [id, req.user.id]);
   if (!order.rows.length) return res.status(404).json({ success: false, message: 'Order not found' });
   if (!['Delivered', 'Cancelled'].includes(order.rows[0].status)) {
     return res.status(400).json({ success: false, message: 'Refund/return can only be requested for delivered or cancelled orders' });
+  }
+  const returnPolicy = await getReturnPolicy();
+  if (!returnPolicy.enabled) {
+    return res.status(400).json({ success: false, message: 'Returns and refund requests are currently unavailable. Please contact support.' });
   }
   if (order.rows[0].status === 'Cancelled') {
     if (order.rows[0].payment_status !== 'Paid') {
@@ -341,6 +349,11 @@ const requestRefund = async (req, res) => {
     }
     if (type !== 'Refund') {
       return res.status(400).json({ success: false, message: 'Cancelled orders can only be refunded.' });
+    }
+  } else if (order.rows[0].delivered_at && returnPolicy.windowDays != null) {
+    const deadline = new Date(order.rows[0].delivered_at).getTime() + returnPolicy.windowDays * 24 * 60 * 60 * 1000;
+    if (Date.now() > deadline) {
+      return res.status(400).json({ success: false, message: `Returns/refunds can only be requested within ${returnPolicy.windowDays} day${returnPolicy.windowDays === 1 ? '' : 's'} of delivery.` });
     }
   }
 
@@ -378,6 +391,17 @@ const cancelOrder = async (req, res) => {
   }
   if (result.rows[0].status === 'Cancelled') {
     return res.status(400).json({ success: false, message: 'Order already cancelled' });
+  }
+
+  const cancelPolicy = await getCancellationPolicy();
+  if (!cancelPolicy.enabled) {
+    return res.status(400).json({ success: false, message: 'Order cancellation is currently unavailable. Please contact support.' });
+  }
+  if (cancelPolicy.windowHours != null) {
+    const deadline = new Date(result.rows[0].created_at).getTime() + cancelPolicy.windowHours * 60 * 60 * 1000;
+    if (Date.now() > deadline) {
+      return res.status(400).json({ success: false, message: `Orders can only be cancelled within ${cancelPolicy.windowHours} hour${cancelPolicy.windowHours === 1 ? '' : 's'} of placing them. Please contact support for help.` });
+    }
   }
 
   // Cancel the courier shipment first; refuse if it has already been picked up.
