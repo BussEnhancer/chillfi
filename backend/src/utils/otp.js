@@ -89,8 +89,10 @@ const getMessageCentralToken = async (customerId, authKey) => {
 
 const sendViaMessageCentral = async (phone, customerId, authKey) => {
   const token = await getMessageCentralToken(customerId, authKey);
+  // otpLength: our verification UI always shows OTP_LENGTH (6) input boxes — MessageCentral defaults
+  // to 4 digits otherwise, which doesn't fit.
   const response = await axios.post(`${MC_BASE}/verification/v3/send`, null, {
-    params: { countryCode: '91', flowType: 'SMS', mobileNumber: phone, customerId },
+    params: { countryCode: '91', flowType: 'SMS', mobileNumber: phone, customerId, otpLength: 6 },
     headers: { authToken: token },
   });
   const data = response.data?.data;
